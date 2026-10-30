@@ -1,0 +1,36 @@
+{
+  "id": "CREATIVE03",
+  "nome": "One Rule",
+  "formato": "F2",
+  "scena": "00_MOTORE/scenes/c03_one_rule",
+  "hook": {
+    "clip": "Soccer Player Launches Ball Overhead.mp4",
+    "tratto": "1.66-2.2",
+    "match": "il pallone sale nel cielo e si ferma come il prezzo sul muro"
+  },
+  "evento": "rally che si ferma su un muro",
+  "layer": [
+    "WALLS"
+  ],
+  "durata_s": 14.6,
+  "render": "04_RENDER/CREATIVE03_ONE_RULE",
+  "stato": "da-rifare",
+  "creato": "2026-10-30 13:30",
+  "feedback": [
+    {
+      "data": "2026-10-30 14:30",
+      "testo": "Power: V1 sul fondo bianco non ha senso"
+    },
+    {
+      "data": "2026-10-30 22:30",
+      "testo": "Da allineare: riga dei layer senza GUIDE/MARKET INTELLIGENCE/ES LEVELS e finale approvato"
+    }
+  ],
+  "lezioni": [
+    "Il terminale non va appoggiato su un fondo bianco vuoto: o dentro un contesto (monitor) o a schermo pieno."
+  ],
+  "issue": null,
+  "titoli": [],
+  "pubblicazioni": [],
+  "sessione": "chat principale (cloud)"
+}

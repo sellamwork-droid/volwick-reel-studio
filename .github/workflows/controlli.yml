@@ -1,0 +1,11 @@
+name: controlli
+on: [push, pull_request]
+jobs:
+  controlla:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python3 00_MOTORE/tools/studio.py controlla

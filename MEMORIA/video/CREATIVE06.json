@@ -1,0 +1,31 @@
+{
+  "id": "CREATIVE06",
+  "nome": "The Drop (grafico scuro)",
+  "formato": "F2",
+  "scena": "00_MOTORE/scenes/vx_drop",
+  "hook": {
+    "clip": "dentro il grafico"
+  },
+  "evento": "caduta veloce sul supporto, rimbalzo sul put wall",
+  "layer": [
+    "WALLS",
+    "BLOCK PRINTS"
+  ],
+  "durata_s": 21.0,
+  "render": "04_RENDER/CREATIVE06_THE_DROP",
+  "stato": "superato",
+  "creato": "2026-10-30 16:00",
+  "feedback": [
+    {
+      "data": "2026-10-30 16:09",
+      "testo": "Power: il grafico scuro generico è meno chiaro, meglio grafico bianco stile TradingView e hook con clip"
+    }
+  ],
+  "lezioni": [
+    "Grafico generico sempre bianco stile TradingView, mai scuro."
+  ],
+  "issue": null,
+  "titoli": [],
+  "pubblicazioni": [],
+  "sessione": "chat principale (cloud)"
+}

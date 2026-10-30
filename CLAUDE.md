@@ -10,6 +10,7 @@ Questa cartella è il sistema completo per generare i reel Volwick (TikTok, Inst
 5. `06_DOCS/HOOK_CATALOGO.md` e `01_HOOK/CATALOGO_HOOK.csv` prima di scegliere un hook.
 
 ## Mappa
+(`MEMORIA/video/` = storico di ogni video con stato, feedback di Power e lezioni; `00_MOTORE/tools/studio.py` = brief, memoria, controlli.)
 | Cartella | Cosa c'è |
 |---|---|
 | `00_MOTORE/` | il motore unico: `engine/` (base grafica, zone sicure, logo, finale), `scenes/` (una cartella per video), `vx/` (audio, mix, hook), `tools/` (render, catalogo hook, fogli di controllo), `fonts/`, `assets/` (logo ufficiale) |
@@ -64,12 +65,47 @@ Questa cartella locale è la fonte. Ogni cosa nuova si salva qui subito, senza a
 - audio della settimana → `02_AUDIO/AUDIO_TREND.md`.
 Prima di salvare un file che altri possono aver cambiato, rileggilo e aggiungi solo la parte nuova.
 
-## Lavorare in squadra (più computer, più Claude)
-1. **Prima di iniziare:** `git pull`. Leggi `REGOLE/PREFERENZE_E_FORMATI.md` (registro in fondo).
-2. **Prendi una scheda:** apri le Issues con etichetta `da-fare` (`gh issue list --label da-fare`). Prendi la più vecchia, mettile l'etichetta `in-lavorazione`, togli `da-fare` e commenta "presa da <questa sessione>". Se una scheda è già `in-lavorazione` non toccarla.
-3. **Produci** nella tua cartella di scena `00_MOTORE/scenes/<nome_video>` (mai nelle scene degli altri), seguendo il flusso sopra.
-4. **Consegna:** video in `04_RENDER/<NOME_VIDEO>/` della cartella condivisa dei render; nel repository solo codice della scena, `06_DOCS/<NOME_VIDEO>.md` e l'eventuale aggiornamento di `01_HOOK/CATALOGO_HOOK.csv`. Commenta la scheda con dove sono i file, etichetta `da-rivedere`.
-5. **Salva subito:** `git add` dei tuoi file, commit con messaggio chiaro, `git pull --rebase`, `git push`. Piccoli commit frequenti.
-6. **Motore comune (`engine/`, `scenes/vx_common/`, `vx/*.py`, `tools/`):** si cambia solo con un branch e una pull request descritta, così le altre sessioni non si rompono a metà lavoro.
-7. **Regole nuove di Power:** riga datata nel registro di `REGOLE/PREFERENZE_E_FORMATI.md`, commit e push subito; se la sessione vede anche il Mac o il progetto claude.ai, la stessa riga va anche lì.
-8. **Niente segreti nel repository:** nessuna chiave, password o token, mai.
+## Lavorare in squadra (più computer, più Claude, in contemporanea)
+Questo repository è il cervello comune. Ogni Claude su ogni computer lavora sulla stessa memoria: quello che impara uno, lo sanno tutti al `git pull` successivo.
+
+### Inizio di ogni sessione (sempre, senza eccezioni)
+1. `git pull --rebase`
+2. `python3 00_MOTORE/tools/studio.py brief`: regole più recenti, storico dei video con il feedback di Power, lezioni da applicare, hook freschi e già usati, ultime modifiche al motore, coda dei lavori.
+3. Leggi `REGOLE/PREFERENZE_E_FORMATI.md` per intero (la regola più recente vince) e la scheda JSON del video modello (`MEMORIA/video/CREATIVE06B.json`).
+
+### Prendere un lavoro
+- La coda sono le Issues: `gh issue list --label da-fare`. Prendi la più vecchia, etichetta `in-lavorazione` (togli `da-fare`), commenta "presa da <computer/sessione>". Una scheda già `in-lavorazione` non si tocca.
+- L'ID del video è `V` + numero della scheda a quattro cifre (scheda #12 → `V0012`): è unico anche con dieci Claude in parallelo.
+- Apri subito la sua memoria e fai il push, così gli altri vedono che è occupato:
+  `python3 00_MOTORE/tools/studio.py nuovo V0012 --issue 12 --nome "..." --formato F2 --scena 00_MOTORE/scenes/v0012_<nome> --hook "<clip>.mp4" --evento "..."`
+- Scegli l'hook tra i **freschi** del brief. Un hook già usato si riusa solo con un taglio diverso e se il movimento combacia meglio.
+
+### Durante il lavoro
+- Solo nella tua cartella di scena (`00_MOTORE/scenes/v0012_<nome>`, copiata dal modello). Le scene degli altri non si toccano.
+- Motore comune (`engine/`, `scenes/vx_common/`, `vx/*.py`, `tools/`): solo con branch e pull request descritta (`git switch -c motore/<cosa>`), mai direttamente su main mentre altri renderizzano. Nella descrizione: cosa cambia, perché, quali scene tocca.
+- Fai `git pull --rebase` anche prima del render finale: le regole possono essere cambiate mentre lavoravi.
+
+### Consegna
+1. Render nella cartella condivisa dei render, `04_RENDER/V0012_<NOME>/` (mai mp4 o wav nel repository).
+2. `python3 00_MOTORE/tools/studio.py aggiorna V0012 stato=da-rivedere render="04_RENDER/V0012_<NOME>" durata_s=21.4 titoli="RIGA 1|RIGA 2" layer="WALLS Top 5|BLOCK PRINTS"`
+3. Se hai usato un hook, aggiorna `01_HOOK/CATALOGO_HOOK.csv` (stato "usato V0012").
+4. `python3 00_MOTORE/tools/studio.py controlla` deve dare 0 errori (GitHub lo ripete a ogni push).
+5. Commit piccoli e chiari, `git pull --rebase`, `git push`. Commenta la scheda con dove sono i file ed etichetta `da-rivedere`.
+
+### Come il sistema impara (obbligatorio)
+Ogni volta che Power dà un giudizio o una correzione, in chat o come commento alla scheda:
+1. **Sul video:** `studio.py aggiorna V0012 feedback="Power: ..."`. Se Power chiede di rifarlo `stato=da-rifare`; se approva `stato=approvato`; quando esce `stato=pubblicato`.
+2. **Lezione:** se la correzione vale anche per i video futuri, `studio.py aggiorna V0012 lezione="..."`, scritta come regola pratica che un altro Claude può applicare senza contesto.
+3. **Regola:** se è un'indicazione generale di Power, aggiungi la riga datata in cima al registro di `REGOLE/PREFERENZE_E_FORMATI.md` e correggi la sezione relativa (la vecchia regola che contraddice si cancella).
+4. **Motore:** se la correzione si risolve meglio nel motore (finale, riga dei layer, colori, zone sicure), pull request sul motore così vale per tutti i video successivi.
+5. **Push subito.** Gli altri Claude la ricevono al loro prossimo `git pull`.
+Un video `superato` resta nello storico: serve a non ripetere l'errore.
+
+### Conflitti
+- Le memorie dei video sono un file per video: non vanno mai in conflitto.
+- Se `git pull --rebase` segnala un conflitto nel registro delle regole, tieni **entrambe** le righe, nell'ordine di data, e continua con `git rebase --continue`.
+- Mai `git push --force` su main.
+
+### Sempre
+- Niente chiavi, password o token nel repository o in chat. Il repository resta privato.
+- Niente pubblicazioni sui social: pubblica solo Power. Niente acquisti.

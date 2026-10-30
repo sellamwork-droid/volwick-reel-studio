@@ -1,0 +1,43 @@
+{
+  "id": "CREATIVE01",
+  "nome": "Replay realistico",
+  "formato": "F2",
+  "scena": "00_MOTORE/scenes/vx_replay",
+  "hook": {
+    "clip": "Basketball Fail.mp4",
+    "match": "il pallone sale al massimo e ricade come il prezzo sul muro"
+  },
+  "evento": "il prezzo rompe la resistenza disegnata, arriva al call wall, lo buca e rientra",
+  "layer": [
+    "WALLS Top 5",
+    "MAPS Gamma",
+    "BLOCK PRINTS",
+    "CVD"
+  ],
+  "durata_s": 25.0,
+  "render": "04_RENDER/CREATIVE01_REPLAY",
+  "stato": "da-rivedere",
+  "creato": "2026-10-30 12:00",
+  "feedback": [
+    {
+      "data": "2026-10-30 13:00",
+      "testo": "Power: non usare la registrazione del 27 ottobre"
+    },
+    {
+      "data": "2026-10-30 14:00",
+      "testo": "Power: mostrare la riga dei layer vera del terminale"
+    },
+    {
+      "data": "2026-10-30 15:16",
+      "testo": "Power: gli hook vanno studiati e collegati bene (il BMX andava nel verso opposto al grafico)"
+    }
+  ],
+  "lezioni": [
+    "Il soggetto dell'hook deve muoversi nello stesso verso del prezzo nel punto di aggancio (match cut).",
+    "Mai registrazioni reali: sessione simulata con gen_data.py e seed fisso."
+  ],
+  "issue": null,
+  "titoli": [],
+  "pubblicazioni": [],
+  "sessione": "chat principale (cloud)"
+}

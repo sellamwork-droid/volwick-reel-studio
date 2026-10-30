@@ -1,0 +1,33 @@
+{
+  "id": "CREATIVE02",
+  "nome": "One Layer",
+  "formato": "F2",
+  "scena": "00_MOTORE/scenes/vx_onelayer",
+  "hook": {
+    "clip": "Scrape Down.mp4",
+    "tratto": "0.85-2.43",
+    "match": "il raschietto blu sale fino al campo di ricerca blu"
+  },
+  "evento": "grafico pieno di indicatori ripulito, resta un solo layer",
+  "layer": [
+    "WALLS"
+  ],
+  "durata_s": 28.0,
+  "render": "04_RENDER/CREATIVE02_ONE_LAYER",
+  "stato": "da-rivedere",
+  "creato": "2026-10-30 13:30",
+  "feedback": [
+    {
+      "data": "2026-10-30 15:44",
+      "testo": "Power: riempire di più lo schermo, parte Volwick più tecnica: i layer non sono indicatori, sono le regole di copertura dei dealer"
+    }
+  ],
+  "lezioni": [
+    "Finestra e grafico grandi dentro le zone sicure; sotto ogni titolo una riga tecnica corta e il tooltip del muro con Net in $."
+  ],
+  "note": "Codice ancora nella copia di lavoro della sua chat: va portato in 00_MOTORE/scenes/vx_onelayer.",
+  "issue": null,
+  "titoli": [],
+  "pubblicazioni": [],
+  "sessione": "chat principale (cloud)"
+}

@@ -20,4 +20,5 @@ labels: da-fare
 **Note di Power:**
 
 ---
-Chi la prende: metti l'etichetta `in-lavorazione` e scrivi qui "presa da <nome sessione/computer>". Alla consegna: link ai file, etichetta `da-rivedere`. Power chiude con `fatto`.
+ID del video: `V` + numero di questa scheda a quattro cifre (#12 → V0012).
+Chi la prende: metti l'etichetta `in-lavorazione` e scrivi qui "presa da <nome sessione/computer>". Alla consegna: link ai file, etichetta `da-rivedere`. Power commenta il giudizio e chiude con `fatto`: chi lo legge lo registra con `studio.py aggiorna` (feedback, lezione, regola).

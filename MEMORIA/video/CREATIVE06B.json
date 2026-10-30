@@ -1,0 +1,41 @@
+{
+  "id": "CREATIVE06B",
+  "nome": "The Drop Hook",
+  "formato": "F2",
+  "scena": "00_MOTORE/scenes/vx_drop2",
+  "hook": {
+    "clip": "Timber Drop.mp4",
+    "tratto": "3.15-4.0",
+    "match": "il soggetto si lascia andare e cade sul punto del supporto, push-in 1,40"
+  },
+  "evento": "caduta veloce sul supporto 7712.50, rimbalzo sul put wall",
+  "layer": [
+    "WALLS Top 5",
+    "BLOCK PRINTS",
+    "tooltip Put wall long γ"
+  ],
+  "titoli": [
+    "FALLING INTO YOUR SUPPORT.",
+    "WHAT'S UNDER THE LINE?",
+    "SEE THE POSITIONING.",
+    "TRADE WITH INSTITUTIONAL CONTEXT."
+  ],
+  "durata_s": 21.6,
+  "render": "04_RENDER/CREATIVE06B_THE_DROP_HOOK",
+  "stato": "approvato",
+  "creato": "2026-10-30 16:30",
+  "feedback": [
+    {
+      "data": "2026-10-30 17:00",
+      "testo": "Power: il video è ottimo. Togliere GUIDE, MARKET INTELLIGENCE ed ES LEVELS, la terza riga parte con ACTIVITY"
+    }
+  ],
+  "lezioni": [
+    "MODELLO DI RIFERIMENTO: hook clip agganciato al movimento → grafico bianco stile TradingView → terminale Volwick con la riga dei layer.",
+    "Riga dei layer: VOLWICK · ES · 1m / DEALER WALLS METRIC EXPIRY MAPS / ACTIVITY BLOCK PRINTS CVD CDI FLOW.",
+    "Finale sempre quello approvato (VX.end), offerta solo in caption."
+  ],
+  "issue": null,
+  "pubblicazioni": [],
+  "sessione": "chat principale (cloud)"
+}

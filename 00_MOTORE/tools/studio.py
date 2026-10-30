@@ -193,6 +193,8 @@ LEGGIMI_DRIVE = """VOLWICK REEL STUDIO · cartella condivisa
 01_VIDEO        un cartella per video: <ID>_<NOME>/ con i video finiti, CAPTION.txt e SCHEDA.txt. La crea Claude.
 02_LIBRERIA     audio e riferimenti già catalogati.
 03_ARCHIVIO_CARICAMENTI   gli originali caricati, per data.
+04_ARCHIVIO_VIDEO         tutti i video generati prima del Reel Studio (Content Engine, Live Market Reactions, Video Studio IG e ambassador,
+                          Viral Reels, VX), ogni versione, con INDICE_ARCHIVIO.csv. Da qui in poi ogni video nuovo arriva in 01_VIDEO.
 INDICE_VIDEO.csv          tutti i video con stato, formato, hook e ultimo giudizio. Si apre con Fogli Google.
 
 Le cartelle e i nomi dei file li gestisce Claude: non rinominare e non spostare a mano.

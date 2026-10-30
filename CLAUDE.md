@@ -79,6 +79,7 @@ Su ogni computer gira Google Drive per desktop con la cartella condivisa aggiunt
 - `00_CARICA_QUI/HOOK`, `AUDIO`, `RIFERIMENTI`: il team carica lì il materiale nuovo (anche dal telefono). `studio.py arrivi` (lanciato anche dal brief) porta gli hook nel repository e nel catalogo, sposta audio e riferimenti in `02_LIBRERIA` e li registra in `02_AUDIO/CATALOGO_AUDIO.csv` e `07_RIFERIMENTI/RIFERIMENTI.csv`; gli originali vanno in `03_ARCHIVIO_CARICAMENTI/<data>`.
 - `01_VIDEO/<ID>_<NOME>/`: i video finiti, `CAPTION.txt`, `SCHEDA.txt`. Li crea solo `studio.py consegna`.
 - `INDICE_VIDEO.csv`: tutti i video con stato e ultimo giudizio, rifatto a ogni consegna.
+- `04_ARCHIVIO_VIDEO/`: tutti i video generati prima del Reel Studio, ogni versione, con `INDICE_ARCHIVIO.csv`. Regola di Power: su Drive c'è **ogni video mai generato**; nessun video finito resta solo su un computer.
 Nessun file a mano in Drive, nessun rinomina: l'ordine lo tiene lo script.
 
 ### Materiale nuovo da studiare

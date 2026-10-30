@@ -8,8 +8,13 @@ Dalla cartella principale del repository:
   python3 00_MOTORE/tools/studio.py aggiorna V0012 stato=da-rivedere render="04_RENDER/V0012_THE_DROP_3" durata_s=21.4
   python3 00_MOTORE/tools/studio.py aggiorna V0012 feedback="Power: hook troppo lento" lezione="match cut sotto 1,4 s"
   python3 00_MOTORE/tools/studio.py controlla                   controlli prima di ogni push (li ripete anche GitHub a ogni push)
+Google Drive (cartella condivisa "VOLWICK REEL STUDIO", sincronizzata da Google Drive per desktop):
+  python3 00_MOTORE/tools/studio.py drive ["/percorso/VOLWICK REEL STUDIO"]   trova o imposta la cartella e crea la struttura (una volta per computer)
+  python3 00_MOTORE/tools/studio.py arrivi                      prende quello che è stato caricato in 00_CARICA_QUI (hook, audio, video di riferimento) e lo cataloga
+  python3 00_MOTORE/tools/studio.py consegna V0012 <cartella con mp4 e CAPTION.txt>   porta il video su Drive con nomi standard, scheda, indice, stato e commento sulla Issue
+  python3 00_MOTORE/tools/studio.py indice                      rifà INDICE_VIDEO.csv su Drive
 """
-import csv, datetime as dt, json, os, re, socket, subprocess, sys
+import csv, datetime as dt, glob, json, os, re, shutil, socket, subprocess, sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 VID = os.path.join(ROOT, 'MEMORIA', 'video')
@@ -17,6 +22,12 @@ REG = os.path.join(ROOT, 'REGOLE', 'PREFERENZE_E_FORMATI.md')
 CAT = os.path.join(ROOT, '01_HOOK', 'CATALOGO_HOOK.csv')
 STATI = ['in-lavorazione', 'da-rivedere', 'da-rifare', 'approvato', 'pubblicato', 'superato']
 CHIAVI = ['id', 'nome', 'formato', 'scena', 'stato', 'creato', 'sessione']
+AUD = os.path.join(ROOT, '02_AUDIO', 'CATALOGO_AUDIO.csv')
+RIF = os.path.join(ROOT, '07_RIFERIMENTI', 'RIFERIMENTI.csv')
+CONF = os.path.expanduser('~/.volwick_studio.json')
+DRIVE_DIRS = ['00_CARICA_QUI/HOOK', '00_CARICA_QUI/AUDIO', '00_CARICA_QUI/RIFERIMENTI', '01_VIDEO', '02_LIBRERIA/AUDIO', '02_LIBRERIA/RIFERIMENTI', '03_ARCHIVIO_CARICAMENTI']
+VIDEO_EXT = ('.mp4', '.mov', '.m4v', '.webm', '.mkv')
+AUDIO_EXT = ('.mp3', '.wav', '.m4a', '.aac', '.flac', '.aiff')
 ENGINE = ['00_MOTORE/engine', '00_MOTORE/scenes/vx_common', '00_MOTORE/vx', '00_MOTORE/tools']
 
 
@@ -86,6 +97,19 @@ def brief():
     for lab in ('da-fare', 'in-lavorazione', 'da-rivedere'):
         out = sh('gh', 'api', f'repos/{{owner}}/{{repo}}/issues?state=open&labels={lab}&per_page=30', '--jq', '.[] | "#\\(.number) \\(.title)"')
         print(f'  {lab}: ' + (', '.join(out.splitlines()) if out else '-'))
+    # 7. caricamenti
+    print('\n7. MATERIALE CARICATO DAL TEAM')
+    d = drive_root(quiet=True)
+    if d:
+        att = sum(len([n for n in os.listdir(os.path.join(d, '00_CARICA_QUI', x)) if not n.startswith('.')]) for x in ('HOOK', 'AUDIO', 'RIFERIMENTI') if os.path.isdir(os.path.join(d, '00_CARICA_QUI', x)))
+        print(f'  Drive: {d}')
+        if att: print(f'  {att} file nuovi in 00_CARICA_QUI: li prendo in carico adesso.'); arrivi(); print('  >> Fai commit e push di 01_HOOK, 02_AUDIO e 07_RIFERIMENTI prima di iniziare.')
+        else: print('  00_CARICA_QUI vuota')
+    else: print('  Drive non configurato su questo computer (`studio.py drive`).')
+    da_st = [r['file'] for r in csv_rows(RIF) if r.get('stato') == 'da studiare']
+    da_asc = [r['file'] for r in csv_rows(AUD) if r.get('stato') == 'da ascoltare']
+    if da_st: print('  Riferimenti da studiare (scheda in 06_DOCS/RIFERIMENTI, poi lezioni o regole): ' + ', '.join(da_st))
+    if da_asc: print('  Audio da ascoltare e classificare (licenza da confermare con Power): ' + ', '.join(da_asc))
     print('\nPrima di consegnare: `python3 00_MOTORE/tools/studio.py controlla`.')
 
 
@@ -158,7 +182,171 @@ def controlla():
     sys.exit(1 if err else 0)
 
 
+# ---------------- Google Drive ----------------
+LEGGIMI_DRIVE = """VOLWICK REEL STUDIO · cartella condivisa
+
+00_CARICA_QUI   qui chiunque del team mette il materiale nuovo, da qualsiasi computer o dal telefono:
+                HOOK         clip da usare come hook (verticali, senza marchi, scritte, @nomi o persone famose)
+                AUDIO        brani o effetti CON LICENZA da mixare dentro i video (i brani famosi non si caricano: si scelgono in app)
+                RIFERIMENTI  video di altri da studiare (format, hook, montaggio)
+                Al primo Claude che lavora vengono catalogati e spostati in 02_LIBRERIA o nel motore. Non serve dire niente.
+01_VIDEO        un cartella per video: <ID>_<NOME>/ con i video finiti, CAPTION.txt e SCHEDA.txt. La crea Claude.
+02_LIBRERIA     audio e riferimenti già catalogati.
+03_ARCHIVIO_CARICAMENTI   gli originali caricati, per data.
+INDICE_VIDEO.csv          tutti i video con stato, formato, hook e ultimo giudizio. Si apre con Fogli Google.
+
+Le cartelle e i nomi dei file li gestisce Claude: non rinominare e non spostare a mano.
+"""
+
+
+def drive_root(quiet=False):
+    cands = []
+    if os.environ.get('VW_DRIVE'): cands.append(os.environ['VW_DRIVE'])
+    try: cands.append(json.load(open(CONF))['drive'])
+    except Exception: pass
+    for pat in ('~/Library/CloudStorage/GoogleDrive-*/*/VOLWICK REEL STUDIO', '~/Library/CloudStorage/GoogleDrive-*/*/*/VOLWICK REEL STUDIO',
+                '~/Google Drive/*/VOLWICK REEL STUDIO', '/Volumes/GoogleDrive/*/VOLWICK REEL STUDIO', 'G:/*/VOLWICK REEL STUDIO'):
+        cands += sorted(glob.glob(os.path.expanduser(pat)))
+    for c in cands:
+        if c and os.path.isdir(c): return c
+    if not quiet: print('Cartella Drive "VOLWICK REEL STUDIO" non trovata. Installa Google Drive per desktop, aggiungi la cartella condivisa a "Il mio Drive" e lancia `studio.py drive`.')
+    return None
+
+
+def drive(a):
+    if a:
+        d = os.path.abspath(os.path.expanduser(a[0]))
+        if not os.path.isdir(d): sys.exit(f'non esiste: {d}')
+        json.dump({'drive': d}, open(CONF, 'w')); print('salvato in', CONF)
+    d = drive_root()
+    if not d:
+        base = sorted(glob.glob(os.path.expanduser('~/Library/CloudStorage/GoogleDrive-*/*Drive*')))
+        if base: print('Drive trovato in', base[0], '\nSe la cartella condivisa non c\'è ancora, creala con: python3 00_MOTORE/tools/studio.py drive "' + os.path.join(base[0], 'VOLWICK REEL STUDIO') + '" (dopo averla creata)')
+        return
+    for x in DRIVE_DIRS: os.makedirs(os.path.join(d, x), exist_ok=True)
+    open(os.path.join(d, 'LEGGIMI.txt'), 'w', encoding='utf-8').write(LEGGIMI_DRIVE)
+    indice(); print('Drive pronto:', d)
+
+
+def durata(p):
+    try: return round(float(subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', p], capture_output=True, text=True, timeout=30).stdout.strip()), 2)
+    except Exception: return ''
+
+
+def csv_add(path, campi, riga):
+    nuovo_file = not os.path.exists(path)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'a', newline='', encoding='utf-8') as f:
+        w = csv.DictWriter(f, fieldnames=campi)
+        if nuovo_file: w.writeheader()
+        w.writerow({k: riga.get(k, '') for k in campi})
+
+
+def csv_rows(path):
+    try: return list(csv.DictReader(open(path, encoding='utf-8')))
+    except Exception: return []
+
+
+def libero(dst):
+    b, e = os.path.splitext(dst); k = 2
+    while os.path.exists(dst): dst = f'{b}_{k}{e}'; k += 1
+    return dst
+
+
+def arrivi():
+    d = drive_root()
+    if not d: return
+    oggi = dt.date.today().isoformat(); arch = os.path.join(d, '03_ARCHIVIO_CARICAMENTI', oggi); fatti = 0
+    def archivia(src, sotto):
+        os.makedirs(os.path.join(arch, sotto), exist_ok=True); shutil.move(src, libero(os.path.join(arch, sotto, os.path.basename(src))))
+    # HOOK -> 01_HOOK/clip nel repository, catalogo automatico
+    hk = os.path.join(d, '00_CARICA_QUI', 'HOOK'); nuovi_hook = 0
+    for n in sorted(os.listdir(hk)) if os.path.isdir(hk) else []:
+        src = os.path.join(hk, n)
+        if n.startswith('.') or not os.path.isfile(src): continue
+        if not n.lower().endswith(VIDEO_EXT): print('salto (non è un video):', n); continue
+        if os.path.getsize(src) > 45e6: print('hook troppo pesante per il repository (oltre 45 MB), accorcialo:', n); continue
+        dst = os.path.join(ROOT, '01_HOOK', 'clip', n)
+        if os.path.exists(dst): print('hook già in archivio, lo salto:', n)
+        else: shutil.copy2(src, dst); nuovi_hook += 1
+        archivia(src, 'HOOK'); fatti += 1
+    if nuovi_hook:
+        r = subprocess.run([sys.executable, os.path.join(ROOT, '00_MOTORE', 'tools', 'hook_index.py'), ROOT], capture_output=True, text=True)
+        print(r.stdout.strip() or r.stderr.strip()[-300:])
+    # AUDIO -> 02_LIBRERIA/AUDIO su Drive, riga in 02_AUDIO/CATALOGO_AUDIO.csv
+    au = os.path.join(d, '00_CARICA_QUI', 'AUDIO'); campi = ['file', 'durata_s', 'caricato', 'licenza', 'stato', 'formato_consigliato', 'note']
+    for n in sorted(os.listdir(au)) if os.path.isdir(au) else []:
+        src = os.path.join(au, n)
+        if n.startswith('.') or not os.path.isfile(src): continue
+        if not n.lower().endswith(AUDIO_EXT): print('salto (non è un audio):', n); continue
+        dst = libero(os.path.join(d, '02_LIBRERIA', 'AUDIO', n)); shutil.move(src, dst)
+        csv_add(AUD, campi, {'file': os.path.basename(dst), 'durata_s': durata(dst), 'caricato': oggi, 'licenza': 'da confermare con Power', 'stato': 'da ascoltare'}); fatti += 1
+    # RIFERIMENTI -> 02_LIBRERIA/RIFERIMENTI su Drive, riga in 07_RIFERIMENTI/RIFERIMENTI.csv
+    rf = os.path.join(d, '00_CARICA_QUI', 'RIFERIMENTI'); campi = ['file', 'durata_s', 'caricato', 'stato', 'formato', 'scheda', 'note']
+    for n in sorted(os.listdir(rf)) if os.path.isdir(rf) else []:
+        src = os.path.join(rf, n)
+        if n.startswith('.') or not os.path.isfile(src): continue
+        if not n.lower().endswith(VIDEO_EXT): print('salto (non è un video):', n); continue
+        dst = libero(os.path.join(d, '02_LIBRERIA', 'RIFERIMENTI', n)); shutil.move(src, dst)
+        csv_add(RIF, campi, {'file': os.path.basename(dst), 'durata_s': durata(dst), 'caricato': oggi, 'stato': 'da studiare'}); fatti += 1
+    print(f'caricamenti presi in carico: {fatti}' + (' (fai commit e push di 01_HOOK, 02_AUDIO, 07_RIFERIMENTI)' if fatti else ''))
+
+
+def slug(t): return re.sub(r'[^A-Z0-9]+', '_', (t or '').upper()).strip('_')[:40]
+
+
+def scheda_txt(v):
+    h = v.get('hook') or {}
+    righe = [f"{v['id']} · {v.get('nome','')}", '', f"Formato: {v.get('formato','')}", f"Stato: {v.get('stato','')}", f"Durata: {v.get('durata_s') or ''} s",
+             f"Evento di mercato: {v.get('evento','')}", f"Hook: {hook_di(v)} {h.get('tratto','') if isinstance(h, dict) else ''}".rstrip(),
+             f"Layer: {', '.join(v.get('layer') or [])}", 'Titoli:'] + [f'  {t}' for t in v.get('titoli') or []]
+    righe += ['', f"Fatto da: {v.get('sessione','')} · {v.get('creato','')}", f"Scheda GitHub: #{v['issue']}" if v.get('issue') else '']
+    if v.get('feedback'): righe += ['', 'Giudizi di Power:'] + [f"  {f['data']}  {f['testo']}" for f in v['feedback']]
+    return '\n'.join(righe).strip() + '\n'
+
+
+def consegna(a):
+    if len(a) < 2: sys.exit('uso: studio.py consegna V0012 <cartella con i file finiti>')
+    i, src = a[0], os.path.abspath(os.path.expanduser(a[1]))
+    if not os.path.exists(path(i)): sys.exit(f'{i} non esiste: usa prima `nuovo`.')
+    v = json.load(open(path(i), encoding='utf-8'))
+    files = [f for f in sorted(os.listdir(src)) if f.lower().endswith(VIDEO_EXT + ('.txt', '.png', '.jpg'))]
+    if not any(f.lower().endswith(VIDEO_EXT) for f in files): sys.exit('nella cartella non c\'è nessun video')
+    if not any(f.lower().startswith('caption') for f in files): print('ATTENZIONE: manca CAPTION.txt (la caption con l\'offerta va consegnata con il video)')
+    d = drive_root(quiet=True); nome = f"{i}_{slug(v.get('nome'))}"
+    base = os.path.join(d, '01_VIDEO') if d else os.path.join(ROOT, '04_RENDER')
+    if not d: print('Drive non trovato: consegno in locale in 04_RENDER (poi rilancia `consegna` quando Drive è configurato).')
+    out = os.path.join(base, nome); os.makedirs(out, exist_ok=True)
+    for f in files:
+        nf = f if f.upper().startswith(i) or f.lower().startswith('caption') else f'{i}_{f}'
+        shutil.copy2(os.path.join(src, f), os.path.join(out, nf))
+    v['render'] = ('Drive: 01_VIDEO/' if d else '04_RENDER/') + nome
+    if v.get('stato') in ('in-lavorazione', 'da-rifare'): v['stato'] = 'da-rivedere'
+    v['aggiornato'] = now(); salva(v)
+    open(os.path.join(out, 'SCHEDA.txt'), 'w', encoding='utf-8').write(scheda_txt(v))
+    if d: indice()
+    if v.get('issue'):
+        n = str(v['issue'])
+        sh('gh', 'api', f'repos/{{owner}}/{{repo}}/issues/{n}/comments', '-f', f"body=Consegnato: **{v['render']}** ({len(files)} file). Da rivedere.")
+        sh('gh', 'api', '-X', 'DELETE', f'repos/{{owner}}/{{repo}}/issues/{n}/labels/in-lavorazione')
+        sh('gh', 'api', f'repos/{{owner}}/{{repo}}/issues/{n}/labels', '-f', 'labels[]=da-rivedere')
+    print('consegnato in', out, '\nOra: commit e push di MEMORIA/video/' + i + '.json')
+
+
+def indice():
+    d = drive_root(quiet=True)
+    if not d: return
+    campi = ['id', 'nome', 'formato', 'stato', 'durata_s', 'hook', 'evento', 'cartella', 'creato', 'sessione', 'issue', 'ultimo_giudizio']
+    with open(os.path.join(d, 'INDICE_VIDEO.csv'), 'w', newline='', encoding='utf-8') as f:
+        w = csv.DictWriter(f, fieldnames=campi); w.writeheader()
+        for v in carica():
+            w.writerow({'id': v['id'], 'nome': v.get('nome'), 'formato': v.get('formato'), 'stato': v.get('stato'), 'durata_s': v.get('durata_s'),
+                        'hook': hook_di(v), 'evento': v.get('evento'), 'cartella': v.get('render'), 'creato': v.get('creato'), 'sessione': v.get('sessione'),
+                        'issue': v.get('issue') or '', 'ultimo_giudizio': (v.get('feedback') or [{}])[-1].get('testo', '')})
+
+
 if __name__ == '__main__':
     c = sys.argv[1] if len(sys.argv) > 1 else 'brief'
     {'brief': lambda: brief(), 'nuovo': lambda: nuovo(sys.argv[2:]), 'aggiorna': lambda: aggiorna(sys.argv[2:]),
-     'controlla': lambda: controlla()}.get(c, lambda: print(__doc__))()
+     'controlla': lambda: controlla(), 'drive': lambda: drive(sys.argv[2:]), 'arrivi': lambda: arrivi(),
+     'consegna': lambda: consegna(sys.argv[2:]), 'indice': lambda: indice()}.get(c, lambda: print(__doc__))()

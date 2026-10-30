@@ -70,8 +70,21 @@ Questo repository è il cervello comune. Ogni Claude su ogni computer lavora sul
 
 ### Inizio di ogni sessione (sempre, senza eccezioni)
 1. `git pull --rebase`
-2. `python3 00_MOTORE/tools/studio.py brief`: regole più recenti, storico dei video con il feedback di Power, lezioni da applicare, hook freschi e già usati, ultime modifiche al motore, coda dei lavori.
+2. `python3 00_MOTORE/tools/studio.py brief`: regole più recenti, storico dei video con il feedback di Power, lezioni da applicare, hook freschi e già usati, ultime modifiche al motore, coda dei lavori, materiale caricato dal team (lo prende in carico da solo: poi fai commit e push).
 3. Leggi `REGOLE/PREFERENZE_E_FORMATI.md` per intero (la regola più recente vince) e la scheda JSON del video modello (`MEMORIA/video/CREATIVE06B.json`).
+4. Scrivi a chi ti sta usando un riassunto in italiano di poche righe: video in coda, ultimi giudizi di Power, materiale nuovo arrivato, cosa proponi di fare. Poi aspetta o prendi la scheda più vecchia se ti chiede di procedere.
+
+### Google Drive: cartella condivisa "VOLWICK REEL STUDIO"
+Su ogni computer gira Google Drive per desktop con la cartella condivisa aggiunta a "Il mio Drive". Prima volta su un computer: `python3 00_MOTORE/tools/studio.py drive` (la trova da solo, crea la struttura; se non la trova, passale il percorso). Struttura, gestita solo dagli script:
+- `00_CARICA_QUI/HOOK`, `AUDIO`, `RIFERIMENTI`: il team carica lì il materiale nuovo (anche dal telefono). `studio.py arrivi` (lanciato anche dal brief) porta gli hook nel repository e nel catalogo, sposta audio e riferimenti in `02_LIBRERIA` e li registra in `02_AUDIO/CATALOGO_AUDIO.csv` e `07_RIFERIMENTI/RIFERIMENTI.csv`; gli originali vanno in `03_ARCHIVIO_CARICAMENTI/<data>`.
+- `01_VIDEO/<ID>_<NOME>/`: i video finiti, `CAPTION.txt`, `SCHEDA.txt`. Li crea solo `studio.py consegna`.
+- `INDICE_VIDEO.csv`: tutti i video con stato e ultimo giudizio, rifatto a ogni consegna.
+Nessun file a mano in Drive, nessun rinomina: l'ordine lo tiene lo script.
+
+### Materiale nuovo da studiare
+- **Riferimento** (`RIFERIMENTI.csv` stato "da studiare"): guardalo (fotogrammi ogni 0,5 s, struttura, hook, ritmo, testi, audio), scrivi la scheda in `06_DOCS/RIFERIMENTI/<nome>.md` (cosa funziona, cosa si adatta a Volwick, a quale formato), metti stato "studiato" e il nome della scheda. Quello che cambia il modo di fare i video diventa lezione o regola (vedi sotto) o un formato nuovo in `03_FORMATI`.
+- **Audio** (`CATALOGO_AUDIO.csv` stato "da ascoltare"): durata, BPM, tono, formato consigliato. Si mixa dentro un video solo dopo che Power ha confermato la licenza (colonna licenza). I brani famosi non si mixano mai: si scelgono in app.
+- **Hook**: il catalogo li analizza da solo; tu guardi la scheda in `01_HOOK/_schede`, compili evento di mercato, formato consigliato e stato (approvato, escluso con motivo).
 
 ### Prendere un lavoro
 - La coda sono le Issues: `gh issue list --label da-fare` (oppure `gh api "repos/{owner}/{repo}/issues?labels=da-fare"`). Prendi la più vecchia, etichetta `in-lavorazione` (togli `da-fare`), commenta "presa da <computer/sessione>". Una scheda già `in-lavorazione` non si tocca.
@@ -86,11 +99,12 @@ Questo repository è il cervello comune. Ogni Claude su ogni computer lavora sul
 - Fai `git pull --rebase` anche prima del render finale: le regole possono essere cambiate mentre lavoravi.
 
 ### Consegna
-1. Render nella cartella condivisa dei render, `04_RENDER/V0012_<NOME>/` (mai mp4 o wav nel repository).
-2. `python3 00_MOTORE/tools/studio.py aggiorna V0012 stato=da-rivedere render="04_RENDER/V0012_<NOME>" durata_s=21.4 titoli="RIGA 1|RIGA 2" layer="WALLS Top 5|BLOCK PRINTS"`
+1. Metti in una cartella di lavoro (es. `00_MOTORE/vx/out_v0012/consegna`) i video finiti (con hook, senza hook, MUSIC READY) e `CAPTION.txt` (caption con offerta e hashtag), più eventuale copertina png.
+2. `python3 00_MOTORE/tools/studio.py aggiorna V0012 durata_s=21.4 titoli="RIGA 1|RIGA 2" layer="WALLS Top 5|BLOCK PRINTS"`
+   poi `python3 00_MOTORE/tools/studio.py consegna V0012 00_MOTORE/vx/out_v0012/consegna`: copia tutto su Drive in `01_VIDEO/V0012_<NOME>/` con nomi standard e `SCHEDA.txt`, aggiorna stato e indice, commenta la scheda GitHub e la mette `da-rivedere`. Mai mp4 o wav nel repository.
 3. Se hai usato un hook, aggiorna `01_HOOK/CATALOGO_HOOK.csv` (stato "usato V0012").
 4. `python3 00_MOTORE/tools/studio.py controlla` deve dare 0 errori (GitHub lo ripete a ogni push).
-5. Commit piccoli e chiari, `git pull --rebase`, `git push`. Commenta la scheda con dove sono i file ed etichetta `da-rivedere`.
+5. Commit piccoli e chiari, `git pull --rebase`, `git push`.
 
 ### Come il sistema impara (obbligatorio)
 Ogni volta che Power dà un giudizio o una correzione, in chat o come commento alla scheda:

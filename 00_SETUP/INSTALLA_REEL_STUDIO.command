@@ -24,4 +24,9 @@ echo ">> Preparo l'ambiente Python del motore"
 PY="$(brew --prefix)/bin/python3.12"; [ -x "$PY" ] || PY=python3
 rm -rf .venv; "$PY" -m venv .venv && source .venv/bin/activate
 pip install --upgrade pip -q && pip install -r requirements.txt && python -m playwright install chromium
+# 5. GitHub e Google Drive
+command -v gh >/dev/null 2>&1 || brew install gh
+gh auth status >/dev/null 2>&1 || { echo ">> Accesso a GitHub: si apre il browser, accedi con l'account che ha accesso al repository (nessuna chiave da copiare)."; gh auth login --web --git-protocol https; }
+[ -d /Applications/"Google Drive.app" ] || { echo ">> Installo Google Drive per desktop: poi accedi e aggiungi la cartella condivisa VOLWICK REEL STUDIO a Il mio Drive."; brew install --cask google-drive; }
+python3 tools/studio.py drive || true
 echo ""; echo "Finito. Ora fai doppio clic su VERIFICA.command."; echo ""; read -r -p "Premi Invio per chiudere."

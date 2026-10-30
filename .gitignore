@@ -9,6 +9,8 @@
 *.wav
 *.mp3
 !01_HOOK/clip/**
+!00_SAPERE/video/
+!00_SAPERE/video/**
 00_MOTORE/stills*/
 00_MOTORE/vx/out_*/*.png
 _da_eliminare/

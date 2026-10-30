@@ -167,7 +167,7 @@ def controlla():
         p = os.path.join(ROOT, f)
         if not os.path.isfile(p): continue
         if os.path.getsize(p) > 50e6: err.append(f'{f}: più di 50 MB, non va nel repository')
-        if f.lower().endswith(('.mp4', '.mov', '.wav', '.mp3')) and not f.startswith('01_HOOK/clip/'):
+        if f.lower().endswith(('.mp4', '.mov', '.wav', '.mp3')) and not f.startswith(('01_HOOK/clip/', '00_SAPERE/video/')):
             err.append(f'{f}: i render e gli audio vanno nella cartella condivisa dei render, non nel repository')
         if f.endswith(('.py', '.js', '.md', '.json', '.sh', '.command', '.txt', '.csv', '.html', '.yml')):
             t = open(p, encoding='utf-8', errors='ignore').read()

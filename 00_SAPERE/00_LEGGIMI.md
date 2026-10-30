@@ -14,5 +14,15 @@ Ordine di lettura:
 9. `09_MARCHIO_COLORI.md`, `10_MARCHIO_DEFINITIVO.md`: logo e colori.
 10. `11_COPY_MASTER_SITO.md`: posizionamento e linguaggio del sito (come parliamo ai trader).
 
+## Com'è il terminale: immagini e video veri
+Guardali prima di disegnare qualsiasi parte Volwick in un video: colori, spessori, etichette, pill, stelle, muri e Block Prints devono sembrare questi.
+- `immagini/riga_dei_layer.png`: la riga dei layer in alto (nei video senza GUIDE, MARKET INTELLIGENCE ed ES LEVELS).
+- `immagini/terminale_layer_23ott2026.gif`: il terminale intero con i layer che si accendono.
+- `immagini/terminale_vero/`: screenshot e fotogrammi del terminale vero su ES (27 ottobre): muri con etichette "7,751 · −$22.8M" nei quattro colori, Block Prints (barre bianche, pill oro e argento "830 ×2", rombi), livelli chiave con stella "★ 7738.50 1,098 · 3 blocks", prezzo live tratteggiato oro, volumi.
+- `immagini/terminale_macro*.png`: inquadrature strette del terminale.
+- `video/terminale_vero_27ott_seg017.mp4` e `seg021.mp4`: 5 minuti ciascuno del terminale vero in movimento (ridotti a 1920 px, senza audio). Per vederli in una sessione: `ffmpeg -ss 60 -i 00_SAPERE/video/terminale_vero_27ott_seg021.mp4 -frames:v 1 f.png`.
+
+**Attenzione:** sono registrazioni del mercato reale. Servono solo come riferimento per capire com'è il terminale. **Mai** dentro un video, né i fotogrammi né i dati (licenza CME): nei video si usano solo sessioni simulate, disegnate con il motore come in questi riferimenti.
+
 Regole che vincono su tutto, in quest'ordine: `../REGOLE/PREFERENZE_E_FORMATI.md` (le decisioni di Power, la più recente vince), poi `02_TERMINALE_COSA_SI_PUO_MOSTRARE.md`, poi il resto.
 Nei video: solo funzioni presenti nella build, mai previsioni di direzione ("came out at a coin flip"), mai dati reali, Block Prints mai chiamati dark pool, un muro rosso è un supporto difeso e non un segnale ribassista.

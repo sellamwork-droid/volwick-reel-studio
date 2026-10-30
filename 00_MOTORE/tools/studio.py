@@ -101,7 +101,7 @@ def brief():
     print('\n7. MATERIALE CARICATO DAL TEAM')
     d = drive_root(quiet=True)
     if d:
-        att = sum(len([n for n in os.listdir(os.path.join(d, '00_CARICA_QUI', x)) if not n.startswith('.')]) for x in ('HOOK', 'AUDIO', 'RIFERIMENTI') if os.path.isdir(os.path.join(d, '00_CARICA_QUI', x)))
+        att = sum(len([n for n in os.listdir(os.path.join(d, '00_CARICA_QUI', x)) if not n.startswith('.') and not n.upper().startswith('LEGGIMI')]) for x in ('HOOK', 'AUDIO', 'RIFERIMENTI') if os.path.isdir(os.path.join(d, '00_CARICA_QUI', x)))
         print(f'  Drive: {d}')
         if att: print(f'  {att} file nuovi in 00_CARICA_QUI: li prendo in carico adesso.'); arrivi(); print('  >> Fai commit e push di 01_HOOK, 02_AUDIO e 07_RIFERIMENTI prima di iniziare.')
         else: print('  00_CARICA_QUI vuota')
@@ -263,7 +263,7 @@ def arrivi():
     hk = os.path.join(d, '00_CARICA_QUI', 'HOOK'); nuovi_hook = 0
     for n in sorted(os.listdir(hk)) if os.path.isdir(hk) else []:
         src = os.path.join(hk, n)
-        if n.startswith('.') or not os.path.isfile(src): continue
+        if n.startswith('.') or n.upper().startswith('LEGGIMI') or not os.path.isfile(src): continue
         if not n.lower().endswith(VIDEO_EXT): print('salto (non è un video):', n); continue
         if os.path.getsize(src) > 45e6: print('hook troppo pesante per il repository (oltre 45 MB), accorcialo:', n); continue
         dst = os.path.join(ROOT, '01_HOOK', 'clip', n)
@@ -277,7 +277,7 @@ def arrivi():
     au = os.path.join(d, '00_CARICA_QUI', 'AUDIO'); campi = ['file', 'durata_s', 'caricato', 'licenza', 'stato', 'formato_consigliato', 'note']
     for n in sorted(os.listdir(au)) if os.path.isdir(au) else []:
         src = os.path.join(au, n)
-        if n.startswith('.') or not os.path.isfile(src): continue
+        if n.startswith('.') or n.upper().startswith('LEGGIMI') or not os.path.isfile(src): continue
         if not n.lower().endswith(AUDIO_EXT): print('salto (non è un audio):', n); continue
         dst = libero(os.path.join(d, '02_LIBRERIA', 'AUDIO', n)); shutil.move(src, dst)
         csv_add(AUD, campi, {'file': os.path.basename(dst), 'durata_s': durata(dst), 'caricato': oggi, 'licenza': 'da confermare con Power', 'stato': 'da ascoltare'}); fatti += 1
@@ -285,7 +285,7 @@ def arrivi():
     rf = os.path.join(d, '00_CARICA_QUI', 'RIFERIMENTI'); campi = ['file', 'durata_s', 'caricato', 'stato', 'formato', 'scheda', 'note']
     for n in sorted(os.listdir(rf)) if os.path.isdir(rf) else []:
         src = os.path.join(rf, n)
-        if n.startswith('.') or not os.path.isfile(src): continue
+        if n.startswith('.') or n.upper().startswith('LEGGIMI') or not os.path.isfile(src): continue
         if not n.lower().endswith(VIDEO_EXT): print('salto (non è un video):', n); continue
         dst = libero(os.path.join(d, '02_LIBRERIA', 'RIFERIMENTI', n)); shutil.move(src, dst)
         csv_add(RIF, campi, {'file': os.path.basename(dst), 'durata_s': durata(dst), 'caricato': oggi, 'stato': 'da studiare'}); fatti += 1
@@ -337,7 +337,7 @@ def indice():
     d = drive_root(quiet=True)
     if not d: return
     campi = ['id', 'nome', 'formato', 'stato', 'durata_s', 'hook', 'evento', 'cartella', 'creato', 'sessione', 'issue', 'ultimo_giudizio']
-    with open(os.path.join(d, 'INDICE_VIDEO.csv'), 'w', newline='', encoding='utf-8') as f:
+    with open(os.path.join(d, 'INDICE_VIDEO.csv'), 'w', newline='', encoding='utf-8-sig') as f:
         w = csv.DictWriter(f, fieldnames=campi); w.writeheader()
         for v in carica():
             w.writerow({'id': v['id'], 'nome': v.get('nome'), 'formato': v.get('formato'), 'stato': v.get('stato'), 'durata_s': v.get('durata_s'),

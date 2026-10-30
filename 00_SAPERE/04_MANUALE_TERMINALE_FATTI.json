@@ -1,0 +1,2465 @@
+{
+  "version": 1,
+  "generated": "2026-10-09",
+  "topics": [
+    {
+      "id": "two-lenses",
+      "title": "Two lenses: the option book and the tape",
+      "layer": "Cross-layer",
+      "pages": "2-3",
+      "strength": 4,
+      "what": "Everything on the screen belongs either to the option book or to the record of what actually traded.",
+      "why": "The strongest reading available is the one where two independent lenses point at the same price.",
+      "facts": [
+        "Positioning lens: walls, heat maps, read panel, CDI and Flow panes",
+        "Tape lens: candles, volume, CVD, Liquidity Tide, block prints and key levels"
+      ],
+      "quotes": [
+        "is structural, it updates on a timer, and it answers 'where, and how hard'",
+        "is live tick by tick and it answers 'who is doing it right now'",
+        "A heavy dealer wall that is also a Tide key level is far better evidence than either on its own."
+      ],
+      "angle": "Most traders stack indicators on one data source; this screen splits into two independent ones and only trusts them when they agree.",
+      "blocks": [
+        "compare",
+        "splitstate",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "levels-not-direction",
+      "title": "We tested direction. It was a coin flip.",
+      "layer": "Cross-layer",
+      "pages": "2, 52, 65",
+      "strength": 5,
+      "what": "The product states outright that dealer positioning is reliable for levels and volatility, not for direction.",
+      "why": "It kills the wrong expectation before it costs money, in an industry where everyone promises forecasts.",
+      "facts": [
+        "Direction from dealer positioning was tested repeatedly and came out at a coin flip",
+        "The headline was changed to a levels-and-time statement instead",
+        "Rule 4 of the eight demonstration rules is: never claim direction"
+      ],
+      "quotes": [
+        "dealer positioning is reliable for levels and for how volatile things get. It is not a reliable direction predictor",
+        "Volwick tells you where reactions happen and how violent they are likely to be. It does not tell you which way the next hour goes",
+        "Direction from dealer positioning was tested repeatedly and came out at a coin flip, so the headline was changed to a levels-and-time statement instead",
+        "Never claim direction",
+        "That honesty is a selling point, not an omission."
+      ],
+      "angle": "Every tool promises to call direction; this one tested the claim, failed it, and removed the feature.",
+      "blocks": [
+        "bignum",
+        "statelist",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "declares-what-it-does-not-know",
+      "title": "A terminal that declares what it does not know",
+      "layer": "Cross-layer",
+      "pages": "2, 29, 34, 39, 43",
+      "strength": 4,
+      "what": "Every absence of data is drawn as an absence, never interpolated or smoothed over.",
+      "why": "You always know whether you are looking at a real number or at a hole in the feed.",
+      "facts": [
+        "Feed gaps are hatched instead of smoothed",
+        "A frozen price gets a hollow tag instead of a solid one",
+        "A book from a prior session is flagged in amber",
+        "An instrument with no option chain reads 'n/a'"
+      ],
+      "quotes": [
+        "Gaps in the feed are hatched rather than smoothed over. A frozen price gets a hollow tag instead of a solid one. A book from a prior session says so in amber. An instrument with no option chain says 'n/a' rather than borrowing another instrument's numbers",
+        "the easy alternative is to interpolate quietly and hope nobody checks."
+      ],
+      "angle": "Four places where this screen admits an absence, and what the easy alternative would have been.",
+      "blocks": [
+        "statelist",
+        "splitstate",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "dealer-positioning-first-class",
+      "title": "These lines are not moving averages",
+      "layer": "Dealer Walls",
+      "pages": "2",
+      "strength": 4,
+      "what": "The horizontal lines are option strikes weighted by dealer exposure, not indicators calculated off price.",
+      "why": "They exist because somebody is contractually obliged to hedge at that price.",
+      "facts": [],
+      "quotes": [
+        "They are not moving averages, pivots or Fibonacci retracements. They exist because somebody is obliged to hedge at that price."
+      ],
+      "angle": "A level drawn from price history is a guess; a level drawn from a hedging obligation is a commitment.",
+      "blocks": [
+        "levelline",
+        "compare",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "first-five-steps",
+      "title": "The first five things, in order",
+      "layer": "Cross-layer",
+      "pages": "3-4",
+      "strength": 3,
+      "what": "A fixed five-step sequence for opening the terminal, where the first two steps only verify the data.",
+      "why": "Steps one and two establish that what is on screen is real before anyone interprets it.",
+      "facts": [
+        "Step 1: sign in and check the connection readout",
+        "Step 2: check the book-health dot and open it once",
+        "Step 3: choose the instrument",
+        "Step 4: set WALLS, METRIC and EXPIRY",
+        "Step 5: open the read panel"
+      ],
+      "quotes": [
+        "The order matters."
+      ],
+      "angle": "How a professional opens a market screen: two integrity checks before a single opinion.",
+      "blocks": [
+        "statelist",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "book-health-dot",
+      "title": "A green dot does not mean the data is there",
+      "layer": "Dealer Walls",
+      "pages": "3, 7, 61, 66",
+      "strength": 5,
+      "what": "A nine-pixel status light for the dealer book that feeds the walls, the maps and the read panel.",
+      "why": "The dot reads the words of the status line, not the result of the fetch, so it can stay green with no walls.",
+      "facts": [
+        "The dot is 9 pixels across",
+        "It is re-read every 500 milliseconds",
+        "Green: the book is current and its status text carries no warning words",
+        "Amber: the status contains 'stale', '16:00 book' or 'not published'",
+        "Red: feed down, unavailable, or no gamma loaded, which means there are effectively no walls"
+      ],
+      "quotes": [
+        "green means 'no known problem', not 'walls confirmed present'",
+        "The book-health dot reads the words of the status line, not the result of the fetch.",
+        "A wall request that fails with the message 'Could not load the dealer walls, the chart and price are still live. Retrying…' matches none of the warning words, so the dot stays green while no walls exist.",
+        "The amber state is easy to skim past, because the dot is only 9 pixels across, and a stale book draws perfectly normal-looking walls at yesterday's strikes.",
+        "Nothing else on the chart will look wrong."
+      ],
+      "angle": "The product's own manual documents the one state where its status light lies, and teaches the correct reading.",
+      "blocks": [
+        "statelist",
+        "rings",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "where-the-walls-come-from",
+      "title": "Where the walls come from",
+      "layer": "Market Intelligence",
+      "pages": "3, 7, 60",
+      "strength": 4,
+      "what": "A panel that declares the origin, the timestamp and the age of the book used to draw the levels.",
+      "why": "It is the correct answer to 'where does this number come from', which retail tools rarely give.",
+      "facts": [
+        "Provenance line: via SPX · GEX dealer walls · 338 strikes · all expiries · 16:00:00 · 237s ago",
+        "Amber warning: 16:00 BOOK — NEXT SESSION EXPIRY (today's 0DTE settled + excluded)",
+        "Last update line: Last update GEX 16:00 ET 4 min · cached",
+        "A REFRESH WALLS button"
+      ],
+      "quotes": [
+        "STALE — SHOWING 2026-09-25 BOOK, NOT TODAY. Walls / regime / bias are all from that date."
+      ],
+      "angle": "Ask a chart tool where a level came from; this one prints the source, the strike count and the age in seconds.",
+      "blocks": [
+        "rows",
+        "statelist",
+        "bignum"
+      ],
+      "used": null
+    },
+    {
+      "id": "basis-line",
+      "title": "Index walls carried onto the futures scale",
+      "layer": "Dealer Walls",
+      "pages": "7, 59, 60",
+      "strength": 2,
+      "what": "On ES, MES and VX the walls are the index book shifted onto the futures scale by the premium.",
+      "why": "Those wall prices carry the uncertainty of an estimate, and the status line says so.",
+      "facts": [
+        "The line ends with basis +14.88 · estimated",
+        "Example pair: estimated (SPX 7743.41 / ES_F 7777.50)"
+      ],
+      "quotes": [
+        "A stale cached basis offset can put the ES, MES or VX wall lines a few points out for a moment on a cold load",
+        "wait a beat before concluding anything."
+      ],
+      "angle": "When a level is translated from one instrument to another, the translation itself is labelled as an estimate.",
+      "blocks": [
+        "rows",
+        "compare",
+        "levelline"
+      ],
+      "used": null
+    },
+    {
+      "id": "ten-instruments",
+      "title": "Ten instruments, and why Bitcoin is not one",
+      "layer": "Cross-layer",
+      "pages": "3, 8, 22, 60, 67",
+      "strength": 3,
+      "what": "A closed list of ten tickers, chosen because a clean option book exists behind them.",
+      "why": "Not every layer exists on every instrument, and the product refuses to fake the missing ones.",
+      "facts": [
+        "Ten instruments are offered: SPX ES MES NQ VIX VX RTY SPY QQQ GOLD",
+        "A first-ever load opens on ES",
+        "SPX, ES and MES carry every layer the terminal has"
+      ],
+      "quotes": [
+        "Ten instruments are offered: SPX ES MES NQ VIX VX RTY SPY QQQ GOLD",
+        "If you are demonstrating the product, demonstrate it on SPX, ES or MES, because those three carry every layer the terminal has",
+        "Bitcoin. Deliberately absent, because there is no clean option book behind it"
+      ],
+      "angle": "A deliberately short instrument list is a statement about data quality, not a limitation.",
+      "blocks": [
+        "statelist",
+        "compare",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "instrument-price-block",
+      "title": "Percent change measured from the tape, not a calendar",
+      "layer": "Cross-layer",
+      "pages": "8, 56",
+      "strength": 1,
+      "what": "The top-bar block showing the ticker, the last trade and the percentage change.",
+      "why": "The baseline for the change is found in the data rather than assumed from the clock.",
+      "facts": [
+        "Example: ES 7,778.25 -0.35%",
+        "The previous close is located by finding the last gap of thirty minutes or more in the loaded history"
+      ],
+      "quotes": [
+        "The change is a percentage only, with no points figure anywhere in the bar",
+        "On SPX, VIX, SPY and QQQ only regular-hours bars feed that baseline; on the futures the whole overnight session counts."
+      ],
+      "angle": "Even the day-change percentage has a documented method behind it.",
+      "blocks": [
+        "rows",
+        "bignum"
+      ],
+      "used": null
+    },
+    {
+      "id": "two-timeframes",
+      "title": "Two timeframes only: 1m and 5m",
+      "layer": "Cross-layer",
+      "pages": "9, 59, 63, 66",
+      "strength": 3,
+      "what": "The only two candle resolutions available, because the product is built around one-minute dealer flow.",
+      "why": "The higher timeframes exist in the engine and were removed on purpose, not because they broke.",
+      "facts": [
+        "Exactly two rows: 1m and 5m",
+        "5m is aggregated in memory from the one-minute history already loaded, so switching is instant",
+        "The page re-asserts 1m at boot and again about 2.5 seconds later",
+        "15m, 1h, 4h and Daily exist in the underlying engine and are removed here"
+      ],
+      "quotes": [
+        "exactly two rows on Volwick: 1m and 5m",
+        "5m is aggregated in memory from the one-minute history that is already loaded, so switching does not re-fetch anything and is instant",
+        "removed on purpose, not that they are broken."
+      ],
+      "angle": "Removing timeframes is a product decision: dealer hedging happens by the minute, so the chart does too.",
+      "blocks": [
+        "compare",
+        "statelist",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "walls-top-n",
+      "title": "Top 5 is the honest read. Past Top 10 is noise.",
+      "layer": "Dealer Walls",
+      "pages": "3, 10, 38, 59, 66",
+      "strength": 4,
+      "what": "How many wall lines get drawn, counted as the largest strikes by exposure rather than by distance.",
+      "why": "Top 3 on a quiet day and Top 3 on expiry day do not cover the same band of prices.",
+      "facts": [
+        "Five rows: Off, Top 3, Top 5, Top 10, Top 15",
+        "The default is Top 15",
+        "Top 25 and Top 40 exist on the internal build and are removed; a saved preference of 25 or 40 is rewritten to 15"
+      ],
+      "quotes": [
+        "Top 5 is the honest read, Top 10 is context, and everything past Top 10 is mostly noise",
+        "the N largest strikes by dealer exposure in the currently selected metric and expiry bucket. It is a count, not a distance."
+      ],
+      "angle": "A one-line rule for how many levels anyone should look at, and why more lines means less information.",
+      "blocks": [
+        "ladder",
+        "compare",
+        "statelist"
+      ],
+      "used": null
+    },
+    {
+      "id": "metric-gex-cex-dex",
+      "title": "GEX, CEX, DEX: three different kinds of level",
+      "layer": "Dealer Walls",
+      "pages": "11, 59, 61, 66",
+      "strength": 4,
+      "what": "Which dealer exposure greek the wall lines measure, which changes what a level actually represents.",
+      "why": "The same strike means a different thing under gamma, under charm and under delta.",
+      "facts": [
+        "GEX is gamma exposure: where dealer hedging suppresses or accelerates price",
+        "CEX is charm exposure: time-decay pressure on dealer hedges, and the pin engine near same-day strikes",
+        "DEX is delta exposure: dealer delta by strike",
+        "ALL draws all of them at once, gamma as solid lines and charm dashed",
+        "The default is GEX and it does not persist",
+        "Metric switching is only real on SPX, VIX, ES, MES and VX",
+        "DEX has a book only on SPX, ES and MES"
+      ],
+      "quotes": [
+        "A typical working reading is GEX, Top 15, All expiries",
+        "if the instrument is SPY, QQQ, NQ, RTY or GOLD, treat METRIC as fixed at GEX regardless of what the label says."
+      ],
+      "angle": "Three acronyms decide whether a level brakes price, pins it by the clock, or shows where the hedge sits.",
+      "blocks": [
+        "statelist",
+        "ladder",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "expiry-buckets",
+      "title": "Expiry buckets that count the strikes first",
+      "layer": "Dealer Walls",
+      "pages": "12, 59, 66",
+      "strength": 3,
+      "what": "Which expirations feed the walls and the heat map, with each row showing a live strike count.",
+      "why": "You can see whether a bucket will draw anything at all before you select it.",
+      "facts": [
+        "0DTE (0) with 27 Sep",
+        "This week (163) with 28 Sep - 2 Oct",
+        "This month (137) with 27 Sep - 30 Sep",
+        "All (338)",
+        "When the 0DTE count is zero the row dims to 35 percent and is not clickable",
+        "On SPY, QQQ, NQ, RTY and GOLD the expiry toggle re-filters the heat map but not the wall lines"
+      ],
+      "quotes": [
+        "The count is the number of distinct strikes in that window, not contracts",
+        "No contracts expire today on this instrument",
+        "The control looks fully live and is only half live there."
+      ],
+      "angle": "A dropdown that tells you how much data sits behind each option before you commit to it.",
+      "blocks": [
+        "rows",
+        "statelist",
+        "compare"
+      ],
+      "used": null
+    },
+    {
+      "id": "liquidity-tide",
+      "title": "The Liquidity Tide: order flow as a ribbon",
+      "layer": "CVD",
+      "pages": "2, 13-14, 30, 66, 68",
+      "strength": 4,
+      "what": "A proprietary algorithm that renders live order flow as a ribbon behind or instead of the candles.",
+      "why": "It shows buying and selling pressure while it happens, without waiting for a bar to close.",
+      "facts": [
+        "In tide mode the ribbon is the price and its leading edge is live price right now",
+        "Green means buyers, red means sellers, grey means balanced or absorbed",
+        "Saturation and opacity rise with conviction",
+        "The ribbon's vertical thickness is deliberately flat and constant",
+        "Default On",
+        "The Tide has no data on VIX or VX"
+      ],
+      "quotes": [
+        "An extensive proprietary algorithm that renders live order flow as a ribbon",
+        "How the engine derives any of this is proprietary and is not documented anywhere in the product",
+        "The Tide has no data on VIX or VX."
+      ],
+      "angle": "A candle tells you what happened once it closed; a ribbon tells you who is winning right now.",
+      "blocks": [
+        "splitstate",
+        "candle",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "pale-core",
+      "title": "The pale core: absorption before the turn",
+      "layer": "CVD",
+      "pages": "30",
+      "strength": 4,
+      "what": "A light core running down the middle of a stretch of ribbon, marking absorption.",
+      "why": "It is often the tell that a reversal is close, before the candles show anything.",
+      "facts": [],
+      "quotes": [
+        "A subtle pale core running down the middle of a stretch marks absorption: one side quietly eating the other's aggression, which is often the tell that a turn is close."
+      ],
+      "angle": "One side quietly eating the other's aggression shows up as a colour before it shows up as a candle.",
+      "blocks": [
+        "candle",
+        "splitstate",
+        "twolines"
+      ],
+      "used": null
+    },
+    {
+      "id": "white-bars",
+      "title": "White bars: when real size commits to a price",
+      "layer": "CVD",
+      "pages": "30-31, 36, 69",
+      "strength": 4,
+      "what": "Short white horizontal bars laid across the ribbon at the price where a burst of institutional size committed.",
+      "why": "When a white bar appears, that price has already been defended with real money.",
+      "facts": [
+        "The bar's length is the magnitude of the event, drawn in fixed pixels so it stays the same at every zoom",
+        "The bar sits at the price the heavy lots actually transacted at, not at the closing tick",
+        "Bars are placed biggest first and a smaller one that would overlap a bigger one is skipped"
+      ],
+      "quotes": [
+        "This is the engine's headline signal",
+        "when a white bar appears, respect that price",
+        "White is a magnitude signal, not a direction signal. A white bar says size arrived, not which way it is going.",
+        "white is the only meaning white carries anywhere in the price area"
+      ],
+      "angle": "The engine's loudest signal says nothing about direction, only that size has arrived.",
+      "blocks": [
+        "levelline",
+        "rings",
+        "bignum"
+      ],
+      "used": null
+    },
+    {
+      "id": "amber-bars",
+      "title": "The signal that appears about once a day",
+      "layer": "CVD",
+      "pages": "31",
+      "strength": 4,
+      "what": "An amber bar at the price of sustained absorption that never produced a white bar.",
+      "why": "It is the patient version of the same event: a stealthy turning point.",
+      "facts": [
+        "It appears roughly once a day",
+        "Its width scales with how convinced the reading is",
+        "Amber and white never appear at the same price for the same event"
+      ],
+      "quotes": [
+        "It appears roughly once a day, and its width scales with how convinced the reading is",
+        "Treat it as a confluence nudge at a stealthy turning point… not a standalone signal",
+        "they never appear at the same price for the same event, because amber fires specifically where white did not."
+      ],
+      "angle": "A signal rare enough to matter, shipped with the instruction not to trade it alone.",
+      "blocks": [
+        "levelline",
+        "rings",
+        "splitstate"
+      ],
+      "used": null
+    },
+    {
+      "id": "tide-hover-readout",
+      "title": "The ribbon, translated into a sentence",
+      "layer": "CVD",
+      "pages": "31-32",
+      "strength": 3,
+      "what": "A popout that reads the ribbon at the cursor in plain English.",
+      "why": "It turns a colour gradient into a verdict you can state out loud.",
+      "facts": [
+        "Verdicts: BUYERS winning, SELLERS winning, ABSORBED-balanced",
+        "Strength qualifiers: light, moderate or strong",
+        "Size descriptors: light-quiet, medium, or HEAVY (institutional or algorithmic flow)",
+        "Two numeric flow readouts in lots",
+        "The price above a white bar is labelled avg px",
+        "Timestamps are in ET"
+      ],
+      "quotes": [
+        "HEAVY (institutional or algorithmic flow)"
+      ],
+      "angle": "A terminal that speaks: the flow reading is a sentence, not a chart you have to decode.",
+      "blocks": [
+        "rows",
+        "gauge",
+        "statelist"
+      ],
+      "used": null
+    },
+    {
+      "id": "block-size-thresholds",
+      "title": "What counts as big, market by market",
+      "layer": "Dark Pool",
+      "pages": "13, 32, 39, 59, 68",
+      "strength": 4,
+      "what": "The minimum print that counts as a block, preset per instrument and editable.",
+      "why": "Large is not a universal number: 100 contracts on ES is not 100 contracts on NQ.",
+      "facts": [
+        "ES 100 contracts",
+        "MES 60 contracts",
+        "NQ 20 contracts",
+        "RTY 50 contracts",
+        "GOLD 10 contracts",
+        "VX 25 contracts",
+        "SPX 1",
+        "VIX 100",
+        "SPY 5,000 shares",
+        "QQQ 5,000 shares",
+        "Mega thresholds: ES 300, SPY 50,000, QQQ 50,000"
+      ],
+      "quotes": [
+        "The value is remembered per instrument, so a number typed on SPY does not follow you to ES",
+        "The threshold box refuses minus signs, decimals and exponent characters outright"
+      ],
+      "angle": "Before you can spot institutional size you need a number for it, and that number is different on every market.",
+      "blocks": [
+        "rows",
+        "compare",
+        "bignum"
+      ],
+      "used": null
+    },
+    {
+      "id": "block-print-pills",
+      "title": "Size pills: 2.4K contracts in one minute",
+      "layer": "Dark Pool",
+      "pages": "32, 69",
+      "strength": 4,
+      "what": "Rounded pills marking unusually large single prints, grouped by minute and by price cluster.",
+      "why": "It shows where real size passed through, and exactly how much of it.",
+      "facts": [
+        "Sizes abbreviated as 1.2M, 5.5K, 450",
+        "2.4K ×6 means 2,400 contracts across six separate prints in that one minute at that one price",
+        "Silver is a normal block, gold is a mega block, and mega pills are drawn slightly larger",
+        "Pills are capped at the 250 largest in view"
+      ],
+      "quotes": [
+        "Every pill carries a number, always",
+        "a pill is never allowed to sit on a candle: if there is genuinely nowhere to put it it shrinks to a dot"
+      ],
+      "angle": "Retail sees a candle; this layer labels the individual prints that built it, with the count attached.",
+      "blocks": [
+        "rings",
+        "bignum",
+        "candle"
+      ],
+      "used": null
+    },
+    {
+      "id": "diamond-and-leader",
+      "title": "We removed a line because it looked like a spike",
+      "layer": "Dark Pool",
+      "pages": "32-33",
+      "strength": 4,
+      "what": "A small diamond marks the true price and time of a print, joined to its label by a dotted diagonal.",
+      "why": "The diamond is the truth and the pill is only the label.",
+      "facts": [
+        "Nothing in this layer is drawn vertically any more, by design"
+      ],
+      "quotes": [
+        "The diamond replaced an earlier vertical stroke that ran from the pill down to the price… On a candle chart a thin vertical stroke is a wick, and stacked clusters in one minute merged their strokes into one unbroken vertical line that read as a price spike that never happened. Nothing in this layer is drawn vertically any more, by design."
+      ],
+      "angle": "A design decision made because the old marker drew a price spike that had never happened.",
+      "blocks": [
+        "candle",
+        "rings",
+        "splitstate"
+      ],
+      "used": null
+    },
+    {
+      "id": "zoom-size-threshold",
+      "title": "Zoom out and the size filter rises with you",
+      "layer": "Dark Pool",
+      "pages": "33",
+      "strength": 3,
+      "what": "The more candles on screen, the higher the print threshold drawn, with a badge declaring the active number.",
+      "why": "It prevents a wall of overlapping labels when you zoom out, and it never hides the rule it used.",
+      "facts": [
+        "Badge: orders above 200 contracts · zoom · 310 candles",
+        "Badge: orders above 300 contracts · your filter",
+        "Roughly two hours of bars or fewer shows everything the instrument qualifies, out to about a full session doubles the floor, and beyond that it multiplies it by five"
+      ],
+      "quotes": [
+        "The ladder is measured in candles on screen, not in pixels",
+        "Your typed threshold always beats the zoom. There is no blending, no maximum-of-the-two"
+      ],
+      "angle": "An automatic filter that always prints which number it is using and where that number came from.",
+      "blocks": [
+        "ladder",
+        "rows",
+        "bignum"
+      ],
+      "used": null
+    },
+    {
+      "id": "block-cluster-hover",
+      "title": "One 6,000-lot trade or twelve 500-lot trades?",
+      "layer": "Dark Pool",
+      "pages": "33",
+      "strength": 5,
+      "what": "A card that breaks a cluster of prints at one price back into the individual trades.",
+      "why": "A single enormous order and many medium orders at the same price are very different events.",
+      "facts": [
+        "Headers: BLOCK CLUSTER ×N, MEGA BLOCK CLUSTER, SWEEP CLUSTER",
+        "The five largest individual prints are listed with their exact prices, with any mega print flagged in gold"
+      ],
+      "quotes": [
+        "That list is how you tell one 6,000-lot trade from twelve 500-lot trades at the same price, which are very different events",
+        "The time is forced to ET regardless of the viewer's machine clock."
+      ],
+      "angle": "One volume number hides two opposite stories, and almost no retail tool lets you open it up.",
+      "blocks": [
+        "compare",
+        "rows",
+        "bignum"
+      ],
+      "used": null
+    },
+    {
+      "id": "key-levels",
+      "title": "A key level needs at least three big prints",
+      "layer": "Dark Pool",
+      "pages": "28, 36, 63, 69",
+      "strength": 4,
+      "what": "Dashed horizontal lines where qualified block prints have repeatedly stacked up.",
+      "why": "It is where big money has actually traded, not where the option book would like it to trade.",
+      "facts": [
+        "A band qualifies only with at least three separate large prints, relaxed to two on a thin instrument",
+        "The top ten are drawn",
+        "The strongest is gold and carries a double star; every other level is silver",
+        "Label example: 7,150.00  2K · 36 blocks",
+        "The LEVELS control offers Today, All (about ten days of memory) and Off"
+      ],
+      "quotes": [
+        "A band qualifies only with at least three separate large prints in it, relaxed to two on a thin instrument, because a single huge print is an event and not a level",
+        "levels and their labels require the Liquidity Tide to be on"
+      ],
+      "angle": "One huge print is an event; three in the same band is a level, and the threshold is written down.",
+      "blocks": [
+        "levelline",
+        "rows",
+        "compare"
+      ],
+      "used": null
+    },
+    {
+      "id": "wall-rank-channels",
+      "title": "Four visual channels encode one wall's rank",
+      "layer": "Dealer Walls",
+      "pages": "25",
+      "strength": 3,
+      "what": "Thickness, opacity, dashing and a left-to-right fade all encode how important a wall is.",
+      "why": "The biggest wall of the day is recognisable at a glance, with no legend needed.",
+      "facts": [
+        "Thickness: one pixel to four",
+        "Opacity: faint to fully saturated",
+        "The weakest walls of a metric go dashed",
+        "Every wall is invisible at the far left of history and reaches full strength at the right-hand end"
+      ],
+      "quotes": [
+        "Rank is measured against the strongest wall of its own metric, never across metrics"
+      ],
+      "angle": "Importance encoded four ways at once, so the hierarchy survives a one-second glance.",
+      "blocks": [
+        "ladder",
+        "levelline",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "wall-selection-band",
+      "title": "Why a far strike cannot bully into the Top 5",
+      "layer": "Dealer Walls",
+      "pages": "25",
+      "strength": 3,
+      "what": "Walls are selected by absolute exposure multiplied by closeness to spot.",
+      "why": "It stops a monstrous far out-of-the-money strike taking a slot that matters.",
+      "facts": [
+        "Selection starts in a tight band of about 1.5 percent either side of price and widens only as far as 5 percent if there are not enough candidates"
+      ],
+      "quotes": [
+        "starting in a tight band of about 1.5 percent either side of price and widening only as far as 5 percent if there are not enough candidates. That is what stops a monstrous far out-of-the-money strike bullying its way into the Top 5."
+      ],
+      "angle": "A ranked list of levels is only useful if the ranking knows that distance matters.",
+      "blocks": [
+        "ladder",
+        "levelline",
+        "compare"
+      ],
+      "used": null
+    },
+    {
+      "id": "wall-label-lane",
+      "title": "A label that refuses to be placed dishonestly",
+      "layer": "Dealer Walls",
+      "pages": "26",
+      "strength": 3,
+      "what": "Every wall has a filled dot and a label in a reserved lane along the right edge.",
+      "why": "The dot carries the true colour, because the line itself is deliberately faded.",
+      "facts": [
+        "Label format: 7,685 · +$19.7M",
+        "Exactly one wall per screen carries a star, marking the single biggest of the day"
+      ],
+      "quotes": [
+        "Labels that cannot be placed honestly are dropped, not stacked",
+        "a wall whose price is off the visible vertical range gets no pill at all: it is deliberately not parked at the top edge, because that would be a claim about a price you cannot see."
+      ],
+      "angle": "A chart that would rather show you nothing than park a label at a price you cannot see.",
+      "blocks": [
+        "levelline",
+        "ladder",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "exposure-numbers-meaning",
+      "title": "What +$19.7M on a strike actually means",
+      "layer": "Dealer Walls",
+      "pages": "26-27",
+      "strength": 4,
+      "what": "The unit of the number printed on every wall, and what that number is not.",
+      "why": "It is not money anyone will pay you; it is how much hedging pressure is bolted to that price.",
+      "facts": [
+        "For the signed book (SPX, ES, MES, VIX, VX) it is dealer profit-and-loss exposure per one-point move in the underlying index, or per one volatility point on VIX",
+        "Always signed and abbreviated: +$19.7M, -$1.24B, +$850K",
+        "A plus sign means dealers are long that greek at that strike, a minus sign means short",
+        "Delta exposure is quoted in raw book units with no dollar sign, being contracts multiplied by delta multiplied by 100",
+        "Units: dollars per million per point for gamma, dollars per million per five minutes for charm, dollars per million per volatility percent for vanna",
+        "In ALL mode labels are prefixed GEX· and CEX· so 360M under one metric and 526.52B under another cannot be confused"
+      ],
+      "quotes": [
+        "It is not a dollar amount anybody will pay you. It is a measure of how much hedging pressure is bolted to that price.",
+        "Do not compare a gamma number to a delta number.",
+        "Delta exposure is quoted in raw book units with no dollar sign at all… because there is no defensible dollar conversion for it and the product refuses to invent one."
+      ],
+      "angle": "The most quoted number in options positioning, and the one almost nobody can define correctly.",
+      "blocks": [
+        "bignum",
+        "rows",
+        "compare"
+      ],
+      "used": null
+    },
+    {
+      "id": "four-wall-families",
+      "title": "Four wall colours, four behaviours",
+      "layer": "Dealer Walls",
+      "pages": "27, 36, 69",
+      "strength": 4,
+      "what": "Every wall is classified on two axes, call or put dominant and dealer gamma long or short, giving four colours.",
+      "why": "It tells you whether that level brakes price or shoves it.",
+      "facts": [
+        "GREEN · call wall, long gamma: suppressive resistance",
+        "RED · put wall, long gamma: suppressive support",
+        "CYAN · call wall, short gamma: accelerative",
+        "MAGENTA · put wall, short gamma: accelerative",
+        "Under charm the same four read 'time pulls down' and 'time pulls up'",
+        "Under delta they read 'customers bought calls here' and 'sold puts here'"
+      ],
+      "quotes": [
+        "Dealers defend it and fade rallies into it. Expect a stall",
+        "Expect it to hold",
+        "A clean break above can run fast. Follow it",
+        "A break below can run fast. Do not buy it",
+        "green and red walls brake price; cyan and magenta walls are where price gets a shove"
+      ],
+      "angle": "Four colours that each carry an instruction, instead of a legend you have to memorise.",
+      "blocks": [
+        "statelist",
+        "ladder",
+        "levelline"
+      ],
+      "used": null
+    },
+    {
+      "id": "red-wall-is-a-floor",
+      "title": "A red wall is a floor, not a bearish signal",
+      "layer": "Dealer Walls",
+      "pages": "23-24, 63, 69",
+      "strength": 5,
+      "what": "Green and red mean direction on the candles and suppression on the walls, and the two get confused constantly.",
+      "why": "Mixing up direction and suppression is the single most common misreading of this chart.",
+      "facts": [
+        "On the heat maps there is no green or red at all"
+      ],
+      "quotes": [
+        "On the candles and the volume bars, green and red are price direction",
+        "On the dealer walls, green and red are suppression, not direction",
+        "A red wall is a floor, not a bearish signal. This is the single most common misreading of the chart and it must be said out loud when training someone."
+      ],
+      "angle": "The same two colours mean two different things on one screen, and the product says so before you learn it the hard way.",
+      "blocks": [
+        "splitstate",
+        "levelline",
+        "statelist"
+      ],
+      "used": null
+    },
+    {
+      "id": "magnets",
+      "title": "Magnets: the strike that pins price",
+      "layer": "Dealer Walls",
+      "pages": "27-28, 38, 51",
+      "strength": 4,
+      "what": "A strike carrying strong positive gamma close to spot, which drags price toward itself and pins it.",
+      "why": "It changes the choice between a range trade and a breakout trade as the session wears on.",
+      "facts": [
+        "The closer a magnet is to spot and the bigger its gamma, the stronger the pull",
+        "The pull strengthens into the close as same-day options decay",
+        "The magnet read now lives in the read panel, not as a line"
+      ],
+      "quotes": [
+        "Magnets are not direction calls",
+        "They tell you where price is likely to be attracted and pinned, not whether the next hour is up or down.",
+        "range trades get better and breakout trades get worse as the session wears on around a strong magnet",
+        "an earlier gold target line, which drew the single dominant magnet on the chart, has been retired"
+      ],
+      "angle": "Pinning is a mechanical effect of option decay, not a prediction, and it gets stronger by the hour.",
+      "blocks": [
+        "levelline",
+        "scenarios",
+        "gauge"
+      ],
+      "used": null
+    },
+    {
+      "id": "confluence-rule",
+      "title": "No single wall is a trade",
+      "layer": "Cross-layer",
+      "pages": "27-28, 38, 63, 65, 69",
+      "strength": 5,
+      "what": "A magnet is what the dealer book wants; a key level is where big money has actually traded. One alone is not enough.",
+      "why": "It is the one rule from this product that works even with the tools you already use.",
+      "facts": [
+        "Confluence examples: a heavy dealer wall that is also a Tide key level; a magnet that also sits on a charm flip; a big options-flow spike arriving exactly at a wall"
+      ],
+      "quotes": [
+        "A magnet is what the dealer book wants. A key level is where big money has actually traded",
+        "When a magnet and a key level land on the same price, that is the strongest single read the chart produces",
+        "No single wall is a trade.",
+        "Wait for price to come to the level",
+        "No single wall is a trade. Wait for two independent things to agree on one price."
+      ],
+      "angle": "A tool that tells you not to act on its own strongest signal unless something independent agrees with it.",
+      "blocks": [
+        "levelline",
+        "compare",
+        "scenarios"
+      ],
+      "used": null
+    },
+    {
+      "id": "estimated-from-open-interest",
+      "title": "Estimated from open interest, and it says so",
+      "layer": "Dealer Walls",
+      "pages": "29, 60",
+      "strength": 3,
+      "what": "On five instruments the walls are estimated from open interest instead of from a signed dealer book.",
+      "why": "You need to know when you are looking at an estimate, and the product labels it in plain words.",
+      "facts": [
+        "SPY, QQQ, NQ, RTY and GOLD have no signed dealer positioning available",
+        "Hovering one gives the strike, the call and put split of open interest, and the net gamma per one percent move"
+      ],
+      "quotes": [
+        "estimated from open interest · not a dealer book",
+        "<TICKER> has no dealer book / Walls and maps read the book on <list>"
+      ],
+      "angle": "Two tiers of data quality on one screen, with the weaker tier labelled rather than blended in.",
+      "blocks": [
+        "statelist",
+        "splitstate",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "wall-hover-card",
+      "title": "Hover a level, get a sentence not a number",
+      "layer": "Dealer Walls",
+      "pages": "29-30",
+      "strength": 3,
+      "what": "A card that appears when the cursor comes within a few pixels of a wall line.",
+      "why": "It turns the level into an operating sentence instead of a raw figure.",
+      "facts": [
+        "On ES it shows both scales, for example SPX 7700 → ES 7713.00",
+        "Each section gives a swatch, a family name such as Call wall · long γ, an effect sentence, and signed Net, Call and Put values"
+      ],
+      "quotes": [
+        "Nothing on the chart requires a click to inspect",
+        "Suppressive resistance — dealers defend, fade rallies",
+        "Values are dealer P&L exposure per 1-point SPX move. Sum across all expirations.",
+        "The wall card prefers to sit to the right of the cursor and the flow card to the left"
+      ],
+      "angle": "Inspection without a single click: the level explains its own mechanics on hover.",
+      "blocks": [
+        "rows",
+        "levelline",
+        "statelist"
+      ],
+      "used": null
+    },
+    {
+      "id": "hollow-price-tag",
+      "title": "A hollow price tag means the feed is frozen",
+      "layer": "Cross-layer",
+      "pages": "25, 36, 57, 65, 69",
+      "strength": 4,
+      "what": "A gold dotted line at live price with a matching axis tag, which goes hollow when the price stalls.",
+      "why": "A frozen price looks exactly like a live one unless you know this one visual difference.",
+      "facts": [
+        "It ticks on every trade rather than once per bar",
+        "Gold was chosen because the previous cyan sat one shade away from the cyan used for short-gamma walls",
+        "When the feed stalls the solid gold tag is replaced by a hollow outlined tag with the same number and the price line dims"
+      ],
+      "quotes": [
+        "Do not trade off a hollow tag.",
+        "it is the single most important 'looks live but is not' state on the chart.",
+        "Gold was chosen deliberately. The previous cyan sat one shade away from the cyan used for short-gamma walls, so the live price was being misread as a dealer level",
+        "A hollow price tag means the feed is frozen. Do not trade off it."
+      ],
+      "angle": "A tiny change in one tag separates a live market from yesterday's number.",
+      "blocks": [
+        "splitstate",
+        "candle",
+        "statelist"
+      ],
+      "used": null
+    },
+    {
+      "id": "no-data-hatching",
+      "title": "A perfectly flat bar is always fabricated",
+      "layer": "Cross-layer",
+      "pages": "2, 34, 56",
+      "strength": 4,
+      "what": "Diagonal hatching marks minutes with no data instead of leaving them blank or inventing a bar.",
+      "why": "'We do not know' is not the same statement as 'the market was quiet'.",
+      "facts": [
+        "A dim 45-degree diagonal hatch running the full height of the price area",
+        "Nothing else on the chart is drawn diagonally",
+        "It is painted first, underneath every other layer",
+        "Only gaps between roughly 90 seconds and 10 minutes are hatched"
+      ],
+      "quotes": [
+        "Earlier builds carried a flat bar forward through a gap, which looked exactly like a real minute in which price did not move. The product now treats any perfectly flat bar as fabricated and refuses to quote a price off one.",
+        "a dim 45-degree diagonal hatch"
+      ],
+      "angle": "Most charts fill a data gap with a flat bar; this one declares the gap and refuses to quote a price off it.",
+      "blocks": [
+        "candle",
+        "splitstate",
+        "statelist"
+      ],
+      "used": null
+    },
+    {
+      "id": "crosshair",
+      "title": "A crosshair deliberately dressed as interface",
+      "layer": "Cross-layer",
+      "pages": "34-35",
+      "strength": 1,
+      "what": "The grey dashed crosshair with time and price tags that synchronises all three panes.",
+      "why": "It is drawn in interface grey so it can never be mistaken for a quote off the market.",
+      "facts": [
+        "In Tide mode the pill shows seconds (14:32:07) when a tide column sits under the cursor and only minutes (14:32) elsewhere"
+      ],
+      "quotes": [
+        "deliberately drawn in interface grey rather than the chart's cyan, because cyan is a data colour here and a crosshair dressed as data reads like a quote off the market",
+        "lights up the matching horizontal position in the CVD and CDI panes below, so all three panels read the same instant"
+      ],
+      "angle": "Colour discipline: interface grey for tools, data colours reserved for data.",
+      "blocks": [
+        "rows",
+        "splitstate"
+      ],
+      "used": null
+    },
+    {
+      "id": "candles-and-volume",
+      "title": "Volume is the confirmation channel for a break",
+      "layer": "Cross-layer",
+      "pages": "24",
+      "strength": 2,
+      "what": "Standard OHLC candles with a volume histogram pinned to the bottom of the price pane.",
+      "why": "A wall break on heavy volume is a different event from the same break on a flat bar.",
+      "facts": [
+        "Volume occupies the bottom eighteen percent or so of the price pane, scaled off its own left axis so it never distorts the price scale",
+        "SPX and VIX are index quotes and carry no shareable volume, so the volume strip is empty",
+        "With the Tide on, candles are painted fully transparent rather than removed"
+      ],
+      "quotes": [
+        "a break through a dealer wall on a volume bar far above its neighbours is a different event from the same break on a flat bar",
+        "SPX and VIX are index calculations with no shareable volume."
+      ],
+      "angle": "The oldest confirmation signal on a chart, repurposed to grade a dealer-wall break.",
+      "blocks": [
+        "candle",
+        "compare",
+        "splitstate"
+      ],
+      "used": null
+    },
+    {
+      "id": "gamma-regime",
+      "title": "Support in one regime, air pocket in the other",
+      "layer": "Exposure Maps",
+      "pages": "37, 53",
+      "strength": 5,
+      "what": "The calculation of whether dealers near price are net long or net short gamma.",
+      "why": "It inverts the meaning of everything else on screen, including whether a support level is real.",
+      "facts": [
+        "It sums signed dealer gamma within two percent either side of spot and reports the tilt as net divided by gross",
+        "Roughly five percent is the dividing band: above plus five reads POSITIVE, below minus five NEGATIVE, in between MIXED or TRANSITION"
+      ],
+      "quotes": [
+        "Do not eyeball it.",
+        "the walls are brakes… the play is to fade them",
+        "The walls stop being brakes and become triggers. The play is to follow breaks",
+        "a put wall below price in this regime is an air pocket, not support, and price tends to flush straight through it. Buying that same level here is the classic way to lose money with this chart.",
+        "mistaking the two is the single most expensive error on this screen."
+      ],
+      "angle": "Support is not a property of a price. It is a property of who is hedging around it today.",
+      "blocks": [
+        "splitstate",
+        "gauge",
+        "levelline"
+      ],
+      "used": null
+    },
+    {
+      "id": "short-gamma-volatility",
+      "title": "Short gamma changes your size, not your side",
+      "layer": "Exposure Maps",
+      "pages": "38",
+      "strength": 4,
+      "what": "Where dealers are short gamma, their hedging amplifies whatever price does.",
+      "why": "It is a sizing decision: stops get hit that would have survived in the other regime.",
+      "facts": [],
+      "quotes": [
+        "moves get faster, ranges get wider, and stops get hit that would have survived in the other regime. Size positions for that, and be sceptical of any level-based mean-reversion idea in that zone."
+      ],
+      "angle": "The same stop distance is conservative in one regime and reckless in the other.",
+      "blocks": [
+        "splitstate",
+        "gauge",
+        "scenarios"
+      ],
+      "used": null
+    },
+    {
+      "id": "cvd-big-trader",
+      "title": "A CVD built only from the big trades",
+      "layer": "CVD",
+      "pages": "15, 38, 39-40, 67",
+      "strength": 4,
+      "what": "A session-cumulative total of buy volume minus sell volume on the tape, signed by the aggressor.",
+      "why": "It tells you whether the people moving price are actually paying up to move it.",
+      "facts": [
+        "Only prints at or above that instrument's block threshold feed it",
+        "A print that landed inside the spread carries no side",
+        "The pane is about 180px and never more than 32% of the chart",
+        "Default Off at every boot",
+        "Header: CVD +40 contracts, optionally · zero is off the scale or · stalled 12m",
+        "After five minutes the header greys out"
+      ],
+      "quotes": [
+        "Every qualifying print that lifted the offer adds its size. Every print that hit the bid subtracts its size.",
+        "It is deliberately a big-trader CVD, not a tick-by-tick one.",
+        "No block trade has arrived on ES today. The curve appears with the first one.",
+        "It does not claim the feed is broken, because it cannot tell a dead feed from a quiet session."
+      ],
+      "angle": "Filtering out the small prints is the point: this curve only counts the players who can move a market.",
+      "blocks": [
+        "twolines",
+        "compare",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "cvd-scale",
+      "title": "Read the shape against price, not the pixels",
+      "layer": "CVD",
+      "pages": "39",
+      "strength": 3,
+      "what": "The CVD vertical scale auto-fits whatever is on screen, so apparent steepness means nothing alone.",
+      "why": "It is the single most common beginner error on that pane.",
+      "facts": [
+        "The scale auto-fits to the high and low of what is on screen, forces zero into the window, and adds 14 percent padding"
+      ],
+      "quotes": [
+        "Pan or zoom and the curve's apparent steepness changes. Read the shape against price, never the pixel height.",
+        "This is the single thing that confuses people about this pane."
+      ],
+      "angle": "A steep line can be an artefact of your own zoom level, and almost nobody checks.",
+      "blocks": [
+        "twolines",
+        "splitstate",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "cvd-divergence",
+      "title": "Was that high bought, or just unopposed?",
+      "layer": "CVD",
+      "pages": "40",
+      "strength": 5,
+      "what": "Price makes a new high and CVD does not.",
+      "why": "It separates a high that buyers paid for from a high that happened because sellers went away.",
+      "facts": [],
+      "quotes": [
+        "the high was not bought. It was carried by an absence of sellers rather than by aggressive buying, and it is fade risk",
+        "a new low in price with CVD flat or turning up means sellers are spent and the move is squeeze-prone",
+        "CVD tells you whether the people moving price are actually paying up to move it."
+      ],
+      "angle": "Two lines, one question: is anybody actually paying for this move?",
+      "blocks": [
+        "twolines",
+        "scenarios",
+        "candle"
+      ],
+      "used": null
+    },
+    {
+      "id": "cdi-premium-per-minute",
+      "title": "How many dollars of premium, this minute",
+      "layer": "CDI",
+      "pages": "16, 38, 40-41, 67",
+      "strength": 4,
+      "what": "Where same-day expiring option money is going, in dollars of premium, one bar per minute on the candle axis.",
+      "why": "CDI climbing into a flat price is accumulation you cannot see on the chart itself.",
+      "facts": [
+        "Call premium draws up from the centre line in green, put premium draws down from it in red",
+        "It is dollars of premium, not contracts, and not delta-weighted",
+        "The pane is about 180px",
+        "On at every boot",
+        "Header example: C $21K · P $7K",
+        "0DTE only"
+      ],
+      "quotes": [
+        "Net dealer-side delta exposure generated by same-day option flow",
+        "CDI climbing into a flat price is accumulation",
+        "On at every boot. This is one of the few layers the product turns on for you"
+      ],
+      "angle": "Price can stand perfectly still while real money piles into one side of the expiry.",
+      "blocks": [
+        "twolines",
+        "bignum",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "cdi-single-leg",
+      "title": "An iron condor is not a directional bet",
+      "layer": "CDI",
+      "pages": "16, 41, 63",
+      "strength": 4,
+      "what": "CDI counts only prints that are a standalone call or put, excluding the legs of spreads.",
+      "why": "It means a tall green bar really does mean somebody is buying calls.",
+      "facts": [
+        "Multi-leg and All-legs modes exist on the internal build and are removed here"
+      ],
+      "quotes": [
+        "A four-leg iron condor prints two calls and two puts at once, so in an all-legs view it shows up as a tall two-sided spike that expresses no directional view whatsoever. Single-leg strips that out, so a tall green bar really is somebody buying calls",
+        "it cannot be inflated by somebody legging a spread",
+        "only prints that are a standalone call or put, which is pure directional flow."
+      ],
+      "angle": "Most flow feeds count spread legs as directional bets, which quietly inflates every number you read.",
+      "blocks": [
+        "compare",
+        "splitstate",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "cdi-source-second-book",
+      "title": "Which option chain the CDI pane follows",
+      "layer": "CDI",
+      "pages": "40-41",
+      "strength": 1,
+      "what": "The source selector for the option chain, plus the option of stacking a second SPY pane.",
+      "why": "It lets you watch index and ETF flow together without switching instruments.",
+      "facts": [
+        "SPX, ES and MES all read the same-day index weekly book; SPY reads SPY; QQQ reads QQQ",
+        "VIX, VX, NQ, RTY and GOLD have no option book and the source tag reads — (n/a)",
+        "+ 2nd BOOK stacks a second, independent SPY same-day pane directly beneath the first"
+      ],
+      "quotes": [
+        "The old index monthly toggle has been removed… index monthlies are morning-settled and stop trading the previous session, so they are never same-day"
+      ],
+      "angle": "A removed toggle, explained: a monthly expiry can never be same-day flow.",
+      "blocks": [
+        "rows",
+        "statelist"
+      ],
+      "used": null
+    },
+    {
+      "id": "cdi-scale",
+      "title": "Outliers clipped, true figure still printed",
+      "layer": "CDI",
+      "pages": "41",
+      "strength": 1,
+      "what": "A linear dollar scale with a softening applied to outliers.",
+      "why": "Five million and seven million stay distinguishable at a glance.",
+      "facts": [
+        "Anything beyond roughly 3.5 times the 95th percentile clips to the edge but still prints its true dollar figure",
+        "The five biggest visible bars carry a permanent dollar label"
+      ],
+      "quotes": [
+        "anything beyond roughly 3.5 times the 95th percentile clips to the edge but still prints its true dollar figure",
+        "the five biggest visible bars carry a permanent dollar label"
+      ],
+      "angle": "Clipping a bar is acceptable; hiding its real value is not.",
+      "blocks": [
+        "compare",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "cdi-freshness-dot",
+      "title": "Every number carries its own age",
+      "layer": "CDI",
+      "pages": "41",
+      "strength": 3,
+      "what": "A dot in the CDI header stating how old the data in the pane is.",
+      "why": "It is an honesty check to run before quoting any figure out loud.",
+      "facts": [
+        "Green under 30 seconds, amber from 30 seconds to 3 minutes, red beyond 3 minutes",
+        "The age is shown in words beside it, for example 36s ago",
+        "Amber banner: CDI auto-recovery in progress…",
+        "Named empty states: n/a, no 0DTE flow yet, backfill HTTP 401 or 500"
+      ],
+      "quotes": [
+        "green under 30 seconds, amber from 30 seconds to 3 minutes, and red beyond 3 minutes, with the age in words beside it, for example `36s ago`"
+      ],
+      "angle": "A market number without a timestamp beside it is a rumour.",
+      "blocks": [
+        "statelist",
+        "gauge",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "cdi-spike",
+      "title": "The spike, not the trend, is the signal",
+      "layer": "CDI",
+      "pages": "42",
+      "strength": 4,
+      "what": "A tall isolated bar means somebody just spent real money inside a single minute.",
+      "why": "A spike landing exactly on a heavy dealer level is far stronger evidence than either on its own.",
+      "facts": [],
+      "quotes": [
+        "the everyday use is not the trend, it is the spike",
+        "A big CDI spike landing exactly on a heavy dealer level, or landing on a charm sign flip, is far stronger evidence than either on its own.",
+        "a quiet, even pane means the same-day tape has no opinion today, which is itself information."
+      ],
+      "angle": "One minute of real spending at a level you already had marked is the whole product in one event.",
+      "blocks": [
+        "rings",
+        "levelline",
+        "bignum"
+      ],
+      "used": null
+    },
+    {
+      "id": "options-flow",
+      "title": "How much premium today spent, and which side",
+      "layer": "Options Flow",
+      "pages": "17, 38, 42-43, 67",
+      "strength": 4,
+      "what": "Cumulative single-leg same-day premium, split by the side of the market it actually traded on, as three lines.",
+      "why": "It says whether the money spent today is directional, and in which direction.",
+      "facts": [
+        "Green is calls bought at the ask minus calls sold at the bid",
+        "Red is puts sold at the bid minus puts bought at the ask, so put buying plots downward",
+        "Grey is the two summed",
+        "Dollars of premium, not delta-weighted",
+        "The pane is about 150px, default Off but it persists"
+      ],
+      "quotes": [
+        "A reading instrument — nothing sizes on it.",
+        "Cumulative single-leg same-day premium, split by the side of the market it actually traded on, plotted as three running lines across the session."
+      ],
+      "angle": "A pane whose own tooltip tells you not to size a position on it.",
+      "blocks": [
+        "twolines",
+        "bignum",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "flow-sign-convention",
+      "title": "Red going up is bullish",
+      "layer": "Options Flow",
+      "pages": "42, 63",
+      "strength": 4,
+      "what": "Both coloured lines are drawn in bullish-is-up terms, which inverts the intuition for puts.",
+      "why": "It is the misreading every new user makes exactly once.",
+      "facts": [],
+      "quotes": [
+        "Green going up is call buying. Red going down is put buying. Red going UP does not mean more puts, it means puts are being sold, which is bullish. A new user will misread this exactly once. Say it out loud in training."
+      ],
+      "angle": "A deliberate visual paradox: one convention makes every line comparable, at the cost of one lesson.",
+      "blocks": [
+        "twolines",
+        "splitstate",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "flow-crossover",
+      "title": "The options tape changes its mind first",
+      "layer": "Options Flow",
+      "pages": "42",
+      "strength": 4,
+      "what": "The net grey line crossing zero, and green crossing beneath red.",
+      "why": "It usually happens before the change shows up in the candles.",
+      "facts": [],
+      "quotes": [
+        "Green crossing beneath red means put demand has overtaken call demand in dollar terms, which is the options tape changing its mind, and it usually does so before it shows up in the candles",
+        "Both lines climbing together, green up and red up, is the quietly bullish combination: calls being bought and puts being sold."
+      ],
+      "angle": "Premium gets repriced before price does, and the crossover is where you can watch it happen.",
+      "blocks": [
+        "twolines",
+        "scenarios",
+        "candle"
+      ],
+      "used": null
+    },
+    {
+      "id": "flow-totals",
+      "title": "One number to quote: NET premium",
+      "layer": "Options Flow",
+      "pages": "42",
+      "strength": 4,
+      "what": "Three session-cumulative figures pinned to the right edge of the Flow pane.",
+      "why": "The NET figure with its sign is the single number worth quoting out loud.",
+      "facts": [
+        "Example: C $4.20M, P -$1.11M, NET $3.09M"
+      ],
+      "quotes": [
+        "The NET figure with its sign is the single number to quote.",
+        "These are session-cumulative, not per-minute, so read them as 'this is what the day has spent'"
+      ],
+      "angle": "What did the options market spend today, net, in one figure.",
+      "blocks": [
+        "bignum",
+        "compare",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "flow-age-field",
+      "title": "If it says 13.6h ago, it is last night's file",
+      "layer": "Options Flow",
+      "pages": "43, 64",
+      "strength": 3,
+      "what": "The age of the data printed in the Flow pane header.",
+      "why": "A total from yesterday's file looks exactly like a total from today.",
+      "facts": [
+        "Header: OPTIONS FLOW · SPX 0DTE · single leg · premium $ · 45s ago · 312 min",
+        "It prints seconds, then minutes, then hours"
+      ],
+      "quotes": [
+        "If it reads `13.6h ago` you are looking at last night's file, not today's session. Check this before quoting any total.",
+        "Check the Flow pane's age field before quoting a total."
+      ],
+      "angle": "A one-field habit that stops you quoting a number from a dead session.",
+      "blocks": [
+        "rows",
+        "bignum",
+        "statelist"
+      ],
+      "used": null
+    },
+    {
+      "id": "flow-named-empty-states",
+      "title": "Every empty pane says why it is empty",
+      "layer": "Options Flow",
+      "pages": "43",
+      "strength": 3,
+      "what": "Each blank state carries a sentence explaining the reason it is blank.",
+      "why": "You never have to guess whether the product is broken.",
+      "facts": [
+        "Named states: waiting for the collector; no trades tagged yet this session; no data file yet; no flow in view — scroll to the live edge; · frozen — last session, not aligned to the axis"
+      ],
+      "quotes": [
+        "no flow in view — scroll to the live edge",
+        "no 0DTE book for this instrument / available on SPX, ES, MES and SPY"
+      ],
+      "angle": "Five different reasons a pane can be blank, each written out instead of left to interpretation.",
+      "blocks": [
+        "statelist",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "heat-maps-concept",
+      "title": "A heat map of the dealer book behind price",
+      "layer": "Exposure Maps",
+      "pages": "2, 43-44",
+      "strength": 4,
+      "what": "A price-by-time heat map painted behind the candles, each vertical column a five-minute snapshot of the book.",
+      "why": "This is what separates a day that will chop from a day that will run.",
+      "facts": [
+        "It runs from the open through to about thirty minutes past the newest snapshot, then stops",
+        "Hover gives the exact value, labelled with the map name and cursor 7776.25",
+        "The MAPS menu offers five maps plus None: γ Map, Charm, Vega, Volga and Delta",
+        "There is no Vanna map and no Regime map on the chart"
+      ],
+      "quotes": [
+        "This is what separates a day that will chop from a day that will run.",
+        "rather than smearing one frozen reading across the dead after-hours session",
+        "a price-by-time heat map painted behind the candles and under the wall lines. Up and down is price. Left and right is time."
+      ],
+      "angle": "Not an indicator computed from price, but a picture of the hedging obligations sitting behind it.",
+      "blocks": [
+        "heatband",
+        "levelline",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "one-scale-per-session",
+      "title": "A 10:00 screenshot will not match 10:00 later",
+      "layer": "Exposure Maps",
+      "pages": "44, 62",
+      "strength": 3,
+      "what": "The colour scale is computed across the whole day, not column by column.",
+      "why": "It makes 09:45 directly comparable with 15:45, at the cost of past columns re-shading.",
+      "facts": [],
+      "quotes": [
+        "a past column can re-shade when a heavier column arrives later in the day, so a screenshot taken at 10:00 will not match the same 10:00 viewed after the close. Nothing is wrong. The scale simply learned more."
+      ],
+      "angle": "A counter-intuitive behaviour explained rather than hidden: the scale keeps learning all day.",
+      "blocks": [
+        "heatband",
+        "splitstate",
+        "compare"
+      ],
+      "used": null
+    },
+    {
+      "id": "blue-amber-arms",
+      "title": "Why green and red became blue and amber",
+      "layer": "Exposure Maps",
+      "pages": "44-45, 50, 69",
+      "strength": 4,
+      "what": "A single two-ended colour axis, used identically on all five maps.",
+      "why": "The colour means the same thing whichever map you open, and neither end looks louder than the other.",
+      "facts": [
+        "BLUE · dealers buy · supportive · dampening",
+        "AMBER · dealers sell · pressure · amplifying",
+        "Each arm is a thirty-two-step continuous ramp, not tiered",
+        "At full strength blue and amber are within half a percent of each other in luminance",
+        "The previous green-and-red scheme had the two ends almost three times apart in brightness"
+      ],
+      "quotes": [
+        "Nothing is blacked out, and that is on purpose. The dimmest cell of each arm still carries colour",
+        "The previous green-and-red scheme had the two ends almost three times apart in brightness, which made a dealer-long day look like more information than a dealer-short day."
+      ],
+      "angle": "A palette bug with a measurable cost: one regime looked like more information than the other.",
+      "blocks": [
+        "compare",
+        "heatband",
+        "splitstate"
+      ],
+      "used": null
+    },
+    {
+      "id": "sign-change-line",
+      "title": "The price where dealers reverse their behaviour",
+      "layer": "Exposure Maps",
+      "pages": "45, 69",
+      "strength": 4,
+      "what": "White ticks marking where the field crosses zero, which is where amber becomes blue.",
+      "why": "It is one exact price with a mechanical meaning instead of an opinion.",
+      "facts": [
+        "On the gamma map it is the volatility trigger",
+        "On the delta map it is where the hedge flips between buying and selling, and that is a different price from the gamma flip"
+      ],
+      "quotes": [
+        "That is the line that matters on any map: the price at which the dealers' forced behaviour reverses.",
+        "no sign change in this book",
+        "rather than drawing a line that does not exist"
+      ],
+      "angle": "One price on the chart is not a guess: it is where a forced behaviour flips sign.",
+      "blocks": [
+        "levelline",
+        "heatband",
+        "scenarios"
+      ],
+      "used": null
+    },
+    {
+      "id": "colour-key-strip",
+      "title": "The legend shows a percentile, not a maximum",
+      "layer": "Exposure Maps",
+      "pages": "45",
+      "strength": 1,
+      "what": "The legend strip under the chart that decodes whichever map is active.",
+      "why": "The number beside the gradient is a high percentile of the day's field, not the day's peak.",
+      "facts": [
+        "It reads MAP · GAMMA, MAP · CHARM, or MAP · DELTA · dealer hedge vs spot (blue = they BUY)",
+        "The strip shows a negative number, the amber-to-ground-to-blue gradient bar, the matching positive number, the unit, then either 'where the colour changes sign' or 'no sign change in this book'"
+      ],
+      "quotes": [
+        "The plus-or-minus number is a high percentile of the day's field, not the day's maximum",
+        "The key belongs to the map and says so. Changing the walls metric from GEX to DEX will not change it, by design"
+      ],
+      "angle": "A legend that states exactly what its own number is, down to the percentile.",
+      "blocks": [
+        "rows",
+        "heatband"
+      ],
+      "used": null
+    },
+    {
+      "id": "gamma-map",
+      "title": "The gamma map: chop day or run day",
+      "layer": "Exposure Maps",
+      "pages": "46",
+      "strength": 4,
+      "what": "The default map, painting how fast a dealer's hedge must change as price moves.",
+      "why": "It is the range-versus-breakout read for the whole session.",
+      "facts": [
+        "BLUE: dealers are long gamma there, so price goes sticky and rangey",
+        "AMBER: dealers are short gamma, their hedging piles on, so moves accelerate",
+        "A textbook range day is a broad blue band either side of spot with amber wedges above the ceiling and below the floor"
+      ],
+      "quotes": [
+        "A dealer who is long gamma must sell into strength and buy into weakness just to stay flat… Nobody chooses this; it falls out of the options they are holding",
+        "In a blue field, fade the edges and expect chop between the levels. In an amber field, expect a break to run and do not fade it",
+        "The same put wall that is real support in a blue field is an air pocket in an amber one, and mistaking the two is the single most expensive error on this screen"
+      ],
+      "angle": "Nobody chooses to buy dips here. The options they are holding force them to.",
+      "blocks": [
+        "heatband",
+        "splitstate",
+        "scenarios"
+      ],
+      "used": null
+    },
+    {
+      "id": "charm-map",
+      "title": "The rally that runs on the clock, not on price",
+      "layer": "Exposure Maps",
+      "pages": "47",
+      "strength": 5,
+      "what": "The time-decay map, the one that owns the last two hours of the session.",
+      "why": "Charm moves the dealers' hedge even when price is standing perfectly still.",
+      "facts": [
+        "Measured on a live index book, the gamma field had zero zero-crossings in every expiry bucket while charm had eighteen",
+        "BLUE: dealers must BUY as the day runs",
+        "AMBER: dealers must SELL"
+      ],
+      "quotes": [
+        "Charm is the way an option's delta changes purely because time passes, with price standing perfectly still. Every hour that elapses moves the dealers' hedge whether or not the market does anything, and it is the only one of these effects that does",
+        "why charm dominates the last two hours of the session, and why it is behind the well-known charm rally: dealers short out-of-the-money puts are mechanically forced to buy as those puts decay",
+        "The flip is the signal",
+        "If you are looking for the flip line, this is the map that has one."
+      ],
+      "angle": "The afternoon drift everyone has noticed, with the mechanism named and a number attached: 18 flips against gamma's zero.",
+      "blocks": [
+        "heatband",
+        "levelline",
+        "bignum"
+      ],
+      "used": null
+    },
+    {
+      "id": "vega-map",
+      "title": "It does not say where. It says how violent.",
+      "layer": "Exposure Maps",
+      "pages": "48",
+      "strength": 4,
+      "what": "A map of fragility rather than of direction.",
+      "why": "It tells you how violent a move becomes once one starts.",
+      "facts": [
+        "BLUE: dealers are LONG vol, a volatility spike makes them sell vol into it, which calms the spike. Stabilising",
+        "AMBER: dealers are SHORT vol, a spike forces them to buy vol, which feeds the spike. Amplifying, and the dangerous side"
+      ],
+      "quotes": [
+        "Vega is what a dealer's book is worth per point of implied volatility… It says nothing about up or down",
+        "amber here does not mean down. It means 'if something happens here, it will be fast'",
+        "Traders use this map for sizing and for option selling, not for picking a side."
+      ],
+      "angle": "A map that refuses to pick a side and instead prices the violence of whatever happens.",
+      "blocks": [
+        "heatband",
+        "gauge",
+        "splitstate"
+      ],
+      "used": null
+    },
+    {
+      "id": "volga-coiled-spring",
+      "title": "Amber vega plus amber volga: the coiled spring",
+      "layer": "Exposure Maps",
+      "pages": "48",
+      "strength": 5,
+      "what": "Volga is how vega itself changes as volatility moves: the accelerator on the accelerator.",
+      "why": "It says whether the amplification feeds itself, which is the difference between a bleed and a blow-up.",
+      "facts": [
+        "BLUE: self-correcting, as vol rises dealers get longer vol, so they sell, and the move runs out of fuel",
+        "AMBER: cascade, as vol rises dealers get shorter vol, so they must buy more, and vol snowballs"
+      ],
+      "quotes": [
+        "Amber vega plus amber volga is the coiled spring. Dealers are short vol and that shortness deepens as vol rises, so a small catalyst can snowball into a violent volatility expansion and a sharp selloff.",
+        "Do not sell naked premium into amber-and-amber; the risk there is a fast blow-up, not a slow bleed.",
+        "Blue-and-blue is the opposite… the quietest configuration the map can show."
+      ],
+      "angle": "A named house rule with a three-step mechanism and one instruction: do not sell premium into it.",
+      "blocks": [
+        "splitstate",
+        "heatband",
+        "gauge"
+      ],
+      "used": null
+    },
+    {
+      "id": "delta-map",
+      "title": "How much buying sits between here and 7,800?",
+      "layer": "Exposure Maps",
+      "pages": "49",
+      "strength": 4,
+      "what": "The cumulative dealer hedge, drawn relative to where price is right now.",
+      "why": "It answers a question no other tool answers directly: read two prices and subtract.",
+      "facts": [
+        "Read two prices and subtract, and the difference is how many deltas of futures have to change hands to travel between them",
+        "It is derived from the same gamma book, since delta is its integral, so it costs no extra data and can never disagree with the gamma map",
+        "The colour follows the hedge, not the book: a dealer long option delta is short futures, so the sign is already flipped for you"
+      ],
+      "quotes": [
+        "Where the gamma map shows the rate at which the hedge changes, the delta map shows the cumulative hedge",
+        "the zero line on this map… is a different price from the gamma flip line",
+        "They are two distinct levels and confusing them is the commonest mistake here."
+      ],
+      "angle": "Trading distance measured in forced hedging flow instead of in points.",
+      "blocks": [
+        "heatband",
+        "compare",
+        "levelline"
+      ],
+      "used": null
+    },
+    {
+      "id": "vanna-badge",
+      "title": "Why a boring afternoon drifts upward",
+      "layer": "Exposure Maps",
+      "pages": "49",
+      "strength": 4,
+      "what": "How a dealer's delta changes when implied volatility changes; here it is a badge, not a map.",
+      "why": "It is the mechanism behind the vol-crush rally.",
+      "facts": [
+        "Badge row example: Gamma ↑ 33 · Charm ↓ 12 · Vanna —",
+        "It activates only when implied vol has actually moved materially in the last five minutes",
+        "A dash means that layer has nothing to say right now"
+      ],
+      "quotes": [
+        "positive net vanna means a fall in implied vol forces dealers to buy, so a quiet afternoon with implied vol bleeding away drifts upward",
+        "It is the mechanism behind the vol-crush rally.",
+        "All three badges pointing the same way is the highest-confidence state the panel can show."
+      ],
+      "angle": "The market can rise purely because fear is draining out of option prices.",
+      "blocks": [
+        "rows",
+        "gauge",
+        "twolines"
+      ],
+      "used": null
+    },
+    {
+      "id": "read-panel",
+      "title": "A panel that reads the chart in words",
+      "layer": "Market Intelligence",
+      "pages": "4, 20, 50, 67",
+      "strength": 4,
+      "what": "A fixed column docked to the right, headed READS THE CHART, that synthesises everything on screen.",
+      "why": "It is the fastest way to know what the screen is saying without learning every colour first.",
+      "facts": [
+        "The dock is 320 pixels wide and the chart narrows to make room rather than being overlapped",
+        "Four blocks always in the same order: VERDICT, WHY, THE PLAN, LEVELS ON THE CHART, closing with a source strip",
+        "Sections with nothing to say hide themselves",
+        "In the first seconds after a ticker change it prints waiting for ES…"
+      ],
+      "quotes": [
+        "the panel does not teach.",
+        "It is not a fourth chart, and it is not a place where anything is configured.",
+        "rather than asserting something false about the market",
+        "The colour legend and the explanations were deliberately moved out of it and into the Guide, so what remains is only the reading."
+      ],
+      "angle": "Software that states a reading in English, and refuses to teach or configure anything in the same place.",
+      "blocks": [
+        "rows",
+        "statelist",
+        "gauge"
+      ],
+      "used": null
+    },
+    {
+      "id": "verdict-compass-line",
+      "title": "One arrow encodes conviction, not just side",
+      "layer": "Market Intelligence",
+      "pages": "50",
+      "strength": 4,
+      "what": "An arrow, a direction and the instrument, on a single line.",
+      "why": "The arrow shape tells you how much the panel believes its own call.",
+      "facts": [
+        "↑↑ LONG ES, ↓ SHORT ES, or · NEUTRAL",
+        "A double arrow is HIGH, a single arrow is MED, a diagonal arrow is LOW",
+        "At LOW it prints LONG bias rather than naming the instrument"
+      ],
+      "quotes": [
+        "which is the panel hedging its own language on purpose."
+      ],
+      "angle": "A verdict that downgrades its own wording when it is not sure of itself.",
+      "blocks": [
+        "statelist",
+        "gauge",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "conviction-score",
+      "title": "A conviction score from -10 to +10",
+      "layer": "Market Intelligence",
+      "pages": "51",
+      "strength": 4,
+      "what": "A strength-of-agreement number between the layers, not a price target.",
+      "why": "It quantifies how much the independent signals actually agree today.",
+      "facts": [
+        "The score runs from minus ten to plus ten",
+        "It is smoothed over the last three readings, so it steps rather than flickers",
+        "Thresholds: 7 and above is HIGH, 3 and above is MED, 1 and above is LOW, below 1 is NEUTRAL",
+        "It reads HIGH conviction · 7.4, or from neutral score -0.1"
+      ],
+      "quotes": [
+        "Teach the score as a strength-of-agreement number, not a price target."
+      ],
+      "angle": "One number for how much the layers agree, with every threshold published.",
+      "blocks": [
+        "gauge",
+        "bignum",
+        "statelist"
+      ],
+      "used": null
+    },
+    {
+      "id": "action-verb",
+      "title": "Five verbs that live for ninety seconds",
+      "layer": "Market Intelligence",
+      "pages": "51",
+      "strength": 4,
+      "what": "A verb that appears when the state changes, then removes itself.",
+      "why": "It marks the moment of change, not just the current state.",
+      "facts": [
+        "ENTER NOW: the read has just left neutral",
+        "CLOSE POSITION: just returned to neutral",
+        "FLIP: direction reversed",
+        "TRIM HALF: conviction dropped a tier",
+        "ADD BACK: conviction rose a tier",
+        "It shows for ninety seconds after the state changes"
+      ],
+      "quotes": [
+        "For ninety seconds after the state changes",
+        "It then disappears on its own."
+      ],
+      "angle": "Five named transitions, each with an expiry date of ninety seconds.",
+      "blocks": [
+        "statelist",
+        "gauge",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "velocity-override",
+      "title": "The system that downgrades itself",
+      "layer": "Market Intelligence",
+      "pages": "51",
+      "strength": 5,
+      "what": "A mechanism that forces the panel to NEUTRAL when price has moved against its own reading.",
+      "why": "It is software writing down the conditions in which it does not trust itself.",
+      "facts": [
+        "Trigger: spot has moved five points or more in the last thirty minutes in the opposite direction to the score",
+        "It prints velocity override · raw 4.2 vs 30m +7.8pt",
+        "It only ever downgrades conviction and can never upgrade it"
+      ],
+      "quotes": [
+        "It exists because on gaps and on news the positioning book is stale relative to price. It only ever downgrades conviction and can never upgrade it.",
+        "When you see it, the panel is telling you it does not trust itself."
+      ],
+      "angle": "An override that can only ever lower confidence, never raise it.",
+      "blocks": [
+        "gauge",
+        "splitstate",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "magnet-row-distance",
+      "title": "MAGNET 7735, forty-one points away",
+      "layer": "Market Intelligence",
+      "pages": "51-52",
+      "strength": 4,
+      "what": "The dominant positive-gamma strike within thirty points, with the distance printed in points.",
+      "why": "It names where price gravity is pulling, and how far that is from here.",
+      "facts": [
+        "The dominant magnet is searched within thirty points of spot",
+        "Example: MAGNET 7735 (γ+11) · ↑↑ LEAN LONG — strong γ magnet pulling price UP 41pt to 7735",
+        "PINNED 7735 — range chop, fade the edges, when spot is within three points of it",
+        "WEAK γ — no pin, BREAKOUT RISK (gravity unreliable today)"
+      ],
+      "quotes": [
+        "Do not read a weak magnet as a target."
+      ],
+      "angle": "A price and a distance, with the product warning you when its own gravity reading is unreliable.",
+      "blocks": [
+        "levelline",
+        "statelist",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "charm-pin-row",
+      "title": "61% of the charm sitting on one strike",
+      "layer": "Market Intelligence",
+      "pages": "52",
+      "strength": 4,
+      "what": "A row flagging a strike that concentrates most of the band's charm exposure.",
+      "why": "It is the mechanical end-of-day pin, stated as a concentration percentage.",
+      "facts": [
+        "Example: PIN ↑ 7800 with 24pt above · 61% concentration · pull 340 · ACCELERATING",
+        "It marks a strike holding a large share of the band's charm and sitting more than ten points away",
+        "When charm dominates gamma the row becomes CHARM-DRIFT — charm exposure dominant over γ — regime is time-decay-driven"
+      ],
+      "quotes": [
+        "The accelerating flag means the pull has grown materially since the previous reading"
+      ],
+      "angle": "When most of the clock pressure sits on one strike, the close has a destination.",
+      "blocks": [
+        "bignum",
+        "levelline",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "the-plan-headline",
+      "title": "A headline with the direction left out",
+      "layer": "Market Intelligence",
+      "pages": "52",
+      "strength": 4,
+      "what": "One line with spot and the time left to the close, with no directional forecast at all.",
+      "why": "What this line leaves out is itself the statement.",
+      "facts": [
+        "Example: LEVELS · 7761 · 15h 43m to close"
+      ],
+      "quotes": [
+        "Note what it deliberately does not do. It does not predict direction.",
+        "Direction from dealer positioning was tested repeatedly and came out at a coin flip",
+        "That honesty is a selling point, not an omission."
+      ],
+      "angle": "Read the headline of any other tool, then read one that names only levels and time.",
+      "blocks": [
+        "rows",
+        "bignum",
+        "compare"
+      ],
+      "used": null
+    },
+    {
+      "id": "trade-setup-seven-states",
+      "title": "Seven ways a session can be classified",
+      "layer": "Market Intelligence",
+      "pages": "52-53",
+      "strength": 4,
+      "what": "The single actionable row of the panel, sorting the day into one of seven named setups.",
+      "why": "Naming the day is what tells you which kind of trade can even exist today.",
+      "facts": [
+        "PIN: spot is held at a dominant strike, range chop, fade the edges",
+        "RANGE: two governing walls close enough to define a working range",
+        "CEILING TEST: spot is loading against the upper wall",
+        "FLOOR TEST: spot is loading against the lower wall",
+        "WIDE: governing walls far apart, range loose",
+        "TREND DAY · γ- regime: dealers amplify, breaks run, fade trades lose",
+        "NO STRUCTURE: nothing structural to trade, the panel is saying sit out",
+        "Example: WIDE · 7750 ↔ 7820 (70pt)",
+        "Reason line: Walls 1-2.5% away — range exists, theta slower",
+        "It can add pivot 7745, the short-gamma strike within ten points of spot that the day tends to oscillate around"
+      ],
+      "quotes": [
+        "The setup is hysteresis-damped, so it does not flicker between states minute to minute."
+      ],
+      "angle": "Seven named days, one of which is simply 'sit out', written into the product itself.",
+      "blocks": [
+        "statelist",
+        "scenarios",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "regime-row-three-states",
+      "title": "Fade it or follow it: check this row first",
+      "layer": "Market Intelligence",
+      "pages": "53",
+      "strength": 4,
+      "what": "The master switch to check before any fade: range-bound, trend, or mixed.",
+      "why": "It decides whether the walls are places to fade or places to follow.",
+      "facts": [
+        "RANGE-BOUND DAY (green): dealers dampen moves — Sell into the ceiling, buy into the floor. Walls hold",
+        "TREND DAY (red): dealers amplify breaks — Follow momentum through the walls. Fade trades lose",
+        "MIXED REGIME (grey): near neutral — Wait for a confirmed level break before trading",
+        "Row beneath: Range 7735 ↔ 7800 (65pt) · Net hedge +$50M"
+      ],
+      "quotes": [
+        "the put floor, the call wall, the width, and the total dealer gamma across the band, where positive is stabilising"
+      ],
+      "angle": "Three states, three tactics, and no valid fourth option.",
+      "blocks": [
+        "statelist",
+        "splitstate",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "neutralizing-pairs",
+      "title": "Levels that look real and are not",
+      "layer": "Dealer Walls",
+      "pages": "54",
+      "strength": 4,
+      "what": "Adjacent opposite-gamma strikes that look like walls but whose net hedging force is roughly zero.",
+      "why": "They are the false levels, and the panel counts them for you.",
+      "facts": [
+        "The row can add: 3 neutralizing pairs near price"
+      ],
+      "quotes": [
+        "Those are adjacent opposite-gamma strikes that look like walls but whose net hedging force is roughly zero. Do not trade those standalone."
+      ],
+      "angle": "Two big numbers side by side can cancel each other out, and the chart will still draw them both.",
+      "blocks": [
+        "compare",
+        "ladder",
+        "levelline"
+      ],
+      "used": null
+    },
+    {
+      "id": "levels-on-the-chart-list",
+      "title": "The panel and the chart cannot disagree",
+      "layer": "Market Intelligence",
+      "pages": "54",
+      "strength": 3,
+      "what": "A price-ordered list of the lines actually drawn, with the current price sitting in the middle.",
+      "why": "Everything above that row is overhead and everything below it is support.",
+      "facts": [
+        "Size on the right: +$12.6M, or starred -$32.3M",
+        "The current price sits in the middle of the list as a white price now row",
+        "Clicking a row centres the price axis on that level without moving the time window",
+        "Honest empty states: no wall this side, walls are off, waiting for ES…, no walls drawn on this instrument"
+      ],
+      "quotes": [
+        "It is built from the very array the chart draws from, so the panel and the chart cannot disagree with each other",
+        "Every real row is clickable and keyboard-reachable."
+      ],
+      "angle": "One source of truth: the summary is generated from the same array the chart renders.",
+      "blocks": [
+        "ladder",
+        "levelline",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "session-arc",
+      "title": "The anatomy of a session in four phases",
+      "layer": "Market Intelligence",
+      "pages": "54",
+      "strength": 4,
+      "what": "How the setup typically evolves from the open through to the close.",
+      "why": "It explains why the panel says almost nothing early in the morning.",
+      "facts": [
+        "Early in the day the walls are wide relative to spot and the setup is usually WIDE or NO STRUCTURE at LOW or no conviction",
+        "WIDE becomes CEILING TEST or FLOOR TEST as spot loads against one side, then RANGE or PIN once both walls are inside about half a percent",
+        "Charm's weight rises steadily into the close by construction, so the charm-pin row and the magnet distance carry more meaning after 14:00"
+      ],
+      "quotes": [
+        "The highest-confidence state the panel can produce is a PIN setup at HIGH conviction inside a RANGE-BOUND regime in the last hour. The lowest is NO STRUCTURE inside a MIXED REGIME."
+      ],
+      "angle": "The screen is not supposed to have an opinion at 09:35, and the manual says exactly why.",
+      "blocks": [
+        "scenarios",
+        "statelist",
+        "gauge"
+      ],
+      "used": null
+    },
+    {
+      "id": "one-clock-eastern",
+      "title": "One clock: everything is US Eastern",
+      "layer": "Cross-layer",
+      "pages": "1, 55",
+      "strength": 3,
+      "what": "Every time on the platform is ET, with no user setting to change it.",
+      "why": "There is no timezone ambiguity anywhere on the screen.",
+      "facts": [
+        "The crosshair prints 14:35 ET with the suffix spelled out so you can confirm it at a glance"
+      ],
+      "quotes": [
+        "Every time on the platform is ET, everywhere, with no user setting to change it",
+        "Nothing is shown in the viewer's local time."
+      ],
+      "angle": "A setting removed on purpose: one clock means two people can never read the same screen differently.",
+      "blocks": [
+        "rows",
+        "statelist"
+      ],
+      "used": null
+    },
+    {
+      "id": "session-and-data-window",
+      "title": "Two windows: the session and the data pull",
+      "layer": "Cross-layer",
+      "pages": "55",
+      "strength": 3,
+      "what": "The regular session, and the wider window in which fresh dealer positioning is pulled.",
+      "why": "It explains why you already have a book at 09:10, and where the clock logic breaks.",
+      "facts": [
+        "Regular session is 09:30 to 16:00 ET, Monday to Friday",
+        "A wider data window, 09:00 to 16:00 ET, governs when fresh dealer positioning is pulled",
+        "Pre-open books land from about 09:00"
+      ],
+      "quotes": [
+        "The open-or-closed test is daylight-saving-rough and knows no market holidays. On Thanksgiving or Christmas Day the readout will say `Connected` over a dead tape",
+        "It is the one case where the words on screen are wrong."
+      ],
+      "angle": "A product that names, in its own manual, the one case where its words on screen are wrong.",
+      "blocks": [
+        "rows",
+        "statelist",
+        "compare"
+      ],
+      "used": null
+    },
+    {
+      "id": "futures-keep-trading",
+      "title": "Trading status read from the tape, not the clock",
+      "layer": "Cross-layer",
+      "pages": "56",
+      "strength": 2,
+      "what": "Whether an instrument counts as trading is decided by whether a bar has printed recently.",
+      "why": "On ES at 21:00 ET you see Connected, and that is the correct answer.",
+      "facts": [
+        "If a one-minute bar has printed within the last fifteen minutes, the instrument is treated as trading, whatever the clock says"
+      ],
+      "quotes": [
+        "A trader on ES at 21:00 ET sees `Connected`, and that is correct."
+      ],
+      "angle": "Market hours are a convention; a tape that is still printing is a fact.",
+      "blocks": [
+        "rows",
+        "statelist"
+      ],
+      "used": null
+    },
+    {
+      "id": "cash-instrument-filter",
+      "title": "The bug that reported a 0.00% day",
+      "layer": "Cross-layer",
+      "pages": "56",
+      "strength": 3,
+      "what": "SPX, VIX, SPY and QQQ are filtered to 09:30-16:00 to find the session boundaries.",
+      "why": "Without the filter the daily change calculation is simply wrong.",
+      "facts": [
+        "Without the filter, SPX once resolved its previous session to a Sunday 18:08 print and reported a 0.00 percent day change"
+      ],
+      "quotes": [
+        "Without the filter, SPX once resolved its 'previous session' to a Sunday 18:08 print and reported a 0.00 percent day change."
+      ],
+      "angle": "A real bug named with its real numbers, and the rule that fixed it.",
+      "blocks": [
+        "rows",
+        "bignum",
+        "splitstate"
+      ],
+      "used": null
+    },
+    {
+      "id": "axis-nights-and-weekends",
+      "title": "Missing time is compressed, not drawn",
+      "layer": "Cross-layer",
+      "pages": "34, 56",
+      "strength": 2,
+      "what": "The time axis is laid out bar by bar, so a closed market takes up no width at all.",
+      "why": "There is no empty space to scroll through to get back to the live edge.",
+      "facts": [
+        "The futures 17:00 to 18:00 ET maintenance break occupies no width",
+        "Only holes between roughly 90 seconds and 10 minutes are given real slots on the axis, and those are painted as NO DATA",
+        "Anything longer is treated as a legitimate market break and closed up"
+      ],
+      "quotes": [
+        "The time axis is laid out bar by bar, not by wall clock",
+        "The rule that decides this is a ten-minute cap."
+      ],
+      "angle": "One ten-minute rule decides whether a gap is a data problem or a market break.",
+      "blocks": [
+        "rows",
+        "compare",
+        "candle"
+      ],
+      "used": null
+    },
+    {
+      "id": "day-rollover",
+      "title": "Leave it open overnight and it reconnects",
+      "layer": "Cross-layer",
+      "pages": "57",
+      "strength": 1,
+      "what": "A chart left open through the night snaps back to live by itself.",
+      "why": "No manual refresh is needed to start the next session.",
+      "facts": [
+        "It refetches once the new trading day passes 09:00 ET"
+      ],
+      "quotes": [
+        "snaps itself back to live and refetches once the new trading day passes 09:00 ET. No manual refresh is needed."
+      ],
+      "angle": "A small operational promise: the screen you left is the screen you come back to.",
+      "blocks": [
+        "rows",
+        "statelist"
+      ],
+      "used": null
+    },
+    {
+      "id": "connection-readout",
+      "title": "Three connection states, nothing in between",
+      "layer": "Cross-layer",
+      "pages": "3, 21, 57, 67",
+      "strength": 4,
+      "what": "The feed status chip pinned to the right edge of the bar, with round-trip latency in milliseconds.",
+      "why": "It tells you whether the price you are looking at is real, before you act on it.",
+      "facts": [
+        "Connected · 437ms with a green dot: live price feed, round trip 437ms",
+        "Market closed (grey): connected, but the regular session is closed",
+        "Disconnected (red): the price feed is down",
+        "There are no other states",
+        "It is repainted every 500 milliseconds",
+        "The word only moves after the state has been consistent for roughly three seconds down or two seconds up"
+      ],
+      "quotes": [
+        "The price feed is down. The last price on screen is frozen, not current.",
+        "A few hundred milliseconds is normal, and a number climbing steadily is the early warning that a disconnect is coming",
+        "A dead socket outranks a closed market",
+        "It is not clickable"
+      ],
+      "angle": "Three states only, with latency on screen, so a creeping number warns you before the feed drops.",
+      "blocks": [
+        "statelist",
+        "bignum",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "connection-damping",
+      "title": "A status light that refuses to strobe",
+      "layer": "Cross-layer",
+      "pages": "21, 57",
+      "strength": 3,
+      "what": "The logic that stops the connection chip flickering between states.",
+      "why": "Holding still is the honest reading of an ambiguous state.",
+      "facts": [
+        "Outside the session the socket can report down for a handful of samples in twenty seconds while the feed is idle",
+        "Without damping the label would strobe about twice a second",
+        "A real outage still shows within about three seconds"
+      ],
+      "quotes": [
+        "A link that is flapping every half second reaches neither threshold and the chip simply holds still, which is the honest reading of 'neither reliably up nor reliably down'."
+      ],
+      "angle": "Invisible engineering: the honest answer to an ambiguous state is to say nothing new.",
+      "blocks": [
+        "statelist",
+        "gauge",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "update-cadence",
+      "title": "Four classes of update, named out loud",
+      "layer": "Cross-layer",
+      "pages": "58",
+      "strength": 3,
+      "what": "Which numbers are live tick by tick, which run on a timer, and which never change again.",
+      "why": "It tells you which figure on screen you can quote as real time.",
+      "facts": [
+        "Live, tick by tick: price, the forming candle, volume, the trade-print markers, CVD, the options-premium panes, the Liquidity Tide",
+        "Live but on a timer: the dealer-positioning walls, levels, heat maps and the panels driven by them; heat-map columns are five-minute snapshots",
+        "Fixed for the session: any snapshot you pin, and your saved control state",
+        "Fixed for good: a closed one-minute bar never changes again"
+      ],
+      "quotes": [
+        "A closed one-minute bar never changes again."
+      ],
+      "angle": "Four refresh classes on one screen, written down so a timer-driven number is never quoted as live.",
+      "blocks": [
+        "rows",
+        "statelist",
+        "compare"
+      ],
+      "used": null
+    },
+    {
+      "id": "settings-persistence",
+      "title": "What a reload remembers, and what it resets",
+      "layer": "Cross-layer",
+      "pages": "58-59",
+      "strength": 1,
+      "what": "Which controls survive a reload and which are deliberately forced back to a default.",
+      "why": "It surprises anyone who expects a reload to reset the whole terminal.",
+      "facts": [
+        "Persist: instrument (falls back to ES if invalid), WALLS count (a stored 25 or 40 is rewritten to 15), Liquidity Tide on/off, Tide size threshold per instrument, FLOW pane, MAPS selection, PANELS dock, access session, cached basis offset",
+        "Do not persist: METRIC always returns to GEX, EXPIRY always returns to All, timeframe is always 1m, Tide FLOW and LEVELS are forced back to Off at every boot",
+        "CVD is Off at boot but an explicit user choice sticks",
+        "CDI is forced on regardless of how you left it"
+      ],
+      "quotes": [
+        "Stored as an 'I turned it off' flag, so first-time users always get it on"
+      ],
+      "angle": "Defaults chosen so a new user cannot inherit a half-configured screen by accident.",
+      "blocks": [
+        "rows",
+        "statelist"
+      ],
+      "used": null
+    },
+    {
+      "id": "capability-matrix",
+      "title": "Not every layer exists on every ticker",
+      "layer": "Cross-layer",
+      "pages": "60",
+      "strength": 2,
+      "what": "The table of which layer exists on which instrument.",
+      "why": "'The control did nothing' is almost always this table rather than a fault.",
+      "facts": [
+        "SPX: signed book, all four metrics, Tide over candles, no volume, index same-day CDI, Flow yes",
+        "ES and MES: index book basis-shifted, all four metrics, Tide yes, CVD yes, index same-day CDI, Flow yes",
+        "NQ, RTY and GOLD: open-interest estimate, gamma only, Tide yes, CVD yes, no CDI book, no Flow",
+        "VIX: signed book, GEX and CEX, no Tide data, no volume, no CDI, no Flow",
+        "VX: index book basis-shifted, GEX and CEX, no Tide data, CVD yes, no CDI, no Flow",
+        "SPY: open-interest estimate, gamma only, SPY CDI book, Flow yes",
+        "QQQ: open-interest estimate, gamma only, QQQ CDI book, no Flow, and it says so"
+      ],
+      "quotes": [
+        "'the control did nothing' is almost always this table rather than a fault",
+        "On QQQ, NQ, RTY, VIX, VX and GOLD the pane opens and draws nothing, deliberately, because mapping QQQ onto the SPY book would have shown SPY's flow under QQQ's name."
+      ],
+      "angle": "A published capability matrix instead of a feature that silently shows you another instrument's data.",
+      "blocks": [
+        "rows",
+        "statelist",
+        "compare"
+      ],
+      "used": null
+    },
+    {
+      "id": "cboe-provenance",
+      "title": "CBOE-licensed market data, stated on the page",
+      "layer": "Cross-layer",
+      "pages": "1, 60, 69",
+      "strength": 4,
+      "what": "The declaration of where the market data on the terminal comes from.",
+      "why": "It is the product's claim to legitimacy, printed rather than implied.",
+      "facts": [
+        "All market data on the terminal comes from CBOE-licensed market data distributions"
+      ],
+      "quotes": [
+        "All market data on the terminal comes from CBOE-licensed market data distributions",
+        "Volwick Terminal Manual · measured against the shipped build · all times ET · market data: CBOE-licensed market data distributions"
+      ],
+      "angle": "Where the data comes from is a product feature, and most tools never tell you.",
+      "blocks": [
+        "rows",
+        "bignum",
+        "statelist"
+      ],
+      "used": null
+    },
+    {
+      "id": "command-palette",
+      "title": "Cmd+K, and every row presses a real button",
+      "layer": "Cross-layer",
+      "pages": "22, 67",
+      "strength": 3,
+      "what": "A centred search bar that jumps to any ticker or runs any action by name.",
+      "why": "A palette action and the equivalent button press are the same code path and cannot drift apart.",
+      "facts": [
+        "Ctrl+K on Windows, Cmd+K on Mac",
+        "Placeholder: Jump to a ticker, a place, or an action…",
+        "Ten ticker rows and eight actions",
+        "Actions: Open Layers, Turn all layers off, Refresh walls, Where the walls come from, How to read this chart, Liquidity Tide on/off, Timeframe 1m, Timeframe 5m",
+        "Ranking is prefix-first"
+      ],
+      "quotes": [
+        "Every row drives the real control by clicking it, so a palette action and the equivalent button press are the same code path and cannot drift apart."
+      ],
+      "angle": "A shortcut layer that cannot disagree with the buttons, because it presses them.",
+      "blocks": [
+        "rows",
+        "statelist"
+      ],
+      "used": null
+    },
+    {
+      "id": "bar-width-ladder",
+      "title": "The top bar drops words, never a control",
+      "layer": "Cross-layer",
+      "pages": "23, 62",
+      "strength": 1,
+      "what": "As the window narrows the bar gives up words in a fixed order, and never a control.",
+      "why": "It explains the product's most common bug report.",
+      "facts": [
+        "At 1920px everything is present",
+        "About 1512px: LIQUIDITY TIDE becomes TIDE",
+        "About 1366px: the change percentage disappears, the WALLS, METRIC and EXPIRY captions go, leaving Top 15 | GEX | All, and MAPS · GAMMA becomes GAMMA",
+        "About 1280px: the brand mark disappears",
+        "At 1024px the bar becomes horizontally scrollable and bar height grows from 46px to 52px"
+      ],
+      "quotes": [
+        "Work at 1,400 pixels or wider if you can."
+      ],
+      "angle": "Responsive design with one rule: lose the label, never the button.",
+      "blocks": [
+        "ladder",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "five-sentences",
+      "title": "The five sentences to teach first",
+      "layer": "Cross-layer",
+      "pages": "69",
+      "strength": 4,
+      "what": "The product's own irreducible summary of how to read the screen.",
+      "why": "Five lines that between them cover the five most expensive mistakes.",
+      "facts": [],
+      "quotes": [
+        "A red wall is a defended floor, not a bearish signal.",
+        "In a blue gamma field, fade the edges. In an amber field, follow the break.",
+        "Green means 'no known problem', not 'walls confirmed present'.",
+        "A hollow price tag means the feed is frozen. Do not trade off it.",
+        "No single wall is a trade. Wait for two independent things to agree on one price."
+      ],
+      "angle": "If a product can be reduced to five sentences, those five sentences are the content.",
+      "blocks": [
+        "statelist",
+        "splitstate",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "eight-discipline-rules",
+      "title": "Eight rules for showing a market screen",
+      "layer": "Cross-layer",
+      "pages": "64-65",
+      "strength": 4,
+      "what": "The internal discipline rules for anyone demonstrating the terminal, which are also the correct-use rules.",
+      "why": "It is a checklist of what to verify before saying any number out loud.",
+      "facts": [
+        "1. Demonstrate on SPX, ES or MES",
+        "2. Check the book-health dot and its age before quoting any level",
+        "3. Check the Flow pane's age field before quoting a total",
+        "4. Never claim direction",
+        "5. Wait for price to come to the level",
+        "6. Do not trade a single wall",
+        "7. Do not trade off a hollow price tag",
+        "8. Do not quote the read panel when the book is stale"
+      ],
+      "quotes": [
+        "Never claim direction",
+        "Do not quote the read panel when the book is stale.",
+        "Every row in it, including the verdict and the regime, is from that older date."
+      ],
+      "angle": "The internal rules for demoing the product turn out to be the rules for using it honestly.",
+      "blocks": [
+        "statelist",
+        "rows"
+      ],
+      "used": null
+    },
+    {
+      "id": "in-product-guide",
+      "title": "Two documents: one on meaning, one on buttons",
+      "layer": "Cross-layer",
+      "pages": "19, 64, 67",
+      "strength": 3,
+      "what": "The in-product trading playbook, kept separate from the technical manual.",
+      "why": "Meaning and mechanics live in two documents on purpose, and the product says which wins.",
+      "facts": [
+        "Headed DAY TRADER'S PLAYBOOK / How to Read Sightline",
+        "Sections in order: The Big Picture, Two Lenses · Quick Start · The Toolbar, Control by Control · LIQUIDITY TIDE · CVD vs CDI, don't confuse them · The Options Positioning Map · Gamma Regime, the master switch · The TOP 5 / TOP 10 Rule · Time-of-Day Playbook · What Each Metric Means · SETUP Classifications · Common Mistakes"
+      ],
+      "quotes": [
+        "Treat the Guide as authoritative on meaning and this manual as authoritative on which buttons exist."
+      ],
+      "angle": "A product that ships its own trading playbook, and states which document wins on which question.",
+      "blocks": [
+        "rows",
+        "statelist"
+      ],
+      "used": null
+    },
+    {
+      "id": "gold-is-overloaded",
+      "title": "Gold means the thing that matters most",
+      "layer": "Cross-layer",
+      "pages": "36, 37, 63",
+      "strength": 3,
+      "what": "Gold appears in four places in the price area with four different meanings.",
+      "why": "Knowing them stops you reading the live price as if it were a dealer level.",
+      "facts": [
+        "Gold appears in four places: the live price line and axis tag; the day's strongest key level, double-starred; a mega block pill; the threshold badge when the threshold is the user's own"
+      ],
+      "quotes": [
+        "Teach it as 'gold means the thing that matters most in its own family'",
+        "amber never means bad and never means bearish. It means 'look at this'."
+      ],
+      "angle": "One colour doing four jobs, and the single rule that makes all four readable.",
+      "blocks": [
+        "statelist",
+        "splitstate",
+        "rows"
+      ],
+      "used": null
+    }
+  ]
+}

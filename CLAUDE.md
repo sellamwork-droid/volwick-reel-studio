@@ -3,6 +3,7 @@
 Questa cartella è il sistema completo per generare i reel Volwick (TikTok, Instagram Reels, Shorts). Chi apre una sessione di Claude qui, su qualsiasi computer, deve poter lavorare senza chiedere dove sono le cose. È anche un repository GitHub privato condiviso da tutti i computer e da tutte le sessioni di Claude di Power: si lavora sempre sull'ultima versione e si salva sempre qui.
 
 ## Leggi prima di toccare qualsiasi cosa
+0. `00_SAPERE/00_LEGGIMI.md` e i file che indica: cos'è Volwick, come è fatto e come si usa il terminale, ogni layer, il manuale ufficiale in punti, cosa si può mostrare, marchio e tono. Senza questo non si fa un video. (Una sessione nuova, su qualsiasi account, ha qui tutto il sapere: non serve il progetto claude.ai.)
 1. `REGOLE/PREFERENZE_E_FORMATI.md`: tutte le regole di Power, con il registro datato in fondo (la regola più recente vince). Sezioni chiave: Video VX, Reel Studio, Lavoro in parallelo.
 2. Questo file e `LEGGIMI.md` (mappa e comandi).
 3. `06_DOCS/LAYER_VOLWICK.md`: cosa fa e come appare ogni layer del terminale. Si mostra e si dice solo quello che esiste.
@@ -14,6 +15,7 @@ Questa cartella è il sistema completo per generare i reel Volwick (TikTok, Inst
 | Cartella | Cosa c'è |
 |---|---|
 | `00_MOTORE/` | il motore unico: `engine/` (base grafica, zone sicure, logo, finale), `scenes/` (una cartella per video), `vx/` (audio, mix, hook), `tools/` (render, catalogo hook, fogli di controllo), `fonts/`, `assets/` (logo ufficiale) |
+| `00_SAPERE/` | conoscenza di prodotto: Volwick, terminale, manuale in punti, layer, marchio, tono, PDF e immagini del terminale vero |
 | `00_SETUP/` | installazione su un computer nuovo e verifica |
 | `01_HOOK/` | `clip/` archivio dei clip hook, `CATALOGO_HOOK.csv` (stato, movimento, evento di mercato), `_schede/` fotogrammi di ogni clip |
 | `02_AUDIO/` | `AUDIO_TREND.md` audio virali della settimana (si scelgono in app), `brani_con_licenza/` file mixabili |

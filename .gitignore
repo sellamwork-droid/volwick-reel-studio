@@ -1,0 +1,16 @@
+# ambiente e cache (si rifanno su ogni computer)
+.venv/
+**/__pycache__/
+.DS_Store
+# video finiti e file pesanti: vanno nella cartella condivisa dei render, non nel repository
+04_RENDER/
+*.mp4
+*.mov
+*.wav
+*.mp3
+!01_HOOK/clip/**
+00_MOTORE/stills*/
+00_MOTORE/vx/out_*/*.png
+_da_eliminare/
+*.tgz
+*.zip

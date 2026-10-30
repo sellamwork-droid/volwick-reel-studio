@@ -1,0 +1,220 @@
+{
+ "_note": "VOLWICK copy glossary. One approved term per concept and language. 'avoid' lists variants that must never appear. Numbers on screen follow 'locale'. Spoken numbers are written out in the TTS text, captions show the digits through capMap.",
+ "brand": {
+  "screen": "VOLWICK",
+  "text": "Volwick",
+  "avoid": [
+   "VolWick",
+   "Volwik",
+   "Vollwick",
+   "VOLWIK"
+  ]
+ },
+ "slogan_en": "TRADE WITH INSTITUTIONAL CONTEXT.",
+ "langs": {
+  "en": {
+   "locale": "en-US",
+   "end": ".?!",
+   "terms": {
+    "gamma map": "gamma map",
+    "dealers": "dealers",
+    "long gamma": "long gamma",
+    "candle": "candle"
+   },
+   "avoid": [
+    "candlestick bar"
+   ],
+   "disc": "Simulated data. Not financial advice.",
+   "allow": [
+    "dealers",
+    "gamma"
+   ]
+  },
+  "es": {
+   "locale": "es-ES",
+   "end": ".?!",
+   "terms": {
+    "gamma map": "mapa de gamma",
+    "dealers": "dealers",
+    "long gamma": "gamma positiva",
+    "hedge": "mantenerse cubiertos",
+    "sell rallies / buy dips": "vender en las subidas / comprar en las caídas",
+    "candle": "vela",
+    "gamma flip": "γ FLIP",
+    "number": "7746 sin separador (RAE)"
+   },
+   "avoid": [
+    "creadores de mercado",
+    "largos en gamma",
+    "MAPA · GAMMA",
+    "asesoramiento de inversión"
+   ],
+   "disc": "Datos simulados. No es asesoramiento financiero.",
+   "allow": [
+    "dealers",
+    "flip",
+    "gamma"
+   ]
+  },
+  "pt": {
+   "locale": "pt-BR",
+   "end": ".?!",
+   "terms": {
+    "gamma map": "mapa de gamma",
+    "dealers": "dealers",
+    "long gamma": "comprados em gamma",
+    "hedge": "manter o hedge",
+    "sell rallies / buy dips": "vender nas altas / comprar nas quedas",
+    "candle": "candle",
+    "gamma flip": "γ FLIP",
+    "cta": "Conheça a Volwick"
+   },
+   "avoid": [
+    "vela japonesa",
+    "gama longa",
+    "VIRADA",
+    "MAPA · GAMMA",
+    "Descubra a Volwick"
+   ],
+   "disc": "Dados simulados. Não constitui recomendação de investimento.",
+   "allow": [
+    "dealers",
+    "hedge",
+    "candle",
+    "flip",
+    "gamma"
+   ]
+  },
+  "de": {
+   "locale": "de-DE",
+   "end": ".?!",
+   "terms": {
+    "gamma map": "Gamma-Map",
+    "dealers": "Dealer",
+    "long gamma": "long Gamma",
+    "hedge": "abgesichert bleiben",
+    "sell rallies / buy dips": "in die Stärke verkaufen / in die Schwäche kaufen",
+    "candle": "Kerze",
+    "gamma flip": "γ-FLIP",
+    "address": "Du"
+   },
+   "avoid": [
+    "Gamma Map",
+    "Dealers",
+    "Handle mit",
+    "in Anstiege",
+    "Dealer-Exposure"
+   ],
+   "disc": "Simulierte Daten. Keine Anlageberatung.",
+   "allow": [
+    "dealer",
+    "long",
+    "short",
+    "trade",
+    "flip",
+    "gamma-map",
+    "map",
+    "orderflow",
+    "daytrading"
+   ]
+  },
+  "it": {
+   "locale": "it-IT",
+   "end": ".?!",
+   "terms": {
+    "gamma map": "mappa gamma",
+    "dealers": "dealer (invariabile)",
+    "long gamma": "long gamma",
+    "hedge": "restare coperti",
+    "sell rallies / buy dips": "vendere sui rialzi / comprare sui ribassi",
+    "candle": "candela",
+    "gamma flip": "γ FLIP"
+   },
+   "avoid": [
+    "dealers",
+    "market maker",
+    "con contesto istituzionale",
+    "MAPPA · GAMMA",
+    "FLIP γ"
+   ],
+   "disc": "Dati simulati. Non costituisce consulenza finanziaria.",
+   "allow": [
+    "dealer",
+    "long",
+    "short",
+    "trading",
+    "flip",
+    "orderflow",
+    "daytrading"
+   ]
+  },
+  "ar": {
+   "locale": "en-US",
+   "end": ".؟!",
+   "comma": "،",
+   "rtl": true,
+   "terms": {
+    "gamma map": "خريطة غاما",
+    "dealers": "صانعو السوق",
+    "long gamma": "مركز غاما طويل (غاما طويلة in the legend)",
+    "hedge": "التحوط",
+    "exposure": "تعرُّض",
+    "candle": "شمعة",
+    "tagline": "تداول بمنظور المؤسسات",
+    "level": "فوق مستوى"
+   },
+   "disc": "بيانات محاكاة. ليست نصيحة استثمارية.",
+   "avoid": [
+    "خريطة · غاما",
+    "باللون الأزرق",
+    "انكشاف",
+    "سياق مؤسسي",
+    "جاما"
+   ]
+  },
+  "ja": {
+   "locale": "ja-JP",
+   "end": "。？！",
+   "comma": "、",
+   "terms": {
+    "gamma map": "ガンママップ",
+    "dealers": "ディーラー",
+    "long gamma": "ロングガンマ",
+    "hedge": "ヘッジ",
+    "sell rallies / buy dips": "上がれば売り、下がれば買う",
+    "candle": "ローソク足",
+    "register": "です・ます",
+    "number in voice": "ひらがな (ななせん…)"
+   },
+   "avoid": [
+    ", ",
+    ". ",
+    "ガンマ・マップ",
+    "発見しよう",
+    "だ。"
+   ],
+   "disc": "シミュレーションデータです。投資助言ではありません。"
+  },
+  "hi": {
+   "locale": "en-IN",
+   "end": "।?!",
+   "terms": {
+    "gamma map": "गामा मैप",
+    "dealers": "डीलर्स",
+    "long gamma": "लॉन्ग गामा",
+    "hedge": "हेज",
+    "sell rallies / buy dips": "उछाल पर बेचना / गिरावट पर खरीदना",
+    "candle": "कैंडल",
+    "address": "करें / जानें"
+   },
+   "avoid": [
+    "प्रवर्धन",
+    "अवशोषण",
+    "मोमबत्ती",
+    "तेज़ी में बेचते",
+    "जानिए"
+   ],
+   "disc": "सिम्युलेटेड डेटा। निवेश सलाह नहीं।"
+  }
+ }
+}

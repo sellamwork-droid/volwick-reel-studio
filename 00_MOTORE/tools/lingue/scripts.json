@@ -1,0 +1,198 @@
+{
+ "it": {
+  "_model": "eleven_multilingual_v2",
+  "_language": "it",
+  "guard": "Ecco cosa è successo.",
+  "hook": "Sopra settemila settecentoquarantasei, i dealer assorbono. Sotto, amplificano.",
+  "l1": "Questa è la mappa gamma: l'esposizione dei dealer dietro ogni candela.",
+  "l2": "Nella zona blu, i dealer sono long gamma. Per restare coperti, vendono sui rialzi e comprano sui ribassi.",
+  "brand": "Fai trading con il contesto istituzionale. Scopri Volwick.",
+  "parts": [
+   [
+    "hook",
+    2
+   ],
+   [
+    "l1",
+    1
+   ],
+   [
+    "l2",
+    2
+   ],
+   [
+    "brand",
+    2
+   ]
+  ],
+  "all": "Sopra settemila settecentoquarantasei, i dealer assorbono. Sotto, amplificano. Questa è la mappa gamma: l'esposizione dei dealer dietro ogni candela. Nella zona blu, i dealer sono long gamma. Per restare coperti, vendono sui rialzi e comprano sui ribassi. Fai trading con il contesto istituzionale. Scopri Volwick. Ecco cosa è successo."
+ },
+ "pt": {
+  "_model": "eleven_multilingual_v2",
+  "_language": "pt",
+  "guard": "Foi isso que aconteceu.",
+  "hook": "Acima de sete mil setecentos e quarenta e seis, os dealers absorvem os movimentos. Abaixo, amplificam.",
+  "l1": "Este é o mapa de gamma: a exposição dos dealers por trás de cada candle.",
+  "l2": "Em azul, os dealers estão comprados em gamma. Para manter o hedge, vendem nas altas e compram nas quedas.",
+  "brand": "Opere com contexto institucional. Conheça a Volwick.",
+  "parts": [
+   [
+    "hook",
+    2
+   ],
+   [
+    "l1",
+    1
+   ],
+   [
+    "l2",
+    2
+   ],
+   [
+    "brand",
+    2
+   ]
+  ],
+  "all": "Acima de sete mil setecentos e quarenta e seis, os dealers absorvem os movimentos. Abaixo, amplificam. Este é o mapa de gamma: a exposição dos dealers por trás de cada candle. Em azul, os dealers estão comprados em gamma. Para manter o hedge, vendem nas altas e compram nas quedas. Opere com contexto institucional. Conheça a Volwick. Foi isso que aconteceu."
+ },
+ "de": {
+  "_model": "eleven_multilingual_v2",
+  "_language": "de",
+  "guard": "Das ist passiert.",
+  "hook": "Über siebentausendsiebenhundertsechsundvierzig absorbieren die Dealer jede Bewegung. Darunter verstärken sie jeden Impuls.",
+  "l1": "Das ist die Gamma-Map: die Positionierung der Dealer hinter jeder Kerze.",
+  "l2": "Im blauen Bereich sind die Dealer long Gamma. Um abgesichert zu bleiben, verkaufen sie in die Stärke und kaufen in die Schwäche.",
+  "brand": "Trade mit institutionellem Kontext. Entdecke Volwick.",
+  "parts": [
+   [
+    "hook",
+    2
+   ],
+   [
+    "l1",
+    1
+   ],
+   [
+    "l2",
+    2
+   ],
+   [
+    "brand",
+    2
+   ]
+  ],
+  "all": "Über siebentausendsiebenhundertsechsundvierzig absorbieren die Dealer jede Bewegung. Darunter verstärken sie jeden Impuls. Das ist die Gamma-Map: die Positionierung der Dealer hinter jeder Kerze. Im blauen Bereich sind die Dealer long Gamma. Um abgesichert zu bleiben, verkaufen sie in die Stärke und kaufen in die Schwäche. Trade mit institutionellem Kontext. Entdecke Volwick. Das ist passiert."
+ },
+ "es": {
+  "_model": "eleven_multilingual_v2",
+  "_language": "es",
+  "guard": "Eso es lo que pasó.",
+  "hook": "Por encima de siete mil setecientos cuarenta y seis, los dealers absorben el movimiento. Por debajo, lo amplifican.",
+  "l1": "Este es el mapa de gamma: la exposición de los dealers detrás de cada vela.",
+  "l2": "En azul, los dealers tienen gamma positiva. Para mantenerse cubiertos, venden en las subidas y compran en las caídas.",
+  "brand": "Opera con contexto institucional. Descubre Volwick.",
+  "parts": [
+   [
+    "hook",
+    2
+   ],
+   [
+    "l1",
+    1
+   ],
+   [
+    "l2",
+    2
+   ],
+   [
+    "brand",
+    2
+   ]
+  ],
+  "all": "Por encima de siete mil setecientos cuarenta y seis, los dealers absorben el movimiento. Por debajo, lo amplifican. Este es el mapa de gamma: la exposición de los dealers detrás de cada vela. En azul, los dealers tienen gamma positiva. Para mantenerse cubiertos, venden en las subidas y compran en las caídas. Opera con contexto institucional. Descubre Volwick. Eso es lo que pasó."
+ },
+ "ar": {
+  "_model": "eleven_multilingual_v2",
+  "_language": "ar",
+  "guard": "هذا ما حدث.",
+  "hook": "فوق مستوى سبعة آلاف وسبعمئة وستة وأربعين، يمتصّ صانعو السوق الحركة. وتحته، يُضَخِّمونها.",
+  "l1": "هذه خريطة غاما: تعرُّض صانعي السوق خلف كل شمعة.",
+  "l2": "في المنطقة الزرقاء، يكون صانعو السوق في مركز غاما طويل. وللحفاظ على تحوّطهم، يبيعون عند الارتفاعات ويشترون عند الانخفاضات.",
+  "brand": "تَداوَلْ بمنظور المؤسسات. اكتشِفْ فولْويك.",
+  "parts": [
+   [
+    "hook",
+    2
+   ],
+   [
+    "l1",
+    1
+   ],
+   [
+    "l2",
+    2
+   ],
+   [
+    "brand",
+    2
+   ]
+  ],
+  "all": "فوق مستوى سبعة آلاف وسبعمئة وستة وأربعين، يمتصّ صانعو السوق الحركة. وتحته، يُضَخِّمونها. هذه خريطة غاما: تعرُّض صانعي السوق خلف كل شمعة. في المنطقة الزرقاء، يكون صانعو السوق في مركز غاما طويل. وللحفاظ على تحوّطهم، يبيعون عند الارتفاعات ويشترون عند الانخفاضات. تَداوَلْ بمنظور المؤسسات. اكتشِفْ فولْويك. هذا ما حدث."
+ },
+ "ja": {
+  "_model": "eleven_multilingual_v2",
+  "_language": "ja",
+  "guard": "以上です。",
+  "hook": "ななせんななひゃくよんじゅうろくより 上では、 ディーラーが 値動きを 吸収します。 下回ると、 増幅します。",
+  "l1": "これが ガンママップです。 すべての ローソク足の 背後にある、 ディーラーの エクスポージャーです。",
+  "l2": "青の領域では、 ディーラーは ロングガンマです。 ヘッジを維持するため、 上がれば売り、 下がれば買います。",
+  "brand": "機関投資家の 視点で トレードを。 ボルウィックを、 ご覧ください。",
+  "parts": [
+   [
+    "hook",
+    2
+   ],
+   [
+    "l1",
+    2
+   ],
+   [
+    "l2",
+    2
+   ],
+   [
+    "brand",
+    2
+   ]
+  ],
+  "all": "ななせんななひゃくよんじゅうろくより 上では、 ディーラーが 値動きを 吸収します。 下回ると、 増幅します。 これが ガンママップです。 すべての ローソク足の 背後にある、 ディーラーの エクスポージャーです。 青の領域では、 ディーラーは ロングガンマです。 ヘッジを維持するため、 上がれば売り、 下がれば買います。 機関投資家の 視点で トレードを。 ボルウィックを、 ご覧ください。 以上です。"
+ },
+ "hi": {
+  "_model": "eleven_multilingual_v2",
+  "_language": "hi",
+  "guard": "बस यही हुआ।",
+  "hook": "सात हज़ार सात सौ छियालीस के ऊपर, डीलर्स मूव को सोख लेते हैं। इसके नीचे, वे मूव को और तेज़ कर देते हैं।",
+  "l1": "यह है गामा मैप: हर कैंडल के पीछे डीलर्स का एक्सपोज़र।",
+  "l2": "नीले हिस्से में, डीलर्स लॉन्ग गामा होते हैं। हेज बनाए रखने के लिए, वे उछाल पर बेचते हैं और गिरावट पर खरीदते हैं।",
+  "brand": "इंस्टीट्यूशनल कॉन्टेक्स्ट के साथ ट्रेड करें। वॉलविक को जानें।",
+  "parts": [
+   [
+    "hook",
+    2
+   ],
+   [
+    "l1",
+    1
+   ],
+   [
+    "l2",
+    2
+   ],
+   [
+    "brand",
+    2
+   ]
+  ],
+  "all": "सात हज़ार सात सौ छियालीस के ऊपर, डीलर्स मूव को सोख लेते हैं। इसके नीचे, वे मूव को और तेज़ कर देते हैं। यह है गामा मैप: हर कैंडल के पीछे डीलर्स का एक्सपोज़र। नीले हिस्से में, डीलर्स लॉन्ग गामा होते हैं। हेज बनाए रखने के लिए, वे उछाल पर बेचते हैं और गिरावट पर खरीदते हैं। इंस्टीट्यूशनल कॉन्टेक्स्ट के साथ ट्रेड करें। वॉलविक को जानें। बस यही हुआ।"
+ }
+}

@@ -74,7 +74,7 @@ Questo repository è il cervello comune. Ogni Claude su ogni computer lavora sul
 3. Leggi `REGOLE/PREFERENZE_E_FORMATI.md` per intero (la regola più recente vince) e la scheda JSON del video modello (`MEMORIA/video/CREATIVE06B.json`).
 
 ### Prendere un lavoro
-- La coda sono le Issues: `gh issue list --label da-fare`. Prendi la più vecchia, etichetta `in-lavorazione` (togli `da-fare`), commenta "presa da <computer/sessione>". Una scheda già `in-lavorazione` non si tocca.
+- La coda sono le Issues: `gh issue list --label da-fare` (oppure `gh api "repos/{owner}/{repo}/issues?labels=da-fare"`). Prendi la più vecchia, etichetta `in-lavorazione` (togli `da-fare`), commenta "presa da <computer/sessione>". Una scheda già `in-lavorazione` non si tocca.
 - L'ID del video è `V` + numero della scheda a quattro cifre (scheda #12 → `V0012`): è unico anche con dieci Claude in parallelo.
 - Apri subito la sua memoria e fai il push, così gli altri vedono che è occupato:
   `python3 00_MOTORE/tools/studio.py nuovo V0012 --issue 12 --nome "..." --formato F2 --scena 00_MOTORE/scenes/v0012_<nome> --hook "<clip>.mp4" --evento "..."`

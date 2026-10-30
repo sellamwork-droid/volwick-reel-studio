@@ -84,7 +84,7 @@ def brief():
     # 6. coda
     print('\n6. CODA (Issues)')
     for lab in ('da-fare', 'in-lavorazione', 'da-rivedere'):
-        out = sh('gh', 'issue', 'list', '--label', lab, '--limit', '20', '--json', 'number,title', '--jq', '.[] | "#\\(.number) \\(.title)"')
+        out = sh('gh', 'api', f'repos/{{owner}}/{{repo}}/issues?state=open&labels={lab}&per_page=30', '--jq', '.[] | "#\\(.number) \\(.title)"')
         print(f'  {lab}: ' + (', '.join(out.splitlines()) if out else '-'))
     print('\nPrima di consegnare: `python3 00_MOTORE/tools/studio.py controlla`.')
 

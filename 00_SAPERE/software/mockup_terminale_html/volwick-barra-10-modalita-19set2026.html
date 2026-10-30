@@ -1,0 +1,1172 @@
+<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Volwick — 10 modalita</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+</head><body>
+<style>
+/* ============================================================
+   1:1 replica of the terminal on volwick.com/dashboard.
+   Colours, sizes and copy read off the live site on 19 Sep 2026.
+   BEFORE = the site as it is today. AFTER = the eight points in the PDF.
+   ============================================================ */
+:root{
+  --bg:#07090D;          /* body */
+  --pane:#0A0D13;        /* bottom strip, side panel, status bar */
+  --line:rgba(255,255,255,.04);
+  --ink:#E7ECF3;
+  --mut:#9AA6B8;
+  --dim:#5D6A82;
+  --blue:#3D6FF5;        /* brand */
+  --blueT:#6E92FF;
+  --cyan:#38BDF8;        /* group labels */
+  --gold:#D9B54D;        /* PANELS, current price */
+  --up:#4ADE80;
+  --grn:#3FB98A;
+  --red:#F0605E;
+  --vio:#C084FC;
+  --sans:Inter,-apple-system,system-ui,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono","SF Mono",Menlo,ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13px;overflow:hidden}
+button{font:inherit;color:inherit;background:transparent;border:0;cursor:pointer}
+.app{position:fixed;inset:0;display:flex;flex-direction:column}
+
+/* ---------- command row, 46px ---------- */
+.cmdrow{height:46px;flex:none;display:flex;align-items:center;gap:0;padding:0 0 0 10px;
+        overflow:hidden;white-space:nowrap}
+@media (max-width:1640px){
+  .cmdrow .layb{display:none}
+  .chip{padding:0 7px;font-size:9px}
+  .gui{padding:0 9px}
+  .grp{margin-left:7px}
+}
+@media (max-width:1380px){
+  .mark{display:none}
+  .cmdv{padding:5px 7px;gap:6px}
+  .k{display:none}
+}
+/* the brand: in the bar the wordmark goes on its own, no symbol beside it */
+.mark{flex:none;display:grid;place-items:center;padding:6px 4px;border-radius:6px}
+.mark:hover{background:rgba(255,255,255,.05)}
+.mark .wm{display:block}
+
+.grp{display:flex;align-items:center;height:46px;flex:none;margin-left:10px;min-width:0}
+.grp.fam{background:rgba(56,189,248,.043);border-radius:9px;height:38px;padding:0 6px;
+         align-self:center}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--gold);flex:none;margin-right:9px}
+.cmdv{display:flex;align-items:center;gap:8px;border-radius:6px;padding:6px 9px;flex:none}
+.cmdv:hover{background:rgba(255,255,255,.05)}
+.tk{color:var(--blueT);font-size:12px;letter-spacing:.06em}
+.px{color:var(--ink);font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+.chg{color:var(--up);font-size:10.5px}
+.chg.dn{color:var(--red)}
+.ch{width:7px;height:4px;flex:none;opacity:.55}
+.k{color:var(--cyan);font-size:8px;letter-spacing:.14em;flex:none}
+.k.off{color:var(--dim)}
+.val{color:var(--mut);font-size:11.5px}
+.tfv{color:var(--ink);font-size:12px}
+.layb{display:flex;align-items:center;gap:7px;border-radius:6px;padding:7px 11px;flex:none;
+      color:var(--dim);font-size:10px;letter-spacing:.09em}
+.layb b{color:var(--mut);font-weight:400}
+.layb:hover{background:rgba(255,255,255,.05)}
+
+.chips{display:flex;align-items:center;gap:4px}
+.chip{display:flex;align-items:center;gap:6px;height:26px;padding:0 9px;border-radius:6px;
+      border:1px solid rgba(255,255,255,.04);color:var(--dim);font-size:9.5px;letter-spacing:.07em;
+      flex:none}
+.chip i{width:5px;height:5px;border-radius:50%;background:var(--dim);flex:none}
+.chip:hover{color:var(--mut);border-color:rgba(255,255,255,.1)}
+.chip.on{color:var(--cyan);border-color:rgba(56,189,248,.45);background:rgba(56,189,248,.07)}
+.chip.on i{background:var(--cyan)}
+.push{flex:1;min-width:10px}
+.gui{height:46px;display:flex;align-items:center;padding:0 12px;color:var(--dim);
+     font-size:9.5px;letter-spacing:.11em;flex:none}
+.gui:hover{color:var(--mut)}
+.panelsbtn{height:26px;align-self:center;margin:0 10px 0 6px;padding:0 11px;border-radius:6px;
+      color:var(--gold);background:rgba(217,181,77,.07);border:1px solid rgba(217,181,77,.5);
+      font-size:9.5px;letter-spacing:.07em;flex:none}
+
+/* ---------- body ---------- */
+.body{flex:1;display:flex;min-height:0}
+.col{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0}
+.charthost{flex:1;position:relative;min-height:0}
+.charthost canvas{display:block;width:100%;height:100%}
+
+/* wall tooltip */
+.wtip{position:absolute;z-index:14;background:#0F141C;border:1px solid rgba(255,255,255,.09);
+      border-radius:5px;padding:7px 10px;font-size:11px;pointer-events:none;white-space:nowrap;
+      box-shadow:0 12px 30px rgba(0,0,0,.6)}
+.wtip b{display:block;font-family:var(--mono);font-size:12px;margin-bottom:3px}
+.wtip s{color:var(--dim);text-decoration:none;font-size:10px}
+
+/* ---------- bottom strip, 42px ---------- */
+.strip{height:42px;flex:none;background:var(--pane);border-top:1px solid var(--line);
+       display:flex;align-items:center;padding:0 10px;gap:0;overflow:hidden;white-space:nowrap}
+.mode{display:flex;border-radius:3px;overflow:hidden;flex:none;margin-right:10px}
+.mode button{height:26px;padding:0 14px;font-family:var(--mono);font-size:9px;letter-spacing:.13em;
+      color:var(--dim);background:transparent}
+.mode button.on{color:var(--ink);background:rgba(255,255,255,.07)}
+.hop{display:flex;align-items:center;gap:0;flex:none;margin-right:10px}
+.hop .lab{color:var(--dim);font-size:9px;letter-spacing:0;margin-right:4px}
+.arw{width:32px;height:32px;display:grid;place-items:center;color:var(--dim);font-size:10px}
+.arw:hover{color:var(--mut)}
+.slot{width:128px;height:28px;background:transparent;border:0;color:var(--ink);font-size:12px;
+      font-family:var(--sans);cursor:pointer}
+.tl{flex:1;min-width:80px;display:flex;flex-direction:column;justify-content:center;gap:4px;
+    margin:0 12px}
+.track{height:3px;border-radius:2px;background:rgba(255,255,255,.07);position:relative}
+.track .fil{position:absolute;left:0;top:0;bottom:0;background:rgba(240,96,94,.55);border-radius:2px}
+.track .hd{position:absolute;top:50%;transform:translate(-50%,-50%);width:9px;height:9px;
+      border-radius:50%;background:var(--red)}
+.ticks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:8px;color:#3A4354}
+.speed{display:flex;align-items:center;gap:2px;flex:none;opacity:.45}
+.speed .lab{color:var(--dim);font-size:9px;letter-spacing:.1em;margin-right:4px}
+.speed button{font-family:var(--mono);font-size:9px;color:var(--dim);padding:2px 5px;border-radius:3px}
+.speed button.on{color:var(--ink);background:rgba(255,255,255,.07)}
+.snap{height:28px;padding:0 13px;margin-left:14px;border-radius:5px;border:1px solid rgba(255,255,255,.07);
+      color:var(--dim);font-size:9px;letter-spacing:.13em;flex:none}
+.snap:hover{color:var(--mut)}
+.lnk{margin-left:14px;color:var(--dim);font-size:9px;letter-spacing:.13em;flex:none}
+.lnk.on{color:var(--blueT);border:1px solid rgba(110,146,255,.45);border-radius:11px;padding:3px 12px}
+.lnk:hover{color:var(--mut)}
+.conn{margin-left:auto;padding-left:16px;color:var(--dim);font-size:11px;flex:none}
+
+/* ---------- right panel, 236px ---------- */
+.dock{width:236px;flex:none;background:var(--pane);border-left:1px solid var(--line);
+      display:flex;flex-direction:column;min-height:0}
+.docktabs{height:29px;flex:none;display:flex;align-items:center;padding:0 0 0 8px}
+.docktabs span{flex:1;color:var(--dim);font-size:9px;letter-spacing:.14em}
+.closex{width:27px;height:28px;display:grid;place-items:center;color:var(--dim);font-size:14px}
+.closex:hover{color:var(--ink)}
+.dockbody{flex:1;overflow-y:auto;padding:8px}
+.dsec{margin-bottom:18px}
+.dsec>.h{color:var(--dim);font-size:9px;letter-spacing:.14em;margin-bottom:8px}
+.verdict{border:1px solid rgba(240,96,94,.3);background:rgba(240,96,94,.05);border-radius:6px;
+         padding:11px 12px;text-align:center}
+.verdict .big{font-family:var(--mono);font-size:15px;color:var(--red)}
+.verdict .sub{font-family:var(--mono);font-size:9.5px;color:var(--mut);margin-top:5px}
+.magnet{border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.02);border-radius:6px;
+        padding:10px 11px;margin-top:9px;font-size:11.5px;line-height:1.45}
+.magnet b{font-weight:600}
+.plan{border:1px solid rgba(240,96,94,.3);background:rgba(240,96,94,.04);border-radius:6px;
+      padding:10px 11px;margin-top:9px}
+.plan .t{font-family:var(--mono);font-size:12px;color:var(--red);line-height:1.5}
+.plan .conv{font-size:8.5px;color:var(--mut);letter-spacing:.06em;float:right;margin-left:6px;
+      text-align:right;line-height:1.3}
+.plan .sm{font-size:10px;color:var(--dim);margin-top:7px;line-height:1.5}
+.plan .row{font-size:11px;color:var(--mut);margin-top:6px;line-height:1.45}
+.plan .row em{font-style:normal;color:var(--dim);font-size:8.5px;letter-spacing:.1em;margin-right:5px}
+.lev{font-family:var(--mono);font-size:11px;color:var(--gold);margin-bottom:2px}
+.regime{display:flex;gap:9px;border:1px solid rgba(255,255,255,.07);border-radius:6px;padding:9px 10px;
+        margin-top:9px}
+.regime .lab{font-family:var(--mono);font-size:9px;color:var(--mut);width:52px;flex:none;line-height:1.4}
+.regime .txt{font-size:9.5px;color:var(--dim);line-height:1.5}
+.row1{display:flex;align-items:center;gap:8px;border-left:2px solid;border-radius:3px;
+      padding:6px 8px;margin-bottom:3px;background:rgba(255,255,255,.015)}
+.row1 .p{font-family:var(--mono);font-size:11.5px;color:var(--ink);flex:none}
+.row1 .s{font-family:var(--mono);font-size:8.5px;color:var(--dim);flex:1}
+.row1 .g{font-family:var(--mono);font-size:9.5px;flex:none}
+.row1.now{border-left-color:var(--gold);background:rgba(217,181,77,.07)}
+.row1.now .p{color:var(--gold)}
+.row1.now .s{color:var(--gold);text-align:right}
+
+/* floating tab shown when the panel is closed */
+.edge{position:absolute;right:0;top:50%;transform:translateY(-50%);width:13px;height:46px;
+      background:#141922;border:1px solid rgba(255,255,255,.07);border-right:0;
+      border-radius:4px 0 0 4px;color:var(--dim);font-size:10px;display:grid;place-items:center;z-index:9}
+.edge:hover{color:var(--ink)}
+
+/* ---------- status bar, 18px ---------- */
+.status{height:18px;flex:none;background:var(--pane);border-top:1px solid var(--line);
+        display:flex;align-items:center;gap:0;padding:0 16px;font-size:11px;color:var(--dim);
+        overflow:hidden;white-space:nowrap}
+.status .st{display:flex;gap:6px}
+.status .st b{color:var(--mut);font-weight:400}
+.status .sep{width:7px;text-align:center;opacity:.4;margin:0 16px}
+.status .right{margin-left:auto}
+
+/* ---------- dropdowns ---------- */
+.menu{position:fixed;z-index:40;background:#0F141C;border:1px solid rgba(255,255,255,.08);
+      border-radius:8px;padding:6px;min-width:150px;box-shadow:0 18px 44px rgba(0,0,0,.65)}
+.menu .mh{color:var(--dim);font-size:8.5px;letter-spacing:.16em;padding:7px 10px 9px}
+.menu button{display:block;width:100%;text-align:left;padding:9px 12px;border-radius:5px;
+      font-family:var(--mono);font-size:12px;color:var(--mut)}
+.menu button:hover{background:rgba(255,255,255,.05);color:var(--ink)}
+.menu button.on{color:var(--gold);background:rgba(217,181,77,.08);font-weight:500}
+.menu hr{border:0;border-top:1px solid rgba(255,255,255,.07);margin:5px 8px}
+
+/* TIDE popover */
+.tide{position:fixed;z-index:40;width:268px;background:#0F141C;border:1px solid rgba(255,255,255,.08);
+      border-radius:8px;padding:12px;box-shadow:0 18px 44px rgba(0,0,0,.65)}
+.tide .r{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 2px;
+      font-size:13px}
+.tide .hh{color:var(--dim);font-size:8.5px;letter-spacing:.16em;padding:14px 2px 8px}
+.tide .seg{display:flex;border:1px solid rgba(255,255,255,.07);border-radius:5px;overflow:hidden}
+.tide .seg button{flex:1;padding:8px 0;font-size:11.5px;color:var(--mut)}
+.tide .seg button.on{background:rgba(56,189,248,.12);color:var(--cyan)}
+.tide input{width:76px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
+      border-radius:5px;padding:7px 9px;color:var(--ink);font-size:12px;text-align:right}
+.sw{width:44px;height:24px;border-radius:12px;background:rgba(255,255,255,.1);position:relative;flex:none}
+.sw i{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#66718A;
+      transition:.14s}
+.sw.on{background:rgba(56,189,248,.35)}
+.sw.on i{left:23px;background:var(--cyan)}
+
+/* ============================================================
+   .v2 = AFTER. Everything that changes lives in this one block,
+   so the whole diff is readable at a glance.
+   One colour for the chrome: the brand blue. Everything else is
+   the base neutrals. Green and red survive only inside the chart,
+   where they carry meaning.
+   ============================================================ */
+body.v2{--cyan:#6E92FF; --gold:#3D6FF5}
+
+/* command row */
+body.v2 .grp.fam{background:rgba(61,111,245,.05)}
+body.v2 .dot{background:var(--up)}   /* status light: stays green, it means online */
+body.v2 .k{color:var(--blueT)}
+body.v2 .k.off{color:var(--dim)}
+body.v2 .chip.on{color:var(--blueT);border-color:rgba(61,111,245,.45);background:rgba(61,111,245,.13)}
+body.v2 .chip.on i{background:var(--blue)}
+body.v2 .chip.on:active{background:#2B52C4;border-color:#2B52C4;color:#F5F8FF}
+body.v2 .panelsbtn{color:var(--blueT);background:rgba(61,111,245,.13);border-color:rgba(61,111,245,.45)}
+body.v2 .panelsbtn.off{color:var(--dim);background:transparent;border-color:rgba(255,255,255,.07)}
+body.v2 .panelsbtn:active{background:#2B52C4;border-color:#2B52C4;color:#F5F8FF}
+
+/* dropdowns and TIDE popover */
+body.v2 .menu button.on{color:var(--blueT);background:rgba(61,111,245,.13)}
+body.v2 .tide .seg button.on{background:rgba(61,111,245,.13);color:var(--blueT)}
+body.v2 .sw.on{background:rgba(61,111,245,.35)} body.v2 .sw.on i{background:var(--blue)}
+
+/* bottom strip */
+body.v2 .mode button.on{color:#07090D;background:var(--blue);font-weight:600}
+body.v2 .track .fil{background:var(--blue)} body.v2 .track .hd{background:var(--blueT)}
+body.v2 .speed button.on{color:var(--blueT);background:rgba(61,111,245,.13)}
+body.v2 .lnk.on{color:var(--blueT);border-color:rgba(61,111,245,.45);background:rgba(61,111,245,.13)}
+
+/* right panel: plain sentences, not tracked-out capitals */
+body.v2 .docktabs span,body.v2 .dsec>.h{font-family:var(--sans);font-size:10.5px;
+      letter-spacing:0;color:var(--mut);text-transform:none}
+body.v2 .verdict .big{font-family:var(--sans);font-size:15px;font-weight:600;letter-spacing:-.01em}
+body.v2 .verdict .sub,body.v2 .lev{font-family:var(--sans);font-size:11px;letter-spacing:0}
+body.v2 .plan .t{font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:-.01em}
+body.v2 .plan .conv,body.v2 .plan .row em,body.v2 .regime .lab{font-family:var(--sans);
+      font-size:10px;letter-spacing:0;text-transform:none}
+body.v2 .regime .lab{color:var(--mut)}
+body.v2 .verdict{border-color:rgba(255,255,255,.07);background:rgba(255,255,255,.02)}
+body.v2 .verdict .big{color:var(--ink)}
+body.v2 .plan{border-color:rgba(61,111,245,.3);background:rgba(61,111,245,.06)}
+body.v2 .plan .t{color:var(--ink)}    /* text you read stays neutral, never blue */
+body.v2 .lev{color:var(--mut)}
+body.v2 .row1.now{border-left-color:var(--blue);background:rgba(61,111,245,.13)}
+body.v2 .row1.now .p,body.v2 .row1.now .s{color:var(--blueT)}
+
+/* options flow panel: in AFTER the drawing is there */
+body.v2 .paneempty{display:none}
+
+/* what goes away */
+body.v2 #bLayout,body.v2 #cMore,body.v2 #bHide,body.v2 .status,body.v2 #edgeTab{display:none!important}
+body.v2 .charthost{border-bottom:0}
+
+/* options flow panel, under the bottom strip */
+.pane{flex:none;border-top:1px solid var(--line);background:var(--pane);display:flex;
+      flex-direction:column;height:132px}
+.panebar{height:28px;flex:none;display:flex;align-items:center;gap:9px;padding:0 12px;
+         font-family:var(--mono);font-size:10px;color:var(--dim);white-space:nowrap;overflow:hidden}
+.panebar em{font-style:normal;color:var(--mut);letter-spacing:.1em}
+.panebar .c{color:var(--grn)} .panebar .p{color:var(--red)} .panebar .n{color:var(--ink)}
+.panebar .sp{flex:1}
+.panewrap{flex:1;position:relative;min-height:0}
+.panewrap canvas{display:block;width:100%;height:100%}
+.paneempty{position:absolute;inset:0;display:grid;place-content:center;text-align:center;
+           font-family:var(--mono);font-size:11px;color:#3A4354;line-height:1.7}
+
+/* before/after switch, mockup only */
+.ab{position:fixed;top:58px;left:50%;transform:translateX(-50%);z-index:80;display:flex;
+    align-items:center;gap:0;background:#0F141C;border:1px solid rgba(255,255,255,.1);
+    border-radius:22px;padding:4px;box-shadow:0 16px 40px rgba(0,0,0,.65)}
+.ab button{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--dim);
+    padding:8px 18px;border-radius:18px}
+.ab button.on{background:var(--blue);color:#07090D;font-weight:600}
+
+/* ============================================================
+   MODALITA' — dieci modi di disporre la riga dei comandi.
+   Il resto dell'interfaccia non cambia mai: cambia solo la barra.
+   ============================================================ */
+.cmdrow2{height:34px;flex:none;display:flex;align-items:center;padding:0 12px;
+         background:var(--pane);border-top:1px solid var(--line);white-space:nowrap;overflow:hidden}
+.rail{width:52px;flex:none;background:var(--pane);border-right:1px solid var(--line);
+      display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:4px}
+
+.hair{width:1px;height:17px;background:rgba(255,255,255,.09);flex:none;margin:0 14px}
+.hair.s{margin:0 10px}
+.sp{flex:1;min-width:10px}
+
+/* comando nudo, senza pillola */
+.nk{display:flex;align-items:center;gap:8px;height:28px;padding:0 9px;border-radius:6px;flex:none}
+.nk:hover{background:rgba(255,255,255,.055)}
+.nk .v{color:var(--ink);font-size:12.5px}
+.nk .cap{color:var(--dim);font-size:8px;letter-spacing:.15em;flex:none}
+.nk em{font-style:normal;color:var(--dim);font-size:10.5px}
+
+/* interruttore di strato */
+.tg{display:flex;align-items:center;gap:7px;height:26px;padding:0 10px;border-radius:6px;
+    color:var(--dim);font-size:9.5px;letter-spacing:.08em;flex:none;border:1px solid transparent}
+.tg i{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.5;flex:none}
+.tg:hover{color:var(--mut);background:rgba(255,255,255,.045)}
+.tg.on{color:var(--blueT);background:rgba(61,111,245,.13);border-color:rgba(61,111,245,.42)}
+.tg.on i{background:var(--blue);opacity:1}
+.tg.on:active{background:#2B52C4;border-color:#2B52C4;color:#F5F8FF}
+
+.ghost{height:26px;padding:0 12px;border-radius:6px;color:var(--dim);font-size:9.5px;
+       letter-spacing:.1em;flex:none}
+.ghost:hover{color:var(--mut);background:rgba(255,255,255,.045)}
+.prim{height:26px;padding:0 13px;border-radius:6px;flex:none;font-size:9.5px;letter-spacing:.08em;
+      color:var(--blueT);background:rgba(61,111,245,.13);border:1px solid rgba(61,111,245,.42)}
+.prim.off{color:var(--dim);background:transparent;border-color:rgba(255,255,255,.07)}
+.prim:active{background:#2B52C4;border-color:#2B52C4;color:#F5F8FF}
+
+/* segmentato */
+.seg{display:flex;align-items:center;flex:none;border:1px solid rgba(255,255,255,.07);
+     border-radius:7px;padding:2px;gap:2px;height:30px}
+.seg button{height:24px;padding:0 11px;border-radius:5px;color:var(--dim);font-size:9.5px;
+     letter-spacing:.08em;display:flex;align-items:center;gap:6px}
+.seg button i{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.45}
+.seg button:hover{color:var(--mut);background:rgba(255,255,255,.05)}
+.seg button.on{color:var(--blueT);background:rgba(61,111,245,.15)}
+.seg button.on i{background:var(--blue);opacity:1}
+
+/* blocco strumento */
+.inst{display:flex;align-items:center;height:32px;border-radius:8px;flex:none;
+      background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.055);padding:0 3px}
+.inst .nk:hover{background:rgba(255,255,255,.06)}
+.inst .dv{width:1px;height:15px;background:rgba(255,255,255,.07);margin:0 2px}
+
+/* icone */
+.ic{width:32px;height:30px;border-radius:7px;display:grid;place-items:center;flex:none;
+    color:var(--dim);font-family:var(--mono);font-size:9px;letter-spacing:.02em;
+    border:1px solid transparent}
+.ic:hover{color:var(--mut);background:rgba(255,255,255,.05)}
+.ic.on{color:var(--blueT);background:rgba(61,111,245,.13);border-color:rgba(61,111,245,.42)}
+.rail .ic{width:38px;height:34px}
+.rail .rhair{width:22px;height:1px;background:rgba(255,255,255,.08);margin:6px 0}
+
+/* riga titolo, modalità 9 */
+.ttl{display:flex;align-items:center;gap:0;height:46px;flex:none}
+.ttl .nm{font-size:13px;color:var(--mut);letter-spacing:.02em}
+
+/* prezzo grande, modalità 8 */
+.bigpx{display:flex;flex-direction:column;justify-content:center;flex:none;padding:0 14px 0 2px}
+.bigpx .l1{display:flex;align-items:baseline;gap:9px}
+.bigpx .s{font-family:var(--mono);font-size:13px;color:var(--blueT);letter-spacing:.08em}
+.bigpx .p{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.bigpx .c{font-size:11px;color:var(--up);font-variant-numeric:tabular-nums}
+.bigpx .l2{font-size:9px;color:var(--dim);letter-spacing:.12em;margin-top:1px}
+
+/* barra compatta */
+body[data-m="9"] .cmdrow{height:34px}
+body[data-m="9"] .nk{height:24px;padding:0 7px}
+body[data-m="9"] .nk .v{font-size:11.5px}
+body[data-m="9"] .px{font-size:13.5px}
+body[data-m="9"] .tg{height:22px;padding:0 8px;font-size:9px}
+body[data-m="9"] .ghost,body[data-m="9"] .prim{height:22px;font-size:9px;padding:0 10px}
+body[data-m="9"] .hair{margin:0 9px;height:14px}
+
+/* selettore */
+body.picker .app{right:246px}
+.pick{position:fixed;right:0;top:0;bottom:0;width:246px;z-index:90;background:#0B0F16;
+      border-left:1px solid rgba(255,255,255,.09);display:flex;flex-direction:column;
+      box-shadow:-18px 0 44px rgba(0,0,0,.5);transition:transform .16s ease}
+.pick.hide{transform:translateX(246px)}
+.pickhd{height:38px;flex:none;display:flex;align-items:center;padding:0 14px;color:var(--dim);
+        font-size:9px;letter-spacing:.18em;border-bottom:1px solid rgba(255,255,255,.07)}
+.picklist{flex:1;overflow-y:auto;padding:6px}
+.picklist button{display:block;width:100%;text-align:left;padding:9px 11px;border-radius:6px;
+        color:var(--mut);font-size:12.5px;line-height:1.35}
+.picklist button span{display:block;font-family:var(--mono);font-size:9px;color:var(--faint,#3A4354);
+        letter-spacing:.1em;margin-bottom:3px}
+.picklist button:hover{background:rgba(255,255,255,.05);color:var(--ink)}
+.picklist button.on{background:rgba(61,111,245,.14);color:var(--blueT)}
+.picklist button.on span{color:var(--blue)}
+.pickfoot{flex:none;padding:13px 14px 16px;border-top:1px solid rgba(255,255,255,.07);
+          color:var(--mut);font-size:11.5px;line-height:1.55}
+.pickfoot b{display:block;color:var(--ink);font-weight:500;margin-bottom:4px}
+.picktab{position:fixed;right:14px;bottom:30px;z-index:89;height:28px;padding:0 13px;border-radius:14px;
+      background:#0F141C;border:1px solid rgba(255,255,255,.12);color:var(--mut);
+      font-family:var(--mono);font-size:9px;letter-spacing:.16em;box-shadow:0 10px 28px rgba(0,0,0,.6)}
+.picktab:hover{color:var(--ink)}
+
+.toast{position:fixed;left:50%;top:112px;transform:translateX(-50%);z-index:60;background:#0F141C;
+  border:1px solid rgba(255,255,255,.09);border-radius:6px;padding:9px 15px;font-family:var(--mono);
+  font-size:11px;color:var(--mut);box-shadow:0 14px 36px rgba(0,0,0,.6)}
+</style>
+
+<div class="app">
+  <div class="cmdrow" id="cmdrow"></div>
+  <div class="cmdrow2" id="cmdrow2" hidden></div>
+
+  <div class="body">
+    <div class="rail" id="rail" hidden></div>
+    <div class="col">
+      <div class="charthost" id="charthost">
+        <canvas id="cv"></canvas>
+        <div class="wtip" id="wtip" hidden></div>
+        <button class="edge" id="edgeTab" hidden>‹</button>
+      </div>
+      <div class="strip">
+        <div class="mode"><button class="on" id="liveBtn">LIVE</button><button id="replayBtn">REPLAY</button></div>
+        <div class="hop"><span class="lab">TIME</span>
+          <button class="arw" id="prevSlot">◀</button>
+          <select class="slot" id="slotSel"></select>
+          <button class="arw" id="nextSlot">▶</button></div>
+        <div class="tl">
+          <div class="track" id="track"><i class="fil" id="fil"></i><i class="hd" id="hd"></i></div>
+          <div class="ticks"><span>09:00</span><span>10:00</span><span>11:00</span><span>12:00</span>
+            <span>13:00</span><span>14:00</span><span>15:00</span><span>16:00</span></div>
+        </div>
+        <div class="speed" id="speed"><span class="lab">SPEED</span>
+          <button data-s="1">1x</button><button class="on" data-s="10">10x</button>
+          <button data-s="30">30x</button><button data-s="60">60x</button></div>
+        <button class="snap" id="snapBtn">SNAPSHOT</button>
+        <button class="lnk on" id="replayEnter">REPLAY</button>
+        <button class="lnk" id="alertsEnter">ALERTS</button>
+        <span class="conn" id="connTxt">Market closed</span>
+      </div>
+      <div class="pane" id="flowPane" hidden>
+        <div class="panebar"><em>OPTIONS FLOW</em>
+          <span>SPX 0DTE · single leg · premium $</span>
+          <span id="flowAge">136826s ago · 620 min</span>
+          <span class="sp"></span>
+          <span class="c">C −$19.79M</span><span>·</span>
+          <span class="p">P $57.56M</span><span class="n" id="flowNet">NET $37.77M</span></div>
+        <div class="panewrap"><canvas id="flowCv"></canvas>
+          <div class="paneempty" id="flowEmpty">nothing drawn<br><span style="opacity:.6">the totals above arrive, the bars do not</span></div></div>
+      </div>
+    </div>
+
+    <aside class="dock" id="dock">
+      <div class="docktabs"><span id="dockTitle">READS THE CHART</span>
+        <button class="closex" id="dockClose">×</button></div>
+      <div class="dockbody" id="dockBody"></div>
+    </aside>
+  </div>
+
+  <footer class="status">
+    <span class="st">Sightline</span><span class="sep">·</span>
+    <span class="st">Ticker <b id="stTicker">ES</b></span><span class="sep">·</span>
+    <span class="st">Bars <b>7208</b></span><span class="sep">·</span>
+    <span class="st">Gamma slot <b>via SPX · GEX 16:00:00</b></span><span class="sep">·</span>
+    <span class="st">Status <b>Market closed</b></span>
+    <span class="st right">Latency <b>Disconnected</b></span>
+  </footer>
+</div>
+
+<div class="pick" id="pick">
+  <div class="pickhd">MODALITA'</div>
+  <div class="picklist" id="pickList"></div>
+  <div class="pickfoot" id="pickNote"></div>
+</div>
+<button class="picktab" id="pickTab">MODALITA'</button>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id)};
+
+/* =============== state, exactly as the site opens =============== */
+var S={sym:'ES',tf:'1m',layout:'1',walls:'Top 15',metric:'GEX',expiry:'All',
+       tide:true,cvd:true,cdi:true,flow:false,maps:'γ Map',bot:false,
+       panels:true,mode:'LIVE',speed:10,pos:96,
+       flowMode:'all',flowSize:99,levels:'today',morning:false,oiedge:false,
+       hover:-1};
+
+var SYMS={SPX:7656.98,ES:7725.00,MES:7725.00,NQ:29311.75,VIX:14.82,VX:15.40,
+          RTY:2612.40,SPY:762.41,QQQ:618.30,GOLD:4412.60};
+var CHG={SPX:'+0.28%',ES:'+0.30%',MES:'+0.30%',NQ:'+0.54%',VIX:'-2.11%',VX:'-1.80%',
+         RTY:'+0.41%',SPY:'+0.29%',QQQ:'+0.52%',GOLD:'+0.74%'};
+
+/* the walls exactly as the site draws them on ES, 16:59 view */
+var WALLS=[
+ {p:7737.75,g:'+$15.3M',c:'#45B98C',w:1},
+ {p:7722.75,g:'−$3.4M', c:'#38BDF8',w:1},
+ {p:7717.75,g:'+$8.9M', c:'#45B98C',w:1},
+ {p:7707.75,g:'+$20.7M',c:'#F0605E',w:4,star:true},
+ {p:7692.75,g:'−$5.6M', c:'#C084FC',w:1},
+ {p:7687.75,g:'−$11.7M',c:'#C084FC',w:1}
+];
+
+/* =============== deterministic series =============== */
+function LCG(s){var x=s>>>0;return function(){x=(1103515245*x+12345)>>>0;return x/4294967296}}
+var BARS=[];
+(function build(){
+  /* the shape of the session as it is on the site: flat until 14:40, jump at 14:45,
+     sideways until 15:30, climb into 16:00, then sideways up there */
+  var KEY=[[0,7692],[18,7694.5],[34,7696],[52,7699],[60,7697],[62,7712],[70,7714],
+           [80,7708],[95,7710],[108,7706],[118,7709],[128,7705],[138,7712],[150,7719],
+           [158,7727],[165,7724],[175,7728],[185,7726],[194,7725]];
+  var r=LCG(20260919), n=195;
+  function base(i){
+    for(var k=1;k<KEY.length;k++){
+      if(i<=KEY[k][0]){
+        var a=KEY[k-1], b=KEY[k], t=(i-a[0])/(b[0]-a[0]||1);
+        return a[1]+(b[1]-a[1])*t;
+      }
+    }
+    return KEY[KEY.length-1][1];
+  }
+  var q=.25, prev=base(0);
+  for(var i=0;i<n;i++){
+    var tgt=base(i), noise=(r()-.5)*1.5;
+    var c=tgt+noise, o=prev;
+    var amp=Math.min(2.2,Math.max(.4,Math.abs(c-o))*0.35+r()*.8);
+    var hi=Math.max(o,c)+r()*amp, lo=Math.min(o,c)-r()*amp;
+    o=Math.round(o/q)*q;c=Math.round(c/q)*q;hi=Math.round(hi/q)*q;lo=Math.round(lo/q)*q;
+    /* volume: low and steady, with the closing burst at 16:00 */
+    var v=Math.round(3000+r()*9000);
+    if(i>=60&&i<=63)v=Math.round(26000+r()*12000);
+    if(i>=154&&i<=158)v=Math.round(30000+r()*44000);
+    BARS.push({o:o,h:hi,l:lo,c:c,v:v});
+    prev=c;
+  }
+  BARS[n-1].c=7725.00;
+})();
+
+/* =============== drawing =============== */
+var cv=$('cv'), cx=cv.getContext('2d'), W=0,H=0;
+var AXL=76, AXR=76, TIMH=28, VMAX=420000;  /* measured off the site: axes are 76px */
+var LO=7674, HI=7738;                      /* price window as on the site */
+var MONO='"IBM Plex Mono","SF Mono",Menlo,monospace';
+function f2(v){return v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function yP(p){var h=H-TIMH;return (HI-p)/(HI-LO)*h}
+function pY(y){var h=H-TIMH;return HI-y/h*(HI-LO)}
+
+function size(){
+  var b=$('charthost').getBoundingClientRect(), d=Math.min(devicePixelRatio||1,2);
+  W=Math.max(320,Math.round(b.width)); H=Math.max(200,Math.round(b.height));
+  if(cv.width!==W*d||cv.height!==H*d){cv.width=W*d;cv.height=H*d}
+  cx.setTransform(d,0,0,d,0,0);
+}
+function draw(){
+  size();
+  cx.clearRect(0,0,W,H);
+  var x0=AXL, x1=W-AXR, plotH=H-TIMH, n=BARS.length, bw=(x1-x0)/n;
+
+  /* grid + right price axis, 4-point step as on the site */
+  cx.font='11px '+MONO; cx.textBaseline='middle';
+  for(var p=Math.ceil(LO/4)*4;p<=HI;p+=4){
+    var y=Math.round(yP(p))+.5;
+    cx.strokeStyle='rgba(255,255,255,.028)';cx.lineWidth=1;
+    cx.beginPath();cx.moveTo(x0,y);cx.lineTo(x1,y);cx.stroke();
+    cx.fillStyle='#5D6A82';cx.textAlign='left';cx.fillText(f2(p),x1+10,y);
+  }
+  /* left volume axis, 20K..400K as on the site */
+  for(var k=20;k<=400;k+=20){
+    var yy=Math.round(plotH-(k*1000/VMAX)*plotH)+.5;
+    if(yy<10||yy>plotH)continue;
+    cx.fillStyle='#5D6A82';cx.textAlign='left';cx.fillText(k+'K',6,yy);
+  }
+  /* vertical grid + time axis */
+  cx.font='11px '+MONO;cx.textBaseline='top';
+  var start=13*60+45, step=15, total=194;
+  for(var m=0;m<=total;m+=15){
+    var x=x0+(m/total)*(x1-x0);
+    cx.strokeStyle='rgba(255,255,255,.028)';
+    cx.beginPath();cx.moveTo(Math.round(x)+.5,0);cx.lineTo(Math.round(x)+.5,plotH);cx.stroke();
+    var mm=start+m, hh=Math.floor(mm/60)%24, m2=mm%60;
+    cx.fillStyle='#5D6A82';cx.textAlign='center';
+    cx.fillText((hh<10?'0':'')+hh+':'+(m2<10?'0':'')+m2,x,plotH+8);
+  }
+
+  /* volume, on the left scale */
+  for(var i=0;i<n;i++){
+    var b=BARS[i], hgt=(b.v/VMAX)*plotH;
+    cx.fillStyle=b.c>=b.o?'rgba(69,185,140,.5)':'rgba(240,96,94,.5)';
+    cx.fillRect(x0+i*bw+.5,plotH-hgt,Math.max(1,bw-1),hgt);
+  }
+
+  /* candles */
+  var cw=Math.max(1,Math.min(7,bw*.62));
+  for(i=0;i<n;i++){
+    var b2=BARS[i], xc=x0+i*bw+bw/2, up=b2.c>=b2.o, col=up?'#45B98C':'#E8615C';
+    cx.strokeStyle=col;cx.fillStyle=col;cx.lineWidth=1;
+    cx.beginPath();cx.moveTo(Math.round(xc)+.5,yP(b2.h));cx.lineTo(Math.round(xc)+.5,yP(b2.l));cx.stroke();
+    var yo=yP(b2.o),yc=yP(b2.c);
+    cx.fillRect(Math.round(xc-cw/2),Math.min(yo,yc),Math.round(cw),Math.max(1,Math.abs(yc-yo)));
+  }
+
+  /* walls: full-width line, label at the right edge */
+  cx.font='9px '+MONO;cx.textBaseline='middle';
+  WALLS.forEach(function(w,idx){
+    var y=Math.round(yP(w.p))+.5;
+    if(y<0||y>plotH)return;
+    cx.strokeStyle=w.w>1?w.c+'99':w.c+'77';
+    cx.lineWidth=S.hover===idx?Math.max(w.w,3):w.w;
+    cx.beginPath();cx.moveTo(x0,y);cx.lineTo(x1,y);cx.stroke();
+    var txt=(w.star?'★ ':'')+f2(w.p)+' · '+w.g;
+    cx.textAlign='right';
+    cx.fillStyle=w.c;
+    cx.beginPath();cx.arc(x1-cx.measureText(txt).width-12,y,2.4,0,7);cx.fill();
+    cx.fillText(txt,x1+2,y);
+  });
+
+  /* current price: dashed line and tag on the axis (gold today, blue in AFTER) */
+  var yp=Math.round(yP(7725))+.5;
+  var V2=document.body.classList.contains('v2');
+  cx.setLineDash([6,5]);cx.strokeStyle=V2?'rgba(61,111,245,.85)':'rgba(217,181,77,.75)';cx.lineWidth=1;
+  cx.beginPath();cx.moveTo(x0,yp);cx.lineTo(x1,yp);cx.stroke();cx.setLineDash([]);
+  cx.fillStyle=V2?'#3D6FF5':'#D9B54D';cx.fillRect(x1+1,yp-9,54,18);
+  cx.fillStyle=V2?'#F5F8FF':'#07090D';cx.font='11px '+MONO;cx.textAlign='center';
+  cx.fillText('7725.00',x1+28,yp+.5);
+}
+
+/* wall tooltip */
+$('cv').addEventListener('mousemove',function(e){
+  var r=cv.getBoundingClientRect(), my=e.clientY-r.top, mx=e.clientX-r.left, hit=-1;
+  WALLS.forEach(function(w,i){if(Math.abs(yP(w.p)-my)<5)hit=i});
+  if(hit!==S.hover){S.hover=hit;draw()}
+  var t=$('wtip');
+  if(hit>=0){
+    var w=WALLS[hit];
+    t.innerHTML='<b style="color:'+w.c+'">'+f2(w.p)+'</b>'+
+      S.metric+' '+w.g+'<br><s>SPX '+Math.round(w.p-67.75)+' · basis +67.75</s>';
+    t.hidden=false;
+    t.style.left=Math.min(mx+14,r.width-t.offsetWidth-8)+'px';
+    t.style.top=Math.max(4,my-t.offsetHeight-10)+'px';
+  }else t.hidden=true;
+});
+cv.addEventListener('mouseleave',function(){S.hover=-1;$('wtip').hidden=true;draw()});
+
+/* =============== pannello destro, testo del sito =============== */
+var LEVELS=[
+ ['8,167.75','SPX 8,100','+$7.3M','#45B98C'],
+ ['8,067.75','SPX 8,000','−$8.1M','#C084FC'],
+ ['7,917.75','SPX 7,850','−$7.8M','#C084FC'],
+ ['7,897.75','SPX 7,830','+$8.9M','#45B98C'],
+ ['7,867.75','SPX 7,800','+$7.8M','#45B98C'],
+ ['7,787.75','SPX 7,720','−$6.8M','#C084FC'],
+ ['7,767.75','SPX 7,700','+$11.5M','#45B98C'],
+ ['7,762.75','SPX 7,695','−$9.7M','#C084FC'],
+ ['7,737.75','SPX 7,670','+$15.3M','#45B98C'],
+ ['NOW'],
+ ['7,717.75','SPX 7,650','+$8.9M','#45B98C'],
+ ['7,707.75','SPX 7,640','+$20.7M','#F0605E'],
+ ['7,687.75','SPX 7,620','−$11.7M','#C084FC']
+];
+function dock(){
+  var V2=document.body.classList.contains('v2'), h='';
+  /* AFTER: the same words, written the way a person writes them —
+     no tracked-out capitals, no shouting. */
+  var W=V2?{tabs:'Reads the chart',verdict:'Verdict',why:'Why',plan:'The plan',
+            levels:'Levels on the chart',bias:'↘ Short bias',conv:'Low conviction',
+            magnet:'Magnet 7640',weak:'Weak γ — no pin, breakout risk (gravity unreliable today)',
+            lev:'Levels · 7657 · 10h 7m to close',med:'Med<br>conviction',
+            test:'Ceiling test',trade:'Trade',stop:'Stop',regime:'Mixed<br>regime'}
+          :{tabs:'READS THE CHART',verdict:'VERDICT',why:'WHY',plan:'THE PLAN',
+            levels:'LEVELS ON THE CHART',bias:'↘ SHORT bias',conv:'LOW conviction',
+            magnet:'MAGNET 7640',weak:'WEAK γ — no pin, BREAKOUT RISK (gravity unreliable today)',
+            lev:'LEVELS · 7657 · 10h 7m to close',med:'MED<br>CONVICTION',
+            test:'CEILING TEST',trade:'TRADE',stop:'STOP',regime:'MIXED REGIME'};
+  $('dockTitle').textContent=W.tabs;
+  h+='<div class="dsec"><div class="h">'+W.verdict+'</div>'+
+     '<div class="verdict"><div class="big">'+W.bias+'</div>'+
+     '<div class="sub">'+W.conv+' · −1.6</div></div>'+
+     '<div class="magnet">🧲 <b>'+W.magnet+'</b> (γ+21) · ⚠<br>'+W.weak+'</div></div>';
+  h+='<div class="dsec"><div class="h">'+W.why+'</div></div>';
+  h+='<div class="dsec"><div class="h">'+W.plan+'</div>'+
+     '<div class="lev">'+W.lev+'</div>'+
+     '<div class="plan"><span class="conv">'+W.med+'</span>'+
+     '<div class="t">🔴 '+W.test+'<br>· 7670 (+13pt)<br>· 7640 floor backstop</div>'+
+     '<div class="sm">Spot near upper wall · midpoint skew 467%</div>'+
+     '<div class="row"><em>'+W.trade+'</em>Fade 7670 on touch · short calls · target midpoint 7655</div>'+
+     '<div class="row"><em>'+W.stop+'</em>Close above 7672</div></div>'+
+     '<div class="regime"><div class="lab">'+W.regime+'</div>'+
+     '<div class="txt">Range 7640 ↔ 7670 (30pt) · Net hedge +$38M<br>'+
+     'Regime unclear · wait for a confirmed level break before trading</div></div></div>';
+  h+='<div class="dsec"><div class="h">'+W.levels+'</div>';
+  LEVELS.forEach(function(l){
+    if(l[0]==='NOW'){h+='<div class="row1 now"><span class="p">7,725</span>'+
+      '<span class="s">price now</span></div>';return}
+    h+='<div class="row1" style="border-left-color:'+l[3]+'">'+
+       '<span class="p">'+l[0]+'</span><span class="s">'+l[1]+'</span>'+
+       '<span class="g" style="color:'+l[3]+'">'+l[2]+'</span></div>';
+  });
+  h+='</div>';
+  $('dockBody').innerHTML=h;
+}
+dock();
+
+/* =============== dropdowns =============== */
+/* The command row is rebuilt for every mode, so its handlers live in a table
+   and one delegated listener finds them. Nothing else changes. */
+var HH={};
+document.addEventListener('click',function(e){
+  var t=e.target.closest('[id]');
+  while(t){ if(HH[t.id]){HH[t.id].call(t,e); return} 
+            t=t.parentElement?t.parentElement.closest('[id]'):null; }
+});
+var open=null;
+function close(){if(open){open.remove();open=null}}
+document.addEventListener('mousedown',function(e){
+  if(open&&!open.contains(e.target)&&!e.target.closest('.cmdv,.chip,.layb'))close();
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){close()}});
+function menu(anchor,title,items,cur,pick){
+  close();
+  var el=document.createElement('div'); el.className='menu';
+  el.innerHTML='<div class="mh">'+title+'</div>'+items.map(function(it){
+    return it==='-'?'<hr>':'<button data-v="'+it+'"'+(it===cur?' class="on"':'')+'>'+it+'</button>';
+  }).join('');
+  document.body.appendChild(el);
+  var r=anchor.getBoundingClientRect();
+  el.style.left=Math.min(r.left,innerWidth-el.offsetWidth-10)+'px';
+  el.style.top=(r.bottom+4)+'px';
+  el.addEventListener('click',function(e){
+    var b=e.target.closest('button[data-v]'); if(!b)return; close(); pick(b.dataset.v);
+  });
+  open=el;
+}
+HH.bTicker=function(){menu(this,'INSTRUMENT',
+  ['SPX','ES','MES','NQ','VIX','VX','RTY','SPY','QQQ','GOLD'],S.sym,function(v){
+    S.sym=v;$('tkName').textContent=v;$('stTicker').textContent=v;
+    $('tkPx').textContent=SYMS[v].toLocaleString('en-US',{minimumFractionDigits:2});
+    var c=CHG[v];$('tkChg').textContent=c;$('tkChg').className='chg'+(c[0]==='-'?' dn':'');
+  })};
+HH.bTf=function(){menu(this,'TIMEFRAME',['1m','5m','15m','1h','4h','D'],S.tf,
+  function(v){S.tf=v;$('tfName').textContent=v;draw()})};
+HH.bLayout=function(){menu(this,'LAYOUT',['1','2','3','4'],S.layout,
+  function(v){S.layout=v;$('layName').textContent=v;toast('Layout '+v)})};
+HH.bWalls=function(){menu(this,'WALLS',
+  ['Off','Top 3','Top 5','Top 10','Top 15','Top 25','Top 40'],S.walls,function(v){
+    S.walls=v;$('wallsV').textContent=v;
+    $('wallsK').className='k'+(v==='Off'?' off':'');draw()})};
+HH.bMetric=function(){menu(this,'METRIC',['GEX','CEX','DEX','-','ALL'],S.metric,
+  function(v){S.metric=v;$('metV').textContent=v;draw()})};
+HH.bExpiry=function(){menu(this,'EXPIRY',['0DTE','This week','This month','All'],S.expiry,
+  function(v){S.expiry=v;$('expV').textContent=v;draw()})};
+HH.cMaps=function(){menu(this,'ONE MAP AT A TIME',
+  ['None','γ Map','Charm','Vega','Volga','Delta'],S.maps,function(v){
+    S.maps=v;$('cMaps').classList.toggle('on',v!=='None');draw()})};
+
+/* MORE: com'è sul sito */
+HH.cMore=function(){
+  close();
+  var el=document.createElement('div'); el.className='menu'; el.style.minWidth='250px';
+  el.innerHTML='<div class="mh">MORNING PROJECTIONS</div>'+
+    '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px">'+
+    '<span style="font-size:12.5px">9:20 — morning book</span>'+
+    '<span class="sw'+(S.morning?' on':'')+'" data-sw="morning"><i></i></span></div>'+
+    '<hr><div class="mh">IN TESTING</div>'+
+    '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px">'+
+    '<span style="font-size:12.5px">OI Edge</span>'+
+    '<span class="sw'+(S.oiedge?' on':'')+'" data-sw="oiedge"><i></i></span></div>'+
+    '<button data-v="Level alerts">Level alerts</button>'+
+    '<button data-v="Refresh walls">Refresh walls</button>'+
+    '<hr><button data-v="TURN EVERYTHING OFF" style="text-align:center;letter-spacing:.1em;font-size:10px">TURN EVERYTHING OFF</button>';
+  document.body.appendChild(el);
+  var r=this.getBoundingClientRect();
+  el.style.left=Math.min(r.left,innerWidth-el.offsetWidth-10)+'px';
+  el.style.top=(r.bottom+4)+'px';
+  el.addEventListener('click',function(e){
+    var sw=e.target.closest('[data-sw]');
+    if(sw){var k=sw.dataset.sw;S[k]=!S[k];sw.classList.toggle('on',S[k]);return}
+    var b=e.target.closest('button[data-v]'); if(!b)return;
+    close();
+    if(b.dataset.v==='TURN EVERYTHING OFF'){
+      ['tide','cvd','cdi','flow','bot'].forEach(function(k){S[k]=false});
+      S.maps='None'; sync(); toast('Everything off');
+    } else toast(b.dataset.v);
+  });
+  open=el;
+};
+
+/* TIDE: il pannello del sito */
+HH.cTide=function(){
+  close();
+  var el=document.createElement('div'); el.className='tide';
+  el.innerHTML='<div class="r"><span>Liquidity Tide</span>'+
+      '<span class="sw'+(S.tide?' on':'')+'" data-sw="tide"><i></i></span></div>'+
+    '<div class="hh">FLOW</div>'+
+    '<div class="seg" data-k="flowMode">'+
+      ['off','all','mega'].map(function(v){return '<button data-v="'+v+'"'+
+        (S.flowMode===v?' class="on"':'')+'>'+{off:'Off',all:'All',mega:'Mega'}[v]+'</button>'}).join('')+
+    '</div>'+
+    '<div class="r" style="margin-top:10px"><span style="font-size:12.5px">Size threshold '+
+      '<span style="color:var(--dim)">(contracts)</span></span>'+
+      '<input id="tSize" type="number" min="1" value="'+S.flowSize+'"></div>'+
+    '<div class="hh">LEVELS</div>'+
+    '<div class="seg" data-k="levels">'+
+      ['off','today','all'].map(function(v){return '<button data-v="'+v+'"'+
+        (S.levels===v?' class="on"':'')+'>'+{off:'Off',today:'Today',all:'All'}[v]+'</button>'}).join('')+
+    '</div>';
+  document.body.appendChild(el);
+  var r=this.getBoundingClientRect();
+  el.style.left=Math.min(r.left-90,innerWidth-el.offsetWidth-10)+'px';
+  el.style.top=(r.bottom+8)+'px';
+  el.addEventListener('click',function(e){
+    var sw=e.target.closest('[data-sw]');
+    if(sw){S.tide=!S.tide;sw.classList.toggle('on',S.tide);sync();return}
+    var b=e.target.closest('button[data-v]'); if(!b)return;
+    var seg=b.closest('.seg'); S[seg.dataset.k]=b.dataset.v;
+    seg.querySelectorAll('button').forEach(function(x){x.classList.remove('on')});
+    b.classList.add('on'); draw();
+  });
+  el.querySelector('#tSize').onchange=function(){S.flowSize=Math.max(1,+this.value||1)};
+  open=el;
+};
+
+/* plain chips */
+[['cCvd','cvd'],['cCdi','cdi'],['cFlow','flow']].forEach(function(pair){
+  HH[pair[0]]=function(){S[pair[1]]=!S[pair[1]];sync();
+    toast(pair[1].toUpperCase()+(S[pair[1]]?' on':' off'))};
+});
+HH.cBot=function(){S.bot=!S.bot;sync()};
+/* a control may not exist in every mode: set it only if it is on screen */
+function q(id,cls,on){var e=$(id); if(e)e.classList.toggle(cls,on); return e}
+function txt(id,t){var e=$(id); if(e)e.textContent=t}
+function sync(){
+  q('cTide','on',S.tide); q('cCvd','on',S.cvd); q('cCdi','on',S.cdi);
+  q('cFlow','on',S.flow); q('cMaps','on',S.maps!=='None'); q('cBot','on',S.bot);
+  $('flowPane').hidden=!S.flow;
+  txt('botTxt', MODE===1 ? 'BOT TRADES: '+(S.bot?'ON':'OFF') : 'BOT');
+  txt('mapsV', S.maps==='None'?'None':S.maps);
+  requestAnimationFrame(function(){draw();drawFlow()});
+}
+
+/* =============== options flow =============== */
+/* SPX 0DTE strikes, premium in millions: calls above zero, puts below.
+   Frozen numbers — they only exist to show the drawing that is missing today. */
+var FLOW=[[7560,0.4,-1.1],[7570,0.6,-1.6],[7580,1.1,-2.4],[7590,1.7,-3.6],
+          [7600,2.9,-5.2],[7610,4.4,-7.1],[7620,6.1,-9.4],[7630,8.3,-11.8],
+          [7640,11.2,-14.6],[7650,9.6,-12.2],[7660,7.4,-9.1],[7670,5.8,-6.9],
+          [7680,4.1,-4.8],[7690,2.8,-3.2],[7700,1.9,-2.1],[7710,1.2,-1.3],
+          [7720,0.7,-0.8],[7730,0.4,-0.5]];
+var fcv=$('flowCv'), fcx=fcv.getContext('2d');
+function drawFlow(){
+  if($('flowPane').hidden)return;
+  var host=fcv.parentNode.getBoundingClientRect(), d=Math.min(devicePixelRatio||1,2);
+  var w=Math.max(320,Math.round(host.width)), h=Math.max(60,Math.round(host.height));
+  if(fcv.width!==w*d||fcv.height!==h*d){fcv.width=w*d;fcv.height=h*d}
+  fcx.setTransform(d,0,0,d,0,0);
+  fcx.clearRect(0,0,w,h);
+  if(!document.body.classList.contains('v2'))return;   /* today: the panel stays empty */
+
+  var padL=76, padR=76, padB=16, padT=8;
+  var x0=padL, x1=w-padR, plot=h-padB-padT, n=FLOW.length;
+  var step=(x1-x0)/n, bw=Math.max(4,Math.min(22,step*0.56));
+  var mx=0; FLOW.forEach(function(r){mx=Math.max(mx,r[1],-r[2])});
+  var zero=padT+plot*0.58;
+
+  fcx.strokeStyle='rgba(255,255,255,.07)';fcx.lineWidth=1;
+  fcx.beginPath();fcx.moveTo(x0,Math.round(zero)+.5);fcx.lineTo(x1,Math.round(zero)+.5);fcx.stroke();
+
+  fcx.font='9px '+MONO;fcx.textAlign='center';
+  FLOW.forEach(function(r,i){
+    var cxp=x0+step*(i+.5);
+    var hc=(r[1]/mx)*(zero-padT), hp=(-r[2]/mx)*(padT+plot-zero);
+    fcx.fillStyle='#45B98C';fcx.fillRect(cxp-bw/2,zero-hc,bw,hc);
+    fcx.fillStyle='#F0605E';fcx.fillRect(cxp-bw/2,zero,bw,hp);
+    if(i%3===0){fcx.fillStyle='#5D6A82';fcx.textBaseline='top';
+      fcx.fillText(r[0],cxp,padT+plot+3)}
+  });
+  fcx.textAlign='left';fcx.textBaseline='middle';fcx.fillStyle='#5D6A82';
+  fcx.fillText('CALL $M',6,padT+10);
+  fcx.fillText('PUT $M',6,padT+plot-8);
+}
+
+/* PANELS and the floating tab */
+function panels(on){
+  S.panels=on;
+  $('dock').hidden=!on;
+  $('edgeTab').hidden=on;
+  q('bPanels','off',!on);
+  requestAnimationFrame(function(){draw();drawFlow()});
+}
+HH.bPanels=function(){panels(!S.panels)};
+$('dockClose').onclick=function(){panels(false)};
+$('edgeTab').onclick=function(){panels(true)};
+HH.bHide=function(){
+  var r=$('cmdrow'); r.hidden=!r.hidden;
+  toast(r.hidden?'Top bar hidden — press H to bring it back':'Top bar back');
+  requestAnimationFrame(draw);
+};
+addEventListener('keydown',function(e){
+  if((e.key==='h'||e.key==='H')&&$('cmdrow').hidden){$('cmdrow').hidden=false;requestAnimationFrame(draw)}
+});
+HH.bGuide=function(){toast('Guide')};
+
+/* bottom strip */
+(function(){
+  var o='<option>Live (16:00 ET)</option>';
+  for(var m=15*60+55;m>=9*60+30;m-=5){
+    var hh=Math.floor(m/60),mm=m%60;
+    o+='<option>'+(hh<10?'0':'')+hh+':'+(mm<10?'0':'')+mm+' ET</option>';
+  }
+  $('slotSel').innerHTML=o;
+})();
+function setPos(p){S.pos=Math.max(0,Math.min(100,p));
+  $('fil').style.width=S.pos+'%';$('hd').style.left=S.pos+'%'}
+setPos(96);
+$('track').addEventListener('mousedown',function(e){
+  var r=this.getBoundingClientRect();
+  var mv=function(ev){setPos((ev.clientX-r.left)/r.width*100)};
+  mv(e);
+  var up=function(){document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up)};
+  document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
+});
+$('liveBtn').onclick=function(){S.mode='LIVE';this.classList.add('on');$('replayBtn').classList.remove('on')};
+$('replayBtn').onclick=function(){S.mode='REPLAY';this.classList.add('on');$('liveBtn').classList.remove('on')};
+$('prevSlot').onclick=function(){var s=$('slotSel');if(s.selectedIndex<s.options.length-1)s.selectedIndex++};
+$('nextSlot').onclick=function(){var s=$('slotSel');if(s.selectedIndex>0)s.selectedIndex--};
+document.querySelectorAll('.speed button').forEach(function(b){
+  b.onclick=function(){document.querySelectorAll('.speed button').forEach(function(x){x.classList.remove('on')});
+    b.classList.add('on');S.speed=+b.dataset.s}});
+$('snapBtn').onclick=function(){toast('Snapshot')};
+$('replayEnter').onclick=function(){toast('Replay')};
+$('alertsEnter').onclick=function(){toast('Alerts')};
+HH.mark=function(){toast('Account')};
+
+/* toast */
+var tt=null;
+function toast(m){if(tt)tt.remove();
+  tt=document.createElement('div');tt.className='toast';tt.textContent=m;
+  document.body.appendChild(tt);setTimeout(function(){if(tt){tt.remove();tt=null}},2200)}
+
+
+/* ---- before / after ---- */
+
+
+/* ============================================================
+   MODALITA'
+   Dieci disposizioni della riga dei comandi, sulla stessa
+   interfaccia vera. Cambia solo la barra: grafico, striscia in
+   basso e pannello di destra restano identici in tutte e dieci.
+   ============================================================ */
+var WM='<svg xmlns="http://www.w3.org/2000/svg" height="15" width="98.4" class="wm" viewBox="0 0 478.060 72.852"><linearGradient id="wpdark" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="478.060" y2="0"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.22" stop-color="#E2EBFF"/><stop offset="0.5" stop-color="#A9C2FF"/><stop offset="0.76" stop-color="#6E92FF"/><stop offset="1" stop-color="#3D6FF5"/></linearGradient><g transform="translate(-1.4160,71.5820)"><clipPath id="kpdark"><path d="M532 0 29 1440H361L746 194H717L1102 1440H1434L931 0Z" transform="translate(0.0000,0) scale(0.048828,-0.048828)"/><path d="M786 -26Q565 -26 404.0 64.5Q243 155 156.0 322.5Q69 490 69 720Q69 951 156.0 1118.0Q243 1285 404.0 1375.5Q565 1466 787 1466Q1008 1466 1169.0 1375.5Q1330 1285 1417.0 1118.0Q1504 951 1504 720Q1504 490 1417.0 322.5Q1330 155 1169.0 64.5Q1008 -26 786 -26ZM786 235Q910 235 998.0 293.0Q1086 351 1133.0 459.5Q1180 568 1180 720Q1180 873 1133.0 981.0Q1086 1089 998.0 1147.0Q910 1205 786 1205Q663 1205 575.0 1147.0Q487 1089 440.0 981.0Q393 873 393 720Q393 568 440.0 459.5Q487 351 575.0 293.0Q663 235 786 235Z" transform="translate(69.1867,0) scale(0.048828,-0.048828)"/><path d="M142 0V1440H451V261H1145V0Z" transform="translate(143.7934,0) scale(0.048828,-0.048828)"/><path d="M365 0 38 1440H368L596 177H563L844 1440H1223L1503 177H1470L1698 1440H2027L1700 0H1275L1018 1190H1047L791 0Z" transform="translate(199.5035,0) scale(0.048828,-0.048828)"/><path d="M83 0V255H282V1185H83V1440H790V1185H591V255H790V0Z" transform="translate(298.1336,0) scale(0.048828,-0.048828)"/><path d="M774 -26Q559 -26 400.5 67.0Q242 160 155.5 328.5Q69 497 69 723Q69 946 154.0 1113.0Q239 1280 397.0 1373.0Q555 1466 773 1466Q1018 1466 1189.5 1343.5Q1361 1221 1415 989L1101 916Q1071 1061 984.5 1133.0Q898 1205 772 1205Q651 1205 566.5 1145.0Q482 1085 437.5 976.5Q393 868 393 720Q393 572 438.0 462.5Q483 353 567.0 293.5Q651 234 768 234Q894 234 980.0 306.0Q1066 378 1097 509L1418 444Q1360 218 1189.0 96.0Q1018 -26 774 -26Z" transform="translate(338.5605,0) scale(0.048828,-0.048828)"/><path d="M142 0V1440H451V851L1043 1440H1424L891 911L1462 0H1106L678 700L451 474V0Z" transform="translate(408.0891,0) scale(0.048828,-0.048828)"/></clipPath><rect x="0.416" y="-72.582" width="480.060" height="74.852" fill="url(#wpdark)" clip-path="url(#kpdark)"/></g></svg>';
+var CAR='<svg class="ch" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg>';
+var LAYERS=[['cTide','TIDE','TD'],['cCvd','CVD','CV'],['cCdi','CDI','CD'],
+            ['cFlow','FLOW','FL'],['cMaps','MAPS','MP']];
+var MODE=2;
+
+function fpx(){return SYMS[S.sym].toLocaleString('en-US',{minimumFractionDigits:2})}
+function logo(){return '<button class="mark" id="mark" aria-label="Volwick">'+WM+'</button>'}
+function tick(k){return '<button class="'+(k||'nk')+'" id="bTicker"><span class="tk" id="tkName">'+S.sym+
+  '</span><span class="px" id="tkPx">'+fpx()+'</span><span class="chg" id="tkChg">'+CHG[S.sym]+'</span>'+CAR+'</button>'}
+function tf(k){return '<button class="'+(k||'nk')+'" id="bTf"><span class="v" id="tfName">'+S.tf+'</span>'+CAR+'</button>'}
+function knob(id,cap,vid,val,style){
+  var lab = style==='low' ? '<em>'+cap.toLowerCase()+'</em>' : '<span class="cap">'+cap+'</span>';
+  return '<button class="nk" id="'+id+'">'+lab+'<span class="v" id="'+vid+'">'+val+'</span>'+CAR+'</button>';
+}
+function knobs(style){
+  return knob('bWalls','WALLS','wallsV',S.walls,style)+
+         knob('bMetric','METRIC','metV',S.metric,style)+
+         knob('bExpiry','EXPIRY','expV',S.expiry,style);
+}
+function gamma(){
+  return '<button class="nk" id="bGamma"><span class="cap">GAMMA</span><span class="v">'+
+    S.walls+' · '+S.metric+' · '+S.expiry+'</span>'+CAR+'</button>';
+}
+function tgs(){return LAYERS.map(function(l){
+  return '<button class="tg" id="'+l[0]+'"><i></i>'+l[1]+'</button>'}).join('')}
+function segs(){return '<span class="seg">'+LAYERS.map(function(l){
+  return '<button id="'+l[0]+'"><i></i>'+l[1]+'</button>'}).join('')+'</span>'}
+function icons(){return LAYERS.map(function(l){
+  return '<button class="ic" id="'+l[0]+'" title="'+l[1]+'">'+l[2]+'</button>'}).join('')}
+function bot(short){return '<button class="tg" id="cBot"><i></i><span id="botTxt">'+
+  (short?'BOT':'BOT TRADES: OFF')+'</span></button>'}
+function right(){return '<button class="ghost" id="bGuide">GUIDE</button>'+
+  '<button class="prim" id="bPanels">PANELS</button>'}
+var HAIR='<i class="hair"></i>', SPACE='<span class="sp"></span>';
+
+var MODES=[
+ {n:'ADESSO', t:'Com’è oggi',
+  d:'Tre pillole azzurre, undici comandi, LAYOUT e MORE ancora dentro, la status bar in fondo. È il riferimento.'},
+ {n:'FILETTI', t:'Filetti al posto delle pillole',
+  d:'Stessa struttura, nessuna superficie a riposo. I gruppi si dividono con un filetto da un pixel. BOT va a destra, con la sessione.'},
+ {n:'DUE ZONE', t:'Identità a sinistra, comandi a destra',
+  d:'A sinistra cosa guardi, nell’unico riquadro della riga. A destra tutto ciò che si tocca. In mezzo aria.'},
+ {n:'UN COMANDO', t:'Un comando per concetto',
+  d:'I tre parametri dei muri diventano un bottone solo che apre un pannellino. I cinque strati diventano un segmentato. Da undici oggetti a sei.'},
+ {n:'ICONE', t:'Strati a icone',
+  d:'I cinque strati diventano quadratini di due lettere. La riga si accorcia di un terzo, ma le sigle vanno imparate.'},
+ {n:'DUE RIGHE', t:'Due righe',
+  d:'Sopra lo strumento e i muri, sotto gli strati e la sessione. Ogni riga ha un mestiere solo. Costa 34px di grafico.'},
+ {n:'RAIL', t:'Strati in verticale',
+  d:'Gli strati escono dalla barra e vanno in una colonna a sinistra del grafico, dove restano visibili e non competono con i parametri.'},
+ {n:'PREZZO', t:'Il prezzo comanda',
+  d:'Il prezzo diventa il blocco più grande della riga, come nei terminali. Tutto il resto si abbassa di voce.'},
+ {n:'COMPATTA', t:'Compatta, 34px',
+  d:'Tutto in una riga di 34px invece di 46. Si guadagnano 12px di grafico e niente viene nascosto, ma si legge più in piccolo.'},
+ {n:'MENU', t:'Tutto in un menu',
+  d:'Nella barra restano il marchio, il prezzo e un bottone CHART che apre tutto il resto. La riga più vuota possibile.'}
+];
+
+function renderBar(m){
+  MODE=m;
+  document.body.dataset.m=m;
+  document.body.classList.toggle('v2',m!==1);
+  var r=$('cmdrow'), r2=$('cmdrow2'), rail=$('rail'), h='';
+  r2.hidden=true; rail.hidden=true; r2.innerHTML=''; rail.innerHTML='';
+  r.hidden=false;
+
+  if(m===1){
+    h = logo()+
+      '<div class="grp fam" style="margin-left:18px"><i class="dot" id="statusDot"></i>'+
+        tick('cmdv')+tf('cmdv')+
+        '<button class="layb" id="bLayout">LAYOUT <b id="layName">'+S.layout+'</b>'+CAR+'</button></div>'+
+      '<div class="grp fam">'+
+        '<button class="cmdv" id="bWalls"><span class="k" id="wallsK">WALLS</span><span class="val" id="wallsV">'+S.walls+'</span>'+CAR+'</button>'+
+        '<button class="cmdv" id="bMetric"><span class="k off">METRIC</span><span class="val" id="metV">'+S.metric+'</span>'+CAR+'</button>'+
+        '<button class="cmdv" id="bExpiry"><span class="k off">EXPIRY</span><span class="val" id="expV">'+S.expiry+'</span>'+CAR+'</button></div>'+
+      '<div class="grp fam"><div class="chips">'+
+        LAYERS.map(function(l){return '<button class="chip" id="'+l[0]+'"><i></i><span>'+l[1]+'</span></button>'}).join('')+
+        '<button class="chip" id="cMore"><span>MORE</span></button>'+
+        '<button class="chip" id="cBot"><i></i><span id="botTxt">BOT TRADES: OFF</span></button></div></div>'+
+      SPACE+'<button class="gui" id="bGuide">GUIDE</button>'+
+      '<button class="gui" id="bHide">HIDE TOP BAR</button>'+
+      '<button class="panelsbtn" id="bPanels">PANELS</button>';
+  }
+  else if(m===2){
+    h = logo()+HAIR+'<i class="dot" id="statusDot"></i>'+tick()+tf()+HAIR+knobs()+HAIR+tgs()+
+        SPACE+bot(true)+HAIR+right();
+  }
+  else if(m===3){
+    h = logo()+HAIR+
+      '<span class="inst"><i class="dot" id="statusDot" style="margin:0 9px 0 8px"></i>'+
+      tick()+'<i class="dv"></i>'+tf()+'</span>'+
+      SPACE+knobs('low')+HAIR+tgs()+HAIR+bot(true)+right();
+  }
+  else if(m===4){
+    h = logo()+HAIR+'<i class="dot" id="statusDot"></i>'+tick()+tf()+HAIR+gamma()+HAIR+segs()+
+        SPACE+bot(true)+HAIR+right();
+  }
+  else if(m===5){
+    h = logo()+HAIR+'<i class="dot" id="statusDot"></i>'+tick()+tf()+HAIR+knobs()+HAIR+
+        '<span style="display:flex;gap:3px">'+icons()+'</span>'+SPACE+bot(true)+HAIR+right();
+  }
+  else if(m===6){
+    h = logo()+HAIR+'<i class="dot" id="statusDot"></i>'+tick()+tf()+HAIR+knobs()+SPACE+right();
+    r2.hidden=false;
+    r2.innerHTML='<span class="cap" style="margin-right:12px">STRATI</span>'+tgs()+
+                 SPACE+'<span class="cap" style="margin-right:12px">SESSIONE</span>'+bot(true);
+  }
+  else if(m===7){
+    h = logo()+HAIR+'<i class="dot" id="statusDot"></i>'+tick()+tf()+HAIR+knobs()+
+        SPACE+bot(true)+HAIR+right();
+    rail.hidden=false;
+    rail.innerHTML=icons()+'<i class="rhair"></i>'+
+      '<button class="ic" id="cBot2" title="BOT TRADES">BT</button>';
+  }
+  else if(m===8){
+    h = logo()+HAIR+'<i class="dot" id="statusDot"></i>'+
+      '<span class="bigpx" id="bTicker"><span class="l1"><span class="s" id="tkName">'+S.sym+
+      '</span><span class="p" id="tkPx">'+fpx()+'</span><span class="c" id="tkChg">'+CHG[S.sym]+
+      '</span></span><span class="l2">FUTURES · CME</span></span>'+
+      tf()+HAIR+knobs()+HAIR+tgs()+SPACE+bot(true)+HAIR+right();
+  }
+  else if(m===9){
+    h = logo()+'<i class="hair"></i><i class="dot" id="statusDot"></i>'+tick()+tf()+
+        '<i class="hair"></i>'+knobs()+'<i class="hair"></i>'+tgs()+SPACE+bot(true)+
+        '<i class="hair"></i>'+right();
+  }
+  else if(m===10){
+    h = logo()+HAIR+'<i class="dot" id="statusDot"></i>'+tick()+tf()+HAIR+
+      '<button class="nk" id="bChart"><span class="v">CHART</span>'+CAR+'</button>'+
+      SPACE+right();
+  }
+  r.innerHTML=h;
+
+  /* il pallino: spia verde, oro solo nella modalità di riferimento */
+  var d=$('statusDot'); if(d&&m!==1)d.style.background='var(--up)';
+  q('bPanels','off',!S.panels);
+  dock(); sync();
+  requestAnimationFrame(function(){draw();drawFlow()});
+}
+
+/* il pannellino dei muri, modalità 4 */
+HH.bGamma=function(){
+  close();
+  var a=this, el=document.createElement('div'); el.className='menu'; el.style.minWidth='210px';
+  el.innerHTML='<div class="mh">COME DISEGNIAMO I MURI</div>'+
+    [['walls','Quanti',S.walls],['metric','Quale numero',S.metric],['expiry','Quali scadenze',S.expiry]]
+    .map(function(x){return '<button data-g="'+x[0]+'" style="display:flex;justify-content:space-between;gap:14px">'+
+      '<span style="color:var(--dim);font-size:11px">'+x[1]+'</span><span>'+x[2]+'</span></button>'}).join('');
+  document.body.appendChild(el);
+  var r=a.getBoundingClientRect();
+  el.style.left=Math.min(r.left,innerWidth-el.offsetWidth-10)+'px'; el.style.top=(r.bottom+4)+'px';
+  el.addEventListener('click',function(e){
+    var b=e.target.closest('button[data-g]'); if(!b)return;
+    var g=b.dataset.g; close();
+    if(g==='walls')  menu(a,'WALLS',['Off','Top 3','Top 5','Top 10','Top 15','Top 25','Top 40'],S.walls,function(v){S.walls=v;renderBar(MODE)});
+    if(g==='metric') menu(a,'METRIC',['GEX','CEX','DEX','-','ALL'],S.metric,function(v){S.metric=v;renderBar(MODE)});
+    if(g==='expiry') menu(a,'EXPIRY',['0DTE','This week','This month','All'],S.expiry,function(v){S.expiry=v;renderBar(MODE)});
+  });
+  open=el;
+};
+
+/* il menu unico, modalità 10 */
+HH.bChart=function(){
+  close();
+  var a=this, el=document.createElement('div'); el.className='menu'; el.style.minWidth='252px';
+  el.innerHTML='<div class="mh">MURI</div>'+
+    [['walls','Quanti',S.walls],['metric','Quale numero',S.metric],['expiry','Quali scadenze',S.expiry]]
+    .map(function(x){return '<button data-g="'+x[0]+'" style="display:flex;justify-content:space-between;gap:14px">'+
+      '<span style="color:var(--dim);font-size:11px">'+x[1]+'</span><span>'+x[2]+'</span></button>'}).join('')+
+    '<hr><div class="mh">STRATI</div>'+
+    LAYERS.map(function(l){
+      var on = l[0]==='cMaps' ? S.maps!=='None' : S[{cTide:'tide',cCvd:'cvd',cCdi:'cdi',cFlow:'flow'}[l[0]]];
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px">'+
+        '<span style="font-size:12.5px">'+l[1]+'</span><span class="sw'+(on?' on':'')+'" data-l="'+l[0]+'"><i></i></span></div>'}).join('')+
+    '<hr><div style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px">'+
+      '<span style="font-size:12.5px">Bot trades</span><span class="sw'+(S.bot?' on':'')+'" data-l="cBot"><i></i></span></div>';
+  document.body.appendChild(el);
+  var r=a.getBoundingClientRect();
+  el.style.left=Math.min(r.left,innerWidth-el.offsetWidth-10)+'px'; el.style.top=(r.bottom+4)+'px';
+  el.addEventListener('click',function(e){
+    var sw=e.target.closest('[data-l]');
+    if(sw){var id=sw.dataset.l;
+      if(id==='cMaps'){S.maps=(S.maps==='None')?'γ Map':'None'}
+      else if(id==='cBot'){S.bot=!S.bot}
+      else {var k={cTide:'tide',cCvd:'cvd',cCdi:'cdi',cFlow:'flow'}[id]; S[k]=!S[k]}
+      sw.classList.toggle('on'); sync(); return}
+    var b=e.target.closest('button[data-g]'); if(!b)return;
+    var g=b.dataset.g; close();
+    if(g==='walls')  menu(a,'WALLS',['Off','Top 3','Top 5','Top 10','Top 15','Top 25','Top 40'],S.walls,function(v){S.walls=v;draw()});
+    if(g==='metric') menu(a,'METRIC',['GEX','CEX','DEX','-','ALL'],S.metric,function(v){S.metric=v;draw()});
+    if(g==='expiry') menu(a,'EXPIRY',['0DTE','This week','This month','All'],S.expiry,function(v){S.expiry=v;draw()});
+  });
+  open=el;
+};
+HH.cBot2=function(){S.bot=!S.bot; q('cBot2','on',S.bot); sync()};
+
+/* il selettore */
+(function(){
+  var L=$('pickList');
+  L.innerHTML=MODES.map(function(x,i){
+    return '<button data-i="'+(i+1)+'"><span>'+String(i+1).padStart(2,'0')+' · '+x.n+'</span>'+x.t+'</button>'}).join('');
+  function paint(){
+    L.querySelectorAll('button').forEach(function(b){b.classList.toggle('on',+b.dataset.i===MODE)});
+    $('pickNote').innerHTML='<b>'+MODES[MODE-1].t+'</b>'+MODES[MODE-1].d;
+  }
+  L.addEventListener('click',function(e){
+    var b=e.target.closest('button[data-i]'); if(!b)return;
+    renderBar(+b.dataset.i); paint();
+  });
+  $('pickTab').onclick=function(){
+    $('pick').classList.toggle('hide');
+    document.body.classList.toggle('picker',!$('pick').classList.contains('hide'));
+    requestAnimationFrame(function(){draw();drawFlow()});
+  };
+  document.body.classList.add('picker');
+  renderBar(2); paint();
+})();
+
+function all(){draw();drawFlow()}
+addEventListener('resize',all);
+new ResizeObserver(all).observe($('charthost'));
+all();
+})();
+</script>
+
+</body></html>

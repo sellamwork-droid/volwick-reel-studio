@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="spec.css">
+</head>
+<body>
+
+<section class="pg">
+  <div class="head">
+    <div class="brand">Volwick · Sightline · build v778</div>
+    <h1>Quello che si sovrappone</h1>
+  </div>
+
+  <h2><span class="n">01</span> Non stampare la targhetta del prezzo sopra la scala</h2>
+  <p>La targhetta del prezzo cade esattamente sopra l'etichetta della scala e la cancella. Sul bordo destro <code>7648.50</code> copre <code>7650.00</code>; sul bordo sinistro <code>51.82K</code> copre <code>52K</code> e <code>57.39K</code> copre <code>56K</code>.</p>
+  <p>Non è un caso raro: succede ogni volta che il cursore passa vicino a una tacca, cioè in continuazione. Chi sta leggendo la scala si vede sparire un valore sotto il dito.</p>
+  <div class="spec">Spostare la targhetta di qualche pixel quando cade su una tacca, oppure nascondere quella tacca finché la targhetta è lì.</div>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/x09-tag-copre-7650.png" alt="La targhetta copre 7650.00">
+      <figcaption><b>Bordo destro.</b> <code>7648.50</code> stampata sopra <code>7650.00</code>.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/x01-tag-copre-scala.png" alt="La targhetta copre 52K">
+      <figcaption><b>Bordo sinistro.</b> <code>51.82K</code> al posto di <code>52K</code>.</figcaption>
+    </figure>
+  </div>
+
+  <h2 style="margin-top:9mm"><span class="n">02</span> Tieni i riquadri lontani l'uno dall'altro</h2>
+  <p>Passando sopra un muro si aprono <b>quattro riquadri insieme</b>: quello della Tide, quello del muro, quello della metrica e quello del CDI. Insieme coprono circa un terzo del grafico.</p>
+  <p>E due di loro finiscono uno sull'altro: <b>il riquadro della metrica viene disegnato sopra quello del muro</b>, quindi non si legge né l'uno né l'altro. Le cifre del muro spuntano da dietro, gli importi della metrica si leggono a metà.</p>
+  <div class="spec">Un riquadro alla volta, o al massimo due, e mai uno sopra l'altro: se lo spazio non basta, spostare il secondo dall'altra parte del cursore.</div>
+
+  <figure class="crop">
+    <img src="fig/x12-quattro-riquadri.png" alt="Due riquadri sovrapposti">
+    <figcaption><b>Il riquadro del muro con sopra quello della metrica.</b> Si leggono a pezzi <code>Net</code>, <code>Call short γ</code>, <code>CHARM +49.5M</code> e le cifre <code>−$23M</code>, <code>−$10M</code>, <code>−$13M</code>, tutte nello stesso punto.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <figure class="mid">
+    <img src="fig/x13-schermo-intero.jpg" alt="Quattro riquadri aperti insieme">
+    <figcaption><b>Lo schermo intero nello stesso istante.</b> Quattro riquadri aperti per un solo passaggio del cursore: la Tide in alto a sinistra, il muro e la metrica sovrapposti al centro, il CDI in basso a destra.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">03</span> Non disegnare la linguetta PANELS sopra la scala</h2>
+  <p>Chiudendo il pannello di destra, la linguetta per riaprirlo viene disegnata <b>sopra la scala dei prezzi</b>, ruotata di novanta gradi, e il suo stesso testo esce dallo schermo: si legge <code>…ELS</code>.</p>
+  <p>La targhetta del prezzo ci finisce sotto e perde l'ultima cifra, e l'etichetta della scala sparisce del tutto.</p>
+  <div class="spec">Mettere la linguetta accanto alla scala, non sopra, e lasciarle la larghezza per il suo testo intero.</div>
+
+  <figure class="tall">
+    <img src="fig/x02-panels-sopra-scala.png" alt="Linguetta PANELS sopra la scala" style="max-height:105mm">
+    <figcaption><b>Il bordo destro con il pannello chiuso.</b> La linguetta verticale copre la scala, e <code>7648.50</code> perde l'ultimo zero.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">04</span> Metti uno sfondo alle intestazioni delle finestre</h2>
+  <p>Nelle disposizioni a più grafici l'intestazione di ogni finestra <b>non ha sfondo</b>: dietro il testo si legge il grafico. Dietro <code>POSITIONS LIVE 16:00 · ES · 7,714.75</code> passano <code>7740.00</code> della scala dei prezzi e <code>13K</code> di quella dei volumi.</p>
+  <p>Su cinque colonne diventa illeggibile: nello stesso angolo di quaranta pixel si accavallano <b>quattro cose diverse</b>, l'intestazione, le due scale e l'etichetta del muro <code>GEX·7735.6 7M (7730)</code>.</p>
+  <div class="spec">Dare all'intestazione uno sfondo pieno e la sua striscia di spazio, così il grafico comincia sotto e non dietro.</div>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/x03-intestazione-trasparente.png" alt="Intestazione trasparente">
+      <figcaption><b>Due grafici affiancati.</b> Dietro il testo si leggono <code>40K</code> e <code>7740.00</code>.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/x06-angolo-sovrapposto.png" alt="Angolo con quattro elementi sovrapposti">
+      <figcaption><b>Cinque colonne.</b> Intestazione, <code>13K</code>, <code>7740.00</code> e l'etichetta del muro nello stesso angolo.</figcaption>
+    </figure>
+  </div>
+
+  <h2 style="margin-top:9mm"><span class="n">05</span> Dai alla barra CDI la sua riga</h2>
+  <p>Quando la finestra si stringe, la barra dei comandi CDI <b>va a capo</b> e la seconda riga viene stampata sopra il grafico. <code>+ 2nd BOOK</code> scivola giù e ci si sovrappongono <code>+4.3M</code> e <code>$2.2M</code> del grafico sotto, lettera su lettera.</p>
+  <p>Su cinque colonne la barra arriva a tre righe, e i pulsanti si mescolano alle barre del CDI.</p>
+  <div class="spec">Riservare alla barra l'altezza che le serve prima di disegnare il grafico. Se i comandi non ci stanno, accorciarli o raggrupparli in un menu, non mandarli a capo.</div>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/x04-2nd-book-sul-grafico.png" alt="+ 2nd BOOK sopra il grafico">
+      <figcaption><b>Due grafici.</b> <code>+ 2nd BOOK</code> a capo, con <code>+4.3M</code> che ci passa attraverso.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/x07-cdi-tre-righe.png" alt="Barra CDI su tre righe">
+      <figcaption><b>Cinque colonne.</b> Tre righe di barra sopra il grafico, con <code>$2.2M</code> dentro i pulsanti.</figcaption>
+    </figure>
+  </div>
+
+  <h2 style="margin-top:9mm"><span class="n">06</span> Riscrivi la riga di stato</h2>
+  <p>La riga in fondo alla pagina ha <b>le parole attaccate</b> e <b>si taglia a metà parola</b>: <code>… 0s ago Last Update GEX16:00 ETj</code>. Manca lo spazio fra <code>GEX</code> e l'orario, e la frase finisce dove finisce lo schermo.</p>
+  <p>Nella disposizione a cinque colonne la stessa frase viene scritta <b>due volte di fila</b>, e tagliata tutte e due le volte.</p>
+  <div class="spec">Mettere gli spazi, accorciare la frase perché ci stia intera, e non ripeterla una volta per finestra.</div>
+
+  <figure class="crop">
+    <img src="fig/x05-riga-stato.png" alt="Riga di stato tagliata">
+    <figcaption><b>La riga di stato.</b> <code>GEX16:00</code> attaccato e la parola finale tagliata a <code>ETj</code>.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">07</span> Fai dire al preset la disposizione giusta</h2>
+  <p>L'etichetta del preset <b>resta indietro di una disposizione</b>. Selezionando quella a cinque colonne, la barra continua a dire <code>PRESET 4 charts</code>.</p>
+  <div class="spec">Aggiornare l'etichetta insieme alla disposizione.</div>
+
+  <figure class="crop">
+    <img src="fig/x08-preset-4-charts.png" alt="PRESET 4 charts con cinque colonne selezionate">
+    <figcaption><b>Con la disposizione a cinque colonne attiva.</b> L'etichetta dice ancora «4 charts».</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">08</span> Stacca i numeri dalla barra dei colori</h2>
+  <p>Nella legenda in fondo i numeri sono <b>incollati alla barra sfumata</b>, senza un pixel di spazio da nessuna delle due parti: <code>CHARM −801.1M</code> tocca la barra a sinistra e <code>+801.1M</code> la tocca a destra.</p>
+  <div class="spec">Un po' di margine fra i numeri e la barra.</div>
+
+  <figure class="crop">
+    <img src="fig/x10-legenda-attaccata.png" alt="Legenda con i numeri attaccati">
+    <figcaption><b>La legenda dei colori.</b> I due valori toccano la barra.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <h2><span class="n">09</span> Chiudi la parentesi</h2>
+  <p>Il selettore dell'orario scrive <code>Live (16:00</code>. La parentesi non si chiude mai.</p>
+  <div class="spec">Chiuderla, oppure toglierla del tutto.</div>
+
+  <h2 style="margin-top:9mm"><span class="n">10</span> Non troncare gli orari in fondo</h2>
+  <p>Nelle finestre strette le etichette dell'asse vengono stampate anche quando non ci stanno, e restano a metà: <code>:30</code> al posto di <code>14:30</code>, <code>Sep 1</code> al posto di <code>Sep 10</code>, e sull'ultima finestra solo <code>Sep</code>.</p>
+  <div class="spec">Se un'etichetta non ci sta intera, non stamparla: meglio una tacca in meno che una data sbagliata.</div>
+
+  <h2 style="margin-top:9mm"><span class="n">11</span> Non mettere lo stesso strumento in tre finestre</h2>
+  <p>Nella disposizione a cinque colonne <b>tre finestre su quattro mostrano lo stesso strumento</b>, con gli stessi identici grafici uno accanto all'altro. Lo spazio di due finestre è sprecato.</p>
+  <div class="spec">Riempire le finestre con strumenti diversi, o lasciarle vuote con un invito a sceglierne uno.</div>
+
+  <figure>
+    <img src="fig/x11-cinque-grafici.jpg" alt="Cinque colonne con tre grafici uguali">
+    <figcaption><b>La disposizione a cinque colonne.</b> Le finestre 2, 3 e 4 sono lo stesso SPX, e le barre CDI sotto sono tutte a due righe.</figcaption>
+  </figure>
+</section>
+
+</body>
+</html>

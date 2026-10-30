@@ -27,5 +27,21 @@ Guardali prima di disegnare qualsiasi parte Volwick in un video: colori, spessor
 ## I video esempio dei format
 `esempi_format/`: 8 fotogrammi per ogni video da cui nascono i format (trendline, indicatore, micro lezione, libro, edit motion, quiz "Buy or Sell?"). Video interi su Drive in `02_LIBRERIA/03_VIDEO_CONSIGLIATI/<categoria>`; come li abbiamo trasformati in versioni Volwick: `../06_DOCS/MOTORE_VX_FORMAT.md`.
 
+## Marchio: loghi, icone, font, suono (`marchio/`)
+- `LOGO_VOLWICK_wordmark.png` e `LOGO_V_monogramma.png`: i loghi ufficiali originali. `wordmark_ritagliato_per_video.png` e `monogramma_per_video.png`: le versioni che usa il motore (identiche a `00_MOTORE/assets`). Il logo non si ricolora mai; su fondo chiaro sta dentro una pillola navy.
+- `icone/` e `Volwick_icone_logo.zip`: favicon, icone app (48–1024 px), confronti e proporzioni.
+- `finale_approvato_dei_video.png`: il finale di ogni video, sempre questo.
+- `font/`: Archivo (titoli del sito), Instrument Sans (testo del sito), JetBrains Mono (etichette e numeri), Inter Tight (titoli dei video), con licenza SIL OFL.
+- `sonic_logo/`: il suono del marchio, intro e outro.
+- `BRAND_IDENTITY.md`: identità del marchio. Colori e regole anche in `09_MARCHIO_COLORI.md` e `10_MARCHIO_DEFINITIVO.md`.
+- `animazione_prezzo_099.mp4`: l'animazione dell'offerta a $0,99 usata nei primi video (l'offerta oggi va solo in caption).
+
+## Il software: sito, terminale, documenti (`software/`)
+- Sito: **volwick.com** (landing in inglese e italiano). Terminale: **volwick.com/dashboard** (serve un account: Claude non accede mai al posto di Power).
+- `screenshot/`: hero del prodotto, mercati, layout telefono IT/EN, effetti, riga dei layer, check grafici.
+- `banner/`: grafiche e mockup dei banner (PC e telefono).
+- `mockup_terminale_html/`: i mockup HTML del terminale (barra, mappe, muri, Tide, CVD, multichart, redesign): si aprono nel browser o si renderizzano con Playwright per vedere i componenti.
+- `documenti/DOSSIER_SOFTWARE.md`: il software descritto per intero. `VOLWICK_Knowledge_Base.md`: base di conoscenza del prodotto. `COMPETITOR_ANALYSIS.md`: concorrenti. `Volwick_traduzioni_IT_EN.json`: tutti i testi del sito e del terminale in IT ed EN (per usare esattamente i nomi dei comandi).
+
 Regole che vincono su tutto, in quest'ordine: `../REGOLE/PREFERENZE_E_FORMATI.md` (le decisioni di Power, la più recente vince), poi `02_TERMINALE_COSA_SI_PUO_MOSTRARE.md`, poi il resto.
 Nei video: solo funzioni presenti nella build, mai previsioni di direzione ("came out at a coin flip"), mai dati reali, Block Prints mai chiamati dark pool, un muro rosso è un supporto difeso e non un segnale ribassista.

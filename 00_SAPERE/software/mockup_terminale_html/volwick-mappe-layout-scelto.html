@@ -1,0 +1,301 @@
+<meta charset="utf-8">
+<title>Volwick Sightline — Mappe · ordinare quella di adesso</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#080B10;--panel:#0C1017;--line:#1B2230;--line2:#232B3A;
+ --ink:#F0F3F8;--ink2:#C8D0DC;--mut:#8A94A6;--mut2:#5D6A82;--mut3:#414C60;
+ --gold:#E8C268;--grn:#369C6F;--red:#CC5858;
+ --sans:'IBM Plex Sans',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;}
+*{box-sizing:border-box;margin:0;padding:0;font-family:var(--sans)}
+body{background:#05070A;color:var(--ink);font-size:13px;padding-bottom:56px}
+.mk{background:#05070A;border-bottom:1px solid #171E2A;padding:9px 14px;display:flex;
+ align-items:center;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:9}
+.mk .lb{font-size:8.5px;letter-spacing:.2em;color:var(--mut3);margin:0 4px 0 12px}
+.mk .lb:first-child{margin-left:0}
+.mk button{height:24px;padding:0 9px;border-radius:5px;border:1px solid #222A38;background:transparent;
+ color:var(--mut);font-size:11px;cursor:pointer}
+.mk button:hover{color:var(--ink2);border-color:#33404F}
+.mk button.on{color:#05070A;background:var(--gold);border-color:var(--gold);font-weight:700}
+.hd{padding:22px 22px 2px}
+.hd h1{font-family:var(--mono);font-size:17px;font-weight:600}
+.hd p{color:var(--mut);font-size:12px;margin-top:5px;max-width:900px;line-height:1.6}
+.card{margin:20px 22px 0;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--panel)}
+.card.now{border-color:#3A2328}
+.cap{padding:11px 14px;border-bottom:1px solid var(--line);display:flex;gap:11px;align-items:baseline}
+.cap b{font-size:13.5px;font-weight:600}
+.cap em{font-style:normal;color:var(--mut);font-size:11.5px;margin-left:auto;text-align:right;max-width:54%;line-height:1.5}
+.num{font-family:var(--mono);font-size:12px;font-weight:700;color:#05070A;background:var(--gold);
+ width:22px;height:22px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.tag{font-family:var(--mono);font-size:9px;letter-spacing:.14em;padding:3px 7px;border-radius:4px;flex:none;
+ color:var(--red);background:rgba(204,88,88,.12)}
+.row{display:flex;align-items:center;gap:9px;padding:0 12px;height:29px;font-size:10.5px;color:var(--mut2);
+ border-bottom:1px solid var(--line)}
+.ttl{font-family:var(--mono);letter-spacing:.1em;color:var(--gold);font-weight:600}
+.sub{color:var(--mut)}
+.rd{font-family:var(--mono);font-size:12.5px;color:var(--ink2)}
+.push{flex:1}
+canvas{display:block;width:100%}
+.wrap{position:relative}
+.leg{position:absolute;left:12px;bottom:40px;display:flex;align-items:center;gap:7px;
+ background:rgba(8,11,16,.86);border:1px solid var(--line2);border-radius:6px;padding:5px 8px}
+.leg .bar{width:132px;height:8px;border-radius:2px;position:relative;
+ background:linear-gradient(90deg,#CC5858,#5A3540 30%,#0C1017 50%,#2C5748 70%,#369C6F)}
+.leg .bar i{position:absolute;top:-3px;width:2px;height:14px;background:var(--ink);border-radius:1px;display:none}
+.leg span{font-family:var(--mono);font-size:9.5px;color:var(--mut)}
+.leg .u{color:var(--mut3);letter-spacing:.1em;font-size:8.5px}
+.note{padding:10px 14px 13px;border-top:1px solid var(--line);display:flex;gap:22px;flex-wrap:wrap}
+.note div{font-size:11px;color:var(--mut);line-height:1.55;flex:1;min-width:200px}
+.note b{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;color:var(--gold);margin-bottom:3px}
+.sc{margin:34px 22px 0;border-top:1px solid var(--line);padding-top:16px}
+.sc h2{font-family:var(--mono);font-size:11px;letter-spacing:.15em;color:var(--mut);margin-bottom:10px}
+table{border-collapse:collapse;width:100%;font-size:11.5px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:9px;letter-spacing:.13em;color:var(--mut3);font-weight:500}
+td.n{font-family:var(--mono);color:var(--gold);font-weight:600;width:26px}
+td b{font-weight:600;color:var(--ink2)}
+td.v{color:var(--mut)}
+</style>
+
+<div class="mk">
+  <span class="lb">MAPPA</span>
+  <button data-m="g" class="on">Gamma</button><button data-m="c">Charm</button>
+  <button data-m="v">Vega</button><button data-m="o">Volga</button>
+</div>
+
+<div class="hd">
+  <h1>Mappe — la stessa mappa di adesso, messa in ordine</h1>
+  <p>Resta una mappa: stessa superficie, stessi colori, stesso dato. I passi sono cumulativi — ognuno tiene
+  tutto quello di sopra e aggiunge una cosa sola. In alto il riquadro com'è oggi. Nell'ultimo passa il mouse
+  dentro al riquadro.</p>
+</div>
+
+<div id="out"></div>
+
+<div class="sc">
+  <h2>COSA AGGIUNGE OGNI PASSO</h2>
+  <table>
+    <tr><th></th><th>PASSO</th><th>COSA CAMBIA</th><th>COSA RISOLVE</th></tr>
+    <tr><td class="n">1</td><td><b>Sotto il prezzo, e dentro il grafico</b></td><td class="v">la mappa si disegna prima delle candele e si ferma dove finisce la scala dei prezzi</td><td class="v">le candele tornano visibili; volume e orari non vengono più coperti</td></tr>
+    <tr><td class="n">2</td><td><b>Il colore più tenue</b></td><td class="v">l'intensità massima scende: il colore non arriva mai a coprire</td><td class="v">si legge il prezzo anche dove la mappa è forte</td></tr>
+    <tr><td class="n">3</td><td><b>Lo zero trasparente</b></td><td class="v">dove il valore è vicino a zero non si tinge niente</td><td class="v">la mappa prende una forma invece di essere un muro di colore</td></tr>
+    <tr><td class="n">4</td><td><b>La griglia giusta</b></td><td class="v">i blocchi larghi spariscono: la mappa segue le barre</td><td class="v">niente più scalini; si vede dove la superficie cambia davvero</td></tr>
+    <tr><td class="n">5</td><td><b>Il bordo, la scala, la lettura</b></td><td class="v">una riga dove il segno cambia, la scala dei colori, il valore sotto il puntatore</td><td class="v">il colore ha finalmente un valore e un confine</td></tr>
+  </table>
+</div>
+
+<script>
+const S={m:'g',hover:null,hoverId:null};
+const MAPN={g:['Gamma','quanto i dealer devono comprare o vendere per ogni punto di prezzo'],
+ c:['Charm','quanto quella posizione si consuma con il passare delle ore'],
+ v:['Vega','quanto la posizione cambia se sale la volatilità'],
+ o:['Volga','quanto quella sensibilità stessa si muove']};
+const UNIT={g:'M$ per punto',c:'M$ al giorno',v:'M$ per punto di vol',o:'M$'};
+
+function rnd(s){let x=Math.sin(s)*10000;return x-Math.floor(x);}
+/* superficie vera: valore per (tempo, prezzo) — una mappa, non delle bande */
+function surf(m,tx,pv){
+  const s={g:3,c:11,v:23,o:37}[m];
+  const drift=0.055*Math.sin(tx*3.1+s)+0.03*Math.sin(tx*7.7+s*2);
+  const p=pv+drift;
+  let val=0;
+  val+=0.92*Math.exp(-Math.pow((p-0.62)/0.075,2));
+  val-=0.80*Math.exp(-Math.pow((p-0.40)/0.090,2));
+  val+=0.45*Math.exp(-Math.pow((p-0.80)/0.055,2));
+  val-=0.38*Math.exp(-Math.pow((p-0.18)/0.070,2));
+  val*=(1+0.22*Math.sin(tx*5.3+s*1.7));
+  val+=0.10*Math.sin(tx*11+p*19+s);
+  val+=(rnd(Math.floor(tx*140)*7+Math.floor(p*90)*3+s)*2-1)*0.055;
+  return Math.max(-1,Math.min(1,val));
+}
+function candles(n){const out=[];let p=0.5;
+  for(let i=0;i<n;i++){const o=p;p+=(rnd(i*7.3)-0.5)*0.020;
+    const c=p,hi=Math.max(o,c)+rnd(i*3.1)*0.008,lo=Math.min(o,c)-rnd(i*5.7)*0.008;
+    out.push([o,c,hi,lo,rnd(i*2.9)]);}return out;}
+const CD=candles(150);
+const PRICE=v=>7700+v*40;
+const HP=196, HV=30, HX=22, H=HP+HV+HX;      /* prezzo · volume · orari */
+const L=10,R=76;
+
+function surfSmooth(m,tx,pv){let a=0;for(let k=-2;k<=2;k++)a+=surf(m,tx,pv+k*0.010);return a/5;}
+
+function paintMap(x,W,w,step){
+  const blocky = step<4;
+  const cols = blocky?96:340, rows = blocky?110:230;
+  const capAl = step===0?0.86:(step===1?0.34:0.26);
+  const zeroTH = step>=3?0.17:0;
+  const hh = (step===0)?(HP+HV+HX):HP;
+  const off=document.createElement('canvas');off.width=cols;off.height=rows;
+  const oc=off.getContext('2d');
+  const img=oc.createImageData(cols,rows);
+  const D=img.data;
+  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){
+    const tx=i/(cols-1), pv=1-j/(rows-1), v=surf(S.m,tx,pv), a=Math.abs(v);
+    let al=0;
+    if(a>=zeroTH){
+      al = (step===0) ? 0.12+a*capAl
+                      : Math.min(capAl,(a-zeroTH)*capAl/(1-zeroTH)*1.35);
+    }
+    const o=(j*cols+i)*4;
+    if(v>0){D[o]=54;D[o+1]=156;D[o+2]=111;}else{D[o]=204;D[o+1]=88;D[o+2]=88;}
+    D[o+3]=Math.round(al*255);
+  }
+  oc.putImageData(img,0,0);
+  x.imageSmoothingEnabled=!blocky;
+  x.drawImage(off,0,0,cols,rows,L,0,w,hh);
+  x.imageSmoothingEnabled=true;
+
+  if(step>=5){                          /* il confine: verde sopra, rosso sotto */
+    const N=190, pts=[];
+    for(let i=0;i<N;i++){
+      const tx=i/(N-1); let prev=surfSmooth(S.m,tx,1), best=null, bestC=0;
+      for(let j=1;j<=240;j++){
+        const pv=1-j/240, v=surfSmooth(S.m,tx,pv);
+        if((v>0)!==(prev>0)){
+          let up=-2,dn=2;
+          for(let k=1;k<=9;k++){
+            up=Math.max(up,surfSmooth(S.m,tx,Math.min(1,pv+k*0.007)));
+            dn=Math.min(dn,surfSmooth(S.m,tx,Math.max(0,pv-k*0.007)));}
+          if(up>0.32&&dn<-0.32&&(up-dn)>bestC){bestC=up-dn;best=(j-0.5)*HP/240;}
+        }
+        prev=v;
+      }
+      pts.push(best);
+    }
+    x.strokeStyle='rgba(232,194,104,.62)';x.lineWidth=1.2;x.beginPath();
+    let open=false;
+    pts.forEach((y,i)=>{
+      if(y===null){open=false;return;}
+      const xx=L+w*i/(N-1);
+      if(!open){x.moveTo(xx,y);open=true;}else x.lineTo(xx,y);});
+    x.stroke();
+  }
+}
+
+function draw(cv,step){
+  const dpr=2,W=cv.clientWidth;if(!W)return;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';
+  const x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);
+  x.fillStyle='#080B10';x.fillRect(0,0,W,H);
+  const w=W-L-R;
+  const py=v=>(1-v)*HP;
+
+  if(step>0) paintMap(x,W,w,step);            /* sotto le candele */
+
+  /* candele */
+  const bw=w/CD.length;
+  CD.forEach((c,i)=>{const cx=L+i*bw+bw/2,up=c[1]>=c[0];
+    x.strokeStyle=up?'#369C6F':'#CC5858';x.lineWidth=1;
+    x.beginPath();x.moveTo(cx,py(c[2]));x.lineTo(cx,py(c[3]));x.stroke();
+    x.fillStyle=up?'#369C6F':'#CC5858';
+    const y0=py(Math.max(c[0],c[1])),y1=py(Math.min(c[0],c[1]));
+    x.fillRect(cx-bw*.3,y0,Math.max(1.5,bw*.6),Math.max(1,y1-y0));});
+
+  /* striscia del volume */
+  CD.forEach((c,i)=>{const cx=L+i*bw+bw/2,up=c[1]>=c[0];
+    const vh=3+c[4]*(HV-7);
+    x.fillStyle=up?'rgba(54,156,111,.55)':'rgba(204,88,88,.55)';
+    x.fillRect(cx-bw*.3,HP+HV-vh,Math.max(1.5,bw*.6),vh);});
+
+  if(step===0) paintMap(x,W,w,0);             /* adesso: sopra a tutto */
+
+  /* asse prezzi */
+  x.fillStyle='#0A0E14';x.fillRect(W-R,0,R,H);
+  x.strokeStyle='#1B2230';x.beginPath();x.moveTo(W-R+.5,0);x.lineTo(W-R+.5,H);x.stroke();
+  x.font='9.5px "IBM Plex Mono",monospace';x.fillStyle='#5D6A82';x.textAlign='left';
+  for(let k=0;k<=4;k++){const v=k/4;x.fillText(PRICE(v).toFixed(0),W-R+8,py(v)+3);}
+  /* asse orari */
+  x.font='9.5px "IBM Plex Mono",monospace';x.fillStyle='#5D6A82';x.textAlign='center';
+  ['13:45','14:30','15:15','16:00','16:45'].forEach((t,k)=>{
+    x.fillText(t,L+w*(k+.5)/5,HP+HV+15);});
+  x.textAlign='left';
+
+  /* mirino */
+  if(step>=5&&S.hoverId===cv.id&&S.hover){
+    const [hx,hy]=S.hover;
+    if(hx>=L&&hx<=L+w&&hy>=0&&hy<=HP){
+      x.strokeStyle='#5A6678';x.setLineDash([2,3]);x.lineWidth=1;
+      x.beginPath();x.moveTo(hx+.5,0);x.lineTo(hx+.5,HP);x.stroke();
+      x.beginPath();x.moveTo(L,hy+.5);x.lineTo(L+w,hy+.5);x.stroke();x.setLineDash([]);}
+  }
+  cv.__geo={L,R,w};
+}
+
+function valAt(cv,e){
+  const g=cv.__geo;if(!g)return null;
+  const r=cv.getBoundingClientRect();
+  const px=e.clientX-r.left, pyy=e.clientY-r.top;
+  if(px<g.L||px>g.L+g.w||pyy<0||pyy>HP)return null;
+  const tx=(px-g.L)/g.w, pv=1-pyy/HP;
+  return {v:surf(S.m,tx,pv), price:PRICE(pv), px, py:pyy};}
+function fmt(v){const n=v*128;return (n>=0?'+':'−')+Math.abs(n).toFixed(1);}
+
+const STEP=[
+ {id:'1',t:'Sotto il prezzo, e dentro il grafico',
+  em:'La mappa si disegna prima delle candele e si ferma dove finisce la scala dei prezzi. Nient\'altro cambia.',
+  n:[['LE CANDELE TORNANO','Il prezzo si disegna sopra la mappa, quindi si vede sempre.'],
+     ['NON DEBORDA','La mappa si ferma al prezzo: volume e orari restano puliti.'],
+     ['NIENT\'ALTRO','Stessa superficie, stessi colori, stessa intensità di oggi.']]},
+ {id:'2',t:'Il colore più tenue',
+  em:'L\'intensità massima scende. Il colore resta lo stesso, ma non arriva mai a coprire quello che c\'è sotto.',
+  n:[['SI LEGGE SEMPRE','Anche dove la mappa è più forte, le candele restano nitide.'],
+     ['STESSA INFORMAZIONE','Il verso e la forma non cambiano: cambia solo quanto pesa il colore.'],
+     ['UN TETTO','C\'è un massimo oltre il quale la tinta non va, invece di arrivare al pieno.']]},
+ {id:'3',t:'Lo zero trasparente',
+  em:'Dove il valore è vicino allo zero non si tinge niente. La mappa smette di essere un muro e prende una forma.',
+  n:[['IL VUOTO TORNA VUOTO','Il fondo scuro vuol dire di nuovo «qui non succede nulla».'],
+     ['LA FORMA SI VEDE','Restano solo le zone che contano: la mappa si legge a colpo d\'occhio.'],
+     ['MENO COLORE, PIÙ SEGNALE','Si tinge meno della metà dell\'area, e quella metà vuol dire qualcosa.']]},
+ {id:'4',t:'La griglia giusta',
+  em:'Oggi la mappa è fatta di blocchi larghi molte barre. Alla stessa risoluzione del grafico i gradini spariscono.',
+  n:[['NIENTE SCALINI','La mappa segue le barre invece di tagliarle a fette larghe.'],
+     ['SI VEDE IL MOVIMENTO','Dove la superficie cambia nel tempo adesso si distingue.'],
+     ['STESSO DATO','Non è più dato: è lo stesso dato disegnato alla risoluzione giusta.']]},
+ {id:'5',t:'Il bordo, la scala, la lettura',
+  em:'Una riga dove il colore cambia segno, la scala dei colori in basso, e il valore sotto il puntatore.',
+  n:[['IL CONFINE','La riga dorata segna dove si passa da verde a rosso: è la linea da guardare.'],
+     ['IL COLORE HA UN VALORE','La scala dice quanto vale una tinta, con la sua unità.'],
+     ['IL NUMERO','Sotto il puntatore compaiono il valore e il prezzo. Passa il mouse qui dentro.']]}
+];
+
+function render(){
+  const m=MAPN[S.m];
+  let html=`
+  <div class="card now">
+    <div class="cap"><span class="tag">ADESSO</span><b>Il riquadro com'è oggi</b>
+      <em>La mappa è disegnata sopra le candele, a piena intensità, a blocchi larghi, e continua sotto il grafico coprendo il volume e gli orari.</em></div>
+    <div class="row"><span class="ttl">MAPS</span><span class="sub">${S.m==='g'?'γ Map':m[0]}</span></div>
+    <div class="wrap"><canvas id="c0"></canvas></div>
+  </div>`;
+  STEP.forEach(P=>{
+    html+=`
+  <div class="card">
+    <div class="cap"><span class="num">${P.id}</span><b>${P.t}</b><em>${P.em}</em></div>
+    <div class="row">
+      <span class="ttl">MAPPA</span><span class="sub">${m[0]}</span>
+      <span style="color:var(--mut3)">·</span><span class="sub">${m[1]}</span>
+      <span class="rd" id="r${P.id}"></span>
+      <div class="push"></div><span class="sub" style="color:var(--mut3)">superficie del 28 ago</span>
+    </div>
+    <div class="wrap"><canvas id="c${P.id}"></canvas>${P.id==='5'?
+      `<div class="leg"><span>−128</span><div class="bar"><i></i></div><span>+128</span>
+        <span class="u">${UNIT[S.m]}</span></div>`:''}</div>
+    <div class="note">${P.n.map(([a,b])=>`<div><b>${a}</b>${b}</div>`).join('')}</div>
+  </div>`;});
+  document.getElementById('out').innerHTML=html;
+  requestAnimationFrame(()=>{
+    draw(document.getElementById('c0'),0);
+    STEP.forEach(P=>draw(document.getElementById('c'+P.id),+P.id));});
+  const cv=document.getElementById('c5'), out=document.getElementById('r5');
+  const mk=cv.parentElement.querySelector('.leg i');
+  cv.onmousemove=e=>{const r=valAt(cv,e);
+    if(!r){S.hover=null;S.hoverId=null;out.innerHTML='';mk.style.display='none';draw(cv,5);return;}
+    S.hover=[r.px,r.py];S.hoverId=cv.id;draw(cv,5);
+    out.innerHTML=`<b style="color:${r.v>0?'var(--grn)':'var(--red)'}">${fmt(r.v)}</b> <span style="color:var(--mut3)">${UNIT[S.m]} a</span> <b>${r.price.toFixed(0)}</b>`;
+    mk.style.display='block';mk.style.left=(50+r.v*50)+'%';};
+  cv.onmouseleave=()=>{S.hover=null;S.hoverId=null;out.innerHTML='';mk.style.display='none';draw(cv,5);};
+}
+document.querySelectorAll('.mk button').forEach(x=>x.onclick=()=>{
+  S.m=x.dataset.m;document.querySelectorAll('[data-m]').forEach(o=>o.classList.toggle('on',o===x));render();});
+addEventListener('resize',render);
+render();
+</script>

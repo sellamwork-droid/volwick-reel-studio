@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Volwick · Layout multi-chart</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0B0E13; --panel:#11151D; --line:#1D2430; --line2:#2A3342;
+  --txt:#C9D1DC; --mut:#7A8697; --mut2:#4A5464;
+  --gold:#E8C268; --grn:#369C6F; --red:#CC5858; --blu:#4C92CC; --vio:#A173CC;
+}
+body{background:var(--bg);color:var(--txt);
+  font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;padding:16px}
+.wrap{max-width:1560px;margin:0 auto}
+h1{font-size:14px;letter-spacing:.09em;color:var(--gold);text-transform:uppercase;margin-bottom:12px}
+
+/* ---------- shell ---------- */
+.app{border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--bg)}
+
+/* ---------- barra comandi unica ---------- */
+.cmd{background:var(--panel);border-bottom:1px solid var(--line)}
+.row{display:flex;align-items:center;gap:9px;padding:7px 10px;flex-wrap:wrap}
+.row+.row{border-top:1px solid #161C26}
+.lbl{font-size:9.5px;letter-spacing:.14em;color:var(--mut2);margin-right:1px}
+.grp{display:flex;border:1px solid var(--line2);border-radius:4px;overflow:hidden}
+.grp button,.pill{background:transparent;border:0;color:var(--mut);font:inherit;font-size:11px;
+  padding:5px 10px;cursor:pointer;letter-spacing:.03em}
+.grp button+button{border-left:1px solid var(--line)}
+.grp button.on{background:#1E2532;color:var(--txt)}
+.grp button.on.gold{background:var(--gold);color:#0B0E13;font-weight:600}
+.grp button:hover:not(.on){background:#171D27;color:var(--txt)}
+.sep{width:1px;height:20px;background:#232B38}
+.grid-ico{display:flex;gap:1.5px;align-items:center;justify-content:center;width:16px;height:13px}
+.grid-ico i{background:currentColor;display:block;border-radius:1px}
+.tgt{display:flex;align-items:center;gap:7px;border:1px solid var(--gold);border-radius:4px;
+  padding:4px 9px;background:rgba(232,194,104,.07)}
+.tgt .dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.tgt select{background:transparent;border:0;color:var(--gold);font:inherit;font-size:11px;cursor:pointer;outline:none}
+.tgt select option{background:#11151D;color:var(--txt)}
+.price{display:flex;align-items:baseline;gap:8px;margin-left:auto;font-size:12px}
+.price b{color:var(--txt);font-size:13px;font-weight:600}
+.price .up{color:var(--grn)} .price .dn{color:var(--red)}
+
+/* ---------- griglia riquadri ---------- */
+.stage{display:flex;min-height:560px}
+.grid{flex:1;display:grid;gap:1px;background:var(--line);padding:1px}
+.grid.g1{grid-template-areas:"a"}
+.grid.g2{grid-template-areas:"a b"}
+.grid.g3{grid-template-areas:"a b" "a c";grid-template-columns:1.55fr 1fr}
+.grid.g4{grid-template-areas:"a b" "c d";grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.pane{background:var(--bg);position:relative;display:flex;flex-direction:column;min-width:0;min-height:0;
+  outline:1px solid transparent;outline-offset:-1px;cursor:pointer}
+.pane.active{outline-color:var(--gold)}
+.pane:nth-child(1){grid-area:a}.pane:nth-child(2){grid-area:b}
+.pane:nth-child(3){grid-area:c}.pane:nth-child(4){grid-area:d}
+.grid.g1 .pane:nth-child(n+2),.grid.g2 .pane:nth-child(n+3),.grid.g3 .pane:nth-child(n+4){display:none}
+
+/* targhetta del riquadro: 24px, non copre il grafico */
+.ph{display:flex;align-items:center;gap:8px;padding:4px 8px;background:#0E121A;
+  border-bottom:1px solid #161C26;font-size:11px;min-height:26px}
+.num{width:15px;height:15px;border-radius:3px;background:#232B38;color:var(--mut);
+  font-size:9px;display:flex;align-items:center;justify-content:center}
+.pane.active .num{background:var(--gold);color:#0B0E13;font-weight:700}
+.tk{color:var(--txt);font-weight:600;letter-spacing:.04em}
+.ph .chg{font-size:10.5px}
+.ph .meta{color:var(--mut2);font-size:9.5px;letter-spacing:.08em;margin-left:auto}
+.ph .x{color:var(--mut2);cursor:pointer;padding:0 2px}
+.ph .x:hover{color:var(--red)}
+.warnDot{width:5px;height:5px;border-radius:50%;background:var(--red);flex:none}
+canvas{display:block;width:100%;flex:1;min-height:0}
+
+/* ---------- drawer pannelli ---------- */
+.drawer{width:214px;flex:none;background:var(--panel);border-left:1px solid var(--line);
+  display:flex;flex-direction:column}
+.dh{padding:7px 9px;border-bottom:1px solid var(--line);font-size:9.5px;letter-spacing:.13em;color:var(--mut2)}
+.dh b{color:var(--gold);font-weight:600}
+.tabs{display:flex;border-bottom:1px solid var(--line)}
+.tabs div{flex:1;text-align:center;font-size:9.5px;padding:6px 2px;color:var(--mut);cursor:pointer;letter-spacing:.05em}
+.tabs div.on{color:var(--gold);box-shadow:inset 0 -2px 0 var(--gold)}
+.dbody{padding:10px 9px;font-size:11px;line-height:1.6;color:var(--mut)}
+.dbody .k{font-size:9px;letter-spacing:.12em;color:var(--mut2);margin:9px 0 3px}
+.dbody .k:first-child{margin-top:0}
+.dbody .v{color:var(--txt)}
+.lvl{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #161C26}
+.lvl span:last-child{color:var(--mut2)}
+
+/* ---------- avvisi + status, una volta sola ---------- */
+.warn{display:flex;align-items:center;gap:9px;padding:6px 11px;font-size:10.5px;
+  background:rgba(204,88,88,.10);border-top:1px solid rgba(204,88,88,.3);color:#E39B9B}
+.warn .tag{border:1px solid rgba(204,88,88,.5);border-radius:3px;padding:1px 6px;font-size:9px;letter-spacing:.1em}
+.warn .which{margin-left:auto;color:#B0787C;font-size:9.5px;letter-spacing:.06em}
+.status{display:flex;align-items:center;gap:14px;padding:6px 11px;font-size:10px;color:var(--mut2);
+  background:#0E121A;border-top:1px solid var(--line)}
+.status b{color:var(--mut);font-weight:400}
+.status .r{margin-left:auto}
+
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:9px;margin-top:13px}
+.note{background:var(--panel);border:1px solid var(--line);border-left:2px solid var(--gold);
+  border-radius:5px;padding:10px 12px}
+.note h3{font-size:10px;letter-spacing:.09em;color:var(--gold);margin-bottom:4px}
+.note p{font-size:11.5px;line-height:1.55;color:#8B95A5}
+.note b{color:var(--txt);font-weight:600}
+footer{margin-top:12px;font-size:10.5px;color:var(--mut2);line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Volwick · Sightline — Sezione Layout (proposta)</h1>
+
+<div class="app">
+
+  <!-- ============ BARRA COMANDI UNICA ============ -->
+  <div class="cmd">
+    <div class="row">
+      <span class="lbl">GRIGLIA</span>
+      <div class="grp" id="gridSel">
+        <button data-g="1" class="on"><span class="grid-ico"><i style="width:11px;height:11px"></i></span></button>
+        <button data-g="2"><span class="grid-ico"><i style="width:5px;height:11px"></i><i style="width:5px;height:11px"></i></span></button>
+        <button data-g="3"><span class="grid-ico"><i style="width:6px;height:11px"></i><i style="width:5px;height:5px"></i></span></button>
+        <button data-g="4"><span class="grid-ico"><i style="width:5px;height:11px"></i><i style="width:5px;height:11px"></i></span></button>
+      </div>
+      <div class="sep"></div>
+      <div class="tgt">
+        <span class="dot"></span>
+        <span class="lbl" style="margin:0">AGISCE SU</span>
+        <select id="scope">
+          <option>Riquadro 1 · NQ</option>
+          <option>TUTTI i riquadri</option>
+        </select>
+      </div>
+      <div class="sep"></div>
+      <span class="lbl">TICKER</span>
+      <div class="grp" id="tk">
+        <button>SPX</button><button>ES</button><button>MES</button>
+        <button class="on gold" id="tkOn">NQ</button><button>VIX</button>
+        <button>RTY</button><button>SPY</button><button>QQQ</button><button>GOLD</button>
+      </div>
+      <div class="price"><span class="lbl">RIQUADRO 1</span><b id="pPrice">29,511.00</b><span class="up" id="pChg">+0.66%</span></div>
+    </div>
+
+    <div class="row">
+      <span class="lbl">MURI</span>
+      <div class="grp"><button>Off</button><button>3</button><button>5</button><button>10</button><button class="on">15</button><button>25</button><button>40</button></div>
+      <div class="sep"></div>
+      <span class="lbl">METRICA</span>
+      <div class="grp"><button class="on">GEX</button><button>CEX</button><button>DEX</button><button>ALL</button></div>
+      <div class="sep"></div>
+      <span class="lbl">DTE</span>
+      <div class="grp"><button class="on">All</button><button>0DTE</button><button>Weekly</button><button>Monthly</button></div>
+      <div class="sep"></div>
+      <span class="lbl">TF</span>
+      <div class="grp"><button class="on">1m</button><button>5m</button><button>15m</button><button>1h</button><button>D</button></div>
+      <div class="sep"></div>
+      <div class="grp"><button class="on gold">LAYERS ▾</button></div>
+      <div class="grp"><button>SNAPSHOT ▾</button></div>
+      <div class="grp"><button>PRESET ▾</button></div>
+    </div>
+  </div>
+
+  <!-- ============ GRIGLIA ============ -->
+  <div class="stage">
+    <div class="grid g1" id="grid">
+      <div class="pane active" data-i="0">
+        <div class="ph"><span class="num">1</span><span class="tk">NQ</span><span>29,511.00</span>
+          <span class="chg" style="color:var(--grn)">+0.66%</span>
+          <span class="meta">1m · TOP 15 · GEX · muri stimati da OI QQQ</span><span class="x">✕</span></div>
+        <canvas></canvas>
+      </div>
+      <div class="pane" data-i="1">
+        <div class="ph"><span class="num">2</span><span class="tk">SPX</span><span>7,641.16</span>
+          <span class="chg" style="color:var(--red)">−0.87%</span>
+          <span class="warnDot" title="book non aggiornato"></span>
+          <span class="meta">1m · TOP 15 · GEX</span><span class="x">✕</span></div>
+        <canvas></canvas>
+      </div>
+      <div class="pane" data-i="2">
+        <div class="ph"><span class="num">3</span><span class="tk">ES</span><span>7,691.00</span>
+          <span class="chg" style="color:var(--grn)">+0.30%</span>
+          <span class="warnDot"></span>
+          <span class="meta">5m · TOP 5 · compatto</span><span class="x">✕</span></div>
+        <canvas></canvas>
+      </div>
+      <div class="pane" data-i="3">
+        <div class="ph"><span class="num">4</span><span class="tk">VIX</span><span>16.42</span>
+          <span class="chg" style="color:var(--red)">−2.10%</span>
+          <span class="warnDot"></span>
+          <span class="meta">5m · TOP 5 · compatto</span><span class="x">✕</span></div>
+        <canvas></canvas>
+      </div>
+    </div>
+
+    <!-- drawer unico -->
+    <div class="drawer">
+      <div class="dh">PANNELLI · riquadro <b id="dNum">1 · NQ</b></div>
+      <div class="tabs"><div class="on">WALLS</div><div>POSITION</div><div>NOW</div></div>
+      <div class="dbody">
+        <div class="k">REGIME</div>
+        <div class="v">POSITIVE GAMMA · tilt +34%</div>
+        <div class="k">SORGENTE</div>
+        <div class="v" style="color:var(--mut)">stimata da OI QQQ<br>(non un dealer book)</div>
+        <div class="k">TOP |γ|</div>
+        <div class="lvl"><span style="color:var(--red)">★★ 29478</span><span>535M</span></div>
+        <div class="lvl"><span style="color:var(--vio)">29560</span><span>412M</span></div>
+        <div class="lvl"><span style="color:var(--grn)">29602</span><span>243M</span></div>
+        <div class="lvl"><span style="color:var(--vio)">29272</span><span>227M</span></div>
+        <div class="k">NET HEDGE</div>
+        <div class="v">−1.2B / punto</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ AVVISO UNICO ============ -->
+  <div class="warn">
+    <span class="tag">STALE</span>
+    <span>Book del 2026-08-20, non di oggi — il feed del vendor non ha ancora pubblicato. Muri, regime e bias vengono da quella data.</span>
+    <span class="which" id="warnWhich">riguarda i riquadri 2 · 3 · 4</span>
+  </div>
+
+  <div class="status">
+    <span>Sightline</span><span>·</span>
+    <span>Riquadro attivo <b id="sActive">1 · NQ</b></span><span>·</span>
+    <span>Bars <b>9331</b></span><span>·</span>
+    <span>Gamma slot <b>via SPX · 16:00</b></span><span>·</span>
+    <span>WS <b style="color:var(--grn)">connected</b></span>
+    <span class="r">RTT 169ms</span>
+  </div>
+</div>
+
+<div class="notes">
+  <div class="note"><h3>01 · UNA SOLA BARRA COMANDI</h3>
+    <p>Niente toolbar annidate dentro i riquadri. La barra in alto agisce sul <b>riquadro attivo</b>, dichiarato esplicitamente nel campo "AGISCE SU". Il riquadro attivo ha bordo gold e numero acceso; si cambia con un clic o con ⌘1…⌘4.</p></div>
+  <div class="note"><h3>02 · APPLICA A TUTTI</h3>
+    <p>Lo stesso campo permette di passare a <b>TUTTI i riquadri</b>: cambi il timeframe o il DTE una volta e vale su tutta la griglia. È la funzione che oggi manca e che costringe a ripetere ogni comando riquadro per riquadro.</p></div>
+  <div class="note"><h3>03 · TARGHETTA, NON PANNELLO</h3>
+    <p>Ogni riquadro ha una riga da 26px con numero, ticker, prezzo, variazione e il riassunto della sua configurazione (<b>1m · TOP 15 · GEX</b>). Non copre il grafico. Oggi SETTINGS apre un pannello che nasconde per intero il grafico che sta configurando.</p></div>
+  <div class="note"><h3>04 · AVVISI UNA VOLTA SOLA</h3>
+    <p>La banda STALE e "16:00 BOOK" compaiono <b>una volta a livello di pagina</b>, con l'elenco dei riquadri interessati. In 4 riquadri oggi vengono ripetute quattro volte identiche e mangiano un quarto dello schermo. Un pallino rosso nella targhetta segnala il riquadro colpito.</p></div>
+  <div class="note"><h3>05 · UN SOLO DRAWER</h3>
+    <p>I pannelli (Walls · Positioning · Now Look Here) vivono in <b>un unico cassetto a destra</b> che segue il riquadro attivo, invece di quattro bottoni "PANELS (4)" indipendenti. Si chiude e la griglia si allarga.</p></div>
+  <div class="note"><h3>06 · MODALITÀ COMPATTA AUTOMATICA</h3>
+    <p>Sotto una certa larghezza il riquadro passa da solo a <b>Top 5 muri</b>, etichette corte e sottografici chiusi. Con 4 riquadri Top 15 le etichette sono illeggibili comunque: meglio deciderlo noi, con override manuale.</p></div>
+</div>
+
+<footer>
+  Mockup di interfaccia — dati indicativi. Divisori tra i riquadri trascinabili, griglia 1 · 2 · 3 · 4 con preset salvabili.<br>
+  Se in collaudo 3 e 4 riquadri risultassero illeggibili sotto i 1440px, si tengono solo 1 e 2 e la modalità compatta diventa superflua.
+</footer>
+</div>
+
+<script>
+const C={grn:'#369C6F',red:'#CC5858',blu:'#4C92CC',vio:'#A173CC',gold:'#E8C268'};
+const PANES=[
+  {tk:'NQ', base:29400, span:340, walls:[[29602,243,'grn'],[29560,412,'vio'],[29478,535,'red'],[29272,227,'vio']]},
+  {tk:'SPX',base:7635,  span:95,  walls:[[7685,14,'red'],[7660,4,'red'],[7650,16,'grn'],[7640,28,'vio'],[7630,9,'vio']]},
+  {tk:'ES', base:7660,  span:70,  walls:[[7700,12,'grn'],[7680,31,'grn'],[7665,9,'vio'],[7650,22,'red']]},
+  {tk:'VIX',base:15.6,  span:2.4, walls:[[17.5,8,'red'],[16.5,19,'grn'],[15.5,6,'blu']]}
+];
+let seed=7;const rnd=()=>(seed=(seed*1664525+1013904223)%4294967296)/4294967296;
+
+function drawPane(cv,cfg,compact){
+  const dpr=window.devicePixelRatio||1, w=cv.clientWidth, h=cv.clientHeight;
+  if(!w||!h) return;
+  cv.width=w*dpr; cv.height=h*dpr;
+  const x=cv.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0);
+  x.fillStyle='#0B0E13'; x.fillRect(0,0,w,h);
+
+  const AX = compact?52:64, LAB = compact?58:82;
+  const pR = w-AX-LAB-6, pad=10;
+  const y0=cfg.base, y1=cfg.base+cfg.span;
+  const Y=p=>h-pad-(p-y0)/(y1-y0)*(h-pad*2);
+
+  // griglia regolare
+  x.font='9px ui-monospace,monospace'; x.textBaseline='middle'; x.textAlign='right';
+  const step=cfg.span/5;
+  for(let i=0;i<=5;i++){
+    const p=y0+step*i, yy=Y(p);
+    x.strokeStyle='rgba(255,255,255,.03)';x.beginPath();x.moveTo(0,yy);x.lineTo(pR,yy);x.stroke();
+    x.fillStyle='#3E4757'; x.fillText(p.toFixed(cfg.span<10?2:0), w-6, yy);
+  }
+
+  // candele
+  seed = cfg.tk.length*977+13;
+  const N=Math.max(40,Math.floor(pR/4)); const bw=pR/N;
+  let pr=y0+cfg.span*.35;
+  const drift=cfg.span/N*(cfg.tk==='SPX'?-.55:.4);
+  for(let i=0;i<N;i++){
+    const o=pr, c=pr+drift+(rnd()-.5)*cfg.span*.035;
+    const hi=Math.max(o,c)+rnd()*cfg.span*.012, lo=Math.min(o,c)-rnd()*cfg.span*.012;
+    const col=c>=o?C.grn:C.red, cx=i*bw+bw/2;
+    x.strokeStyle=col;x.lineWidth=1;x.beginPath();x.moveTo(cx,Y(hi));x.lineTo(cx,Y(lo));x.stroke();
+    x.fillStyle=col;x.fillRect(cx-bw*.32,Math.min(Y(o),Y(c)),Math.max(bw*.64,1),Math.max(Math.abs(Y(c)-Y(o)),1));
+    pr=c;
+  }
+
+  // muri, con le regole già approvate
+  const mx=Math.max(...cfg.walls.map(v=>v[1]));
+  const shown = compact ? cfg.walls.slice().sort((a,b)=>b[1]-a[1]).slice(0,3) : cfg.walls;
+  const items=[];
+  shown.forEach(([p,g,k])=>{
+    const yy=Y(p); if(yy<pad||yy>h-pad) return;
+    const mag=g/mx, col=C[k];
+    const lw=1+Math.pow(mag,.85)*(compact?3:5), op=.25+Math.pow(mag,.85)*.7;
+    const gr=x.createLinearGradient(0,0,pR,0);
+    gr.addColorStop(0,'rgba(0,0,0,0)');
+    gr.addColorStop(.6,col+Math.round(op*.2*255).toString(16).padStart(2,'0'));
+    gr.addColorStop(1,col+Math.round(op*255).toString(16).padStart(2,'0'));
+    x.strokeStyle=gr;x.lineWidth=lw;x.setLineDash(mag<.28?[3,5]:[]);
+    x.beginPath();x.moveTo(0,yy);x.lineTo(pR,yy);x.stroke();x.setLineDash([]);
+    items.push({p,g,col,yy,ty:yy,mag});
+  });
+  // anti-collisione
+  items.sort((a,b)=>a.yy-b.yy);
+  const GAP=15;
+  for(let k=0;k<40;k++){let mv=false;
+    for(let i=1;i<items.length;i++){const d=items[i].ty-items[i-1].ty;
+      if(d<GAP){const s=(GAP-d)/2;items[i-1].ty-=s;items[i].ty+=s;mv=true;}}
+    if(items.length){items[0].ty=Math.max(items[0].ty,8);
+      items[items.length-1].ty=Math.min(items[items.length-1].ty,h-8);}
+    if(!mv)break;}
+  x.font='9px ui-monospace,monospace';x.textAlign='left';
+  items.forEach(it=>{
+    const lx=w-AX-LAB, txt=(cfg.span<10?it.p.toFixed(1):it.p.toFixed(0))+' · '+it.g+'M';
+    if(Math.abs(it.ty-it.yy)>1.5){
+      x.strokeStyle=it.col+'50';x.lineWidth=1;x.beginPath();
+      x.moveTo(w-AX-4,it.yy);x.lineTo(lx+LAB,it.ty);x.stroke();
+    }
+    x.fillStyle='rgba(11,14,19,.92)';x.fillRect(lx,it.ty-7,LAB-2,14);
+    x.strokeStyle=it.col+'aa';x.lineWidth=1;x.strokeRect(lx+.5,it.ty-6.5,LAB-3,13);
+    x.fillStyle=it.col;x.beginPath();x.arc(lx+7,it.ty,1.6+it.mag*1.8,0,6.29);x.fill();
+    x.fillStyle='#C9D1DC';x.fillText(txt,lx+13,it.ty);
+  });
+}
+
+function render(){
+  const g=document.getElementById('grid');
+  const n=+g.className.match(/g(\d)/)[1];
+  [...g.children].forEach((pane,i)=>{
+    if(i>=n) return;
+    const compact = n>=3 || (n===2 && i>0 && false);
+    drawPane(pane.querySelector('canvas'), PANES[i], n>=3);
+  });
+}
+
+document.querySelectorAll('#gridSel button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#gridSel button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  const g=document.getElementById('grid');
+  g.className='grid g'+b.dataset.g;
+  const act=document.querySelector('.pane.active');
+  if(act && +act.dataset.i >= +b.dataset.g) setActive(document.querySelector('.pane'));
+  setTimeout(render,30);
+});
+
+function setActive(pane){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
+  pane.classList.add('active');
+  const i=+pane.dataset.i, d=PANES[i];
+  const price=pane.querySelectorAll('.ph span')[2].textContent;
+  const chg=pane.querySelector('.chg');
+  document.getElementById('pPrice').textContent=price;
+  const c=document.getElementById('pChg');
+  c.textContent=chg.textContent; c.className=chg.textContent.startsWith('−')?'dn':'up';
+  document.querySelector('.price .lbl').textContent='RIQUADRO '+(i+1);
+  document.getElementById('scope').options[0].text='Riquadro '+(i+1)+' · '+d.tk;
+  document.getElementById('dNum').textContent=(i+1)+' · '+d.tk;
+  document.getElementById('sActive').textContent=(i+1)+' · '+d.tk;
+  document.querySelectorAll('#tk button').forEach(b=>b.classList.remove('on','gold'));
+  [...document.querySelectorAll('#tk button')].find(b=>b.textContent===d.tk)?.classList.add('on','gold');
+}
+document.querySelectorAll('.pane').forEach(p=>p.onclick=e=>{ if(!e.target.classList.contains('x')) setActive(p); });
+window.addEventListener('resize',render);
+render();
+</script>
+</body>
+</html>

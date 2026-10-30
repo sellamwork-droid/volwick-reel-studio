@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="spec.css">
+</head>
+<body>
+
+<section class="pg">
+  <div class="head">
+    <div class="brand">Volwick · Sightline</div>
+    <h1>Quattro migliorie</h1>
+    <p class="sub">Richieste sparse, indipendenti fra loro. Nessuna dipende dalle altre: si possono fare in qualsiasi ordine.</p>
+    <div class="tag"><span><b>21 ago 2026</b></span><span>Per <b>Matt</b></span></div>
+  </div>
+
+  <h2><span class="n">01</span> Aggiungi il timeframe a 4 ore</h2>
+  <p>Nella lista dei timeframe oggi c'è 1 minuto, 5, 15, un'ora e giornaliero. <b>Manca H4.</b></p>
+  <p>Non è un dettaglio: fra l'orario e il giornaliero c'è un salto enorme, e le 4 ore sono uno dei timeframe più usati in assoluto — è quello su cui lavora chi tiene una posizione per qualche giorno, cioè buona parte dei nostri clienti. Chi lo cerca e non lo trova pensa che il prodotto sia fatto solo per l'intraday.</p>
+  <div class="spec">Va inserito fra <b>1h</b> e <b>D</b>, nella stessa lista.</div>
+
+  <h2 style="margin-top:9mm"><span class="n">02</span> Decidi cosa succede quando si entra</h2>
+  <p>Oggi entrando ci si ritrova in uno stato incerto, che non è né pulito né uguale a come si era lasciato. Servono due comportamenti, in quest'ordine di preferenza.</p>
+
+  <div class="r">
+    <span class="num">A</span>
+    <div class="bd">
+      <h4>Riapri l'ultima disposizione usata</h4>
+      <p>Se l'utente esce con tre finestre configurate in un certo modo, rientrando le ritrova identiche. È il comportamento che si aspetta chiunque abbia usato una piattaforma di trading: nessuno vuole ricostruire il proprio spazio di lavoro ogni mattina.</p>
+    </div>
+  </div>
+
+  <div class="r">
+    <span class="num">B</span>
+    <div class="bd">
+      <h4>Se la A è troppo complicata, entra pulito</h4>
+      <p>Una finestra sola, nessun pannello aperto, nessun layer acceso. Meglio una schermata pulita e prevedibile che una a metà.</p>
+    </div>
+  </div>
+
+  <p>In ogni caso, l'utente deve poter scegliere: se ha impostato un preset di apertura, vince quello. La stella sui preset che abbiamo descritto nel documento sul layout serve esattamente a questo.</p>
+</section>
+
+<section class="pg">
+  <h2><span class="n">03</span> Rendi il grafico leggibile anche quando il prezzo si muove poco</h2>
+  <p>Nelle fasi di bassa volatilità le candele si riducono a una fila di puntini schiacciati su una riga. Il grafico c'è, ma non si legge: non si distingue una candela verde da una rossa, né dove ha aperto e dove ha chiuso.</p>
+
+  <h3>Il ragionamento</h3>
+  <p>Il problema non sono le candele, è la scala verticale. Se l'asse dei prezzi copre un intervallo molto più ampio di quanto il prezzo si sia effettivamente mosso, tutto il movimento finisce compresso in pochissimo spazio. <b>La scala deve adattarsi al movimento reale di quello che è a schermo</b>, non a un intervallo deciso a priori: se in tutta la sessione il prezzo si è mosso poco, quel poco deve occupare l'altezza disponibile.</p>
+  <p>Poi, indipendentemente dalla scala, <b>ogni candela deve avere un corpo minimo visibile</b>. Anche quando apertura e chiusura coincidono — cosa che succede sempre nei minuti senza scambi — deve restare riconoscibile come candela, con il suo colore, invece di ridursi a un puntino.</p>
+
+  <div class="note">
+    <h4>Dove si vede peggio</h4>
+    <p>Su <b>QQQ e GOLD</b> nelle ore notturne. Lì i minuti senza scambi sono la maggioranza e il grafico diventa una fila di trattini. Non è un errore di calcolo — sono minuti in cui davvero non ha scambiato nessuno — ma il modo in cui vengono disegnati li rende inutilizzabili.</p>
+  </div>
+
+  <p>Come miglioria collegata: <b>ombreggia lo sfondo nelle ore fuori sessione</b>, come fanno tutte le piattaforme. Così si capisce a colpo d'occhio che quella zona è notturna e non ci si aspetta di trovarci movimento.</p>
+
+  <h2 style="margin-top:9mm"><span class="n">04</span> Collega la barra del replay al grafico</h2>
+  <p>Oggi la barra del replay e il grafico vanno per conto loro. <b>Trascinando indietro la barra, il grafico deve tornare indietro con lei</b>, in tempo reale mentre trascini — non solo quando lasci il cursore.</p>
+  <p>È il modo in cui funziona ovunque ed è il motivo per cui esiste una barra invece di due frecce: serve a scorrere avanti e indietro nel tempo con un gesto solo, guardando il grafico che si muove. Se il collegamento non c'è, la barra diventa un indicatore di posizione e basta, e per spostarsi si è costretti a usare i passi singoli.</p>
+  <div class="spec">Vale in entrambe le direzioni: sposto la barra → si muove il grafico; il grafico avanza → si muove la barra.</div>
+
+  <h2 style="margin-top:9mm"><span class="n">05</span> Priorità</h2>
+  <p>Se vanno fatte in sequenza, questo è l'ordine che consigliamo:</p>
+  <table>
+    <tbody>
+      <tr><td class="k" style="width:14mm">1º</td><td><b>Il timeframe a 4 ore.</b> È il più veloce da fare e il più visibile per chi prova il prodotto</td></tr>
+      <tr><td class="k">2º</td><td><b>Le candele quando c'è poca volatilità.</b> Oggi rende inutilizzabili interi ticker in certe fasce orarie</td></tr>
+      <tr><td class="k">3º</td><td><b>La barra del replay.</b> Funzionalità già presente ma a metà</td></tr>
+      <tr><td class="k">4º</td><td><b>Cosa succede all'apertura.</b> Importante ma non blocca nessuno</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</body>
+</html>

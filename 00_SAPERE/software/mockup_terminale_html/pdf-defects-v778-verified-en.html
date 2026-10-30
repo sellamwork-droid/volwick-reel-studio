@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="spec.css">
+</head>
+<body>
+
+<section class="pg">
+  <div class="head">
+    <div class="brand">Volwick · Sightline · build v778</div>
+    <h1>What breaks the chart</h1>
+  </div>
+
+  <h2><span class="n">01</span> Make the window follow the instrument</h2>
+  <p>When you switch instrument, <b>the time window stays where it was</b>. On the minute you don't notice. On 4h and on the daily the old window is a few hours wide: on the new scale that holds one or two candles, and the chart comes up blank.</p>
+  <p>On the daily the window lands on <code>Sep 07 – Sep 08</code>, on <code>Sep 08 – 00:00</code>, on <code>Sep 08 – 18:17</code>: one day, a day and a half. It happens switching to NQ, RTY, SPY, BTC, GOLD. Staying on the same instrument, 1m → 4h → D works fine: it's the instrument change that leaves the window behind.</p>
+  <p>Double-clicking doesn't fix it: it resets the <b>vertical scale</b> and leaves the window where it was, so the candles stay missing. The code that restores the scale is already there, it just needs to restore the window too.</p>
+  <div class="spec">On instrument change, recompute the window on that instrument's most recent data. And make the double-click recompute the window as well, not just the scale.</div>
+
+  <figure>
+    <img src="fig/g19-spy-daily-vuoto.jpg" alt="SPY on the daily, empty chart">
+    <figcaption><b>SPY on the daily.</b> The axis reads <code>Sep 08 · 00:00</code>: a day and a half on a scale of days. The walls are there, the candles aren't.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">02</span> Open on the latest data</h2>
+  <p>On open the chart doesn't show the present: at 18:00 New York time ES opens on <b>04:30–08:30</b>, thirteen hours behind. Whoever walks in sees an old price with nothing telling them it's old.</p>
+  <p>The cause is in how it's laid out: the window is decided on <b>2,497 filler bars</b>, then the <b>776 real bars</b> arrive and nobody revisits the window.</p>
+  <div class="spec">Lay out once the real bars have arrived, not before, and open on the latest data available.</div>
+
+  <figure class="crop">
+    <img src="fig/g07-finestra-0430.png" alt="Time axis on open">
+    <figcaption><b>The ES time axis right after opening</b>, at 18:00 New York time: it runs from 04:30 to 08:30 in the morning.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">03</span> Leave the Tide off on open</h2>
+  <p>The <b>Liquidity Tide switch turns itself back on at every page load</b>, with FLOW and LEVELS reset to Off. Turn it off and it's on again the next time you reload, every time.</p>
+  <div class="spec">If the user turned it off, it stays off.</div>
+
+  <figure class="mid">
+    <img src="fig/f02-tide-riaccesa.png" alt="Tide switch on again">
+    <figcaption><b>The switch after a reload.</b> On again, with FLOW and LEVELS back to Off.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">04</span> Make the walls selector match what you draw</h2>
+  <p>On open the walls selector says <b>Off</b> and the chart carries nine wall lines with their labels, while the right-hand panel lists sixteen levels. Three loads out of three, without touching anything.</p>
+  <p>Touch the selector and things line up, but slowly: tens of seconds pass between the click and the chart updating, and in the meantime the right-hand panel has already switched lists. For that stretch the user is looking at three different versions of the same thing.</p>
+  <div class="spec">On open, apply to the chart the state the selector shows. And update chart and panel at the same moment, not half a minute apart.</div>
+
+  <figure class="crop">
+    <img src="fig/w01-walls-off.png" alt="Walls selector set to Off">
+    <figcaption><b>The selector right after the page loads.</b> Walls are set to Off.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="fig/w02-muri-disegnati.jpg" alt="Walls drawn with the selector on Off">
+    <figcaption><b>The same screen, thirty seconds after the load.</b> Nine wall lines on the chart and sixteen levels in the panel, with the selector still on Off.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">05</span> Drop the false levels from the alert</h2>
+  <p>The alert price dropdown, on ES, always ends with <b>two entries that aren't prices of the instrument</b>. They change from day to day — <code>81</code> and <code>38.64</code>, then <code>51</code> and <code>41.37</code> — but they're always there, at the bottom of a list that isn't even sorted: <code>7,719.25 · 7,706 · 7,736 · 7,751 · 7,681 · 7,761 · <b>51</b> · <b>41.37</b></code>.</p>
+  <p>Pick one and the alert is created without a word: it stays armed seven thousand points away from price and will never fire.</p>
+  <div class="spec">Drop the foreign entries, sort the list, and refuse a level that sits seven thousand points from price.</div>
+
+  <figure class="crop">
+    <img src="fig/g10-alert-81-es.png" alt="Alert armed on 81">
+    <figcaption><b>The alert created on ES.</b> “Within 5 points of 81 on ES”, distance from price 7,599.00.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">06</span> Clean the chart up when you leave the multi-chart</h2>
+  <p>Leaving the Command Deck, the single chart comes back with five settings changed on their own.</p>
+
+  <table>
+    <tr><td class="k">Clock</td><td>stays on <b>09:20 ET</b> while the LIVE button is lit</td></tr>
+    <tr><td class="k">Expiry</td><td>goes from <b>All</b> to <b>0DTE</b></td></tr>
+    <tr><td class="k">Walls</td><td>go from <b>Off</b> to <b>Top 15</b></td></tr>
+    <tr><td class="k">Instrument</td><td>goes from <b>SPY</b> to <b>ES</b>, the first window's</td></tr>
+    <tr><td class="k">Metric</td><td>the selector says <b>GEX</b>, the legend at the bottom says <b>CHARM</b></td></tr>
+  </table>
+
+  <p>The last one is the dangerous one: you're reading a CHARM map believing it's GEX, and the only place that says so is a small line at the bottom of the page. It also happens on leaving replay.</p>
+  <div class="spec">On exit, put the single chart back the way it was before entering the multi-chart. And in any case never leave the selector and the legend naming two different metrics.</div>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/w04-metric-gex.png" alt="Selector on GEX">
+      <figcaption><b>At the top.</b> The selected metric is GEX.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/w05-legenda-charm.png" alt="Legend on CHARM">
+      <figcaption><b>At the same moment, at the bottom.</b> The map legend says CHARM.</figcaption>
+    </figure>
+  </div>
+
+  <h2 style="margin-top:9mm"><span class="n">07</span> Fix the multi-chart</h2>
+  <p>In the Command Deck the <b>first window draws no candles</b> except in one corner, and its CDI bar wraps onto <b>three lines printed over the chart</b>. The header is transparent: the price scale numbers read straight through the text. Two windows out of four show the same instrument. Response time climbs to <b>1,887 ms</b>.</p>
+  <p>The status line at the bottom has words run together — <code>cachedCEX16:00 ETju</code> — and is cut off by the edge.</p>
+  <p>On a normal screen four charts side by side don't fit: each one is a quarter wide and none of the four is readable.</p>
+  <div class="spec">Drop the four-charts-in-a-row layout. On the others: give every window the room for its own command bar instead of printing it over the chart, put a background behind the headers, and rewrite the status line with spaces and a number of minutes in place of <code>&lt;1m</code>.</div>
+
+  <figure>
+    <img src="fig/w06-command-deck.jpg" alt="Command Deck">
+    <figcaption><b>The Command Deck.</b> Window 1, top left, has candles only in one corner and the CDI bar over the chart.</figcaption>
+  </figure>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/g14-intestazione-trasparente.png" alt="Transparent header">
+      <figcaption><b>The first window's header.</b> Behind the text you can read “0.25” and “7704.00” from the chart scale.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/g15-cdi-tre-righe.png" alt="CDI bar on three lines">
+      <figcaption><b>Its CDI bar.</b> Three lines, with “+216K” from the chart below poking through.</figcaption>
+    </figure>
+  </div>
+
+  <figure class="crop">
+    <img src="fig/g13-riga-stato.png" alt="Status line">
+    <figcaption><b>The status line at the bottom.</b> <code>cachedCEX16:00 ETju</code>, <code>&lt;1m</code>, and the sentence cut off on the right.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">08</span> The CVD is an empty strip</h2>
+  <p>The CVD takes <b>a hundred and forty pixels of screen</b> and writes one line inside them: <code>CVD +4 contracts · zero is off the scale</code>. Nothing drawn, bar a dash at the far right. The software announces it can't draw instead of rescaling.</p>
+  <p>And on switching it on <b>the chart's time axis ends up under the LIVE/REPLAY bar</b>: it recovers on its own, but for a few seconds the chart has no hours on it.</p>
+  <div class="spec">If the value is off the scale, rescale instead of saying so. And reserve the panel's room before opening it, so the axis doesn't end up under the bar.</div>
+
+  <figure class="crop">
+    <img src="fig/g20-cvd-asse-coperto.png" alt="Axis covered by the bar">
+    <figcaption><b>With the CVD just switched on.</b> The chart's hours poke out from under the LIVE bar.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <h2><span class="n">09</span> Move the replay clock</h2>
+  <p>Replay starts now and the candles advance. <b>The clock doesn't</b>: in the bar and in the header it keeps saying <code>09:00 ET</code> while the candle counter is already at <code>09:10</code>. Whoever watches the clock thinks it's still stuck and presses PLAY again.</p>
+  <div class="spec">Advance the clock along with the candles, in the bar and in the header.</div>
+
+  <figure class="crop">
+    <img src="fig/g09-replay-orologio-fermo.png" alt="Clock stuck, candles advanced">
+    <figcaption><b>Replay running at 10x.</b> The candles are at 09:10, the clock at 09:00.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">10</span> A pass on the edges</h2>
+  <p>Four things you see at first glance.</p>
+  <p><b>PRICES THAT MATTER gets cut</b>: the last row runs off the bottom of the screen halfway through, with the response-time text landing on top of it. The panel scrolls, but nothing says it scrolls.</p>
+  <p><b>Axis labels get truncated</b> when the window starts mid-label: <code>:30</code> instead of <code>23:30</code>, <code>16:</code> instead of <code>16:00</code>, <code>17:(</code>, <code>18:0</code>.</p>
+  <p><b>The wall tooltip runs off the chart</b>, covers the price scale and cuts its last line of text in half.</p>
+  <p><b>The bar counter is one instrument behind</b>: on GOLD it reads 776, which is SPX's number; on ES it reads 1,377, which is GOLD's.</p>
+  <div class="spec">Leave a margin at the bottom of the prices panel. Don't print a label that doesn't fit whole. Keep the tooltip inside the chart. And update the bar counter when the instrument changes.</div>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/g04-prezzi-tagliati.png" alt="Last row cut">
+      <figcaption><b>The bottom of PRICES THAT MATTER.</b> The last row cut in half, with “RTT” on top of it.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/g11-tooltip-tagliato.png" alt="Tooltip cut">
+      <figcaption><b>A wall tooltip.</b> Last line cut in half by the edge.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="pg">
+  <h2><span class="n">11</span> The date on the axis is in another timezone</h2>
+  <p>At 20:00 New York time the axis doesn't write <code>20:00</code>: it writes <b><code>Sep 10</code></b>, tomorrow's date. Eight in the evening in New York is midnight UTC, and the day change is computed in UTC while the hours are in ET. Whoever reads the axis sees tomorrow's date in the middle of the evening's hours.</p>
+  <div class="spec">Compute the day change in the same timezone the hours are written in.</div>
+
+  <figure class="crop">
+    <img src="fig/w03-asse-sep10.png" alt="Sep 10 among the hours">
+    <figcaption><b>The time axis at 19:55 New York time.</b> After 19:45 comes “Sep 10”, where 20:00 should be.</figcaption>
+  </figure>
+</section>
+
+</body>
+</html>

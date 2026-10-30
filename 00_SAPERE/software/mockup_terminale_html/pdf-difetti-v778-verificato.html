@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="spec.css">
+</head>
+<body>
+
+<section class="pg">
+  <div class="head">
+    <div class="brand">Volwick · Sightline · build v778</div>
+    <h1>Quello che rompe il grafico</h1>
+  </div>
+
+  <h2><span class="n">01</span> Fai seguire la finestra allo strumento</h2>
+  <p>Quando cambi strumento, <b>la finestra temporale resta quella di prima</b>. Sul minuto non si nota. Su 4 ore e sul giornaliero la finestra vecchia è larga poche ore: sulla nuova scala ci stanno una o due candele, e il grafico esce bianco.</p>
+  <p>Sul giornaliero la finestra atterra su <code>Sep 07 – Sep 08</code>, su <code>Sep 08 – 00:00</code>, su <code>Sep 08 – 18:17</code>: un giorno, un giorno e mezzo. Succede passando a NQ, RTY, SPY, BTC, GOLD. Restando sullo stesso strumento, invece, 1m → 4h → D funziona: è il cambio di strumento a lasciare indietro la finestra.</p>
+  <p>Il doppio clic non ripara: rimette a posto la <b>scala verticale</b> e lascia la finestra dov'era, quindi le candele restano assenti. Il codice che ripristina la scala c'è già — gli manca solo di ripristinare anche la finestra.</p>
+  <div class="spec">Al cambio di strumento ricalcolare la finestra sull'ultimo tratto di dati di quello strumento. E far ricalcolare anche la finestra al doppio clic, non solo la scala.</div>
+
+  <figure>
+    <img src="fig/g19-spy-daily-vuoto.jpg" alt="SPY sul giornaliero, grafico vuoto">
+    <figcaption><b>SPY sul giornaliero.</b> L'asse dice <code>Sep 08 · 00:00</code>: un giorno e mezzo su una scala di giorni. I muri ci sono, le candele no.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">02</span> Apri sull'ultimo tratto</h2>
+  <p>All'apertura il grafico non mostra il presente: alle 18:00 di New York ES si apre su <b>04:30–08:30</b>, tredici ore indietro. Chi entra vede un prezzo vecchio senza sapere che è vecchio.</p>
+  <p>La causa è nel modo in cui viene impaginato: la finestra viene decisa su <b>2.497 barre di riempimento</b>, poi arrivano le <b>776 barre vere</b> e nessuno rivede più la finestra.</p>
+  <div class="spec">Impaginare quando sono arrivate le barre vere, non prima, e aprire sull'ultimo tratto disponibile.</div>
+
+  <figure class="crop">
+    <img src="fig/g07-finestra-0430.png" alt="Asse dei tempi all'apertura">
+    <figcaption><b>L'asse dei tempi di ES appena aperto</b>, alle 18:00 di New York: va dalle 04:30 alle 08:30 del mattino.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">03</span> Spegni la Tide all'apertura</h2>
+  <p>L'interruttore del <b>Liquidity Tide si riaccende da solo a ogni caricamento</b>, con FLOW e LEVELS riazzerati a Off. Chi la spegne se la ritrova accesa alla ricarica dopo, ogni volta.</p>
+  <div class="spec">Se l'utente l'ha spenta deve restare spenta.</div>
+
+  <figure class="mid">
+    <img src="fig/f02-tide-riaccesa.png" alt="Interruttore Tide di nuovo acceso">
+    <figcaption><b>L'interruttore dopo una ricarica.</b> Di nuovo acceso, con FLOW e LEVELS tornati a Off.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">04</span> Fai coincidere il selettore dei muri con quello che disegni</h2>
+  <p>All'apertura il selettore dei muri dice <b>Off</b> e sul grafico ci sono nove righe di muri con le loro etichette, mentre il pannello di destra ne elenca sedici. Tre caricamenti su tre, senza toccare niente.</p>
+  <p>Toccando il selettore le cose si allineano, ma con calma: fra il clic e il grafico che si aggiorna passano decine di secondi, e nel frattempo il pannello di destra ha già cambiato lista. Per quel tempo l'utente ha davanti tre versioni diverse della stessa cosa.</p>
+  <div class="spec">All'apertura applicare al grafico lo stato che il selettore mostra. E aggiornare grafico e pannello nello stesso momento, non a distanza di mezzo minuto.</div>
+
+  <figure class="crop">
+    <img src="fig/w01-walls-off.png" alt="Selettore muri su Off">
+    <figcaption><b>Il selettore appena aperta la pagina.</b> I muri sono su Off.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="fig/w02-muri-disegnati.jpg" alt="Muri disegnati con il selettore su Off">
+    <figcaption><b>Lo stesso schermo, trenta secondi dopo il caricamento.</b> Nove righe di muri sul grafico e sedici livelli nel pannello, con il selettore ancora su Off.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">05</span> Togli i livelli falsi dall'alert</h2>
+  <p>La tendina dei prezzi dell'alert, su ES, chiude sempre con <b>due voci che non sono prezzi dello strumento</b>. Cambiano di giorno in giorno — <code>81</code> e <code>38.64</code>, poi <code>51</code> e <code>41.37</code> — ma ci sono sempre, in fondo a una lista che non è nemmeno ordinata: <code>7.719,25 · 7.706 · 7.736 · 7.751 · 7.681 · 7.761 · <b>51</b> · <b>41.37</b></code>.</p>
+  <p>Scegliendone una, l'alert viene creato senza un avviso: resta armato a settemila punti dal prezzo e non scatterà mai.</p>
+  <div class="spec">Togliere le voci estranee, ordinare la lista, e rifiutare un livello che sta a settemila punti dal prezzo.</div>
+
+  <figure class="crop">
+    <img src="fig/g10-alert-81-es.png" alt="Alert armato su 81">
+    <figcaption><b>L'alert creato su ES.</b> «Within 5 points of 81 on ES», distanza dal prezzo 7.599,00.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">06</span> Pulisci il grafico quando esci dal multi-grafico</h2>
+  <p>Uscendo dal Command Deck il grafico singolo torna con quattro impostazioni cambiate da sole.</p>
+
+  <table>
+    <tr><td class="k">Orologio</td><td>resta su <b>09:20 ET</b> mentre il pulsante LIVE è acceso</td></tr>
+    <tr><td class="k">Scadenza</td><td>passa da <b>All</b> a <b>0DTE</b></td></tr>
+    <tr><td class="k">Muri</td><td>passano da <b>Off</b> a <b>Top 15</b></td></tr>
+    <tr><td class="k">Strumento</td><td>passa da <b>SPY</b> a <b>ES</b>, quello della prima finestra</td></tr>
+    <tr><td class="k">Metrica</td><td>il selettore dice <b>GEX</b>, la legenda in fondo dice <b>CHARM</b></td></tr>
+  </table>
+
+  <p>L'ultima è la più pericolosa: stai leggendo una mappa di CHARM credendo che sia GEX, e l'unico posto che lo dice è una scritta piccola in fondo alla pagina. Succede anche uscendo dal replay.</p>
+  <div class="spec">All'uscita rimettere il grafico singolo com'era prima di entrare nel multi-grafico. E in ogni caso non lasciare mai il selettore e la legenda a dire due metriche diverse.</div>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/w04-metric-gex.png" alt="Selettore su GEX">
+      <figcaption><b>In alto.</b> La metrica selezionata è GEX.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/w05-legenda-charm.png" alt="Legenda su CHARM">
+      <figcaption><b>Nello stesso momento, in fondo.</b> La legenda della mappa dice CHARM.</figcaption>
+    </figure>
+  </div>
+
+  <h2 style="margin-top:9mm"><span class="n">07</span> Sistema il multi-grafico</h2>
+  <p>Nel Command Deck la <b>prima finestra non disegna le candele</b> se non in un angolo, e la sua barra CDI va a capo su <b>tre righe stampate sopra il grafico</b>. L'intestazione è trasparente: i numeri della scala dei prezzi si leggono attraverso il testo. Due finestre su quattro mostrano lo stesso strumento. Il tempo di risposta sale a <b>1.887 ms</b>.</p>
+  <p>La riga di stato in fondo ha le parole attaccate — <code>cachedCEX16:00 ETju</code> — e viene tagliata dal bordo.</p>
+  <p>Su uno schermo normale quattro grafici affiancati in orizzontale non ci stanno: ognuno resta largo un quarto e nessuno dei quattro è leggibile.</p>
+  <div class="spec">Togliere la disposizione a quattro grafici in orizzontale. Sulle altre: dare a ogni finestra lo spazio della sua barra comandi invece di stamparla sopra il grafico, mettere uno sfondo alle intestazioni, e riscrivere la riga di stato con gli spazi e un numero di minuti al posto di <code>&lt;1m</code>.</div>
+
+  <figure>
+    <img src="fig/w06-command-deck.jpg" alt="Command Deck">
+    <figcaption><b>Il Command Deck.</b> La finestra 1, in alto a sinistra, ha le candele solo in un angolo e la barra CDI sopra il grafico.</figcaption>
+  </figure>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/g14-intestazione-trasparente.png" alt="Intestazione trasparente">
+      <figcaption><b>L'intestazione della prima finestra.</b> Dietro il testo si leggono «0.25» e «7704.00» della scala del grafico.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/g15-cdi-tre-righe.png" alt="Barra CDI su tre righe">
+      <figcaption><b>La sua barra CDI.</b> Tre righe, e in mezzo spunta «+216K» del grafico sotto.</figcaption>
+    </figure>
+  </div>
+
+  <figure class="crop">
+    <img src="fig/g13-riga-stato.png" alt="Riga di stato">
+    <figcaption><b>La riga di stato in fondo.</b> <code>cachedCEX16:00 ETju</code>, <code>&lt;1m</code>, e la frase tagliata a destra.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">08</span> Il CVD è una fascia vuota</h2>
+  <p>Il CVD si prende <b>centoquaranta pixel di schermo</b> e ci scrive dentro una riga sola: <code>CVD +4 contracts · zero is off the scale</code>. Nessun disegno, se non un trattino all'estrema destra. Il software dichiara di non riuscire a disegnare invece di riscalare.</p>
+  <p>E all'accensione <b>l'asse dei tempi del grafico finisce sotto la barra LIVE/REPLAY</b>: si riprende da solo, ma per qualche secondo il grafico non ha più le ore.</p>
+  <div class="spec">Se il valore è fuori scala, riscalare invece di dichiararlo. E riservare lo spazio del pannello prima di aprirlo, così l'asse non finisce sotto la barra.</div>
+
+  <figure class="crop">
+    <img src="fig/g20-cvd-asse-coperto.png" alt="Asse coperto dalla barra">
+    <figcaption><b>Con il CVD appena acceso.</b> Gli orari del grafico spuntano da sotto la barra LIVE.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <h2><span class="n">09</span> Fai avanzare l'orologio del replay</h2>
+  <p>Il replay adesso parte e le candele avanzano. L'<b>orologio no</b>: in barra e in testata continua a dire <code>09:00 ET</code> mentre il contatore delle candele è già a <code>09:10</code>. Chi guarda l'orologio crede che sia ancora fermo e preme di nuovo PLAY.</p>
+  <div class="spec">Far avanzare l'orologio insieme alle candele, in barra e in testata.</div>
+
+  <figure class="crop">
+    <img src="fig/g09-replay-orologio-fermo.png" alt="Orologio fermo, candele avanzate">
+    <figcaption><b>Replay in corso a 10x.</b> Le candele sono a 09:10, l'orologio a 09:00.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">10</span> Un giro sui bordi</h2>
+  <p>Quattro cose che si vedono tutte al primo sguardo.</p>
+  <p><b>PRICES THAT MATTER si taglia</b>: l'ultima riga esce dal fondo dello schermo a metà, e ci finisce sopra la scritta del tempo di risposta. Il pannello scorre, ma non si capisce che scorre.</p>
+  <p><b>Le etichette degli assi si troncano</b> quando la finestra parte a metà etichetta: <code>:30</code> al posto di <code>23:30</code>, <code>16:</code> al posto di <code>16:00</code>, <code>17:(</code>, <code>18:0</code>.</p>
+  <p><b>Il tooltip dei muri esce dal grafico</b>, copre la scala dei prezzi e si taglia l'ultima riga di testo a metà.</p>
+  <p><b>Il contatore delle barre resta indietro di uno strumento</b>: su GOLD scrive 776, che è il numero di SPX; su ES scrive 1.377, che è quello di GOLD.</p>
+  <div class="spec">Lasciare un margine in fondo al pannello dei prezzi. Non stampare un'etichetta se non ci sta intera. Tenere il tooltip dentro il grafico. E aggiornare il contatore delle barre quando cambia lo strumento.</div>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/g04-prezzi-tagliati.png" alt="Ultima riga tagliata">
+      <figcaption><b>Il fondo di PRICES THAT MATTER.</b> L'ultima riga tagliata a metà, con «RTT» sopra.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/g11-tooltip-tagliato.png" alt="Tooltip tagliato">
+      <figcaption><b>Il tooltip di un muro.</b> Ultima riga tagliata a metà dal bordo.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="pg">
+  <h2><span class="n">11</span> La data sull'asse è in un altro fuso</h2>
+  <p>Alle 20:00 di New York l'asse dei tempi non scrive <code>20:00</code>: scrive <b><code>Sep 10</code></b>, la data del giorno dopo. Le venti di New York sono la mezzanotte UTC, e il cambio di giorno viene calcolato in UTC mentre gli orari sono in ET. Chi guarda l'asse vede una data di domani in mezzo agli orari della sera.</p>
+  <div class="spec">Calcolare il cambio di giorno nello stesso fuso in cui sono scritti gli orari.</div>
+
+  <figure class="crop">
+    <img src="fig/w03-asse-sep10.png" alt="Sep 10 in mezzo agli orari">
+    <figcaption><b>L'asse dei tempi alle 19:55 di New York.</b> Dopo le 19:45 compare «Sep 10», al posto delle 20:00.</figcaption>
+  </figure>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,72 @@
+@page{size:A4;margin:16mm 15mm 16mm 15mm}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#141821; --ink2:#39434F; --mut:#68717F; --faint:#98A0AC;
+  --rule:#DCE0E6; --rule2:#EDF0F3; --wash:#F6F7F9;
+  --amber:#8A6A16; --amber-b:#E8C268; --red:#A83C3C;
+  --sans:"IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+body{font-family:var(--sans);color:var(--ink);background:#fff;font-size:10pt;line-height:1.5;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+/* testata */
+.head{border-bottom:2.5px solid var(--ink);padding-bottom:4mm;margin-bottom:6mm}
+.head .brand{font-family:var(--mono);font-size:8pt;letter-spacing:.24em;color:var(--amber);
+  text-transform:uppercase;margin-bottom:2.5mm}
+.head h1{font-family:var(--mono);font-size:18pt;font-weight:600;letter-spacing:-.02em;line-height:1.15}
+.head .sub{font-size:10.5pt;color:var(--mut);margin-top:2.5mm;max-width:150mm}
+.head .tag{display:flex;gap:5mm;margin-top:4mm;font-family:var(--mono);font-size:7.5pt;
+  letter-spacing:.1em;color:var(--faint);text-transform:uppercase}
+.head .tag b{color:var(--ink2);font-weight:500}
+
+h2{font-family:var(--mono);font-size:11pt;font-weight:600;margin:7mm 0 3mm;
+  padding-bottom:1.8mm;border-bottom:1px solid var(--rule);display:flex;gap:4mm;align-items:baseline}
+h2 .n{font-size:8pt;color:var(--amber)}
+h2:first-of-type{margin-top:0}
+h3{font-family:var(--mono);font-size:9.5pt;font-weight:600;margin:4mm 0 1.5mm}
+p{margin-bottom:2.5mm}
+b,strong{font-weight:600}
+code{font-family:var(--mono);font-size:8.6pt;background:var(--wash);padding:.3mm 1.2mm;border-radius:2px}
+.small{font-size:8.5pt;color:var(--mut)}
+.pg{page-break-after:always}
+.pg:last-child{page-break-after:auto}
+
+/* regole numerate: la sequenza è reale, sono passi di implementazione */
+.r{display:flex;gap:5mm;padding:3.5mm 0;border-bottom:1px solid var(--rule2);break-inside:avoid}
+.r:last-child{border-bottom:0}
+.r .num{font-family:var(--mono);font-size:8pt;font-weight:600;color:#fff;background:var(--ink);
+  width:6mm;height:6mm;border-radius:1.5mm;display:flex;align-items:center;justify-content:center;flex:none;margin-top:.6mm}
+.r .bd{flex:1}
+.r h4{font-family:var(--mono);font-size:10pt;font-weight:600;margin-bottom:1.2mm}
+.r p{font-size:9.5pt;margin-bottom:1.5mm}
+.r p:last-child{margin-bottom:0}
+.spec{font-family:var(--mono);font-size:8.4pt;background:var(--wash);border-left:2px solid var(--amber-b);
+  padding:2.5mm 3.5mm;margin-top:2mm;line-height:1.6;color:var(--ink2)}
+.spec b{color:var(--ink)}
+
+table{width:100%;border-collapse:collapse;font-size:9pt;margin:2mm 0 3mm;break-inside:avoid}
+th{text-align:left;font-family:var(--mono);font-size:7.3pt;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--faint);font-weight:500;padding:1.8mm 3mm 1.8mm 0;border-bottom:1.5px solid var(--ink)}
+td{padding:2.1mm 3mm 2.1mm 0;border-bottom:1px solid var(--rule2);vertical-align:top;line-height:1.42}
+td:last-child,th:last-child{padding-right:0}
+td.k{font-family:var(--mono);font-size:8.4pt;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+
+figure{margin:3mm 0 4mm;break-inside:avoid}
+figure img{width:100%;display:block;border:1px solid var(--rule);border-radius:2px}
+figcaption{font-family:var(--mono);font-size:7.6pt;color:var(--mut);margin-top:1.8mm;line-height:1.5}
+figcaption b{color:var(--ink2)}
+
+.note{background:var(--wash);border:1px solid var(--rule);border-radius:2px;padding:3.5mm 4.5mm;margin:3mm 0;break-inside:avoid}
+.note h4{font-family:var(--mono);font-size:8.5pt;font-weight:600;margin-bottom:1.5mm}
+.note p:last-child{margin-bottom:0}
+.note.ask{border-color:var(--amber-b);border-width:1.5px;background:#FFFDF7}
+.note.ask h4{color:var(--amber)}
+
+ul{margin:0 0 2.5mm 4.5mm}
+li{margin-bottom:1.2mm}
+kbd{font-family:var(--mono);font-size:8pt;border:1px solid var(--rule);border-bottom-width:2px;
+  border-radius:2px;padding:.2mm 1.4mm}
+.sw{display:inline-block;width:8px;height:8px;border-radius:2px;vertical-align:-.3px;margin-right:1.5mm}
+.done{color:var(--amber);font-family:var(--mono)}

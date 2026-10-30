@@ -1,0 +1,314 @@
+<meta charset="utf-8">
+<title>Volwick Sightline — Mappe · scelta layout</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#080B10;--panel:#0C1017;--line:#1B2230;--line2:#232B3A;
+ --ink:#F0F3F8;--ink2:#C8D0DC;--mut:#8A94A6;--mut2:#5D6A82;--mut3:#414C60;
+ --gold:#E8C268;--grn:#369C6F;--red:#CC5858;--blu:#4C92CC;
+ --sans:'IBM Plex Sans',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;}
+*{box-sizing:border-box;margin:0;padding:0;font-family:var(--sans)}
+body{background:#05070A;color:var(--ink);font-size:13px;padding-bottom:56px}
+.mk{background:#05070A;border-bottom:1px solid #171E2A;padding:9px 14px;display:flex;
+ align-items:center;gap:6px;flex-wrap:wrap;position:sticky;top:0;z-index:9}
+.mk .lb{font-size:8.5px;letter-spacing:.2em;color:var(--mut3);margin:0 4px 0 12px}
+.mk .lb:first-child{margin-left:0}
+.mk button{height:24px;padding:0 9px;border-radius:5px;border:1px solid #222A38;background:transparent;
+ color:var(--mut);font-size:11px;cursor:pointer}
+.mk button:hover{color:var(--ink2);border-color:#33404F}
+.mk button.on{color:#05070A;background:var(--gold);border-color:var(--gold);font-weight:700}
+.hd{padding:22px 22px 2px}
+.hd h1{font-family:var(--mono);font-size:17px;font-weight:600}
+.hd p{color:var(--mut);font-size:12px;margin-top:5px;max-width:880px;line-height:1.6}
+.card{margin:20px 22px 0;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--panel)}
+.card.now{border-color:#3A2328}
+.cap{padding:11px 14px;border-bottom:1px solid var(--line);display:flex;gap:11px;align-items:baseline}
+.cap b{font-size:13.5px;font-weight:600}
+.cap em{font-style:normal;color:var(--mut);font-size:11.5px;margin-left:auto;text-align:right;max-width:56%;line-height:1.5}
+.num{font-family:var(--mono);font-size:12px;font-weight:700;color:#05070A;background:var(--gold);
+ width:22px;height:22px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.tag{font-family:var(--mono);font-size:9px;letter-spacing:.14em;padding:3px 7px;border-radius:4px;flex:none}
+.tag.nw{color:var(--red);background:rgba(204,88,88,.12)}
+.row{display:flex;align-items:center;gap:9px;padding:0 12px;height:29px;font-size:10.5px;color:var(--mut2);
+ border-bottom:1px solid var(--line)}
+.ttl{font-family:var(--mono);letter-spacing:.1em;color:var(--gold);font-weight:600}
+.sub{color:var(--mut)}
+.rd{font-family:var(--mono);font-size:12.5px;color:var(--ink2)}
+.push{flex:1}
+canvas{display:block;width:100%}
+.wrap{position:relative}
+.leg{position:absolute;left:12px;bottom:32px;display:flex;align-items:center;gap:7px;
+ background:rgba(8,11,16,.82);border:1px solid var(--line2);border-radius:6px;padding:5px 8px}
+.leg .bar{width:132px;height:8px;border-radius:2px;position:relative;
+ background:linear-gradient(90deg,#CC5858,#5A3540 32%,#0C1017 50%,#2C5748 68%,#369C6F)}
+.leg .bar i{position:absolute;top:-3px;width:2px;height:14px;background:var(--ink);border-radius:1px;display:none}
+.leg span{font-family:var(--mono);font-size:9.5px;color:var(--mut)}
+.leg .u{color:var(--mut3);letter-spacing:.1em;font-size:8.5px}
+.note{padding:10px 14px 13px;border-top:1px solid var(--line);display:flex;gap:22px;flex-wrap:wrap}
+.note div{font-size:11px;color:var(--mut);line-height:1.55;flex:1;min-width:200px}
+.note b{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;color:var(--gold);margin-bottom:3px}
+.sc{margin:34px 22px 0;border-top:1px solid var(--line);padding-top:16px}
+.sc h2{font-family:var(--mono);font-size:11px;letter-spacing:.15em;color:var(--mut);margin-bottom:10px}
+table{border-collapse:collapse;width:100%;font-size:11.5px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
+th{font-family:var(--mono);font-size:9px;letter-spacing:.13em;color:var(--mut3);font-weight:500}
+td.n{font-family:var(--mono);color:var(--gold);font-weight:600;width:26px}
+td b{font-weight:600;color:var(--ink2)}
+td.v{color:var(--mut)}
+</style>
+
+<div class="mk">
+  <span class="lb">MAPPA</span>
+  <button data-m="g" class="on">Gamma</button><button data-m="c">Charm</button>
+  <button data-m="v">Vega</button><button data-m="o">Volga</button>
+  <span class="lb">ALTEZZA</span>
+  <button data-h="full" class="on">grafico intero</button><button data-h="short">grafico basso</button>
+</div>
+
+<div class="hd">
+  <h1>Mappe — cinque layout, dal meno al più diverso da oggi</h1>
+  <p>Tutti e cinque disegnano lo stesso dato, nello stesso momento, sullo stesso grafico. Cambia solo il modo
+  di metterlo a schermo. In tutti c'è la scala dei colori scritta e il valore sotto il puntatore: passa il mouse
+  dentro ai riquadri. In alto il riquadro com'è oggi, per confronto.</p>
+</div>
+
+<div id="out"></div>
+
+<div class="sc">
+  <h2>CONFRONTO</h2>
+  <table>
+    <tr><th></th><th>LAYOUT</th><th>TINTA SULLE CANDELE</th><th>DOVE STA LA MAPPA</th><th>QUANTO CAMBIA</th></tr>
+    <tr><td class="n">1</td><td><b>Velatura leggera, sotto il prezzo</b></td><td class="v">poca, sempre sotto</td><td class="v">sul grafico</td><td class="v">minimo</td></tr>
+    <tr><td class="n">2</td><td><b>Bande sui livelli</b></td><td class="v">solo dove il valore conta</td><td class="v">sul grafico</td><td class="v">poco</td></tr>
+    <tr><td class="n">3</td><td><b>Bande e livelli scritti</b></td><td class="v">solo dove il valore conta</td><td class="v">sul grafico + asse</td><td class="v">medio</td></tr>
+    <tr><td class="n">4</td><td><b>Profilo in una colonna sua</b></td><td class="v">nessuna</td><td class="v">accanto al grafico</td><td class="v">molto</td></tr>
+    <tr><td class="n">5</td><td><b>Profilo e bande insieme</b></td><td class="v">solo dove il valore conta</td><td class="v">accanto + sul grafico</td><td class="v">molto</td></tr>
+  </table>
+</div>
+
+<script>
+const S={m:'g',h:'full',hover:null,hoverId:null};
+const MAPN={g:['Gamma','quanto i dealer devono comprare o vendere per ogni punto di prezzo'],
+ c:['Charm','quanto quella posizione si consuma con il passare delle ore'],
+ v:['Vega','quanto la posizione cambia se sale la volatilità'],
+ o:['Volga','quanto quella sensibilità stessa si muove']};
+const UNIT={g:'M$ per punto',c:'M$ al giorno',v:'M$ per punto di vol',o:'M$'};
+
+function rnd(s){let x=Math.sin(s)*10000;return x-Math.floor(x);}
+const NS=21;
+function strikes(m){const seed={g:3,c:11,v:23,o:37}[m],out=[];
+  for(let k=0;k<NS;k++){
+    let v=(rnd(seed*10+k)*2-1)*0.45;
+    v+=0.85*Math.exp(-Math.pow((k-8)/1.6,2));
+    v-=0.70*Math.exp(-Math.pow((k-14)/1.8,2));
+    v+=0.40*Math.exp(-Math.pow((k-4)/1.2,2));
+    out.push(Math.max(-1,Math.min(1,v)));}
+  return out;}
+const SK={}; ['g','c','v','o'].forEach(m=>SK[m]=strikes(m));
+function surf(m,py){
+  const a=SK[m], f=py*(NS-1), i=Math.max(0,Math.min(NS-2,Math.floor(f))), t=f-i;
+  return a[i]*(1-t)+a[i+1]*t;}
+function candles(n){
+  const out=[];let p=0.5;
+  for(let i=0;i<n;i++){const o=p;p+=(rnd(i*7.3)-0.5)*0.022;
+    const c=p,hi=Math.max(o,c)+rnd(i*3.1)*0.008,lo=Math.min(o,c)-rnd(i*5.7)*0.008;
+    out.push([o,c,hi,lo]);}
+  return out;}
+const CD=candles(150);
+const PRICE=v=>7700+v*40;
+const TH=0.30;                       /* soglia: sotto non si tinge */
+
+function bands(x,SKV,L,T,w,h,maxAl){
+  const bandH=h/NS;
+  for(let k=0;k<NS;k++){
+    const v=SKV[k], a=Math.abs(v); if(a<TH)continue;
+    const yy=T+(NS-1-k)*bandH, al=Math.min(maxAl,(a-TH)*maxAl/0.55);
+    const g=x.createLinearGradient(0,yy,0,yy+bandH);
+    const col=v>0?'54,156,111':'204,88,88';
+    g.addColorStop(0,`rgba(${col},0)`);g.addColorStop(.5,`rgba(${col},${al})`);g.addColorStop(1,`rgba(${col},0)`);
+    x.fillStyle=g;x.fillRect(L,yy,w,bandH);}
+}
+function profile(x,SKV,W,R,T,h,H,PW){
+  const x0=W-R-PW, bandH=h/NS;
+  x.fillStyle='#0A0E14';x.fillRect(x0,0,PW,H);
+  x.strokeStyle='#1B2230';x.beginPath();x.moveTo(x0+.5,0);x.lineTo(x0+.5,H);x.stroke();
+  const mid=x0+PW/2;
+  x.strokeStyle='#232B3A';x.setLineDash([2,3]);
+  x.beginPath();x.moveTo(mid+.5,T);x.lineTo(mid+.5,T+h);x.stroke();x.setLineDash([]);
+  for(let k=0;k<NS;k++){
+    const v=SKV[k], yy=T+(NS-1-k)*bandH+bandH*0.18, hh=bandH*0.64;
+    const len=Math.abs(v)*(PW/2-8);
+    x.fillStyle=v>0?'rgba(54,156,111,.85)':'rgba(204,88,88,.85)';
+    x.fillRect(v>0?mid:mid-len, yy, Math.max(1,len), hh);}
+  x.font='9px "IBM Plex Mono",monospace';x.fillStyle='#414C60';x.textAlign='center';
+  x.fillText('−',x0+16,T+h+13);x.fillText('0',mid,T+h+13);x.fillText('+',x0+PW-16,T+h+13);
+  x.textAlign='left';
+}
+
+function draw(cv,mode,H){
+  const dpr=2,W=cv.clientWidth;if(!W)return;
+  cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';
+  const x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);
+  x.fillStyle='#080B10';x.fillRect(0,0,W,H);
+  const PW=(mode==='4'||mode==='5')?104:0;
+  const L=10,R=76,T=8,B=26,w=W-L-R-PW,h=H-T-B;
+  const py=v=>T+(1-v)*h;
+  const m=S.m, SKV=SK[m];
+
+  /* ── strato mappa, sempre prima delle candele ── */
+  if(mode==='now'){
+    const cols=90, rows=46;
+    for(let i=0;i<cols;i++)for(let j=0;j<rows;j++){
+      const v=surf(m,1-j/rows);
+      const al=0.10+Math.abs(v)*0.30;
+      x.fillStyle=v>0?`rgba(54,156,111,${al})`:`rgba(204,88,88,${al})`;
+      x.fillRect(L+i*w/cols, T+j*h/rows, w/cols+1, h/rows+1);}
+  }
+  if(mode==='1'){                       /* velatura, ma leggera e col vuoto vuoto */
+    const gp=x.createLinearGradient(0,T,0,T+h), ST=96;
+    for(let j=0;j<=ST;j++){
+      const pv=1-j/ST, v=surf(m,pv), a=Math.abs(v);
+      const al=a<TH?0:Math.min(.20,(a-TH)*0.34);
+      const col=v>0?'54,156,111':'204,88,88';
+      gp.addColorStop(j/ST,`rgba(${col},${al.toFixed(3)})`);}
+    x.fillStyle=gp;x.fillRect(L,T,w,h);
+  }
+  if(mode==='2'||mode==='3') bands(x,SKV,L,T,w,h,.34);
+  if(mode==='5') bands(x,SKV,L,T,w,h,.24);
+
+  /* ── candele, sempre sopra ── */
+  const bw=w/CD.length;
+  CD.forEach((c,i)=>{
+    const cx=L+i*bw+bw/2, up=c[1]>=c[0];
+    x.strokeStyle=up?'#369C6F':'#CC5858';x.lineWidth=1;
+    x.beginPath();x.moveTo(cx,py(c[2]));x.lineTo(cx,py(c[3]));x.stroke();
+    x.fillStyle=up?'#369C6F':'#CC5858';
+    const y0=py(Math.max(c[0],c[1])),y1=py(Math.min(c[0],c[1]));
+    x.fillRect(cx-bw*0.3,y0,Math.max(1.5,bw*0.6),Math.max(1,y1-y0));});
+
+  /* ── 3: i livelli forti scritti sull'asse ── */
+  let marks=[];
+  if(mode==='3'){
+    /* solo i piu' forti, e mai due etichette attaccate */
+    const cand=SKV.map((v,k)=>[k,v]).filter(([k,v])=>Math.abs(v)>=0.55)
+      .sort((a,b)=>Math.abs(b[1])-Math.abs(a[1]));
+    const minGap=Math.max(2,Math.ceil(NS*16/h));
+    cand.forEach(c=>{if(marks.length<3&&!marks.some(o=>Math.abs(o[0]-c[0])<minGap))marks.push(c);});
+    marks.forEach(([k,v])=>{
+      const yy=T+(NS-1-k)*(h/NS)+(h/NS)/2;
+      x.strokeStyle=v>0?'rgba(54,156,111,.55)':'rgba(204,88,88,.55)';
+      x.setLineDash([5,4]);x.lineWidth=1;
+      x.beginPath();x.moveTo(L,yy+.5);x.lineTo(L+w,yy+.5);x.stroke();x.setLineDash([]);});
+  }
+  if(mode==='4'||mode==='5') profile(x,SKV,W,R,T,h,H,PW);
+
+  /* ── asse prezzi ── */
+  x.fillStyle='#0A0E14';x.fillRect(W-R,0,R,H);
+  x.strokeStyle='#1B2230';x.beginPath();x.moveTo(W-R+.5,0);x.lineTo(W-R+.5,H);x.stroke();
+  x.font='9.5px "IBM Plex Mono",monospace';x.fillStyle='#5D6A82';x.textAlign='left';
+  for(let k=0;k<=4;k++){const v=k/4;x.fillText(PRICE(v).toFixed(0),W-R+8,py(v)+3);}
+  if(mode==='3') marks.forEach(([k,v])=>{
+    const pv=k/(NS-1), yy=py(pv);
+    x.fillStyle=v>0?'#369C6F':'#CC5858';
+    x.fillRect(W-R+2,yy-7,R-4,14);
+    x.fillStyle='#05070A';x.font='600 9.5px "IBM Plex Mono",monospace';
+    x.fillText(PRICE(pv).toFixed(0),W-R+8,yy+3);});
+  /* asse orari */
+  x.font='9.5px "IBM Plex Mono",monospace';x.fillStyle='#414C60';x.textAlign='center';
+  ['13:45','14:30','15:15','16:00','16:45'].forEach((t,k)=>{x.fillText(t,L+w*(k+0.5)/5,H-9);});
+  x.textAlign='left';
+
+  /* ── mirino ── */
+  if(S.hoverId===cv.id&&S.hover){
+    const [hx,hy]=S.hover;
+    if(hx>=L&&hx<=L+w&&hy>=T&&hy<=T+h){
+      x.strokeStyle='#3A4658';x.setLineDash([2,3]);x.lineWidth=1;
+      x.beginPath();x.moveTo(hx+.5,T);x.lineTo(hx+.5,T+h);x.stroke();
+      x.beginPath();x.moveTo(L,hy+.5);x.lineTo(L+w,hy+.5);x.stroke();x.setLineDash([]);}
+  }
+  cv.__geo={L,R,T,B,w,h};
+}
+
+function valAt(cv,e){
+  const g=cv.__geo;if(!g)return null;
+  const r=cv.getBoundingClientRect();
+  const px=e.clientX-r.left, pyy=e.clientY-r.top;
+  if(px<g.L||px>g.L+g.w||pyy<g.T||pyy>g.T+g.h)return null;
+  const pv=1-(pyy-g.T)/g.h;
+  return {v:surf(S.m,pv), price:PRICE(pv), px, py:pyy};}
+function fmt(v){const n=v*128;return (n>=0?'+':'−')+Math.abs(n).toFixed(1);}
+
+const LAY=[
+ {id:'1',t:'Velatura leggera, sotto il prezzo',
+  em:'Resta la velatura di oggi, ma disegnata prima delle candele, più chiara, e spenta del tutto dove il valore è vicino allo zero.',
+  n:[['SOTTO IL PREZZO','Le candele si disegnano sopra la mappa: il prezzo resta sempre leggibile.'],
+     ['IL VUOTO RESTA VUOTO','Dove il valore è vicino a zero non si tinge niente, invece di velare tutto.'],
+     ['SI LEGGE','La scala in basso dice quanto vale il colore, e il puntatore dà il numero e il prezzo.']]},
+ {id:'2',t:'Bande sui livelli',
+  em:'Il dato è un valore per ogni strike, non una nuvola. Una banda per livello, solo dove supera la soglia.',
+  n:[['UNA BANDA PER LIVELLO','La mappa mostra la forma vera del dato: ventuno livelli, non una sfumatura continua.'],
+     ['SOLO DOVE CONTA','Sotto la soglia non si tinge niente. Il fondo scuro dice «qui non succede nulla».'],
+     ['SI LEGGE','Scala dei colori in basso, numero e prezzo sotto il puntatore.']]},
+ {id:'3',t:'Bande e livelli scritti',
+  em:'Come il 2, ma i livelli più forti hanno una riga tratteggiata e il loro prezzo scritto sull’asse.',
+  n:[['I LIVELLI SI VEDONO','Dove il valore è più alto compare una riga: è il livello da guardare.'],
+     ['IL PREZZO È SCRITTO','Sull’asse, alla stessa altezza, con il colore del segno. Non serve stimarlo a occhio.'],
+     ['IL RESTO COME IL 2','Bande sotto il prezzo, soglia, scala e lettura sotto il puntatore.']]},
+ {id:'4',t:'Profilo in una colonna sua',
+  em:'La mappa esce dalle candele e diventa un istogramma accanto all’asse dei prezzi. Il grafico resta pulito, la mappa diventa esatta.',
+  n:[['ZERO TINTA','Sulle candele non passa niente. Il prezzo si legge come se la mappa non ci fosse.'],
+     ['LUNGHEZZA UGUALE A VALORE','Una barra per livello, verso destra o verso sinistra dallo zero.'],
+     ['ALLINEATA AL PREZZO','Ogni barra sta all’altezza del suo strike: si legge in orizzontale.']]},
+ {id:'5',t:'Profilo e bande insieme',
+  em:'La colonna dà il valore esatto, le bande chiare sul grafico dicono dove cade sul prezzo. Le due letture insieme.',
+  n:[['DUE LETTURE','La colonna per il quanto, la banda per il dove. Nessuna delle due copre le candele.'],
+     ['BANDE PIÙ CHIARE','Sul grafico la tinta è più leggera del 2, perché il valore esatto sta già nella colonna.'],
+     ['STESSA SOGLIA','Sotto la soglia il grafico resta pulito e la barra resta corta.']]}
+];
+
+function render(){
+  const H=S.h==='full'?300:150;
+  const m=MAPN[S.m];
+  const legend=()=>`<div class="leg"><span>−128</span><div class="bar"><i></i></div><span>+128</span>
+        <span class="u">${UNIT[S.m]}</span></div>`;
+  let html=`
+  <div class="card now">
+    <div class="cap"><span class="tag nw">ADESSO</span><b>Il riquadro com'è oggi</b>
+      <em>La velatura copre quasi tutta l'area e passa sopra le candele. Nessuna legenda, nessuna lettura, il nome è solo una lettera greca.</em></div>
+    <div class="row"><span class="ttl">MAPS</span><span class="sub">${S.m==='g'?'γ Map':m[0]}</span></div>
+    <div class="wrap"><canvas id="cnow"></canvas></div>
+  </div>`;
+  LAY.forEach(L=>{
+    html+=`
+  <div class="card">
+    <div class="cap"><span class="num">${L.id}</span><b>${L.t}</b><em>${L.em}</em></div>
+    <div class="row">
+      <span class="ttl">MAPPA</span><span class="sub">${m[0]}</span>
+      <span style="color:var(--mut3)">·</span><span class="sub">${m[1]}</span>
+      <span class="rd" id="r${L.id}"></span>
+      <div class="push"></div><span class="sub" style="color:var(--mut3)">superficie del 28 ago</span>
+    </div>
+    <div class="wrap"><canvas id="c${L.id}"></canvas>${legend()}</div>
+    <div class="note">${L.n.map(([a,b])=>`<div><b>${a}</b>${b}</div>`).join('')}</div>
+  </div>`;});
+  document.getElementById('out').innerHTML=html;
+
+  const all=[['cnow','now']].concat(LAY.map(L=>['c'+L.id,L.id]));
+  requestAnimationFrame(()=>all.forEach(([id,mode])=>draw(document.getElementById(id),mode,H)));
+  LAY.forEach(L=>{
+    const cv=document.getElementById('c'+L.id), out=document.getElementById('r'+L.id);
+    const mk=cv.parentElement.querySelector('.leg i');
+    cv.onmousemove=e=>{const r=valAt(cv,e);
+      if(!r){S.hover=null;S.hoverId=null;out.innerHTML='';mk.style.display='none';draw(cv,L.id,H);return;}
+      S.hover=[r.px,r.py];S.hoverId=cv.id;draw(cv,L.id,H);
+      out.innerHTML=`<b style="color:${r.v>0?'var(--grn)':'var(--red)'}">${fmt(r.v)}</b> <span style="color:var(--mut3)">${UNIT[S.m]} a</span> <b>${r.price.toFixed(0)}</b>`;
+      mk.style.display='block';mk.style.left=(50+r.v*50)+'%';};
+    cv.onmouseleave=()=>{S.hover=null;S.hoverId=null;out.innerHTML='';mk.style.display='none';draw(cv,L.id,H);};
+  });
+}
+document.querySelectorAll('.mk button').forEach(x=>x.onclick=()=>{
+  if(x.dataset.m){S.m=x.dataset.m;document.querySelectorAll('[data-m]').forEach(o=>o.classList.toggle('on',o===x));}
+  if(x.dataset.h){S.h=x.dataset.h;document.querySelectorAll('[data-h]').forEach(o=>o.classList.toggle('on',o===x));}
+  render();});
+addEventListener('resize',render);
+render();
+</script>

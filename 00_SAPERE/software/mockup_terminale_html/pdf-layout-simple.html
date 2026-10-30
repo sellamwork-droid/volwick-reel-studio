@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="spec.css">
+</head>
+<body>
+
+<section class="pg">
+  <div class="head">
+    <div class="brand">Volwick · Sightline</div>
+    <h1>Layout: come rifarlo</h1>
+    <p class="sub">Ogni finestra ha i suoi comandi, tutti uguali e nello stesso ordine. In alto restano solo la griglia e i preset.</p>
+    <div class="tag"><span><b>21 ago 2026</b></span><span>Per <b>Matt</b></span></div>
+  </div>
+
+  <h2><span class="n">01</span> Cosa fare</h2>
+
+  <div class="r">
+    <span class="num">1</span>
+    <div class="bd">
+      <h4>Togli i comandi dalla barra in alto</h4>
+      <p>In alto restano solo tre cose: la scelta della griglia, i preset, e un pulsante <b>«Copia su tutte»</b>. Nient'altro. Via anche il controllo «Layout 1» che oggi compare dentro la seconda finestra.</p>
+    </div>
+  </div>
+
+  <div class="r">
+    <span class="num">2</span>
+    <div class="bd">
+      <h4>Dai a ogni finestra la sua barra, tutte identiche</h4>
+      <p>Una riga sottile sopra il grafico, con i comandi di quella finestra. Stessi elementi, stesso ordine, in tutte le finestre e per tutti i ticker — oggi l'ordine cambia a seconda del ticker, e così la mano non impara mai dove sono i tasti.</p>
+      <div class="spec">numero · ticker · timeframe · muri · metrica · DTE ‖ layer · pannelli · chiudi · prezzo</div>
+    </div>
+  </div>
+
+  <div class="r">
+    <span class="num">3</span>
+    <div class="bd">
+      <h4>Elimina il pannello Settings a schermo intero</h4>
+      <p>Oggi apre otto righe di comandi che coprono il grafico che stai configurando. Non serve più: i comandi sono già a vista nella barra della finestra.</p>
+    </div>
+  </div>
+
+  <div class="r">
+    <span class="num">4</span>
+    <div class="bd">
+      <h4>Mostra i pannelli gamma solo quando c'è una finestra sola</h4>
+      <p>Con due o più finestre, il pulsante dei pannelli sparisce dalla barra e il cassetto non si apre. Se era aperto, si chiude da solo. Scrivilo nella barra di stato in basso, così l'utente sa dov'è finito.</p>
+      <div class="spec">A finestra singola il cassetto si aggancia a destra e <b>restringe il grafico</b>, non lo copre.</div>
+    </div>
+  </div>
+
+  <div class="r">
+    <span class="num">5</span>
+    <div class="bd">
+      <h4>Mostra gli avvisi una volta sola</h4>
+      <p>«Stale» e «16:00 book» oggi si ripetono in ogni finestra: a quattro finestre sono otto righe. Metti una riga sola in fondo alla pagina, con scritto quali finestre riguarda. Nelle finestre colpite basta un pallino rosso accanto al prezzo. Anche la barra di stato deve essere una sola.</p>
+    </div>
+  </div>
+
+  <div class="r">
+    <span class="num">6</span>
+    <div class="bd">
+      <h4>Sistema i preset</h4>
+      <p>Vanno aggiunte rinomina, sovrascrivi ed elimina, e va indicato quale preset è attivo. Il dettaglio è a pagina 4.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pg">
+  <h2><span class="n">02</span> La barra della finestra</h2>
+  <p>È la parte principale del lavoro. I cinque campi dati stanno dentro un unico riquadro con divisori interni; poi un separatore verticale; poi le icone.</p>
+
+  <figure>
+    <img src="fig/f1-barra.png" alt="La barra di una finestra">
+    <figcaption>La barra al completo. Il prezzo sta sempre attaccato al bordo destro, così nelle varie finestre resta incolonnato.</figcaption>
+  </figure>
+
+  <table>
+    <thead><tr><th style="width:30mm">Elemento</th><th>Cosa fa</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Numero</td><td>Dice quale finestra è. Cliccandolo la rende attiva (si accende in gold)</td></tr>
+      <tr><td class="k">Ticker</td><td>Scritto in gold, è l'unico campo colorato</td></tr>
+      <tr><td class="k">Timeframe</td><td>1m · 5m · 15m · 1h · D</td></tr>
+      <tr><td class="k">Muri</td><td>Off · Top 3 · 5 · 10 · 15 · 25 · 40</td></tr>
+      <tr><td class="k">Metrica</td><td>GEX · CEX · DEX · ALL</td></tr>
+      <tr><td class="k">DTE</td><td>All · 0DTE · Weekly · Monthly</td></tr>
+      <tr><td class="k">Layer ☰</td><td>Interruttori di questa finestra: Tide, γ Map, Charm, Vega (una alla volta), CVD, CDI, block trade, flow. L'icona si accende se almeno uno è attivo</td></tr>
+      <tr><td class="k">Pannelli ▤</td><td>Apre il cassetto gamma. Compare solo con una finestra sola</td></tr>
+      <tr><td class="k">Chiudi ✕</td><td>Chiude la finestra e riduce la griglia</td></tr>
+      <tr><td class="k">Prezzo</td><td>Prezzo e variazione, attaccati al bordo destro. Un pallino rosso davanti se la finestra ha un avviso</td></tr>
+    </tbody>
+  </table>
+
+  <h2 style="margin-top:7mm"><span class="n">03</span> La griglia</h2>
+  <p>Quattro disposizioni, tutte affiancate: <b>una · due · tre · quattro</b>. Niente sopra-sotto.</p>
+  <ul>
+    <li>I bordi tra le finestre si trascinano per ridimensionarle.</li>
+    <li>Le finestre sono numerate da 1 a 4 e il numero non cambia.</li>
+    <li>La ✕ scala alla disposizione inferiore invece di lasciare un buco.</li>
+    <li>Oltre quattro finestre non si va.</li>
+    <li>Da tre finestre in su: i campi mostrano solo il valore (<code>Top 15</code> invece di <code>MURI Top 15</code>) e i muri disegnati scendono a tre. Nessun comando deve finire dentro un menu nascosto.</li>
+  </ul>
+
+  <h3>«Copia su tutte»</h3>
+  <p>Prende la configurazione della finestra attiva e la mette su tutte le altre: timeframe, muri, metrica, DTE e layer. <b>Il ticker no</b>, altrimenti si finisce a guardare quattro volte lo stesso strumento.</p>
+</section>
+
+<section class="pg">
+  <h2><span class="n">04</span> I preset</h2>
+  <p>Un preset salva la griglia e come è configurata ogni finestra. Il nome di quello attivo si legge sul pulsante in alto, e quando ti allontani da com'era salvato compare la scritta <b>modificato</b>.</p>
+
+  <h3>Da sistemare subito</h3>
+  <ul>
+    <li><b>Elimina «Command Deck»:</b> apre cinque grafici, e la griglia ora arriva a quattro.</li>
+    <li><b>Rifai «Creator's View»</b> su quattro finestre: ES, SPX, SPY, VIX — con SPX e SPY sui soli 0DTE e il CDI acceso su SPX.</li>
+    <li><b>Descrivi le righe tutte allo stesso modo:</b> <code>4 finestre · ES SPX SPY VIX</code>. Oggi una riga elenca i ticker e l'altra il numero di grafici.</li>
+    <li><b>Togli il pulsante «Save as my default»</b> e mettici una stella ☆ su ogni riga: quella piena è il preset con cui si apre il programma. Sparisce anche la scritta «not saved yet».</li>
+  </ul>
+
+  <figure>
+    <img src="fig/f6-preset.png" alt="Il menu dei preset">
+    <figcaption>Stella piena = preset di apertura. Riga in gold = preset attivo. L'etichetta «modificato» avvisa che la disposizione a schermo non è più quella salvata.</figcaption>
+  </figure>
+
+  <table>
+    <thead><tr><th style="width:38mm">Comando</th><th>Cosa fa</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Clic sulla riga</td><td>Carica il preset</td></tr>
+      <tr><td class="k">★</td><td>Sceglie il preset di apertura</td></tr>
+      <tr><td class="k">⋯ Rinomina</td><td>Cambia nome</td></tr>
+      <tr><td class="k">⋯ Sovrascrivi</td><td>Salva la disposizione attuale dentro quel preset</td></tr>
+      <tr><td class="k">⋯ Elimina</td><td>Cancella il preset</td></tr>
+      <tr><td class="k">Ripristina</td><td>Torna a com'era salvato</td></tr>
+      <tr><td class="k">Torna a prima</td><td>Torna alla disposizione che c'era prima di caricare il preset</td></tr>
+      <tr><td class="k">+ Salva</td><td>Crea un preset nuovo dalla disposizione attuale</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="pg">
+  <h2><span class="n">05</span> Il risultato</h2>
+  <figure>
+    <img src="fig/f4-quattro.png" alt="La griglia a quattro finestre">
+    <figcaption>Quattro finestre, ognuna con la sua barra. In alto solo griglia, preset e «Copia su tutte». L'avviso una volta sola in fondo, con l'elenco delle finestre che riguarda.</figcaption>
+  </figure>
+
+  <h2><span class="n">06</span> Scorciatoie</h2>
+  <table>
+    <tbody>
+      <tr><td class="k" style="width:36mm"><kbd>1</kbd> … <kbd>4</kbd></td><td>Rende attiva quella finestra</td></tr>
+      <tr><td class="k"><kbd>⌘</kbd><kbd>1</kbd> … <kbd>⌘</kbd><kbd>4</kbd></td><td>Cambia griglia</td></tr>
+      <tr><td class="k"><kbd>L</kbd></td><td>Apre i layer</td></tr>
+      <tr><td class="k"><kbd>P</kbd></td><td>Apre i pannelli (solo con una finestra)</td></tr>
+      <tr><td class="k"><kbd>⇧</kbd><kbd>C</kbd></td><td>Copia su tutte</td></tr>
+      <tr><td class="k"><kbd>⌘</kbd><kbd>S</kbd></td><td>Salva preset</td></tr>
+    </tbody>
+  </table>
+
+  <h2 style="margin-top:7mm"><span class="n">07</span> Due cose da chiarire</h2>
+  <div class="note ask">
+    <h4>I preset stanno sul browser o sull'account?</h4>
+    <p>Ogni accesso chiude le sessioni sugli altri dispositivi: se il preset è salvato solo nel browser, si perde spesso.</p>
+  </div>
+  <div class="note ask">
+    <h4>Le tre e quattro finestre reggono sugli schermi normali?</h4>
+    <p>Da provare su un portatile normale, non su un monitor grande. Se non si legge, ci fermiamo a due finestre e la regola dei campi compatti non serve più.</p>
+  </div>
+
+  <p class="small" style="margin-top:12mm;padding-top:3mm;border-top:1px solid var(--rule)">
+    Versione interattiva di tutto quanto descritto qui, da aprire nel browser — i campi si cliccano e i preset funzionano:<br>
+    <span style="font-family:var(--mono);color:var(--amber)">claude.ai/code/artifact/19cf40e3-605b-4355-ac8f-9f255af94807</span>
+  </p>
+</section>
+
+</body>
+</html>

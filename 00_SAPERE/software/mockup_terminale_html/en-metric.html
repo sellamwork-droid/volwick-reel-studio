@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="spec.css">
+</head>
+<body>
+
+<section class="pg">
+  <div class="head">
+    <div class="brand">Volwick · Sightline</div>
+    <h1>Metric: what to fix</h1>
+    <p class="sub">Seven fixes to the metric selector and to how the walls are drawn when it changes.</p>
+    <div class="tag"><span><b>22 Aug 2026</b></span><span>For <b>Matt</b></span></div>
+  </div>
+
+  <div class="r">
+    <span class="num">1</span>
+    <div class="bd">
+      <h4>Separate ALL from the other three</h4>
+      <p>ALL stays lit green even when it is off, and it sits wedged between CEX and DEX. Select GEX, or CEX, or DEX, and it stays green anyway: there is no way to tell whether multi-metric is on.</p>
+      <p><b>Put the three metrics in one block and ALL outside it</b>, separated by a gap, in the same position it holds today. Two states only: off, with border and text dimmed; on, filled. When ALL is on none of the three stays selected, and clicking one of the three turns ALL off.</p>
+    </div>
+  </div>
+
+  <figure>
+    <img src="fig/m-btn-oggi.png" alt="The metric selector today">
+    <figcaption>Today: GEX selected, ALL off, but green all the same.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="fig/m-btn-dopo.png" alt="The metric selector rebuilt">
+    <figcaption>How it should look: the two states of ALL, separated from the block of three.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <div class="r">
+    <span class="num">2</span>
+    <div class="bd">
+      <h4>Weigh each metric against itself</h4>
+      <p>The three arrive in different units: gamma in millions, charm in thousands, delta in billions. If line thickness is computed against a shared maximum, in multi-metric every delta wall becomes a solid band and the charm ones vanish — because of the unit, not because of how much they matter.</p>
+      <p><b>Compute the maximum separately for each metric</b>, over its own visible walls. The strongest of each should carry the same visual weight as the strongest of the other two.</p>
+    </div>
+  </div>
+
+  <figure>
+    <img src="fig/m-dex-en.png" alt="DEX view">
+    <figcaption>DEX weighed against itself: the 511B is the solid band, the 185B the dashed line. All billions, but the hierarchy still reads.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <div class="r">
+    <span class="num">3</span>
+    <div class="bd">
+      <h4>Draw fewer walls per metric in multi-metric</h4>
+      <p>The wall count applies per metric, not in total: with Top 5 and all three on you get fifteen lines and fifteen labels, which pile up along the right edge.</p>
+      <p><b>Turning ALL on should drop the count by itself</b> to the strongest of each metric. The value the user picked stays remembered and comes back when ALL goes off.</p>
+    </div>
+  </div>
+
+  <div class="r">
+    <span class="num">4</span>
+    <div class="bd">
+      <h4>Tell the metrics apart by line style, not by colour</h4>
+      <p>A wall's colour already says whether it brakes or accelerates: use it for the metric too and that information is lost.</p>
+      <p><b>Give each metric a line style.</b> Gamma solid, charm long dashes, delta fine dots. The style scales with the thickness, so it stays recognisable on a strong wall and on a weak one alike.</p>
+      <p><b>It only applies in multi-metric.</b> With a single metric every wall stays solid: there is nothing to tell apart. Colours never change.</p>
+    </div>
+  </div>
+
+  <figure>
+    <img src="fig/m-tratti-en.png" alt="Line styles per metric">
+    <figcaption>Strong wall on the left, weak wall on the right: the same style has to hold at both thicknesses.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="fig/m-all-en.png" alt="Multi-metric view">
+    <figcaption>The three together with both rules applied: fewer walls per metric, and the line style saying which metric it is.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <div class="r">
+    <span class="num">5</span>
+    <div class="bd">
+      <h4>Write the labels the same way every time</h4>
+      <p>With a single metric the label reads <code>SPX 7710</code>, in multi-metric <code>GEX·SPX 7710</code>. The ticker appears twice on screen, since it is already in the window bar.</p>
+      <p><b>Drop the ticker and keep the order fixed:</b> dot in the wall's colour, stars if it is flagged, level, value. In multi-metric the metric name goes in front of the level, and that is the only thing that changes.</p>
+    </div>
+  </div>
+
+  <figure>
+    <img src="fig/m-label-en.png" alt="The two label forms">
+    <figcaption>The only two forms the label should ever take.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <div class="r">
+    <span class="num">6</span>
+    <div class="bd">
+      <h4>Refit the view when the metric changes</h4>
+      <p>The three metrics have their walls at different levels. Change metric and the scale stays where it was, the new walls end up off screen, and the chart sits empty without saying why.</p>
+      <p><b>After the switch, bring the view back onto the new metric's walls</b>, or state how many are off screen and on which side.</p>
+    </div>
+  </div>
+
+  <figure>
+    <img src="fig/m-gex-en.png" alt="GEX view">
+    <figcaption>GEX: its walls sit between 7650 and 7750, and the view opens up that far.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="fig/m-cex-en.png" alt="CEX view">
+    <figcaption>CEX over the same minutes: the walls sit lower and the view comes down with them. Keeping the previous scale, these four levels would have stayed off screen.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <div class="r">
+    <span class="num">7</span>
+    <div class="bd">
+      <h4>Do not empty the chart during the switch</h4>
+      <p>Change metric and the walls disappear, replaced for two or three seconds by «Loading dealer walls…».</p>
+      <p><b>Keep the old walls visible and dimmed</b> until the new ones arrive, so the chart is never left bare. And do not re-request a metric already loaded in the same session: going back to one already seen should show it immediately.</p>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Volwick · Walls Rendering</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:#0B0E13;color:#C9D1DC;
+    font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    padding:18px;
+  }
+  .wrap{max-width:1500px;margin:0 auto}
+  header{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:4px}
+  h1{font-size:15px;font-weight:600;letter-spacing:.08em;color:#E8C268;text-transform:uppercase}
+  .sub{font-size:12px;color:#5C6675}
+  .bar{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    margin:14px 0 10px;padding:8px 10px;
+    background:#11151D;border:1px solid #1D2430;border-radius:6px;
+  }
+  .seg{display:flex;border:1px solid #2A3342;border-radius:5px;overflow:hidden}
+  .seg button{
+    background:transparent;border:0;color:#7A8697;cursor:pointer;
+    font:inherit;font-size:12px;letter-spacing:.06em;padding:7px 16px;
+  }
+  .seg button.on{background:#E8C268;color:#0B0E13;font-weight:600}
+  .seg button:not(.on):hover{background:#1A2029;color:#C9D1DC}
+  .divider{width:1px;height:22px;background:#232B38;margin:0 4px}
+  .chk{
+    display:flex;align-items:center;gap:7px;font-size:11.5px;color:#7A8697;
+    cursor:pointer;padding:6px 10px;border:1px solid #232B38;border-radius:5px;user-select:none;
+  }
+  .chk:hover{border-color:#39445A;color:#C9D1DC}
+  .chk input{accent-color:#E8C268;cursor:pointer}
+  .chk.dis{opacity:.35;pointer-events:none}
+  .stage{background:#0B0E13;border:1px solid #1D2430;border-radius:6px;overflow:hidden;position:relative}
+  .tag{
+    position:absolute;top:10px;left:12px;z-index:3;
+    font-size:10.5px;letter-spacing:.14em;padding:4px 9px;border-radius:3px;
+  }
+  .tag.before{background:rgba(204,88,88,.14);border:1px solid rgba(204,88,88,.4);color:#CC5858}
+  .tag.after{background:rgba(54,156,111,.14);border:1px solid rgba(54,156,111,.4);color:#369C6F}
+  canvas{display:block;width:100%}
+  .notes{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-top:14px;
+  }
+  .note{background:#11151D;border:1px solid #1D2430;border-left:2px solid #E8C268;border-radius:5px;padding:11px 13px}
+  .note h3{font-size:11px;letter-spacing:.08em;color:#E8C268;margin-bottom:5px;font-weight:600}
+  .note p{font-size:12px;line-height:1.55;color:#8B95A5}
+  .note b{color:#C9D1DC;font-weight:600}
+  footer{margin-top:14px;font-size:11px;color:#4A5464;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Volwick · Sightline — Rendering dei muri</h1>
+  </header>
+
+  <div class="stage">
+    <canvas id="cv"></canvas>
+  </div>
+
+  <div class="notes">
+    <div class="note">
+      <h3>01 · SFUMATURA ORIZZONTALE</h3>
+      <p>Il muro è pieno solo nell'ultimo terzo a destra, dove sta il prezzo, e sfuma a zero verso sinistra. Il livello resta leggibile, lo storico delle candele torna <b>pulito</b>.</p>
+    </div>
+    <div class="note">
+      <h3>02 · PESO = DATO</h3>
+      <p>Da <b>1px tratteggiato al 22%</b> (muro debole) a <b>7px pieno con alone</b> (dominante), scalato su |γ|. La gerarchia si legge prima delle cifre.</p>
+    </div>
+    <div class="note">
+      <h3>03 · ASSE PULITO</h3>
+      <p>I prezzi dei muri escono dalla scala. L'asse torna a una <b>griglia regolare</b> ogni 10 punti più il chip del prezzo live.</p>
+    </div>
+    <div class="note">
+      <h3>04 · UNA COLONNA, ANTI-COLLISIONE</h3>
+      <p>Etichetta compatta <b>7660 · 58M</b>, fondo scuro e bordo 1px colorato. Strike troppo vicini vengono separati con una <b>linea di richiamo</b> verso il livello vero.</p>
+    </div>
+    <div class="note">
+      <h3>05 · DECADIMENTO PER DISTANZA</h3>
+      <p>I muri oltre una certa distanza dal prezzo sbiadiscono progressivamente: restano come <b>contesto</b>, smettono di pesare sull'attenzione.</p>
+    </div>
+  </div>
+
+  <footer>
+    Specifica visiva per il rendering dei muri — candele generate, strike e valori γ presi da una sessione reale ES/SPX.<br>
+    Palette validata per daltonismo: verde #369C6F (call long γ) · rosso #CC5858 (put long γ) · blu #4C92CC (call short γ) · viola #A173CC (put short γ) · gold #E8C268 (prezzo).
+  </footer>
+
+</div>
+
+<script>
+/* ---------------------------------------------------------------- dati */
+const BASIS = 19.98;
+const LIVE  = 7686.50;
+
+const C = {
+  suppCall:'#369C6F',   // verde  · long gamma call  (freno)
+  suppPut :'#CC5858',   // rosso  · long gamma put   (freno)
+  accCall :'#4C92CC',   // blu    · short gamma call (benzina)
+  accPut  :'#A173CC',   // viola  · short gamma put  (benzina)
+  gold    :'#E8C268'
+};
+
+// strike SPX, gamma in $M, tipo, stelle
+const WALLS = [
+  {k:7700, g: -7, t:'accPut',  s:0},
+  {k:7685, g: 16, t:'suppPut', s:0},
+  {k:7680, g:  5, t:'suppCall',s:0},
+  {k:7675, g: 26, t:'suppCall',s:0},
+  {k:7670, g:  6, t:'suppCall',s:0},
+  {k:7665, g:-17, t:'accPut',  s:0},
+  {k:7660, g: 58, t:'suppPut', s:2},
+  {k:7655, g: -7, t:'accCall', s:0},
+  {k:7650, g: 42, t:'suppPut', s:1},
+  {k:7630, g: -9, t:'accPut',  s:0}
+];
+WALLS.forEach(w => w.p = w.k + BASIS);
+const MAXG = Math.max(...WALLS.map(w=>Math.abs(w.g)));
+
+/* ------------------------------------------------- candele deterministe */
+let seed = 20260821;
+const rnd = () => (seed = (seed*1664525 + 1013904223) % 4294967296) / 4294967296;
+
+const BARS = 210;
+const KEY = [7652,7654,7663,7659,7657,7666,7672,7679,7676,7673,7678,7681,7684,7688,7685,7683,7686,7686.5];
+function pathAt(i){
+  const x = i/(BARS-1)*(KEY.length-1);
+  const a = Math.floor(x), b = Math.min(a+1, KEY.length-1), f = x-a;
+  return KEY[a]*(1-f) + KEY[b]*f;
+}
+const CANDLES = [];
+let prev = KEY[0];
+for(let i=0;i<BARS;i++){
+  const target = pathAt(i);
+  const o = prev;
+  const c = target + (rnd()-0.5)*2.6;
+  const hi = Math.max(o,c) + rnd()*1.5;
+  const lo = Math.min(o,c) - rnd()*1.5;
+  let v = 90 + rnd()*220;
+  if(rnd() > 0.965) v += 300 + rnd()*600;
+  CANDLES.push({o,c,h:hi,l:lo,v,up:c>=o});
+  prev = c;
+}
+CANDLES[BARS-1].c = LIVE;
+const MAXV = Math.max(...CANDLES.map(c=>c.v));
+
+/* ------------------------------------------------------------- geometria */
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const Y0 = 7626, Y1 = 7726;
+
+let W=0, H=0;
+const AXIS = 84;        // scala prezzi
+const LABW = 104;       // colonna etichette
+const PAD  = {t:26,b:24,l:14};
+const VOLH = 92;
+
+const yOf = p => { const top=PAD.t, bot=H-PAD.b-VOLH; return bot - (p-Y0)/(Y1-Y0)*(bot-top); };
+
+/* ----------------------------------------------------------------- stato */
+const MODE='after', FADE=true, DECAY=true;
+
+/* ------------------------------------------------------------- disegno */
+function hex2rgba(h,a){
+  const n = parseInt(h.slice(1),16);
+  return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`;
+}
+
+function draw(){
+  const dpr = window.devicePixelRatio || 1;
+  W = cv.clientWidth; H = 660;
+  cv.width = W*dpr; cv.height = H*dpr; cv.style.height = H+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,W,H);
+
+  const plotL = PAD.l;
+  const plotR = W - AXIS - (MODE==='before' ? LABW+8 : LABW+8);
+  const chartBot = H - PAD.b - VOLH;
+
+  ctx.fillStyle = '#0B0E13';
+  ctx.fillRect(0,0,W,H);
+
+  /* --- griglia + asse prezzi ------------------------------------------ */
+  ctx.font = '11px ui-monospace,monospace';
+  ctx.textBaseline = 'middle';
+
+  if(MODE==='before'){
+    // asse inquinato: i prezzi dei muri diventano i tick
+    WALLS.forEach(w=>{
+      const y = yOf(w.p);
+      ctx.strokeStyle = 'rgba(255,255,255,.03)';
+      ctx.beginPath(); ctx.moveTo(plotL,y); ctx.lineTo(plotR,y); ctx.stroke();
+      // chip pieno colorato sull'asse
+      const col = C[w.t];
+      ctx.fillStyle = hex2rgba(col,.85);
+      ctx.fillRect(W-AXIS+2, y-9, AXIS-6, 18);
+      ctx.fillStyle = '#0B0E13';
+      ctx.textAlign = 'right';
+      ctx.fillText(w.p.toFixed(2), W-8, y);
+    });
+    [7710,7660,7640,7630].forEach(p=>{
+      const y=yOf(p);
+      ctx.fillStyle='#5C6675'; ctx.textAlign='right';
+      ctx.fillText(p.toFixed(2), W-8, y);
+    });
+  } else {
+    // griglia regolare, pulita
+    for(let p=7630;p<=7720;p+=10){
+      const y=yOf(p);
+      ctx.strokeStyle='rgba(255,255,255,.035)';
+      ctx.beginPath(); ctx.moveTo(plotL,y); ctx.lineTo(plotR,y); ctx.stroke();
+      ctx.fillStyle='#4A5464'; ctx.textAlign='right';
+      ctx.fillText(p.toFixed(2), W-10, y);
+    }
+  }
+
+  /* --- volume ---------------------------------------------------------- */
+  const bw = (plotR-plotL)/BARS;
+  CANDLES.forEach((c,i)=>{
+    const x = plotL + i*bw;
+    const h = c.v/MAXV*(VOLH-14);
+    ctx.fillStyle = c.up ? hex2rgba(C.suppCall,.42) : hex2rgba(C.suppPut,.42);
+    ctx.fillRect(x+bw*.15, H-PAD.b-h, Math.max(bw*.7,1), h);
+  });
+
+  /* --- muri (sotto le candele in DOPO, sopra in PRIMA) ----------------- */
+  const drawWalls = ()=>{
+    WALLS.forEach(w=>{
+      const y = yOf(w.p), col = C[w.t], mag = Math.abs(w.g)/MAXG;
+      let lw, op;
+      if(MODE==='before'){ lw = 2; op = 1; }
+      else {
+        lw = 1 + Math.pow(mag,.85)*6;          // 1 → 7 px
+        op = .22 + Math.pow(mag,.85)*.73;      // .22 → .95
+        if(DECAY){
+          const d = Math.abs(w.p-LIVE);
+          op *= Math.max(.14, 1 - Math.max(0,d-12)/46);
+        }
+      }
+      ctx.lineWidth = lw;
+      if(MODE!=='before'){
+        // muri deboli tratteggiati, forti pieni
+        ctx.setLineDash(mag < .28 ? [3,5] : []);
+        // alone morbido attorno ai muri dominanti
+        if(mag > .35){
+          const bh = lw*4;
+          const x0 = FADE ? plotL + (plotR-plotL)*0.58 : plotL;
+          const gg = ctx.createLinearGradient(0,y-bh,0,y+bh);
+          gg.addColorStop(0,   hex2rgba(col,0));
+          gg.addColorStop(.5,  hex2rgba(col,.11*mag));
+          gg.addColorStop(1,   hex2rgba(col,0));
+          ctx.save();
+          if(FADE){
+            const hg = ctx.createLinearGradient(x0,0,plotR,0);
+            hg.addColorStop(0,'rgba(0,0,0,0)'); hg.addColorStop(1,'rgba(0,0,0,1)');
+            ctx.globalCompositeOperation='source-over';
+          }
+          ctx.fillStyle = gg;
+          // maschera orizzontale: disegno a fasce con opacità crescente
+          const steps = 26;
+          for(let i=0;i<steps;i++){
+            const xa = x0 + (plotR-x0)*(i/steps);
+            const xb = x0 + (plotR-x0)*((i+1)/steps);
+            ctx.globalAlpha = FADE ? Math.pow(i/steps,1.6) : 1;
+            ctx.fillRect(xa, y-bh, xb-xa+1, bh*2);
+          }
+          ctx.globalAlpha = 1;
+          ctx.restore();
+        }
+      }
+      if(MODE!=='before' && FADE){
+        const g = ctx.createLinearGradient(plotL,0,plotR,0);
+        g.addColorStop(0,   hex2rgba(col,0));
+        g.addColorStop(0.62,hex2rgba(col,op*.18));
+        g.addColorStop(1,   hex2rgba(col,op));
+        ctx.strokeStyle = g;
+      } else {
+        ctx.strokeStyle = hex2rgba(col,op);
+      }
+      ctx.beginPath(); ctx.moveTo(plotL,y); ctx.lineTo(plotR,y); ctx.stroke();
+      ctx.setLineDash([]);
+    });
+  };
+
+  if(MODE!=='before') drawWalls();
+
+  /* --- candele --------------------------------------------------------- */
+  CANDLES.forEach((c,i)=>{
+    const x = plotL + i*bw + bw/2;
+    const col = c.up ? C.suppCall : C.suppPut;
+    ctx.strokeStyle = col; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, yOf(c.h)); ctx.lineTo(x, yOf(c.l)); ctx.stroke();
+    const yo=yOf(c.o), yc=yOf(c.c);
+    ctx.fillStyle = col;
+    ctx.fillRect(x-bw*.34, Math.min(yo,yc), Math.max(bw*.68,1), Math.max(Math.abs(yc-yo),1));
+  });
+
+  if(MODE==='before') drawWalls();
+
+  /* --- prezzo live ----------------------------------------------------- */
+  const yl = yOf(LIVE);
+  ctx.setLineDash([4,4]); ctx.lineWidth=1; ctx.strokeStyle=hex2rgba(C.gold,.8);
+  ctx.beginPath(); ctx.moveTo(plotL,yl); ctx.lineTo(W-AXIS,yl); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle=C.gold; ctx.fillRect(W-AXIS+2, yl-9, AXIS-6, 18);
+  ctx.fillStyle='#0B0E13'; ctx.textAlign='right';
+  ctx.font='bold 11px ui-monospace,monospace';
+  ctx.fillText(LIVE.toFixed(2), W-8, yl);
+
+  /* --- etichette dei muri ---------------------------------------------- */
+  const items = WALLS.map(w=>({w, y:yOf(w.p), ty:yOf(w.p)})).sort((a,b)=>a.y-b.y);
+
+  if(MODE!=='before'){
+    // anti-collisione: separazione verticale minima 22px
+    const GAP=25;
+    for(let pass=0;pass<60;pass++){
+      let moved=false;
+      for(let i=1;i<items.length;i++){
+        const d = items[i].ty - items[i-1].ty;
+        if(d < GAP){ const s=(GAP-d)/2; items[i-1].ty-=s; items[i].ty+=s; moved=true; }
+      }
+      if(items[0].ty < PAD.t+10) items[0].ty = PAD.t+10;
+      if(items[items.length-1].ty > chartBot-10) items[items.length-1].ty = chartBot-10;
+      if(!moved) break;
+    }
+  }
+
+  const lx = W - AXIS - LABW - 4;
+  ctx.font='11px ui-monospace,monospace';
+
+  items.forEach(it=>{
+    const w=it.w, col=C[w.t];
+    const mag=Math.abs(w.g)/MAXG;
+
+    if(MODE==='before'){
+      // chip pieno di bordo + fondo, seconda colonna, nessuna anti-collisione
+      const txt = (w.s===2?'★★ ':w.s===1?'★ ':'') + 'SPX '+w.k+' '+(w.g>0?'':'–')+Math.abs(w.g)+'M';
+      const tw = ctx.measureText(txt).width;
+      const bx = W-AXIS-tw-18;
+      ctx.fillStyle='#11151D';
+      ctx.strokeStyle=col; ctx.lineWidth=1;
+      ctx.fillRect(bx, it.y-9, tw+12, 18);
+      ctx.strokeRect(bx+.5, it.y-8.5, tw+11, 17);
+      ctx.fillStyle=col; ctx.textAlign='left';
+      ctx.fillText(txt, bx+6, it.y);
+    } else {
+      // colonna unica, compatta, con linea di richiamo
+      const txt = w.k+' · '+(w.g>0?'':'–')+Math.abs(w.g)+'M';
+      const op = .45 + Math.pow(mag,.6)*.5;
+
+      if(Math.abs(it.ty-it.y) > 1.5){
+        ctx.strokeStyle=hex2rgba(col,.32); ctx.lineWidth=1;
+        ctx.beginPath();
+        ctx.moveTo(W-AXIS-6, it.y);
+        ctx.lineTo(lx+LABW+2, it.ty);
+        ctx.stroke();
+      }
+      ctx.fillStyle='rgba(11,14,19,.92)';
+      ctx.fillRect(lx, it.ty-9, LABW, 18);
+      ctx.strokeStyle=hex2rgba(col,op); ctx.lineWidth=1;
+      ctx.strokeRect(lx+.5, it.ty-8.5, LABW-1, 17);
+      // pallino di peso
+      ctx.fillStyle=hex2rgba(col,op);
+      ctx.beginPath(); ctx.arc(lx+9, it.ty, 2+mag*2.2, 0, 6.2832); ctx.fill();
+      ctx.fillStyle= w.s? C.gold : '#C9D1DC';
+      ctx.textAlign='left';
+      ctx.fillText((w.s?'★ ':'')+txt, lx+17, it.ty);
+    }
+  });
+
+  /* --- asse tempo ------------------------------------------------------ */
+  ctx.fillStyle='#3E4757'; ctx.font='10.5px ui-monospace,monospace'; ctx.textAlign='center';
+  ['02:15','02:45','03:15','03:45','04:15','04:45','05:15'].forEach((t,i)=>{
+    ctx.fillText(t, plotL + (i+0.5)*(plotR-plotL)/7, H-8);
+  });
+}
+
+window.addEventListener('resize', draw);
+draw();
+bA.onclick=()=>setMode('after');
+cF.onchange=()=>{FADE=cF.checked; draw();};
+cD.onchange=()=>{DECAY=cD.checked; draw();};
+window.addEventListener('resize', draw);
+setMode('before');
+</script>
+</body>
+</html>

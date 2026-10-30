@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="spec.css">
+</head>
+<body>
+
+<section class="pg">
+  <div class="head">
+    <div class="brand">Volwick · Sightline</div>
+    <h1>Scadenze: come sistemarle</h1>
+    <p class="sub">Sei correzioni al filtro DTE. La prima è un difetto: il filtro non cambia i muri disegnati.</p>
+    <div class="tag"><span><b>22 ago 2026</b></span><span>Per <b>Matt</b></span></div>
+  </div>
+
+  <div class="r">
+    <span class="num">1</span>
+    <div class="bd">
+      <h4>Applica il filtro ai muri disegnati</h4>
+      <p>Con una metrica sola, cambiando filtro i conteggi cambiano ma i muri restano identici. Verificato su ES con GEX, Top 15 e connessione attiva: quattro filtri, quattro conteggi diversi, gli stessi cinque muri con gli stessi valori. Con <b>0DTE</b> la riga di stato dichiara zero strike tenuti e il grafico ne disegna cinque.</p>
+      <p>In multi-metrica il filtro funziona in parte: i muri GEX e CEX rispondono, i DEX no. Con 0DTE selezionato i tre muri DEX sono identici a quelli della settimana, stessi strike e stessi valori.</p>
+      <p><b>Il filtro deve decidere quali muri vengono disegnati</b>, in tutte le metriche e in entrambe le modalità. Quando non resta nessuno strike, nessun muro.</p>
+    </div>
+  </div>
+
+  <figure>
+    <img src="fig/d-prova.png" alt="Il filtro non tocca i muri">
+    <figcaption>La stessa finestra, quattro filtri diversi, sempre gli stessi muri.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <div class="r">
+    <span class="num">2</span>
+    <div class="bd">
+      <h4>Correggi le date degli intervalli</h4>
+      <p>Weekly indica <code>2026-08-23 (Mon) → 2026-08-27 (Fri)</code>: il 23 agosto 2026 è domenica e il 27 è giovedì. Monthly indica <code>2026-07-31 → 2026-08-30</code> e lo chiama mese di calendario.</p>
+      <p><b>Vanno ricalcolati gli estremi di entrambi gli intervalli.</b></p>
+    </div>
+  </div>
+
+  <figure>
+    <img src="fig/d-date.png" alt="Le date sfasate di un giorno">
+    <figcaption>Sfasati di un giorno tutti e quattro gli estremi.</figcaption>
+  </figure>
+
+  <div class="r">
+    <span class="num">3</span>
+    <div class="bd">
+      <h4>Rendi i conteggi coerenti fra loro</h4>
+      <p>Weekly conta 166 e Monthly 179, che sommati fanno più di All, che ne conta 331. Nella stessa riga convivono poi due numeri che contano cose diverse: <code>166 strikes</code> e <code>(kept 607/3616)</code>.</p>
+      <p><b>Un solo tipo di numero</b>, contato allo stesso modo su tutti i pulsanti.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pg">
+  <div class="r">
+    <span class="num">4</span>
+    <div class="bd">
+      <h4>Rifai il gruppo dei pulsanti</h4>
+      <p>Quattro pulsanti uguali in fila, con All in testa e i conteggi fra parentesi che sembrano un tasto a parte. «Weekly» e «Monthly» non dicono se filtrano un tipo di contratto o un intervallo di date.</p>
+      <p><b>Tre filtri in un blocco unico e TUTTE staccato</b>, come ALL nella metrica. <b>Il conteggio entra dentro il pulsante</b>, senza parentesi. E i nomi dicono cosa filtrano: <b>Questa settimana</b> e <b>Questo mese</b>, con l'intervallo di date scritto sotto.</p>
+      <p><b>0DTE resta 0DTE</b>: è la parola che i trader cercano.</p>
+    </div>
+  </div>
+
+  <figure>
+    <img src="fig/d-oggi.png" alt="Il gruppo DTE oggi">
+    <figcaption>Oggi.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="fig/d-dopo.png" alt="Il gruppo DTE rifatto">
+    <figcaption>Come deve venire. La data sotto ogni filtro toglie ogni dubbio su cosa si sta guardando.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <div class="r">
+    <span class="num">5</span>
+    <div class="bd">
+      <h4>Spegni 0DTE quando non ha scadenze</h4>
+      <p>Il pulsante resta cliccabile anche quando il conteggio è a zero, e selezionandolo non cambia niente a schermo.</p>
+      <p><b>Va spento e non cliccabile quando è a zero</b>, e in nessun caso deve produrre muri.</p>
+    </div>
+  </div>
+
+  <div class="r">
+    <span class="num">6</span>
+    <div class="bd">
+      <h4>Scrivi la data sotto 0DTE</h4>
+      <p>Il pulsante non dice a quale giornata si riferisce, e quando è vuoto non si capisce perché.</p>
+      <p><b>La data va scritta sotto il nome</b> — <code>0DTE · 21 ago</code> — come per gli altri due filtri.</p>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

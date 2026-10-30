@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+@page{size:A4;margin:17mm 16mm 18mm 16mm}
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#141821; --ink2:#3A4453; --mut:#68717F; --faint:#98A0AC;
+  --rule:#DCE0E6; --rule2:#EDF0F3; --paper:#FFFFFF; --wash:#F6F7F9;
+  --amber:#8A6A16; --amber-b:#E8C268; --red:#A83C3C; --grn:#2C7A57;
+  --sans:"IBM Plex Sans",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+body{font-family:var(--sans);color:var(--ink);background:var(--paper);
+  font-size:10pt;line-height:1.55;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.pg{page-break-after:always}
+.pg:last-child{page-break-after:auto}
+
+/* ---------- copertina ---------- */
+.cover{height:245mm;display:flex;flex-direction:column}
+.brand{font-family:var(--mono);font-size:8.5pt;letter-spacing:.28em;color:var(--amber);text-transform:uppercase}
+.cover .rulebar{height:3px;background:var(--amber-b);width:46mm;margin:5mm 0 0}
+.cover h1{font-family:var(--mono);font-size:27pt;font-weight:600;letter-spacing:-.02em;
+  line-height:1.14;margin-top:38mm;max-width:150mm}
+.cover .sub{font-size:12pt;color:var(--mut);margin-top:5mm;max-width:130mm;line-height:1.5}
+.meta{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--rule)}
+.meta div{padding:4.5mm 0;border-bottom:1px solid var(--rule2);display:flex;gap:6mm}
+.meta div:nth-child(odd){padding-right:8mm}
+.meta .k{font-family:var(--mono);font-size:7.5pt;letter-spacing:.14em;color:var(--faint);
+  text-transform:uppercase;width:30mm;flex:none;padding-top:.6mm}
+.meta .v{font-size:9.5pt;color:var(--ink2)}
+.meta .v b{font-weight:600;color:var(--ink)}
+
+/* ---------- struttura ---------- */
+h2{font-family:var(--mono);font-size:13pt;font-weight:600;letter-spacing:-.01em;
+  margin:0 0 4mm;padding-bottom:2.5mm;border-bottom:2px solid var(--ink);display:flex;gap:5mm;align-items:baseline}
+h2 .n{font-size:9pt;color:var(--amber);font-weight:600}
+h3{font-family:var(--mono);font-size:10.5pt;font-weight:600;margin:7mm 0 2.5mm;color:var(--ink)}
+h3:first-of-type{margin-top:5mm}
+h4{font-family:var(--mono);font-size:9pt;font-weight:600;margin:5mm 0 1.5mm;color:var(--ink2)}
+p{margin-bottom:3mm;max-width:none;text-wrap:pretty}
+p.lead{font-size:11pt;color:var(--ink2);line-height:1.5;margin-bottom:5mm}
+b,strong{font-weight:600}
+code{font-family:var(--mono);font-size:8.8pt;background:var(--wash);padding:.4mm 1.4mm;
+  border-radius:2px;color:var(--ink2)}
+ul,ol{margin:0 0 3mm 5mm}
+li{margin-bottom:1.5mm}
+.small{font-size:8.5pt;color:var(--mut)}
+
+/* indice */
+.toc{margin-top:4mm}
+.toc a,.toc div{display:flex;align-items:baseline;gap:3mm;padding:2.2mm 0;
+  border-bottom:1px solid var(--rule2);text-decoration:none;color:var(--ink)}
+.toc .n{font-family:var(--mono);font-size:8.5pt;color:var(--amber);width:8mm;flex:none}
+.toc .t{font-size:10pt}
+.toc .d{flex:1;border-bottom:1px dotted var(--rule);margin:0 2mm 1mm}
+.toc .p{font-family:var(--mono);font-size:8.5pt;color:var(--faint)}
+
+/* problemi */
+.iss{border-left:2px solid var(--red);padding:0 0 0 5mm;margin-bottom:5.5mm;break-inside:avoid}
+.iss .hd{display:flex;gap:3mm;align-items:baseline;margin-bottom:1.5mm}
+.iss .id{font-family:var(--mono);font-size:8pt;color:var(--red);font-weight:600;letter-spacing:.08em}
+.iss .ti{font-family:var(--mono);font-size:10pt;font-weight:600}
+.iss p{margin-bottom:1.5mm;font-size:9.5pt}
+.iss .ev{font-size:8.7pt;color:var(--mut)}
+.iss .ev b{color:var(--ink2);font-weight:600}
+
+/* tabelle */
+table{width:100%;border-collapse:collapse;font-size:9pt;margin:2mm 0 4mm;break-inside:avoid}
+th{text-align:left;font-family:var(--mono);font-size:7.5pt;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--faint);font-weight:500;padding:2mm 3mm 2mm 0;border-bottom:1.5px solid var(--ink)}
+td{padding:2.4mm 3mm 2.4mm 0;border-bottom:1px solid var(--rule2);vertical-align:top;line-height:1.45}
+td:last-child,th:last-child{padding-right:0}
+td.k{font-family:var(--mono);font-size:8.6pt;color:var(--ink);white-space:nowrap}
+td.now{color:var(--red)}
+tr.tot td{border-bottom:0}
+
+/* figure */
+figure{margin:4mm 0 5mm;break-inside:avoid}
+figure img{width:100%;display:block;border:1px solid var(--rule);border-radius:3px}
+figcaption{font-family:var(--mono);font-size:7.8pt;color:var(--mut);margin-top:2mm;line-height:1.5}
+figcaption b{color:var(--ink2);font-weight:600}
+
+/* riquadri */
+.box{background:var(--wash);border:1px solid var(--rule);border-radius:3px;padding:4mm 5mm;
+  margin:3mm 0 4mm;break-inside:avoid}
+.box h4{margin-top:0}
+.box p:last-child{margin-bottom:0}
+.rule-list{list-style:none;margin-left:0}
+.rule-list li{padding-left:7mm;position:relative;margin-bottom:2mm;font-size:9.5pt}
+.rule-list li::before{content:"→";position:absolute;left:0;font-family:var(--mono);color:var(--amber)}
+
+.decide{border:1.5px solid var(--amber-b);border-radius:3px;padding:4mm 5mm;margin:3mm 0;break-inside:avoid}
+.decide h4{margin-top:0;color:var(--amber)}
+
+kbd{font-family:var(--mono);font-size:8pt;border:1px solid var(--rule);border-bottom-width:2px;
+  border-radius:3px;padding:.3mm 1.6mm;background:var(--paper)}
+.sw{display:inline-block;width:9px;height:9px;border-radius:2px;vertical-align:-.5px;margin-right:1.5mm}
+</style>
+</head>
+<body>
+
+<!-- ============ COPERTINA ============ -->
+<section class="pg cover">
+  <div class="brand">Volwick · Sightline</div>
+  <div class="rulebar"></div>
+  <h1>Sezione Layout<br>Specifica di interfaccia</h1>
+  <p class="sub">Griglia a più finestre, barra comandi di finestra, pannelli gamma e ciclo di vita dei preset. Sette problemi rilevati sulla build attuale e la proposta che li chiude.</p>
+  <div class="meta">
+    <div><span class="k">Documento</span><span class="v"><b>Layout №1</b> · bozza per revisione</span></div>
+    <div><span class="k">Data</span><span class="v">21 agosto 2026</span></div>
+    <div><span class="k">Prodotto</span><span class="v">Power</span></div>
+    <div><span class="k">Destinatario</span><span class="v">Matt · sviluppo</span></div>
+    <div><span class="k">Verificato su</span><span class="v">darkvol.work/sightline</span></div>
+    <div><span class="k">Mockup</span><span class="v">interattivo, allegato</span></div>
+  </div>
+</section>
+
+<!-- ============ INDICE ============ -->
+<section class="pg">
+  <h2><span class="n">—</span> Indice</h2>
+  <div class="toc">
+    <div><span class="n">01</span><span class="t">Metodo e ambito</span><span class="d"></span><span class="p">4</span></div>
+    <div><span class="n">02</span><span class="t">I sette problemi rilevati</span><span class="d"></span><span class="p">4</span></div>
+    <div><span class="n">03</span><span class="t">Il principio della proposta</span><span class="d"></span><span class="p">6</span></div>
+    <div><span class="n">04</span><span class="t">La griglia</span><span class="d"></span><span class="p">6</span></div>
+    <div><span class="n">05</span><span class="t">La barra comandi di finestra</span><span class="d"></span><span class="p">8</span></div>
+    <div><span class="n">06</span><span class="t">Comportamento in restringimento</span><span class="d"></span><span class="p">10</span></div>
+    <div><span class="n">07</span><span class="t">Pannelli gamma</span><span class="d"></span><span class="p">10</span></div>
+    <div><span class="n">08</span><span class="t">Avvisi e barra di stato</span><span class="d"></span><span class="p">12</span></div>
+    <div><span class="n">09</span><span class="t">Preset: ciclo di vita completo</span><span class="d"></span><span class="p">12</span></div>
+    <div><span class="n">10</span><span class="t">Scorciatoie da tastiera</span><span class="d"></span><span class="p">14</span></div>
+    <div><span class="n">11</span><span class="t">Decisioni aperte</span><span class="d"></span><span class="p">14</span></div>
+    <div><span class="n">A</span><span class="t">Appendice · colori e riferimenti</span><span class="d"></span><span class="p">15</span></div>
+  </div>
+
+  <h3 style="margin-top:14mm">In una pagina</h3>
+  <p>La sezione Layout oggi funziona, ma è costruita come se la finestra principale fosse il programma e le altre degli ospiti. Da qui nascono toolbar annidate, un pannello di comandi che copre il grafico che sta configurando, avvisi ripetuti quattro volte e preset che non si possono né rinominare né cancellare.</p>
+  <p>La proposta ribalta il presupposto: <b>ogni finestra è un terminale completo</b>, con la sua barra comandi identica a quella delle altre, alta 34 px e sempre nello stesso ordine. In alto resta solo ciò che riguarda il contenitore — griglia, preset, copia — e in griglia la vista si fa pulita: i pannelli gamma tornano a comparire solo a finestra singola.</p>
+  <div class="box">
+    <h4>Le cinque decisioni portanti</h4>
+    <ul class="rule-list">
+      <li>Nessuna barra globale sui dati: i comandi stanno nella finestra a cui appartengono.</li>
+      <li>Ordine fisso e identico in tutte le finestre: numero · ticker · TF · muri · metrica · DTE · layer · pannelli · chiudi · quotazione.</li>
+      <li>La griglia arriva a quattro finestre affiancate; oltre non si va.</li>
+      <li>I pannelli gamma esistono solo a finestra singola.</li>
+      <li>Il preset predefinito non è un pulsante di salvataggio ma una proprietà del preset.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============ 01 · 02 ============ -->
+<section class="pg">
+  <h2><span class="n">01</span> Metodo e ambito</h2>
+  <p>I rilievi che seguono vengono da una sessione di prova condotta <b>sulla build in linea il 21 agosto 2026</b>, entrando in multi-chart dal menu <code>LAYOUT</code> e aprendo <code>SETTINGS</code> su una finestra secondaria. Nessun rilievo è dedotto dal codice o dalla documentazione: ognuno è stato riprodotto a schermo.</p>
+  <p>La build verificata contiene già una tendina Layout con griglia a tre opzioni (1 · 2 · 4), i preset di fabbrica <i>Creator's View</i> e <i>Command Deck</i>, le voci <i>Save my layout</i> e <i>Save as my default</i>.</p>
+  <p>Il documento copre la sola sezione Layout. Il rendering dei muri dentro ciascuna finestra è oggetto di una specifica separata, già approvata, a cui questa si appoggia senza ripeterla.</p>
+
+  <h2 style="margin-top:12mm"><span class="n">02</span> I sette problemi rilevati</h2>
+
+  <div class="iss">
+    <div class="hd"><span class="id">L-01</span><span class="ti">Toolbar annidate</span></div>
+    <p>La barra in alto occupa tutta la larghezza ma comanda soltanto la prima finestra. Ogni finestra secondaria si porta dietro una propria mini-barra, diversa per contenuto e posizione.</p>
+    <p class="ev"><b>Evidenza:</b> in griglia a due, dentro la finestra 2 compare un secondo controllo <code>LAYOUT 1</code> — un selettore di layout annidato dentro un layout. <b>Effetto:</b> il bersaglio di ogni comando va indovinato.</p>
+  </div>
+
+  <div class="iss">
+    <div class="hd"><span class="id">L-02</span><span class="ti">Settings copre il grafico che configura</span></div>
+    <p>Aprendo <code>SETTINGS</code> su una finestra si apre un pannello di otto righe di comandi (ticker, muri, metrica, DTE, TF, layers, flow, levels, CVD, CDI, snapshot, tide, mappe, 9:20 proj, alerts).</p>
+    <p class="ev"><b>Evidenza:</b> il pannello occupa l'intera area della finestra. <b>Effetto:</b> si configura alla cieca; per vedere l'effetto di una modifica bisogna chiudere il pannello, guardare, riaprirlo.</p>
+  </div>
+
+  <div class="iss">
+    <div class="hd"><span class="id">L-03</span><span class="ti">Avvisi moltiplicati</span></div>
+    <p>Le fasce <code>16:00 BOOK</code> e <code>STALE — showing 2026-08-20 book</code> vengono ripetute identiche in ogni finestra.</p>
+    <p class="ev"><b>Evidenza:</b> in griglia a quattro sono otto righe di avviso con lo stesso testo. <b>Effetto:</b> circa un quarto dell'altezza utile occupato da informazione duplicata.</p>
+  </div>
+
+  <div class="iss">
+    <div class="hd"><span class="id">L-04</span><span class="ti">Pannelli moltiplicati</span></div>
+    <p>Ogni finestra ha un proprio bottone <code>PANELS (4)</code> indipendente, che apre pannelli flottanti non ancorati.</p>
+    <p class="ev"><b>Evidenza:</b> quattro bottoni identici in griglia a quattro. <b>Effetto:</b> quattro libri gamma sovrapposti a quattro grafici già stretti, illeggibili tutti insieme.</p>
+  </div>
+
+  <div class="iss">
+    <div class="hd"><span class="id">L-05</span><span class="ti">Nessun comando cumulativo</span></div>
+    <p>Non esiste un modo di applicare un'impostazione a tutte le finestre in una volta.</p>
+    <p class="ev"><b>Effetto:</b> per confrontare quattro strumenti a parità di timeframe bisogna ripetere lo stesso comando quattro volte, in quattro punti diversi dell'interfaccia.</p>
+  </div>
+
+  <div class="iss">
+    <div class="hd"><span class="id">L-06</span><span class="ti">Ordine dei comandi non stabile</span></div>
+    <p>La toolbar cambia la posizione dei tasti a seconda del ticker selezionato.</p>
+    <p class="ev"><b>Effetto:</b> la memoria motoria non si forma mai; ogni comando va cercato con gli occhi anche dopo settimane d'uso.</p>
+  </div>
+
+  <div class="iss">
+    <div class="hd"><span class="id">L-07</span><span class="ti">Preset senza ciclo di vita</span></div>
+    <p>I preset si possono solo creare e caricare. Non si rinominano, non si sovrascrivono, non si eliminano. Non è indicato quale sia attivo, né se ci si è allontanati da com'era salvato.</p>
+    <p class="ev"><b>Evidenza:</b> <i>Command Deck · 5 charts</i> apre cinque grafici; <i>Creator's View</i> si descrive coi ticker, <i>Command Deck</i> con la quantità — due lingue per la stessa riga. <i>Save my layout</i> e <i>Save as my default</i> sono adiacenti e indistinguibili alla lettura, e il secondo è l'elemento con più peso visivo del pannello pur essendo quello che si usa una volta sola.</p>
+  </div>
+</section>
+
+<!-- ============ 03 · 04 ============ -->
+<section class="pg">
+  <h2><span class="n">03</span> Il principio della proposta</h2>
+  <p class="lead">Ogni finestra è un terminale completo. Quello che le tiene in ordine non è toglierle i comandi, è dare a tutte la stessa barra, nella stessa sequenza, sempre alla stessa altezza.</p>
+  <p>La soluzione opposta — una sola barra globale con un selettore di bersaglio — è stata costruita e scartata: funziona, ma introduce un passaggio mentale in più prima di ogni comando («su chi sto agendo adesso?») e non permette di leggere a colpo d'occhio come sono configurate le finestre che non hai selezionato.</p>
+  <p>Con la barra per finestra, invece, la configurazione <b>si legge</b> invece di doverla aprire: guardando la griglia sai che la 1 è NQ a un minuto con i primi quindici muri in GEX, e la 3 è ES a cinque minuti sui soli 0DTE, senza cliccare niente.</p>
+
+  <h2 style="margin-top:12mm"><span class="n">04</span> La griglia</h2>
+  <p>Quattro disposizioni, tutte affiancate: <b>una · due · tre · quattro</b>. La scelta di restare sull'affiancamento non è estetica: i muri sono livelli di prezzo, e con le scale una accanto all'altra il confronto tra strumenti si legge in orizzontale, sulla stessa altezza dello schermo. Impilare le finestre in verticale costringerebbe l'occhio a salire e scendere per confrontare due livelli.</p>
+
+  <table>
+    <thead><tr><th>Disposizione</th><th>Struttura</th><th>Uso tipico</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Una</td><td>una finestra a piena larghezza</td><td>lettura del libro gamma, unica in cui i pannelli sono disponibili</td></tr>
+      <tr><td class="k">Due</td><td>due colonne uguali</td><td>strumento e suo derivato (SPX ed ES), o indice e volatilità</td></tr>
+      <tr><td class="k">Tre</td><td>tre colonne uguali</td><td>confronto di tre strumenti sugli stessi livelli</td></tr>
+      <tr><td class="k">Quattro</td><td>due colonne per due righe</td><td>sorveglianza: quattro strumenti sotto controllo, nessuno in lettura profonda</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Regole della griglia</h3>
+  <ul class="rule-list">
+    <li>I bordi tra le finestre sono trascinabili; le proporzioni si conservano nel preset.</li>
+    <li>Ogni finestra ha un numero stabile, da 1 a 4, mostrato all'inizio della sua barra.</li>
+    <li>La finestra <b>attiva</b> ha bordo gold e numero acceso. Serve alle scorciatoie e a «Copia su tutte»: non cambia cosa comanda la barra, perché ogni barra comanda già la propria finestra.</li>
+    <li>La <b>✕</b> di una finestra scala alla disposizione immediatamente inferiore invece di lasciare un vuoto.</li>
+    <li>La griglia non supera le quattro finestre. Ogni preset che ne richiede di più va riportato entro il limite (vedi §09).</li>
+  </ul>
+
+  <figure>
+    <img src="fig/f2-due.png" alt="Griglia a due finestre affiancate">
+    <figcaption><b>Fig. 1 —</b> Due finestre affiancate. In alto resta solo il contenitore: griglia, preset, «Copia su tutte» e lo stato della connessione. Ogni finestra porta la propria barra comandi completa.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="fig/f3-tre.png" alt="Griglia a tre finestre affiancate">
+    <figcaption><b>Fig. 2 —</b> Tre finestre. I campi hanno perso l'etichetta ma non il valore, e i muri disegnati scendono a tre per finestra: nessun comando è finito dentro un menu nascosto.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 05 ============ -->
+<section class="pg">
+  <h2><span class="n">05</span> La barra comandi di finestra</h2>
+  <p>Altezza fissa <b>34 px</b>. Dieci elementi, sempre questi, sempre in quest'ordine, in tutte le finestre e per tutti i ticker. La sequenza non è arbitraria: prima <i>cosa</i> sto guardando, poi <i>quanti</i> livelli, poi <i>di che tipo</i>, poi <i>quali scadenze</i>; dopo il separatore solo azioni.</p>
+
+  <figure>
+    <img src="fig/f1-barra.png" alt="Anatomia della barra di finestra">
+    <figcaption><b>Fig. 3 —</b> La barra al completo. I cinque campi dati stanno dentro un unico blocco segmentato con divisori interni: l'occhio legge un oggetto solo, non cinque pillole sparse.</figcaption>
+  </figure>
+
+  <table>
+    <thead><tr><th style="width:12mm">Pos.</th><th style="width:32mm">Elemento</th><th>Comportamento</th></tr></thead>
+    <tbody>
+      <tr><td class="k">1</td><td class="k">Numero</td><td>Identifica la finestra. Cliccandolo la rende attiva. Fondo gold quando è attiva.</td></tr>
+      <tr><td class="k">2</td><td class="k">Ticker</td><td>Unico campo scritto in gold: è quello che si cerca per primo saltando da una finestra all'altra. Elenco completo dei ticker abilitati.</td></tr>
+      <tr><td class="k">3</td><td class="k">Timeframe</td><td>1m · 5m · 15m · 1h · D.</td></tr>
+      <tr><td class="k">4</td><td class="k">Muri</td><td>Off · Top 3 · 5 · 10 · 15 · 25 · 40. Il valore consigliato scende a Top 5 da tre finestre in su (§06).</td></tr>
+      <tr><td class="k">5</td><td class="k">Metrica</td><td>GEX · CEX · DEX · ALL. Cambia la natura dei muri, non la quantità: per questo segue e non precede.</td></tr>
+      <tr><td class="k">6</td><td class="k">DTE</td><td>All · 0DTE · Weekly · Monthly. Chiude il gruppo dei dati.</td></tr>
+      <tr><td class="k">—</td><td class="k">Separatore</td><td>Divisore verticale di 16 px. Da qui in poi non si configura più il contenuto: si agisce.</td></tr>
+      <tr><td class="k">7</td><td class="k">Layer <b>☰</b></td><td>Menu a interruttori della sola finestra: mappe (Tide, γ Map, Charm, Vega — <b>mutuamente esclusive</b>), sottografici (CVD, CDI), livelli (block trade, flow). L'icona si accende quando almeno un layer è attivo.</td></tr>
+      <tr><td class="k">8</td><td class="k">Pannelli <b>▤</b></td><td>Apre il cassetto gamma. <b>Presente solo a finestra singola</b>: in griglia l'icona non compare (§07).</td></tr>
+      <tr><td class="k">9</td><td class="k">Chiudi <b>✕</b></td><td>Chiude la finestra e riduce la griglia di una posizione.</td></tr>
+      <tr><td class="k">10</td><td class="k">Quotazione</td><td>Prezzo e variazione, ancorati al bordo destro in tutte le finestre, così restano incolonnati. Un pallino rosso li precede se quella finestra è colpita da un avviso.</td></tr>
+    </tbody>
+  </table>
+
+  <figure>
+    <img src="fig/f7-layers.png" alt="Menu dei layer di una finestra">
+    <figcaption><b>Fig. 4 —</b> Il menu <b>☰</b> della finestra 2. Le mappe si escludono a vicenda: accendendone una, la precedente si spegne da sola. Ogni finestra ha i suoi layer, indipendenti dalle altre.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 06 · 07 ============ -->
+<section class="pg">
+  <h2><span class="n">06</span> Comportamento in restringimento</h2>
+  <p>Il principio è che <b>si perde l'etichetta, mai il valore</b>. Nessun comando finisce dentro un menu di overflow: quello che c'è si vede, sempre.</p>
+
+  <table>
+    <thead><tr><th style="width:28mm">Finestre</th><th style="width:42mm">Campi</th><th>Muri disegnati</th></tr></thead>
+    <tbody>
+      <tr><td class="k">1 · 2</td><td><code>MURI Top 15</code></td><td>fino a sei livelli, etichette complete</td></tr>
+      <tr><td class="k">3 · 4</td><td><code>Top 15</code></td><td>tre livelli, i più forti per |γ|</td></tr>
+    </tbody>
+  </table>
+
+  <p>La riduzione dei muri è automatica ma non silenziosa: il campo continua a mostrare il valore impostato dall'utente, e l'utente può forzarlo. È una scelta consapevole — a quattro finestre con Top 15 le etichette dei livelli si sovrappongono comunque, quindi tanto vale decidere noi quali tre contano.</p>
+
+  <figure>
+    <img src="fig/f4-quattro.png" alt="Griglia a quattro finestre">
+    <figcaption><b>Fig. 5 —</b> Quattro finestre. Le barre sono compatte ma complete, i muri ridotti ai tre dominanti, la fascia di avviso compare una volta sola in fondo con l'elenco delle finestre interessate.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:10mm"><span class="n">07</span> Pannelli gamma</h2>
+  <p><b>Regola:</b> Dealer Walls, Dealer Positioning e Now Look Here sono disponibili <b>solo con una finestra</b>. In griglia il cassetto non si apre e la sua icona non compare nella barra.</p>
+  <p>La motivazione è d'uso, non tecnica: la griglia serve a confrontare grafici, il pannello gamma serve a leggere un libro. Quattro colonne di numeri accanto a quattro grafici stretti non si seguono comunque, e il tentativo di farlo è la ragione per cui oggi ci sono quattro bottoni <code>PANELS</code> che nessuno usa davvero.</p>
+  <p>Il passaggio è dichiarato: la barra di stato scrive <i>«Vista griglia: pannelli gamma nascosti — torna a una finestra per riaprirli»</i>. Se il cassetto era aperto e si passa in griglia, si chiude da solo e si riapre tornando a una finestra.</p>
+
+  <figure>
+    <img src="fig/f5-singola.png" alt="Finestra singola con il cassetto dei pannelli aperto">
+    <figcaption><b>Fig. 6 —</b> Finestra singola col cassetto aperto. Il cassetto è <b>agganciato</b>: sottrae larghezza al grafico invece di coprirlo, quindi il grafico si ridisegna più stretto e resta interamente leggibile.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 08 · 09 ============ -->
+<section class="pg">
+  <h2><span class="n">08</span> Avvisi e barra di stato</h2>
+  <p>Un avviso che vale per più finestre si mostra <b>una volta sola</b>, a livello di pagina, sopra la barra di stato, con in coda l'elenco delle finestre a cui si applica.</p>
+
+  <table>
+    <thead><tr><th style="width:38mm">Elemento</th><th>Contenuto</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Fascia avviso</td><td>Etichetta (<code>STALE</code>), testo esteso, e a destra «riguarda le finestre 2 · 3 · 4». Scompare del tutto se nessuna finestra è interessata.</td></tr>
+      <tr><td class="k">Segnale in barra</td><td>Pallino rosso prima della quotazione, nelle sole finestre colpite.</td></tr>
+      <tr><td class="k">Barra di stato</td><td>Una sola, in fondo: finestra attiva, numero di barre, slot gamma, snapshot, stato del WebSocket, RTT, e il suggerimento contestuale sui pannelli.</td></tr>
+    </tbody>
+  </table>
+
+  <h2 style="margin-top:11mm"><span class="n">09</span> Preset: ciclo di vita completo</h2>
+  <p>Un preset conserva la griglia <b>e</b> la configurazione di ogni finestra: ticker, timeframe, muri, metrica, DTE e layer. Il nome del preset attivo si legge sul pulsante in alto, con l'aggiunta di <b>· modificato</b> appena ci si allontana da com'era salvato.</p>
+
+  <h3>Interventi sui preset di fabbrica</h3>
+  <ul class="rule-list">
+    <li><b>Command Deck è eliminato.</b> Apriva cinque grafici, che con la griglia a quattro non è più una configurazione rappresentabile.</li>
+    <li><b>Creator's View è ricostruito sul nuovo layout:</b> quattro finestre — ES, SPX, SPY, VIX — con SPX e SPY sui soli 0DTE e il CDI acceso su SPX.</li>
+    <li>Ogni riga si descrive <b>allo stesso modo</b>: <code>4 finestre · ES SPX SPY VIX</code>. Prima la quantità, poi i ticker. Mai due lingue diverse nello stesso elenco.</li>
+  </ul>
+
+  <h3>Azioni</h3>
+  <table>
+    <thead><tr><th style="width:44mm">Azione</th><th>Comportamento</th></tr></thead>
+    <tbody>
+      <tr><td class="k">Clic sulla riga</td><td>Carica il preset. Lo stato precedente viene memorizzato per il ritorno.</td></tr>
+      <tr><td class="k">★ sulla riga</td><td>Rende quel preset <b>il preset di apertura</b>. È una proprietà del preset, non un salvataggio: sostituisce del tutto il pulsante «Save as my default», che spariva la gerarchia visiva del pannello pur essendo l'azione meno frequente in assoluto.</td></tr>
+      <tr><td class="k">⋯ → Rinomina</td><td>Campo di testo in linea, conferma con Invio.</td></tr>
+      <tr><td class="k">⋯ → Sovrascrivi</td><td>Sostituisce il contenuto del preset con la disposizione attuale, conservando nome e stella.</td></tr>
+      <tr><td class="k">⋯ → Elimina</td><td>Rimuove il preset. Se era attivo, lo stato a schermo resta ma il pulsante torna neutro.</td></tr>
+      <tr><td class="k">↩ Ripristina</td><td>Visibile solo se il preset attivo è <b>modificato</b>: riporta la disposizione a com'era salvata.</td></tr>
+      <tr><td class="k">⤓ Aggiorna</td><td>L'inverso: salva nel preset attivo la disposizione attuale.</td></tr>
+      <tr><td class="k">✕ Torna a prima</td><td>Riporta alla disposizione che c'era <b>prima</b> di caricare il preset. È il punto già richiesto nel Report №3 e finora mancante.</td></tr>
+      <tr class="tot"><td class="k">+ Salva</td><td>Crea un nuovo preset dalla disposizione attuale, chiedendo il nome.</td></tr>
+    </tbody>
+  </table>
+
+  <figure>
+    <img src="fig/f6-preset.png" alt="Menu dei preset con stato modificato">
+    <figcaption><b>Fig. 7 —</b> Il menu preset con <i>Creator's View</i> attivo e modificato. La stella piena segna il preset di apertura, la riga in gold quello attivo, l'etichetta <code>MODIFICATO</code> avvisa che la disposizione a schermo non corrisponde più a quella salvata.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 10 · 11 · A ============ -->
+<section class="pg">
+  <h2><span class="n">10</span> Scorciatoie da tastiera</h2>
+  <table>
+    <thead><tr><th style="width:38mm">Tasti</th><th>Azione</th></tr></thead>
+    <tbody>
+      <tr><td class="k"><kbd>1</kbd> … <kbd>4</kbd></td><td>Rende attiva la finestra corrispondente</td></tr>
+      <tr><td class="k"><kbd>⌘</kbd><kbd>1</kbd> … <kbd>⌘</kbd><kbd>4</kbd></td><td>Cambia disposizione della griglia</td></tr>
+      <tr><td class="k"><kbd>L</kbd></td><td>Apre il menu dei layer della finestra attiva</td></tr>
+      <tr><td class="k"><kbd>P</kbd></td><td>Apre o chiude i pannelli gamma — solo a finestra singola</td></tr>
+      <tr><td class="k"><kbd>⇧</kbd><kbd>C</kbd></td><td>Copia la configurazione della finestra attiva su tutte le altre</td></tr>
+      <tr><td class="k"><kbd>⌘</kbd><kbd>S</kbd></td><td>Salva la disposizione attuale come nuovo preset</td></tr>
+      <tr class="tot"><td class="k"><kbd>Esc</kbd></td><td>Chiude il menu aperto</td></tr>
+    </tbody>
+  </table>
+  <p class="small">«Copia su tutte» propaga timeframe, muri, metrica, DTE e layer. <b>Non propaga il ticker</b>: altrimenti si finirebbe a guardare quattro volte lo stesso strumento, che è l'opposto del motivo per cui si apre una griglia.</p>
+
+  <h2 style="margin-top:11mm"><span class="n">11</span> Decisioni aperte</h2>
+
+  <div class="decide">
+    <h4>D-1 · Il limite di quattro finestre</h4>
+    <p>La proposta chiude la griglia a quattro. Se in collaudo tre e quattro finestre risultassero impraticabili sotto i 1440 px di larghezza, si scende a un massimo di due e la modalità compatta del §06 diventa superflua. <b>Va deciso provando sui monitor reali del team</b>, non a tavolino.</p>
+  </div>
+
+  <div class="decide">
+    <h4>D-2 · Persistenza dei preset</h4>
+    <p>Da chiarire con lo sviluppo: i preset restano sul dispositivo o seguono l'account? Con l'attuale gestione della sessione — ogni accesso chiude le sessioni sugli altri dispositivi — un preset legato al solo browser andrebbe perso spesso.</p>
+  </div>
+
+  <div class="decide">
+    <h4>D-3 · Ticker per famiglia di abbonamento</h4>
+    <p>Se l'idea di dividere le famiglie di ticker in abbonamenti separati va avanti, l'elenco del campo Ticker deve mostrare anche le voci non incluse, disattivate e riconoscibili, invece di nasconderle: nasconderle rende invisibile ciò che si potrebbe acquistare.</p>
+  </div>
+
+  <h2 style="margin-top:11mm"><span class="n">A</span> Appendice · colori e riferimenti</h2>
+  <h4>Palette (validata per daltonismo)</h4>
+  <table>
+    <tbody>
+      <tr><td class="k" style="width:34mm"><span class="sw" style="background:#369C6F"></span>#369C6F</td><td>verde — call long γ, muro che frena</td></tr>
+      <tr><td class="k"><span class="sw" style="background:#CC5858"></span>#CC5858</td><td>rosso — put long γ, muro che frena</td></tr>
+      <tr><td class="k"><span class="sw" style="background:#4C92CC"></span>#4C92CC</td><td>blu — call short γ, muro che accelera</td></tr>
+      <tr><td class="k"><span class="sw" style="background:#A173CC"></span>#A173CC</td><td>viola — put short γ, muro che accelera</td></tr>
+      <tr><td class="k"><span class="sw" style="background:#E8C268"></span>#E8C268</td><td>gold — prezzo, finestra attiva, preset attivo. <b>Unico accento dell'interfaccia</b></td></tr>
+      <tr class="tot"><td class="k"><span class="sw" style="background:#0A0D12;border:1px solid #ccc"></span>#0A0D12 · #10141C</td><td>fondi</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Documenti collegati</h4>
+  <ul>
+    <li><b>Specifica di rendering dei muri</b> — sfumatura orizzontale, spessore proporzionale a |γ|, asse pulito, colonna unica di etichette con anti-collisione, decadimento per distanza. Già approvata, si applica dentro ogni finestra di questa griglia.</li>
+    <li><b>Mockup interattivo</b> — versione funzionante di tutto quanto descritto qui: griglia, barre di finestra, layer, pannelli, preset. Tutti i campi sono cliccabili.</li>
+    <li><b>Report di collaudo №3</b> (14 agosto 2026) — contiene i punti 01, 04, 05 e 07 che questa specifica chiude.</li>
+  </ul>
+
+  <p class="small" style="margin-top:8mm;padding-top:4mm;border-top:1px solid var(--rule)">
+    Le figure sono catturate dal mockup interattivo. I dati mostrati (prezzi, strike, valori γ) sono indicativi e servono solo a rendere realistica la lettura dell'interfaccia; le candele sono generate. Strike e valori delle figure sui muri provengono da una sessione reale ES/SPX del 21 agosto 2026.
+  </p>
+</section>
+
+</body>
+</html>

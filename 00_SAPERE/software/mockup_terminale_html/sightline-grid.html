@@ -1,0 +1,626 @@
+<meta charset="utf-8">
+<title>Griglia Sightline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ground:#0A0D12; --surface:#10141C; --raise:#171E29; --raise2:#1F2733;
+  --line:#1B2230; --line2:#28313F;
+  --txt:#C9D1DC; --mut:#6F7A8B; --dim:#4A5462;
+  --gold:#E8C268; --gold-d:#8A7134;
+  --grn:#369C6F; --red:#CC5858; --blu:#4C92CC; --vio:#A173CC;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Helvetica Neue",sans-serif;
+}
+body{background:var(--ground);color:var(--txt);font-family:var(--sans);
+  font-size:15px;line-height:1.6;padding:26px 20px 60px;-webkit-font-smoothing:antialiased}
+.page{max-width:1600px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+.tnum{font-variant-numeric:tabular-nums}
+
+.masthead{display:flex;flex-direction:column;gap:8px;max-width:72ch}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--gold-d);text-transform:uppercase}
+h1{font-family:var(--mono);font-size:25px;font-weight:600;letter-spacing:-.01em;text-wrap:balance}
+.lede{color:var(--mut);font-size:15.5px;text-wrap:pretty}
+.lede b{color:var(--txt);font-weight:500}
+
+/* ===================== APP ===================== */
+.app{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface);
+  box-shadow:0 22px 55px -30px #000}
+
+/* --- barra globale: solo ciò che è davvero globale --- */
+.gbar{display:flex;align-items:center;gap:11px;padding:8px 11px;font-family:var(--mono);
+  border-bottom:1px solid var(--line);flex-wrap:wrap}
+.klabel{font-size:9.5px;letter-spacing:.17em;color:var(--dim);text-transform:uppercase}
+.seg{display:flex;border:1px solid var(--line2);border-radius:5px;overflow:hidden;background:var(--ground)}
+.seg button{background:transparent;border:0;color:var(--mut);font:inherit;font-size:11.5px;
+  padding:5px 11px;cursor:pointer;transition:background .12s,color .12s}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button:hover{background:var(--raise);color:var(--txt)}
+.seg button.on{background:var(--gold);color:#0A0D12;font-weight:600}
+.seg button:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.gico{display:flex;gap:2px;align-items:center;justify-content:center;width:17px;height:12px}
+.gico i{background:currentColor;display:block;border-radius:1px}
+.gcol{display:flex;flex-direction:column;gap:2px}
+.vr{width:1px;height:20px;background:var(--line2)}
+.ghost{background:transparent;border:1px solid var(--line2);border-radius:5px;color:var(--mut);
+  font:inherit;font-size:11px;padding:5px 10px;cursor:pointer;font-family:var(--mono)}
+.ghost:hover{border-color:var(--gold-d);color:var(--gold)}
+.gbar .end{margin-left:auto;font-size:10px;color:var(--dim);display:flex;gap:13px;align-items:center}
+.gbar .end b{color:var(--mut);font-weight:400}
+
+/* --- griglia --- */
+.grid{display:grid;gap:1px;background:var(--line);height:600px}
+.grid.g1{grid-template-areas:"a"}
+.grid.g2{grid-template-areas:"a b";grid-template-columns:1fr 1fr}
+.grid.g3{grid-template-areas:"a b c";grid-template-columns:1fr 1fr 1fr}
+.grid.g4{grid-template-areas:"a b" "c d";grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.pane{background:var(--ground);display:flex;flex-direction:column;min-width:0;min-height:0;
+  position:relative;outline:1px solid transparent;outline-offset:-1px;transition:outline-color .15s}
+.pane:nth-child(1){grid-area:a}.pane:nth-child(2){grid-area:b}
+.pane:nth-child(3){grid-area:c}.pane:nth-child(4){grid-area:d}
+.pane.live{outline-color:var(--gold)}
+.grid[data-n="1"] .pane:nth-child(n+2),
+.grid[data-n="2"] .pane:nth-child(n+3),
+.grid[data-n="3"] .pane:nth-child(n+4){display:none}
+
+/* --- barra comandi DEL RIQUADRO: ordine fisso, sempre lo stesso --- */
+.ptools{display:flex;align-items:center;gap:5px;padding:5px 7px;background:var(--surface);
+  border-bottom:1px solid var(--line);font-family:var(--mono);min-height:34px;overflow:hidden}
+.idx{width:17px;height:17px;border-radius:3px;background:#222A37;color:var(--mut);flex:none;
+  font-size:9.5px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.pane.live .idx{background:var(--gold);color:#0A0D12;font-weight:600}
+.fgroup{display:flex;align-items:stretch;background:var(--ground);border:1px solid var(--line2);
+  border-radius:5px;overflow:hidden;flex:none}
+.fld{display:flex;align-items:center;gap:5px;background:transparent;border:0;
+  padding:4px 9px;cursor:pointer;flex:none;transition:background .12s}
+.fld+.fld{border-left:1px solid var(--line)}
+.fld:hover{background:var(--raise)}
+.fld:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.fld .fk{font-size:8.5px;letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
+.fld .fv{font-size:11px;color:var(--txt);letter-spacing:.02em}
+.fld .car{font-size:8px;color:var(--dim)}
+.fld.tick .fv{font-weight:600;color:var(--gold)}
+.pdiv{width:1px;height:16px;background:var(--line2);flex:none;margin:0 2px}
+.ibtn{width:24px;height:22px;border-radius:4px;border:1px solid transparent;background:transparent;
+  color:var(--mut);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;flex:none}
+.ibtn:hover{background:var(--raise);color:var(--txt)}
+.ibtn.on{color:var(--gold);border-color:var(--gold-d);background:rgba(232,194,104,.08)}
+.ibtn.x:hover{color:var(--red)}
+.quote{margin-left:auto;display:flex;align-items:baseline;gap:7px;padding-left:8px;flex:none}
+.quote .q{font-size:12.5px;font-weight:600}
+.quote .c{font-size:11px}
+.up{color:var(--grn)}.dn{color:var(--red)}
+.flag{width:5px;height:5px;border-radius:50%;background:var(--red);flex:none}
+/* compatto: da 3 finestre in su i campi perdono l'etichetta, non il valore */
+.grid[data-n="3"] .fk,.grid[data-n="4"] .fk{display:none}
+.grid[data-n="3"] .fld,.grid[data-n="4"] .fld{padding:3px 6px;gap:3px}
+
+.pbody{display:flex;flex:1;min-height:0;min-width:0}
+canvas{display:block;flex:1;min-width:0;min-height:0}
+
+/* cassetto pannelli, dentro la finestra: sottrae larghezza, non copre */
+.pdraw{width:196px;flex:none;background:var(--surface);border-left:1px solid var(--line2);
+  display:none;flex-direction:column;min-height:0}
+.pdraw.open{display:flex}
+/* in griglia la vista è pulita: nessun cassetto, nessun bottone pannelli */
+.grid:not([data-n="1"]) .pdraw{display:none!important}
+.grid:not([data-n="1"]) [data-act="drawer"]{display:none}
+.pdtabs{display:flex;border-bottom:1px solid var(--line);font-family:var(--mono)}
+.pdtabs button{flex:1;background:transparent;border:0;color:var(--mut);font:inherit;font-size:9px;
+  padding:7px 2px;cursor:pointer;letter-spacing:.08em}
+.pdtabs button.on{color:var(--gold);box-shadow:inset 0 -2px 0 var(--gold)}
+.pdbody{padding:10px;font-family:var(--mono);font-size:11px;overflow-y:auto}
+.dk{font-size:8.5px;letter-spacing:.15em;color:var(--dim);margin:11px 0 3px}
+.dk:first-child{margin-top:0}
+.dv{color:var(--txt);line-height:1.5}
+.dv.soft{color:var(--mut)}
+.lrow{display:flex;justify-content:space-between;gap:8px;padding:3px 0;border-bottom:1px solid var(--line)}
+.lrow span:last-child{color:var(--mut)}
+
+/* popover comandi */
+.pop{position:fixed;z-index:60;background:var(--surface);border:1px solid var(--line2);border-radius:6px;
+  padding:5px;display:none;box-shadow:0 18px 44px -18px #000;font-family:var(--mono);min-width:132px;
+  max-height:320px;overflow-y:auto}
+.pop.open{display:block}
+.pop h5{font-size:8.5px;letter-spacing:.16em;color:var(--dim);padding:5px 8px 4px;font-weight:500}
+.pop button{display:flex;width:100%;align-items:center;gap:8px;background:transparent;border:0;
+  color:var(--mut);font:inherit;font-size:11.5px;padding:5px 8px;border-radius:4px;cursor:pointer;text-align:left}
+.pop button:hover{background:var(--raise);color:var(--txt)}
+.pop button.sel{color:var(--gold)}
+.pop button.sel::before{content:"▸";font-size:8px}
+.pop button:not(.sel)::before{content:"";width:5px}
+.pop .sw{width:20px;height:11px;border-radius:6px;background:#252E3B;position:relative;flex:none;margin-left:auto}
+.pop .sw::after{content:"";position:absolute;top:2px;left:2px;width:7px;height:7px;border-radius:50%;
+  background:var(--mut);transition:transform .15s,background .15s}
+.pop button.sel .sw{background:var(--gold-d)}
+.pop button.sel .sw::after{transform:translateX(9px);background:var(--gold)}
+
+/* fasce di stato */
+.alert{display:flex;align-items:center;gap:10px;padding:7px 12px;font-family:var(--mono);font-size:11px;
+  background:rgba(204,88,88,.09);border-top:1px solid rgba(204,88,88,.28);color:#DFA0A0}
+.alert .chip{border:1px solid rgba(204,88,88,.45);border-radius:3px;padding:1px 7px;font-size:9px;letter-spacing:.14em;flex:none}
+.alert .scoped{margin-left:auto;color:#A9757A;font-size:9.5px;letter-spacing:.08em;flex:none}
+.statusbar{display:flex;align-items:center;gap:15px;padding:7px 12px;font-family:var(--mono);
+  font-size:10px;color:var(--dim);background:var(--surface);border-top:1px solid var(--line);flex-wrap:wrap}
+.statusbar b{color:var(--mut);font-weight:400}
+.statusbar .end{margin-left:auto}
+
+/* ===================== guida ===================== */
+h2{font-family:var(--mono);font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.h2sub{color:var(--mut);font-size:14.5px;max-width:70ch;margin-top:-10px}
+.guide{display:flex;flex-direction:column;gap:16px}
+
+/* anatomia della barra */
+.anat{border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--surface)}
+.anatbar{display:flex;align-items:center;gap:5px;padding:9px 11px;border-bottom:1px solid var(--line);
+  font-family:var(--mono);overflow-x:auto}
+.anatgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:1px;background:var(--line)}
+.an{background:var(--surface);padding:13px 15px;display:flex;flex-direction:column;gap:5px}
+.an .ord{font-family:var(--mono);font-size:9px;letter-spacing:.16em;color:var(--gold-d)}
+.an h3{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--txt)}
+.an p{font-size:13px;color:var(--mut);line-height:1.5}
+.an p b{color:var(--txt);font-weight:500}
+
+.gestures{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.g{background:var(--surface);padding:15px 16px;display:flex;flex-direction:column;gap:7px}
+.g h3{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--txt)}
+.g p{font-size:13.5px;color:var(--mut);line-height:1.55}
+.g p b{color:var(--txt);font-weight:500}
+.keys{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:auto;padding-top:5px}
+kbd{font-family:var(--mono);font-size:10px;color:var(--txt);background:var(--raise);
+  border:1px solid var(--line2);border-bottom-width:2px;border-radius:4px;padding:2px 7px}
+.keys em{font-style:normal;color:var(--dim);font-size:11px;font-family:var(--mono)}
+
+.cmp{border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.wrapx{overflow-x:auto}
+.cmp table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px}
+.cmp th{background:var(--surface);text-align:left;padding:9px 14px;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.16em;color:var(--dim);text-transform:uppercase;font-weight:500;border-bottom:1px solid var(--line)}
+.cmp td{padding:11px 14px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top;line-height:1.5}
+.cmp tr:last-child td{border-bottom:0}
+.cmp td:first-child{color:var(--txt);font-family:var(--mono);font-size:12px;width:20%}
+.cmp td.now{color:#B08A8A;width:40%}
+.cmp td.next b{color:var(--txt);font-weight:500}
+.foot{font-family:var(--mono);font-size:10.5px;color:var(--dim);line-height:1.7;
+  border-top:1px solid var(--line);padding-top:14px}
+.foot b{color:var(--mut);font-weight:400}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="page">
+
+  <header class="masthead">
+    <div class="eyebrow">Volwick · Sightline</div>
+    <h1>Griglia e comandi</h1>
+    <p class="lede">Ogni finestra è un terminale completo: <b>ticker, timeframe, muri, metrica, DTE e layer propri.</b> Quello che le tiene in ordine non è toglierle i comandi, è dare a tutte la stessa barra, nella stessa sequenza, sempre alta 34 px. In griglia la vista resta pulita: <b>i pannelli gamma tornano solo a finestra singola.</b></p>
+  </header>
+
+  <section class="app">
+    <!-- ---------- barra globale: solo il contenitore ---------- -->
+    <div class="gbar">
+      <span class="klabel">Griglia</span>
+      <div class="seg" id="gridSel">
+        <button data-l="g1" data-n="1" title="Una finestra"><span class="gico"><i style="width:12px;height:12px"></i></span></button>
+        <button data-l="g2" data-n="2" title="Due affiancate"><span class="gico"><i style="width:5px;height:12px"></i><i style="width:5px;height:12px"></i></span></button>
+        <button data-l="g3" data-n="3" title="Tre affiancate"><span class="gico"><i style="width:3px;height:12px"></i><i style="width:3px;height:12px"></i><i style="width:3px;height:12px"></i></span></button>
+        <button data-l="g4" data-n="4" class="on" title="Quattro"><span class="gico"><span class="gcol"><i style="width:5px;height:5px"></i><i style="width:5px;height:5px"></i></span><span class="gcol"><i style="width:5px;height:5px"></i><i style="width:5px;height:5px"></i></span></span></button>
+      </div>
+      <div class="vr"></div>
+      <button class="ghost" id="presetBtn">Preset ▾</button>
+      <button class="ghost" id="copyBtn" title="copia la configurazione della finestra attiva su tutte le altre">⇊ Copia su tutte</button>
+      <div class="end">
+        <span>Slot gamma <b>via SPX · 16:00</b></span>
+        <span>WS <b style="color:var(--grn)">connesso</b></span>
+        <span class="tnum">RTT 169 ms</span>
+      </div>
+    </div>
+
+    <!-- ---------- griglia ---------- -->
+    <div class="grid g4" data-n="4" id="grid"></div>
+
+    <div class="alert">
+      <span class="chip">STALE</span>
+      <span>Book del 20 agosto, non di oggi — il feed del vendor non ha ancora pubblicato. Muri, regime e bias vengono da quella data.</span>
+      <span class="scoped" id="alertScope">riguarda le finestre 2 · 3 · 4</span>
+    </div>
+    <div class="statusbar">
+      <span>Sightline</span><span>·</span>
+      <span>Finestra attiva <b id="sbActive">1 · NQ</b></span><span>·</span>
+      <span>Barre <b class="tnum">9.331</b></span><span>·</span>
+      <span>Snapshot <b>Live</b></span>
+      <span class="end" id="hint">Trascina i bordi tra le finestre per ridimensionarle</span>
+    </div>
+  </section>
+
+  <!-- ===================== GUIDA ===================== -->
+  <section class="guide">
+    <h2>Anatomia della barra di finestra</h2>
+    <p class="h2sub">Otto elementi, sempre questi, sempre in quest'ordine, in tutte e quattro le finestre. È la sequenza fissa a renderla ordinata: dopo due giorni la mano sa dove andare senza leggere.</p>
+
+    <div class="anat">
+      <div class="anatbar">
+        <span class="idx" style="background:var(--gold);color:#0A0D12;font-weight:600">1</span>
+        <span class="fgroup">
+          <span class="fld tick"><span class="fv">NQ</span><span class="car">▾</span></span>
+          <span class="fld"><span class="fk">TF</span><span class="fv">1m</span><span class="car">▾</span></span>
+          <span class="fld"><span class="fk">Muri</span><span class="fv">Top 15</span><span class="car">▾</span></span>
+          <span class="fld"><span class="fk">Metrica</span><span class="fv">GEX</span><span class="car">▾</span></span>
+          <span class="fld"><span class="fk">DTE</span><span class="fv">All</span><span class="car">▾</span></span>
+        </span>
+        <span class="pdiv"></span>
+        <span class="ibtn">☰</span>
+        <span class="ibtn on">▤</span>
+        <span class="ibtn x">✕</span>
+        <span class="quote"><span class="q tnum">29.511,00</span><span class="c up tnum">+0,66%</span></span>
+      </div>
+      <div class="anatgrid">
+        <div class="an"><div class="ord">Posizione 1</div><h3>Numero</h3><p>Dice quale finestra è, e cliccandolo la rende <b>attiva</b>. Attiva = bordo gold: serve alle scorciatoie da tastiera e a «Copia su tutte».</p></div>
+        <div class="an"><div class="ord">Posizione 2</div><h3>Ticker</h3><p>L'unico campo scritto in gold, perché è quello che si legge per primo quando l'occhio salta da una finestra all'altra.</p></div>
+        <div class="an"><div class="ord">Posizione 3</div><h3>Timeframe</h3><p>1m · 5m · 15m · 1h · D. Sta subito dopo il ticker perché insieme rispondono alla domanda «cosa sto guardando».</p></div>
+        <div class="an"><div class="ord">Posizione 4</div><h3>Muri</h3><p>Off · Top 3 → Top 40. Quanti livelli disegnare. A quattro finestre il valore consigliato scende da solo a Top 5.</p></div>
+        <div class="an"><div class="ord">Posizione 5</div><h3>Metrica</h3><p>GEX · CEX · DEX · ALL. Cambia la natura dei muri, non la quantità: per questo sta dopo, non prima.</p></div>
+        <div class="an"><div class="ord">Posizione 6</div><h3>DTE</h3><p>All · 0DTE · Weekly · Monthly. Chiude il gruppo dei dati: da qui in poi non si configura più il contenuto.</p></div>
+        <div class="an"><div class="ord">Posizione 7</div><h3>Layer e pannelli</h3><p>Dopo un separatore, le icone: <b>☰</b> apre gli interruttori (Tide, mappe, sottografici, livelli) e c'è sempre. <b>▤</b> apre i pannelli, e <b>compare solo a finestra singola</b>: in griglia sparisce.</p></div>
+        <div class="an"><div class="ord">Posizione 8</div><h3>Chiudi e quotazione</h3><p>La ✕ chiude la finestra e la griglia si ricompone. All'estremo destro prezzo e variazione, allineati sul bordo in tutte le finestre.</p></div>
+      </div>
+    </div>
+
+    <h2 style="margin-top:12px">Come si usa</h2>
+    <div class="gestures">
+      <article class="g"><h3>Configurare una finestra</h3>
+        <p>Si lavora <b>dentro la finestra</b>: ogni campo apre un elenco compatto, si sceglie, si chiude. Nessuna finestra tocca le altre — puoi tenere NQ a 1 minuto accanto a SPX giornaliero con metriche diverse.</p>
+        <div class="keys"><kbd>clic sul campo</kbd></div></article>
+      <article class="g"><h3>Copiare su tutte</h3>
+        <p>Quando invece vuoi confrontare a parità di condizioni: configuri <b>una</b> finestra come ti serve e premi <b>⇊ Copia su tutte</b>. Timeframe, muri, metrica e DTE si propagano; il ticker no, altrimenti guarderesti quattro volte lo stesso strumento.</p>
+        <div class="keys"><kbd>⇧</kbd><kbd>C</kbd></div></article>
+      <article class="g"><h3>Cambiare la disposizione</h3>
+        <p>Quattro forme: una · <b>due affiancate</b> · <b>tre affiancate</b> · quattro. Affiancate perché i muri sono livelli di prezzo: con le scale una accanto all'altra il confronto tra strumenti si legge in orizzontale, senza spostare l'occhio in verticale.</p>
+        <div class="keys"><kbd>⌘</kbd><kbd>1</kbd><em>…</em><kbd>⌘</kbd><kbd>4</kbd></div></article>
+      <article class="g"><h3>Restringere senza perdere i comandi</h3>
+        <p>Quando la finestra si stringe, i campi <b>perdono l'etichetta ma non il valore</b>: da «MURI Top 15» a «Top 15». Nessun comando finisce dentro un menu nascosto — quello che c'è si vede.</p>
+        <div class="keys"><em>automatico a 3 e 4 finestre</em></div></article>
+      <article class="g"><h3>Pannelli, solo a finestra singola</h3>
+        <p>Walls, Positioning e Now Look Here si leggono <b>una finestra alla volta</b>: appena passi in griglia il cassetto sparisce e con lui la sua icona. La griglia serve a confrontare grafici, non a leggere quattro libri gamma contemporaneamente — restano quattro colonne di numeri che non si riesce comunque a seguire.</p>
+        <div class="keys"><kbd>P</kbd><em>attivo solo con una finestra</em></div></article>
+      <article class="g"><h3>Salvare la disposizione</h3>
+        <p>«Preset» conserva la griglia <b>e</b> la configurazione di ogni singola finestra sotto un nome tuo. La ✕ accanto al preset attivo ripristina lo stato precedente, senza ricostruire nulla a mano.</p>
+        <div class="keys"><kbd>⌘</kbd><kbd>S</kbd></div></article>
+    </div>
+
+    <h2 style="margin-top:12px">Cosa cambia rispetto a oggi</h2>
+    <div class="cmp wrapx">
+      <table>
+        <thead><tr><th>Punto</th><th>Com'è adesso</th><th>Come diventa</th></tr></thead>
+        <tbody>
+          <tr><td>Comandi</td>
+            <td class="now">La barra in alto resta a tutta larghezza ma comanda solo la prima finestra; le altre si portano dietro una mini-barra diversa, e dentro la finestra 2 compare un secondo «Layout 1»: un layout dentro il layout.</td>
+            <td class="next">Nessuna barra globale sui dati. <b>Ogni finestra ha la sua, identica alle altre</b>, alta 34 px. In alto resta solo il contenitore: griglia, preset, copia.</td></tr>
+          <tr><td>Settings</td>
+            <td class="now">Settings apre un pannello di otto righe che copre per intero il grafico che stai configurando.</td>
+            <td class="next">I comandi sono <b>già a vista</b> nella barra. Niente da aprire per sapere com'è configurata una finestra: si legge.</td></tr>
+          <tr><td>Ordine</td>
+            <td class="now">La toolbar cambia posizione dei tasti a seconda del ticker, quindi la mano non impara mai.</td>
+            <td class="next">Sequenza <b>fissa</b>: numero · ticker · TF · muri · metrica · DTE · layer · pannelli · chiudi · quotazione.</td></tr>
+          <tr><td>Avvisi</td>
+            <td class="now">«16:00 book» e «stale» ripetuti identici in ogni finestra: a quattro finestre sono otto righe, circa un quarto dello schermo.</td>
+            <td class="next">Una riga sola in fondo, con l'elenco delle finestre interessate. Un <b>pallino rosso</b> nella barra segnala chi è colpito.</td></tr>
+          <tr><td>Pannelli</td>
+            <td class="now">Un bottone «Panels (4)» per finestra anche in griglia: quattro pannelli flottanti aperti sopra quattro grafici già stretti.</td>
+            <td class="next">Cassetto agganciato dentro la finestra, a schede — ma <b>solo a finestra singola</b>. In griglia la vista resta pulita: comandi e grafici, niente altro.</td></tr>
+          <tr><td>Densità</td>
+            <td class="now">Top 15 muri anche a quattro finestre: le etichette si impastano.</td>
+            <td class="next">Sotto una certa larghezza il valore consigliato scende a <b>Top 5</b> e i campi perdono le etichette, non i valori.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="foot">
+      Mockup funzionante con dati indicativi — tutti i campi delle barre di finestra sono cliccabili.<br>
+      Disposizioni: 1 · 2 affiancate · 3 affiancate · 4. I bordi tra le finestre sono trascinabili.<br>
+      Il rendering dei muri segue la specifica già approvata: sfumatura orizzontale, spessore proporzionale a <b>|γ|</b>, asse pulito, colonna unica di etichette con anti-collisione.<br>
+      <b>Da decidere in collaudo:</b> se a tre e quattro finestre sotto i 1440 px la lettura resta impraticabile, si tengono solo 1 e 2.
+    </p>
+  </section>
+</div>
+
+<div class="pop" id="pop"></div>
+
+<script>
+const CO={grn:'#369C6F',red:'#CC5858',blu:'#4C92CC',vio:'#A173CC'};
+const KINDS=['grn','red','vio','blu'];
+const BOOK={
+  SPX :{px:'7.641,16',chg:'−0,87%',dn:1,base:7600,span:120,step:10,trend:-1,src:'dealer book · 348 strike',stale:1},
+  ES  :{px:'7.691,00',chg:'+0,30%',dn:0,base:7645,span:120,step:10,trend:1,src:'basis +19,98',stale:1},
+  MES :{px:'7.691,25',chg:'+0,30%',dn:0,base:7645,span:120,step:10,trend:1,src:'basis +19,98',stale:1},
+  NQ  :{px:'29.511,00',chg:'+0,66%',dn:0,base:29300,span:420,step:50,trend:1,src:'stimati da OI QQQ',stale:0},
+  VIX :{px:'16,42',chg:'−2,10%',dn:1,base:15.2,span:2.8,step:.5,trend:1,src:'dealer book',stale:1},
+  RTY :{px:'2.489,30',chg:'+0,44%',dn:0,base:2455,span:70,step:10,trend:1,src:'dealer book',stale:0},
+  SPY :{px:'762,40',chg:'−0,85%',dn:1,base:757,span:13,step:2,trend:-1,src:'dealer book',stale:1},
+  QQQ :{px:'714,18',chg:'−0,33%',dn:1,base:709,span:11,step:1,trend:-1,src:'stimati da OI QQQ',stale:0},
+  GOLD:{px:'4.587,88',chg:'+1,53%',dn:0,base:4530,span:110,step:10,trend:1,src:'stimati da OI GLD',stale:0}
+};
+const TICKERS=Object.keys(BOOK);
+const TFS=['1m','5m','15m','1h','D'];
+const WALLOPT=['Off','Top 3','Top 5','Top 10','Top 15','Top 25','Top 40'];
+const METRICS=['GEX','CEX','DEX','ALL'];
+const DTES=['All','0DTE','Weekly','Monthly'];
+const LAYERS=['Liquidity Tide','γ Map','Charm','Vega','—','CVD','CDI · SPX/SPXW','—','Block trade','Flow'];
+const GEXV=[58,42,26,17,16,9,7,6,5,4];
+
+function wallsFor(t){
+  const b=BOOK[t],mid=b.base+b.span*.5,out=[];
+  const s=Math.round(mid/b.step)*b.step, rot=(t.length*3+t.charCodeAt(0))%GEXV.length;
+  [2,1,0,-1,-2,3,-3,4].forEach((o,i)=>{
+    const k=s+o*b.step;
+    if(k<=b.base||k>=b.base+b.span)return;
+    out.push({k,g:GEXV[(i+rot)%GEXV.length],c:KINDS[(i*3+t.length)%4]});
+  });
+  return out.sort((a,c)=>c.g-a.g);
+}
+
+const STATE=[
+  {t:'NQ', tf:'1m',w:'Top 15',m:'GEX',d:'All',lay:['Block trade'],drawer:false,tab:0},
+  {t:'SPX',tf:'1m',w:'Top 15',m:'GEX',d:'All',lay:['Block trade'],drawer:false,tab:0},
+  {t:'ES', tf:'5m',w:'Top 5', m:'GEX',d:'0DTE',lay:[],drawer:false,tab:0},
+  {t:'VIX',tf:'5m',w:'Top 5', m:'GEX',d:'All',lay:[],drawer:false,tab:0}
+];
+let active=0;
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const grid=$('#grid'), pop=$('#pop');
+const gridN=()=>+grid.dataset.n;
+
+/* ---------------- costruzione finestre ---------------- */
+grid.innerHTML=STATE.map((s,i)=>`
+  <div class="pane${i===0?' live':''}" data-i="${i}">
+    <div class="ptools">
+      <span class="idx" data-act="focus">${i+1}</span>
+      <span class="fgroup">
+        <button class="fld tick" data-f="t"><span class="fv"></span><span class="car">▾</span></button>
+        <button class="fld" data-f="tf"><span class="fk">TF</span><span class="fv"></span><span class="car">▾</span></button>
+        <button class="fld" data-f="w"><span class="fk">Muri</span><span class="fv"></span><span class="car">▾</span></button>
+        <button class="fld" data-f="m"><span class="fk">Metrica</span><span class="fv"></span><span class="car">▾</span></button>
+        <button class="fld" data-f="d"><span class="fk">DTE</span><span class="fv"></span><span class="car">▾</span></button>
+      </span>
+      <span class="pdiv"></span>
+      <button class="ibtn" data-f="lay" title="Layer">☰</button>
+      <button class="ibtn" data-act="drawer" title="Pannelli">▤</button>
+      <button class="ibtn x" data-act="close" title="Chiudi finestra">✕</button>
+      <span class="quote"><span class="flag" hidden></span><span class="q tnum"></span><span class="c tnum"></span></span>
+    </div>
+    <div class="pbody">
+      <canvas></canvas>
+      <aside class="pdraw">
+        <div class="pdtabs"><button class="on">Walls</button><button>Position</button><button>Now</button></div>
+        <div class="pdbody"></div>
+      </aside>
+    </div>
+  </div>`).join('');
+
+/* ---------------- disegno ---------------- */
+let seed=11; const rnd=()=>(seed=(seed*1664525+1013904223)%4294967296)/4294967296;
+function paint(cv,st,tight){
+  const w=cv.clientWidth,h=cv.clientHeight; if(!w||!h)return;
+  const dpr=window.devicePixelRatio||1;
+  cv.width=w*dpr;cv.height=h*dpr;
+  const x=cv.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);
+  x.fillStyle='#0A0D12';x.fillRect(0,0,w,h);
+  const b=BOOK[st.t], dec=b.span<20?2:0;
+  const AX=tight?56:70, pR=Math.max(60,w-AX-(tight?74:100)), pad=11;
+  const Y=p=>h-pad-(p-b.base)/b.span*(h-pad*2);
+
+  x.font='9.5px "IBM Plex Mono",monospace';x.textBaseline='middle';x.textAlign='right';
+  for(let i=0;i<=5;i++){
+    const p=b.base+b.span*i/5,yy=Y(p);
+    x.strokeStyle='rgba(255,255,255,.028)';x.beginPath();x.moveTo(0,yy);x.lineTo(pR,yy);x.stroke();
+    x.fillStyle='#3B4552';x.fillText(p.toFixed(dec),w-7,yy);
+  }
+  seed=st.t.length*3571+st.tf.length*97+7;
+  const N=Math.max(46,Math.floor(pR/4.2)),bw=pR/N;
+  let pr=b.base+b.span*(b.trend>0?.28:.72);
+  const dr=b.trend*b.span*.45/N;
+  for(let i=0;i<N;i++){
+    const o=pr,c=pr+dr+(rnd()-.5)*b.span*.032;
+    const hi=Math.max(o,c)+rnd()*b.span*.011, lo=Math.min(o,c)-rnd()*b.span*.011;
+    const col=c>=o?CO.grn:CO.red, cx=i*bw+bw/2;
+    x.strokeStyle=col;x.lineWidth=1;x.beginPath();x.moveTo(cx,Y(hi));x.lineTo(cx,Y(lo));x.stroke();
+    x.fillStyle=col;x.fillRect(cx-bw*.31,Math.min(Y(o),Y(c)),Math.max(bw*.62,1),Math.max(Math.abs(Y(c)-Y(o)),1));
+    pr=c;
+  }
+  const last=pr;
+  const nWalls={'Off':0,'Top 3':3,'Top 5':3,'Top 10':5,'Top 15':6,'Top 25':7,'Top 40':8}[st.w];
+  const ws=wallsFor(st.t).slice(0,tight?Math.min(nWalls,3):nWalls);
+  const mx=Math.max(1,...ws.map(v=>v.g)), chips=[];
+  ws.forEach(v=>{
+    const yy=Y(v.k); if(yy<pad||yy>h-pad)return;
+    const mag=v.g/mx,col=CO[v.c];
+    const lw=1+Math.pow(mag,.85)*(tight?3.2:5.5), op=.24+Math.pow(mag,.85)*.7;
+    const hx=a=>col+Math.round(a*255).toString(16).padStart(2,'0');
+    const gr=x.createLinearGradient(0,0,pR,0);
+    gr.addColorStop(0,hx(0));gr.addColorStop(.62,hx(op*.16));gr.addColorStop(1,hx(op));
+    x.strokeStyle=gr;x.lineWidth=lw;x.setLineDash(mag<.28?[3,5]:[]);
+    x.beginPath();x.moveTo(0,yy);x.lineTo(pR,yy);x.stroke();x.setLineDash([]);
+    chips.push({...v,col,yy,ty:yy,mag});
+  });
+  const yl=Y(Math.min(Math.max(last,b.base+2),b.base+b.span-2));
+  x.setLineDash([4,4]);x.lineWidth=1;x.strokeStyle='rgba(232,194,104,.75)';
+  x.beginPath();x.moveTo(0,yl);x.lineTo(w-AX,yl);x.stroke();x.setLineDash([]);
+  x.fillStyle='#E8C268';x.fillRect(w-AX+2,yl-8,AX-5,16);
+  x.fillStyle='#0A0D12';x.textAlign='right';x.font='600 9.5px "IBM Plex Mono",monospace';
+  x.fillText(last.toFixed(dec),w-7,yl);
+
+  chips.sort((a,c)=>a.yy-c.yy);
+  const GAP=16;
+  for(let k=0;k<50;k++){let mv=false;
+    for(let i=1;i<chips.length;i++){const d=chips[i].ty-chips[i-1].ty;
+      if(d<GAP){const s=(GAP-d)/2;chips[i-1].ty-=s;chips[i].ty+=s;mv=true;}}
+    if(chips.length){chips[0].ty=Math.max(chips[0].ty,9);
+      chips[chips.length-1].ty=Math.min(chips[chips.length-1].ty,h-9);}
+    if(!mv)break;}
+  x.font='9.5px "IBM Plex Mono",monospace';x.textAlign='left';
+  const right=w-AX-7;
+  chips.forEach(c=>{
+    const t=c.k.toFixed(b.span<20?1:0)+' · '+c.g+'M';
+    const cw=Math.ceil(x.measureText(t).width)+22, lx=right-cw;
+    if(Math.abs(c.ty-c.yy)>1.5){
+      x.strokeStyle=c.col+'55';x.lineWidth=1;x.beginPath();
+      x.moveTo(right+3,c.yy);x.lineTo(right,c.ty);x.stroke();
+    }
+    x.fillStyle='rgba(10,13,18,.94)';x.fillRect(lx,c.ty-7.5,cw,15);
+    x.strokeStyle=c.col+'b0';x.lineWidth=1;x.strokeRect(lx+.5,c.ty-7,cw-1,14);
+    x.fillStyle=c.col;x.beginPath();x.arc(lx+8,c.ty,1.7+c.mag*1.9,0,6.2832);x.fill();
+    x.fillStyle='#C9D1DC';x.fillText(t,lx+15,c.ty);
+  });
+}
+
+/* ---------------- sincronizzazione ---------------- */
+function drawerHTML(i){
+  const st=STATE[i], b=BOOK[st.t], ws=wallsFor(st.t).slice(0,4), d=b.span<20?1:0;
+  return [
+   `<div class="dk">Regime</div><div class="dv">POSITIVE GAMMA · tilt +34%</div>
+    <div class="dk">Sorgente</div><div class="dv soft">${b.src}</div>
+    <div class="dk">Top |γ| · ${st.m}</div>`+
+    ws.map((v,k)=>`<div class="lrow"><b style="color:${CO[v.c]}">${k===0?'<span style="font-family:var(--sans)">★★</span> ':''}${v.k.toFixed(d)}</b><span>${v.g}M</span></div>`).join('')+
+   `<div class="dk">Net hedge</div><div class="dv tnum">−1,2 B / punto</div>`,
+   `<div class="dk">Bias</div><div class="dv">${b.dn?'Ribassista':'Rialzista'} · conviction 62%</div>
+    <div class="dk">Calamita</div><div class="dv tnum">${ws[0]?ws[0].k.toFixed(d):'—'}</div>
+    <div class="dk">Scenario</div><div class="dv soft">Test del soffitto — trade sopra ${ws[1]?ws[1].k.toFixed(d):'—'}, stop sotto ${ws[2]?ws[2].k.toFixed(d):'—'}</div>
+    <div class="dk">DTE in uso</div><div class="dv">${st.d}</div>`,
+   `<div class="dk">I cinque che contano ora</div>
+    <div class="lrow"><b>🛑 resistenza</b><span class="tnum">${ws[0]?ws[0].k.toFixed(d):'—'}</span></div>
+    <div class="lrow"><b>🛡 supporto</b><span class="tnum">${ws[1]?ws[1].k.toFixed(d):'—'}</span></div>
+    <div class="lrow"><b>🧲 calamita</b><span class="tnum">${ws[2]?ws[2].k.toFixed(d):'—'}</span></div>
+    <div class="lrow"><b>⚡ squeeze</b><span class="tnum">${ws[3]?ws[3].k.toFixed(d):'—'}</span></div>`
+  ][st.tab];
+}
+function syncPane(i){
+  const p=$$('.pane')[i], st=STATE[i], b=BOOK[st.t];
+  const set=(f,v)=>p.querySelector(`[data-f="${f}"] .fv`).textContent=v;
+  set('t',st.t);set('tf',st.tf);set('w',st.w);set('m',st.m);set('d',st.d);
+  p.querySelector('.q').textContent=b.px;
+  const c=p.querySelector('.c'); c.textContent=b.chg; c.className='c tnum '+(b.dn?'dn':'up');
+  p.querySelector('.flag').hidden=!b.stale;
+  p.querySelector('[data-f="lay"]').classList.toggle('on',st.lay.length>0);
+  p.querySelector('[data-act="drawer"]').classList.toggle('on',st.drawer);
+  p.querySelector('.pdraw').classList.toggle('open',st.drawer);
+  p.querySelector('.pdbody').innerHTML=drawerHTML(i);
+  [...p.querySelectorAll('.pdtabs button')].forEach((b2,k)=>b2.classList.toggle('on',k===st.tab));
+}
+function syncGlobal(){
+  const st=STATE[active];
+  $('#hint').textContent = gridN()===1
+    ? 'Pannelli gamma disponibili · tasto P'
+    : 'Vista griglia: pannelli gamma nascosti — torna a una finestra per riaprirli';
+  $('#sbActive').textContent=(active+1)+' · '+st.t;
+  const hit=STATE.slice(0,gridN()).map((s,i)=>BOOK[s.t].stale?i+1:0).filter(Boolean);
+  document.querySelector('.alert').style.display=hit.length?'flex':'none';
+  $('#alertScope').textContent=hit.length>1?'riguarda le finestre '+hit.join(' · '):'riguarda la finestra '+hit.join('');
+}
+function render(){
+  const n=gridN(),tight=n>=3;
+  $$('.pane').forEach((p,i)=>{ if(i<n) paint(p.querySelector('canvas'),STATE[i],tight); });
+}
+function refresh(){ STATE.forEach((_,i)=>syncPane(i)); syncGlobal(); requestAnimationFrame(render); }
+
+/* ---------------- popover ---------------- */
+let popCtx=null;
+const OPTS={t:TICKERS,tf:TFS,w:WALLOPT,m:METRICS,d:DTES};
+const HEADS={t:'Ticker',tf:'Timeframe',w:'Muri da disegnare',m:'Metrica',d:'Scadenze'};
+function openPop(el,field,i){
+  const st=STATE[i];
+  if(field==='lay'){
+    pop.innerHTML='<h5>Layer di questa finestra</h5>'+LAYERS.map(l=>l==='—'
+      ? '<h5 style="padding-top:7px">Sottografici e livelli</h5>'
+      : `<button class="${st.lay.includes(l)?'sel':''}" data-l="${l}">${l}<span class="sw"></span></button>`).join('');
+  } else {
+    pop.innerHTML=`<h5>${HEADS[field]}</h5>`+OPTS[field].map(o=>
+      `<button class="${st[field]===o?'sel':''}" data-v="${o}">${o}</button>`).join('');
+  }
+  const r=el.getBoundingClientRect();
+  pop.classList.add('open');
+  const pw=pop.offsetWidth, ph=pop.offsetHeight;
+  pop.style.left=Math.min(r.left,innerWidth-pw-10)+'px';
+  pop.style.top=(r.bottom+ph>innerHeight-8 ? Math.max(8,r.top-ph-5) : r.bottom+5)+'px';
+  popCtx={field,i};
+}
+function closePop(){pop.classList.remove('open');popCtx=null;}
+pop.onclick=e=>{
+  const b=e.target.closest('button'); if(!b||!popCtx)return;
+  const {field,i}=popCtx, st=STATE[i];
+  if(field==='lay'){
+    const l=b.dataset.l, maps=['Liquidity Tide','γ Map','Charm','Vega'];
+    if(st.lay.includes(l)) st.lay=st.lay.filter(v=>v!==l);
+    else { if(maps.includes(l)) st.lay=st.lay.filter(v=>!maps.includes(v)); st.lay.push(l); }
+    openPop($$('.pane')[i].querySelector('[data-f="lay"]'),'lay',i);
+  } else { st[field]=b.dataset.v; closePop(); }
+  refresh();
+};
+document.addEventListener('click',e=>{ if(!e.target.closest('.pop')&&!e.target.closest('[data-f]')) closePop(); });
+
+/* ---------------- interazioni ---------------- */
+function setActive(i){ active=i; $$('.pane').forEach((p,k)=>p.classList.toggle('live',k===i)); syncGlobal(); }
+grid.addEventListener('click',e=>{
+  const pane=e.target.closest('.pane'); if(!pane)return;
+  const i=+pane.dataset.i;
+  const fld=e.target.closest('[data-f]');
+  const act=e.target.closest('[data-act]');
+  const tab=e.target.closest('.pdtabs button');
+  setActive(i);
+  if(fld){ e.stopPropagation();
+    if(popCtx&&popCtx.i===i&&popCtx.field===fld.dataset.f){closePop();return;}
+    openPop(fld,fld.dataset.f,i); return; }
+  if(tab){ STATE[i].tab=[...tab.parentNode.children].indexOf(tab); syncPane(i); return; }
+  if(act){
+    const a=act.dataset.act;
+    if(a==='drawer'){ STATE[i].drawer=!STATE[i].drawer; syncPane(i); requestAnimationFrame(render); }
+    if(a==='close'){
+      const n=gridN();
+      if(n>1) setGrid('g'+(n-1));
+    }
+  }
+});
+function setGrid(layout){
+  const btn=[...document.querySelectorAll('#gridSel button')].find(b=>b.dataset.l===layout);
+  if(!btn) return;
+  const n=+btn.dataset.n;
+  if(n>1) STATE.forEach(o=>o.drawer=false);   // in griglia la vista resta pulita
+  $$('#gridSel button').forEach(b=>b.classList.toggle('on',b===btn));
+  grid.className='grid '+layout; grid.dataset.n=n;
+  if(active>=n) setActive(0);
+  refresh();
+}
+$$('#gridSel button').forEach(b=>b.onclick=()=>setGrid(b.dataset.l));
+$('#copyBtn').onclick=()=>{
+  const s=STATE[active];
+  STATE.forEach((o,i)=>{ if(i!==active){o.tf=s.tf;o.w=s.w;o.m=s.m;o.d=s.d;o.lay=[...s.lay];} });
+  refresh();
+  const btn=$('#copyBtn'); btn.textContent='✓ Copiato su tutte';
+  setTimeout(()=>btn.textContent='⇊ Copia su tutte',1400);
+};
+$('#presetBtn').onclick=e=>{
+  e.stopPropagation();
+  pop.innerHTML='<h5>Preset</h5>'+
+    ['Creator\'s View','Command Deck','Mattina 0DTE','+ Salva la disposizione attuale']
+      .map(p=>`<button data-v="${p}">${p}</button>`).join('');
+  const r=e.currentTarget.getBoundingClientRect();
+  pop.classList.add('open');
+  pop.style.left=r.left+'px'; pop.style.top=(r.bottom+5)+'px';
+  popCtx=null;
+};
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT')return;
+  if((e.metaKey||e.ctrlKey)&&['1','2','3','4'].includes(e.key)){
+    e.preventDefault();
+    setGrid('g'+e.key);
+    return;}
+  if(!e.metaKey&&!e.ctrlKey&&['1','2','3','4'].includes(e.key)){const i=+e.key-1;if(i<gridN())setActive(i);}
+  if(e.key.toLowerCase()==='p'&&gridN()===1){STATE[active].drawer=!STATE[active].drawer;syncPane(active);requestAnimationFrame(render);}
+  if(e.shiftKey&&e.key.toLowerCase()==='c'){$('#copyBtn').click();}
+  if(e.key==='Escape'){closePop();}
+});
+window.addEventListener('resize',()=>{closePop();requestAnimationFrame(render);});
+refresh(); setTimeout(render,350);
+</script>

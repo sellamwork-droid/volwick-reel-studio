@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Volwick · Sightline v779 — mockup</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#080a0e; --panel:#0d1116; --panel2:#11161c; --line:#1b2129; --line2:#262e38;
+    --ink:#e7ebf0; --mut:#7c8796; --faint:#525d6b;
+    --amber:#e3b23c; --amber-dim:#8a6f28;
+    --up:#3fb98a; --dn:#e1564f; --blue:#5fc8e8;
+    --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+    --sans:"Inter",-apple-system,system-ui,"Segoe UI",sans-serif;
+  }
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13px;
+       display:flex;flex-direction:column;overflow:hidden}
+
+  /* ---------- 1. TOP BAR: solo logo + PANELS ---------- */
+  .top{height:52px;flex:none;display:flex;align-items:center;justify-content:space-between;
+       padding:0 18px;border-bottom:1px solid var(--line);background:var(--bg)}
+  .logo{display:flex;align-items:center;gap:10px}
+  .mark{width:26px;height:26px;border-radius:7px;background:var(--amber);color:#141821;
+        font-family:var(--mono);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center}
+  .wordmark{font-family:var(--mono);font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink)}
+  .topright{display:flex;align-items:center;gap:14px}
+  .conn{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--faint);
+        display:flex;align-items:center;gap:6px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--up)}
+  .panelsbtn{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+        color:var(--ink);background:transparent;border:1px solid var(--line2);border-radius:7px;
+        padding:7px 14px;cursor:pointer;display:flex;align-items:center;gap:8px}
+  .panelsbtn:hover{border-color:var(--amber-dim);color:var(--amber)}
+  .panelsbtn .chev{color:var(--faint);font-size:9px}
+
+  /* ---------- 2. STRIP del grafico ---------- */
+  .wrap{flex:1;display:flex;min-height:0}
+  .main{flex:1;display:flex;flex-direction:column;min-width:0}
+  .strip{height:44px;flex:none;display:flex;align-items:center;gap:0;
+         padding:0 14px;border-bottom:1px solid var(--line);background:var(--panel)}
+  .sym{display:flex;align-items:baseline;gap:9px;padding-right:16px;cursor:pointer}
+  .sym b{font-family:var(--mono);font-size:14px;letter-spacing:.06em;color:var(--amber)}
+  .sym .px{font-family:var(--mono);font-size:15px;color:var(--ink)}
+  .sym .chg{font-family:var(--mono);font-size:11px;color:var(--dn);
+            background:rgba(225,86,79,.12);padding:2px 6px;border-radius:4px}
+  .sym .cv{color:var(--faint);font-size:9px}
+  .vr{width:1px;height:20px;background:var(--line2);margin:0 14px;flex:none}
+  .ctl{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--mut);
+       background:transparent;border:0;padding:7px 10px;border-radius:6px;cursor:pointer;
+       display:flex;align-items:center;gap:7px}
+  .ctl:hover{background:var(--panel2);color:var(--ink)}
+  .ctl b{color:var(--ink);font-weight:500}
+  .ctl.on{color:var(--amber)}
+  .ctl .cv{color:var(--faint);font-size:9px}
+  .spacer{flex:1}
+  .live{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--up);
+        display:flex;align-items:center;gap:7px}
+
+  /* ---------- 3. GRAFICO ---------- */
+  .chartbox{flex:1;position:relative;min-height:0;background:var(--bg)}
+  canvas{display:block;width:100%;height:100%}
+  .walllab{position:absolute;font-family:var(--mono);font-size:9px;padding:2px 7px;
+           border-radius:4px;white-space:nowrap;pointer-events:none;transform:translateY(-50%)}
+  .pxtag{position:absolute;right:0;font-family:var(--mono);font-size:11px;background:var(--blue);
+         color:#06202a;padding:3px 8px;border-radius:3px;transform:translateY(-50%);pointer-events:none}
+
+  /* ---------- 4. BARRA IN BASSO ---------- */
+  .footbar{height:46px;flex:none;display:flex;align-items:center;gap:14px;padding:0 14px;
+           border-top:1px solid var(--line);background:var(--panel)}
+  .seg{display:flex;border:1px solid var(--line2);border-radius:7px;overflow:hidden}
+  .seg button{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;padding:6px 13px;
+              background:transparent;border:0;color:var(--mut);cursor:pointer}
+  .seg button.on{background:var(--panel2);color:var(--up)}
+  .slot{font-family:var(--mono);font-size:11px;color:var(--ink);border:1px solid var(--line2);
+        border-radius:7px;padding:6px 12px;display:flex;align-items:center;gap:10px}
+  .scrub{flex:1;height:3px;background:var(--line2);border-radius:2px;position:relative}
+  .scrub i{position:absolute;left:0;top:0;bottom:0;width:92%;background:#4a2f2f;border-radius:2px}
+  .scrub b{position:absolute;left:92%;top:50%;width:9px;height:9px;border-radius:50%;
+           background:var(--dn);transform:translate(-50%,-50%)}
+  .ghost{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--mut);
+         border:1px solid var(--line2);border-radius:7px;padding:6px 13px;background:transparent;cursor:pointer}
+  .ghost:hover{color:var(--ink);border-color:var(--faint)}
+
+  /* ---------- 5. CDI ---------- */
+  .cdi{height:120px;flex:none;border-top:1px solid var(--line);background:var(--bg);display:flex;flex-direction:column}
+  .cdibar{height:32px;flex:none;display:flex;align-items:center;gap:12px;padding:0 14px;
+          border-bottom:1px solid var(--line);background:var(--panel);
+          font-family:var(--mono);font-size:10.5px;color:var(--mut);overflow:hidden;white-space:nowrap}
+  .cdibar .tag{color:var(--faint);letter-spacing:.12em}
+  .cdibar .c{color:var(--up)} .cdibar .p{color:var(--dn)}
+  .pill{border:1px solid var(--line2);border-radius:5px;padding:3px 9px;color:var(--mut);cursor:pointer}
+  .pill.on{border-color:var(--amber-dim);color:var(--amber)}
+
+  /* ---------- 6. PANNELLO DESTRO ---------- */
+  .side{width:310px;flex:none;border-left:1px solid var(--line);background:var(--panel);
+        display:flex;flex-direction:column;overflow:hidden}
+  .sidehead{height:44px;flex:none;display:flex;align-items:center;justify-content:space-between;
+            padding:0 14px;border-bottom:1px solid var(--line)}
+  .sidehead span{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--faint);text-transform:uppercase}
+  .sidehead button{background:0;border:0;color:var(--faint);cursor:pointer;font-size:15px;line-height:1}
+  .sidebody{flex:1;overflow-y:auto;padding:14px}
+  .sec{font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:var(--faint);
+       text-transform:uppercase;margin:0 0 8px}
+  .card{border:1px solid var(--line2);border-radius:9px;padding:12px;margin-bottom:16px;background:var(--panel2)}
+  .bias{text-align:center}
+  .bias .big{font-family:var(--mono);font-size:17px;color:var(--dn);letter-spacing:.02em}
+  .bias .sub{font-family:var(--mono);font-size:9.5px;color:var(--mut);margin-top:5px;letter-spacing:.08em}
+  .kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;font-size:12px}
+  .kv span:first-child{color:var(--mut)}
+  .kv span:last-child{font-family:var(--mono)}
+  .lvl{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;
+       border-left:2px solid var(--line2);margin-bottom:4px;font-family:var(--mono);font-size:11.5px;
+       background:var(--panel2);border-radius:0 5px 5px 0}
+  .lvl.now{border-left-color:var(--amber);color:var(--amber)}
+  .lvl .d{color:var(--faint);font-size:10px}
+  .sidefoot{flex:none;border-top:1px solid var(--line);padding:11px 14px}
+  .guidebtn{width:100%;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;
+            text-transform:uppercase;color:var(--mut);background:transparent;border:1px solid var(--line2);
+            border-radius:7px;padding:9px;cursor:pointer}
+  .guidebtn:hover{color:var(--amber);border-color:var(--amber-dim)}
+
+  /* ---------- 7. GUIDE ---------- */
+  .scrim{position:fixed;inset:0;background:rgba(4,6,9,.78);backdrop-filter:blur(3px);
+         display:none;align-items:flex-start;justify-content:center;z-index:50;padding:34px 20px}
+  .scrim.open{display:flex}
+  .guide{width:min(920px,100%);max-height:100%;background:var(--panel);border:1px solid var(--line2);
+         border-radius:14px;display:flex;flex-direction:column;overflow:hidden}
+  .ghead{flex:none;display:flex;align-items:center;justify-content:space-between;padding:18px 24px;
+         border-bottom:1px solid var(--line)}
+  .ghead h2{font-family:var(--mono);font-size:15px;font-weight:600;letter-spacing:.02em}
+  .ghead p{font-size:11.5px;color:var(--mut);margin-top:3px}
+  .gnav{flex:none;display:flex;gap:2px;padding:0 18px;border-bottom:1px solid var(--line);overflow-x:auto}
+  .gnav button{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--mut);
+               background:0;border:0;border-bottom:2px solid transparent;padding:11px 12px;cursor:pointer;white-space:nowrap}
+  .gnav button.on{color:var(--amber);border-bottom-color:var(--amber)}
+  .gbody{flex:1;overflow-y:auto;padding:22px 24px 28px}
+  .gpane{display:none} .gpane.on{display:block}
+  .gpane h3{font-family:var(--mono);font-size:12.5px;margin:20px 0 7px;color:var(--ink)}
+  .gpane h3:first-child{margin-top:0}
+  .gpane p{font-size:13px;line-height:1.62;color:#c3cad3;margin-bottom:9px;max-width:62em}
+  .gpane p.lead{font-size:14px;color:var(--ink)}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;
+        border:1px solid var(--line2);border-radius:5px;padding:2px 7px;color:var(--mut)}
+  .sw{width:9px;height:9px;border-radius:2px;display:inline-block}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0 4px}
+  .gcard{border:1px solid var(--line2);border-radius:9px;padding:13px;background:var(--panel2)}
+  .gcard b{font-family:var(--mono);font-size:11.5px;display:block;margin-bottom:5px}
+  .gcard span{font-size:12px;color:#aab3bd;line-height:1.55;display:block}
+  .rule{height:1px;background:var(--line);margin:20px 0}
+  .warn{border-left:2px solid var(--amber-dim);background:rgba(227,178,60,.05);
+        padding:11px 14px;border-radius:0 7px 7px 0;margin:12px 0}
+  .warn b{color:var(--amber);font-family:var(--mono);font-size:11px;display:block;margin-bottom:4px}
+  .warn span{font-size:12.5px;color:#c3cad3;line-height:1.55}
+  .gfoot{flex:none;display:flex;justify-content:space-between;align-items:center;
+         padding:13px 24px;border-top:1px solid var(--line)}
+  .gfoot label{font-size:11.5px;color:var(--mut);display:flex;align-items:center;gap:8px;cursor:pointer}
+  .closeb{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:#141821;background:var(--amber);
+          border:0;border-radius:7px;padding:9px 20px;cursor:pointer}
+
+  /* ---------- popover LAYERS ---------- */
+  .pop{position:absolute;top:44px;left:230px;width:290px;background:var(--panel);
+       border:1px solid var(--line2);border-radius:11px;padding:12px;z-index:30;display:none;
+       box-shadow:0 18px 44px rgba(0,0,0,.55)}
+  .pop.open{display:block}
+  .pop .sec{margin:4px 0 7px}
+  .row{display:flex;align-items:center;justify-content:space-between;padding:7px 4px}
+  .row span{font-size:12.5px}
+  .sw2{width:34px;height:19px;border-radius:11px;background:var(--line2);position:relative;cursor:pointer;flex:none}
+  .sw2 i{position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#6b7684;transition:.16s}
+  .sw2.on{background:rgba(63,185,138,.3)} .sw2.on i{left:17px;background:var(--up)}
+  .selrow{display:flex;align-items:center;justify-content:space-between;padding:7px 4px}
+  .selrow select{font-family:var(--mono);font-size:11px;background:var(--panel2);color:var(--ink);
+                 border:1px solid var(--line2);border-radius:5px;padding:4px 7px}
+  .note{font-size:11px;color:var(--faint);padding:8px 4px 2px;line-height:1.5}
+  .mi{font-family:var(--mono);font-size:12px;padding:8px 10px;border-radius:6px;cursor:pointer;
+      color:var(--ink);display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .mi i{font-style:normal;font-family:var(--sans);font-size:10.5px;color:var(--faint)}
+  .mi:hover{background:var(--panel2)}
+  .mi.on{color:var(--amber)}
+  @keyframes blip{0%,100%{opacity:1}50%{opacity:.25}}
+</style>
+</head>
+<body>
+
+<!-- 1 ▸ TOP BAR -->
+<div class="top">
+  <div class="logo">
+    <div class="mark">V</div>
+    <div class="wordmark">Volwick</div>
+  </div>
+  <div class="topright">
+    <div class="conn"><i class="dot"></i> <span id="rtt">168 ms</span></div>
+    <button class="panelsbtn" onclick="togglePanels()">Panels <span class="chev" id="pchev">▸</span></button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="main">
+
+    <!-- 2 ▸ STRIP -->
+    <div class="strip" style="position:relative">
+      <div class="sym" data-menu onclick="openMenu('popsym')">
+        <b id="hsym">ES</b><span class="px" id="hpx">7,688.75</span>
+        <span class="chg" id="hchg">−0.51%</span><span class="cv">▾</span>
+      </div>
+      <div class="vr"></div>
+      <button class="ctl" data-menu onclick="openMenu('poptf')"><b id="htf">1m</b><span class="cv">▾</span></button>
+      <div class="vr"></div>
+      <button class="ctl on" data-menu onclick="openMenu('pop')">Layers <span class="cv">▾</span></button>
+      <button class="ctl" onclick="alert('Alerts')">Alerts</button>
+      <div class="spacer"></div>
+      <div class="live"><i class="dot" style="animation:blip 1.6s infinite"></i> <span id="hclock">LIVE · 16:36 ET</span></div>
+
+      <!-- strumento -->
+      <div class="pop" id="popsym" style="left:14px;width:190px">
+        <div class="sec">Instrument</div>
+        <div class="mi" onclick="setSym('ES')">ES <i>S&amp;P futures</i></div>
+        <div class="mi" onclick="setSym('SPX')">SPX <i>index</i></div>
+        <div class="mi" onclick="setSym('NQ')">NQ <i>Nasdaq futures</i></div>
+        <div class="mi" onclick="setSym('SPY')">SPY <i>ETF</i></div>
+      </div>
+
+      <!-- timeframe -->
+      <div class="pop" id="poptf" style="left:236px;width:150px">
+        <div class="sec">Timeframe</div>
+        <div class="mi on" onclick="setTf('1m',this)">1m</div>
+        <div class="mi" onclick="setTf('5m',this)">5m</div>
+        <div class="mi" onclick="setTf('15m',this)">15m</div>
+      </div>
+
+      <!-- layers -->
+      <div class="pop" id="pop" style="left:330px">
+        <div class="sec">On the chart</div>
+        <div class="row"><span>Dealer walls</span><div class="sw2 on" onclick="tg(this,'walls')"><i></i></div></div>
+        <div class="row"><span>Gamma map</span><div class="sw2 on" onclick="tg(this,'map')"><i></i></div></div>
+        <div class="row"><span>Liquidity Tide</span><div class="sw2" onclick="tg(this,'tide')"><i></i></div></div>
+        <div class="row"><span>Bot trades</span><div class="sw2 on" onclick="tg(this,'bot')"><i></i></div></div>
+        <div class="rule" style="margin:10px 0"></div>
+        <div class="sec">How the walls are picked</div>
+        <div class="selrow"><span style="font-size:12.5px">How many</span>
+          <select onchange="setSel('count',this.value)">
+            <option value="2">Top 2</option><option value="3">Top 3</option>
+            <option value="4" selected>Top 4</option></select></div>
+        <div class="selrow"><span style="font-size:12.5px">Metric</span>
+          <select onchange="setSel('metric',this.value)">
+            <option>GEX</option><option>CEX</option><option>DEX</option></select></div>
+        <div class="selrow"><span style="font-size:12.5px">Expiry</span>
+          <select onchange="setSel('expiry',this.value)">
+            <option>All</option><option>0DTE</option><option>This week</option></select></div>
+        <div class="note">Whatever you set here is what the chart draws, straight away.</div>
+      </div>
+    </div>
+
+    <!-- 3 ▸ CHART -->
+    <div class="chartbox" id="chartbox">
+      <canvas id="cv"></canvas>
+    </div>
+
+    <!-- 4 ▸ FOOT -->
+    <div class="footbar">
+      <div class="seg">
+        <button class="on">● LIVE</button><button>REPLAY</button>
+      </div>
+      <div class="slot">◀ <span>Live · 16:00 ET</span> ▶</div>
+      <div class="scrub"><i></i><b></b></div>
+      <button class="ghost">Snapshot</button>
+    </div>
+
+    <!-- 5 ▸ CDI -->
+    <div class="cdi">
+      <div class="cdibar">
+        <span class="tag">CDI</span>
+        <span>SPXW ▾</span>
+        <span class="c">C $507K</span><span style="color:var(--faint)">·</span><span class="p">P $505K</span>
+        <span class="pill">Single-leg</span><span class="pill">Multi-leg</span><span class="pill on">All legs</span>
+        <span style="color:var(--faint)">updated 14 s ago</span>
+      </div>
+      <canvas id="cdicv" style="flex:1"></canvas>
+    </div>
+  </div>
+
+  <!-- 6 ▸ SIDE -->
+  <aside class="side" id="side">
+    <div class="sidehead"><span>Reads the chart</span><button onclick="togglePanels()">×</button></div>
+    <div class="sidebody">
+      <div class="sec">Direction</div>
+      <div class="card bias">
+        <div class="big">↘ SHORT bias</div>
+        <div class="sub">low conviction · −2.1</div>
+      </div>
+
+      <div class="sec">The plan</div>
+      <div class="card">
+        <div style="font-family:var(--mono);font-size:12.5px;color:var(--amber);margin-bottom:9px">
+          WIDE · 7675 ↔ 7755</div>
+        <div class="kv"><span>Trade</span><span>wait for a wall touch</span></div>
+        <div class="kv"><span>Stop</span><span>above 7760 · below 7670</span></div>
+        <div class="kv"><span>Pivot</span><span>7700</span></div>
+        <div style="font-size:11.5px;color:var(--mut);line-height:1.5;margin-top:9px;
+                    border-top:1px solid var(--line);padding-top:9px">
+          Walls are 1–2% away. There is a range here, and theta is slow.</div>
+      </div>
+
+      <div class="sec">Prices that matter</div>
+      <div class="lvl"><span>7,746.70</span><span class="d">+18M</span></div>
+      <div class="lvl"><span>7,721.70</span><span class="d">+37M</span></div>
+      <div class="lvl now"><span id="hnow">7,688.75</span><span class="d">price now</span></div>
+      <div class="lvl"><span>7,671.70</span><span class="d">−14M</span></div>
+      <div class="lvl"><span>7,655.40</span><span class="d">−8M</span></div>
+    </div>
+    <div class="sidefoot">
+      <button class="guidebtn" onclick="openGuide()">How to read this</button>
+    </div>
+  </aside>
+</div>
+
+<!-- 7 ▸ GUIDE -->
+<div class="scrim" id="scrim">
+  <div class="guide">
+    <div class="ghead">
+      <div>
+        <h2>How to read Sightline</h2>
+        <p>Six minutes. Read it once and the screen stops being a wall of colour.</p>
+      </div>
+      <button class="ghost" onclick="closeGuide()">Esc</button>
+    </div>
+
+    <div class="gnav" id="gnav">
+      <button class="on" onclick="gtab(0,this)">Start here</button>
+      <button onclick="gtab(1,this)">The walls</button>
+      <button onclick="gtab(2,this)">The map</button>
+      <button onclick="gtab(3,this)">The Tide</button>
+      <button onclick="gtab(4,this)">The CDI</button>
+      <button onclick="gtab(5,this)">The right panel</button>
+      <button onclick="gtab(6,this)">Replay &amp; alerts</button>
+      <button onclick="gtab(7,this)">Don't do this</button>
+    </div>
+
+    <div class="gbody">
+      <!-- 0 -->
+      <div class="gpane on">
+        <p class="lead">Sightline shows you one thing: <b>where the dealers who sold the options are stuck</b>, and what that does to price.</p>
+        <p>When someone buys an option, a dealer sells it. That dealer now carries a risk they didn't want, so they hedge it by buying or selling the underlying. Those hedges are mechanical, they are large, and they happen at the same prices every day. That is what you are looking at.</p>
+        <h3>The three things on the screen</h3>
+        <div class="grid2">
+          <div class="gcard"><b>The walls</b><span>Horizontal lines where dealer hedging piles up. Price tends to slow down or turn there.</span></div>
+          <div class="gcard"><b>The map</b><span>The coloured background. Green means hedging pushes price back to the middle, red means it pushes it away.</span></div>
+          <div class="gcard"><b>The Tide</b><span>Who is winning right now, buyers or sellers, read from the order flow rather than from options.</span></div>
+          <div class="gcard"><b>The CDI</b><span>The strip under the chart. Real money going into calls and puts, minute by minute.</span></div>
+        </div>
+        <h3>How a session usually goes</h3>
+        <p>You open Sightline, you look at the right-hand panel to get the bias and the two levels that matter, and then you wait for price to reach one of the walls. The wall is the event. Everything else is context.</p>
+      </div>
+
+      <!-- 1 -->
+      <div class="gpane">
+        <p class="lead">A wall is a price where dealers hold a lot of exposure. The more they hold, the harder they hedge, and the more price reacts.</p>
+        <h3>Reading a wall label</h3>
+        <p><span class="chip"><i class="sw" style="background:#8b5cf6"></i> GEX · ★★ 7705.6 · −23M · (7700)</span></p>
+        <p><b>7705.6</b> is where the line sits on this instrument. <b>(7700)</b> is the SPX strike it comes from, because ES tracks SPX with a carry offset. <b>−23M</b> is how much dealer P&amp;L moves for every one-point move in SPX. <b>★★</b> means it is one of the biggest on the screen.</p>
+        <h3>Stars</h3>
+        <p>No star is an ordinary level. One star is worth watching. Two stars is a level that has moved price before and will probably move it again. Count stars, not decimals.</p>
+        <h3>The sign</h3>
+        <div class="grid2">
+          <div class="gcard"><b>Positive, long gamma</b><span>Dealers sell into strength and buy into weakness. Price gets pinned. Expect the level to hold.</span></div>
+          <div class="gcard"><b>Negative, short gamma</b><span>Dealers sell into weakness and buy into strength. Breaks run. Expect the level to break hard or not at all.</span></div>
+        </div>
+        <h3>How many to show</h3>
+        <p>Top 5 is enough for most days. Top 15 turns the chart into a ladder and stops meaning anything. If you cannot name why a line is on your screen, take it off.</p>
+      </div>
+
+      <!-- 2 -->
+      <div class="gpane">
+        <p class="lead">The coloured background is the same information as the walls, spread across price and time instead of drawn as lines.</p>
+        <h3>The colours</h3>
+        <p><span class="chip"><i class="sw" style="background:#2f6e4e"></i> Green</span> hedging pulls price back in. Ranges, fades, mean reversion.</p>
+        <p><span class="chip"><i class="sw" style="background:#7a2d2d"></i> Red</span> hedging pushes price away. Trends, breakouts, air pockets.</p>
+        <p>Where the colour changes sign is the line that matters. That is the edge of the pinned zone, and it is usually where the day's character changes.</p>
+        <h3>The four maps</h3>
+        <div class="grid2">
+          <div class="gcard"><b>Gamma</b><span>The default. How hard dealers hedge at each price, right now.</span></div>
+          <div class="gcard"><b>Charm</b><span>How that hedging drifts as the day runs out. Strongest in the last two hours.</span></div>
+          <div class="gcard"><b>Vega</b><span>What happens if implied volatility moves. Useful around events.</span></div>
+          <div class="gcard"><b>Volga</b><span>Where a volatility move would accelerate. Rarely needed intraday.</span></div>
+        </div>
+        <p>One map at a time, on purpose. Two of them on top of each other tells you nothing.</p>
+      </div>
+
+      <!-- 3 -->
+      <div class="gpane">
+        <p class="lead">The Liquidity Tide replaces the candles with a ribbon that shows who is actually getting filled.</p>
+        <p>Green ribbon, buyers are lifting offers. Red ribbon, sellers are hitting bids. Thickness is size. When the ribbon goes pale and thin, nobody is doing anything and the next move is noise.</p>
+        <h3>Where it works</h3>
+        <p>Futures and SPY. On index symbols there is no tick-by-tick tape to read, so the Tide has nothing to draw. It stays off there, and the chart tells you why.</p>
+        <h3>The white marks</h3>
+        <p>A white dash on the price means one print was far bigger than the ones around it. Somebody with size stepped in at that price. They are worth remembering for the rest of the session.</p>
+        <div class="warn"><b>Use it for timing, not direction</b>
+          <span>The Tide tells you whether a level is being defended right now. It does not tell you where price is going next. Pair it with a wall.</span></div>
+      </div>
+
+      <!-- 4 -->
+      <div class="gpane">
+        <p class="lead">The strip under the chart is the Cumulative Delta Impact: money going into calls and puts, minute by minute, converted into the pressure it puts on price.</p>
+        <p>Green bars above the line, call buying. Red bars below, put buying. The height is dollars of premium, not contracts, so one big trade looks big.</p>
+        <h3>Reading it</h3>
+        <p>A run of green under a falling price means somebody is buying the dip with options while the tape looks weak. That disagreement is the signal. When the CDI agrees with price, it is just confirmation.</p>
+        <h3>Which book</h3>
+        <p>SPXW is the index book, SPY 0DTE is the ETF book. They usually agree. When they do not, the index book is the one that moves futures.</p>
+        <p>The label says when the data was last refreshed. Outside market hours it will say the last update of the session, which is normal.</p>
+      </div>
+
+      <!-- 5 -->
+      <div class="gpane">
+        <p class="lead">The panel on the right is the whole screen written out in words. If you only have thirty seconds, read that and nothing else.</p>
+        <h3>Direction</h3>
+        <p>A bias and a conviction number. Low conviction means the ingredients disagree, and you should treat the levels as a range rather than a trade.</p>
+        <h3>The plan</h3>
+        <p>The two levels that bracket the day, what to do when price reaches them, and where the idea is wrong. It is written as an instruction on purpose: if you cannot follow it as written, it is not a plan you should take.</p>
+        <h3>Prices that matter</h3>
+        <p>The walls again, as a list, sorted by price with the current one highlighted. The number on the right is dealer exposure at that level. Use it to decide which wall to care about when two are close together.</p>
+      </div>
+
+      <!-- 6 -->
+      <div class="gpane">
+        <p class="lead">Replay plays a past session back at speed, with the walls and the map as they were at that moment, not as they are now.</p>
+        <p>Pick a time, press play, and the chart moves forward with the clock. It is the only honest way to check whether a level would have worked, because the levels themselves move during the day.</p>
+        <h3>Alerts</h3>
+        <p>An alert fires when price comes within a set distance of a level. Pick the level from the list, pick the distance, and leave it armed. The list only offers levels that exist on the instrument you are watching.</p>
+        <div class="warn"><b>Replay is not live</b>
+          <span>While replay is running everything on the screen is historical, including the right-hand panel. The bar says so. Come back to LIVE before you act on anything.</span></div>
+      </div>
+
+      <!-- 7 -->
+      <div class="gpane">
+        <p class="lead">Four ways to misread this screen.</p>
+        <h3>Trading a wall in the middle of nowhere</h3>
+        <p>A wall matters when price arrives at it. A wall forty points away is information about the shape of the day, not an entry.</p>
+        <h3>Turning everything on</h3>
+        <p>Map, Tide, CVD, walls at Top 15 and bot marks all at once is not more information, it is less. Two layers is usually the right number.</p>
+        <h3>Reading the map as a forecast</h3>
+        <p>Green does not mean price goes up. It means moves get absorbed. Red does not mean price falls. It means moves get amplified. The map describes behaviour, not direction.</p>
+        <h3>Ignoring the expiry</h3>
+        <p>0DTE walls are enormous in the morning and gone by the afternoon. All-expiry walls move slowly and hold for days. Know which one you are looking at before you size a trade around it.</p>
+      </div>
+    </div>
+
+    <div class="gfoot">
+      <label><input type="checkbox"> Don't show this at startup</label>
+      <button class="closeb" onclick="closeGuide()">Got it</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════ dati + tick live ══════════ */
+function rng(s){return function(){s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+let R=rng(20260913);
+
+const SYMS={
+  ES:{px:7688.75,step:.25,walls:[
+      {px:7746.7,s:2,gex:'+18M',k:7675,sign:1},{px:7721.7,s:3,gex:'+37M',k:7650,sign:1},
+      {px:7696.7,s:1,gex:'−11M',k:7625,sign:-1},{px:7671.7,s:1,gex:'−14M',k:7600,sign:-1}]},
+  SPX:{px:7656.98,step:.5,walls:[
+      {px:7700,s:3,gex:'+22M',k:7700,sign:1},{px:7675,s:2,gex:'+18M',k:7675,sign:1},
+      {px:7650,s:1,gex:'−9M',k:7650,sign:-1},{px:7625,s:1,gex:'−12M',k:7625,sign:-1}]},
+  NQ:{px:25412.5,step:.25,walls:[
+      {px:25600,s:2,gex:'+31M',k:25600,sign:1},{px:25480,s:3,gex:'+44M',k:25480,sign:1},
+      {px:25360,s:1,gex:'−16M',k:25360,sign:-1},{px:25240,s:1,gex:'−21M',k:25240,sign:-1}]},
+  SPY:{px:763.35,step:.01,walls:[
+      {px:768,s:2,gex:'+14M',k:768,sign:1},{px:765,s:3,gex:'+28M',k:765,sign:1},
+      {px:761,s:1,gex:'−8M',k:761,sign:-1},{px:758,s:1,gex:'−11M',k:758,sign:-1}]}
+};
+let SYM='ES', TF='1m', N=190, candles=[], last=0, dayOpen=0;
+
+function build(){
+  const cfg=SYMS[SYM]; R=rng(20260913+SYM.length*77);
+  const unit=cfg.px*0.00018*(TF==='1m'?1:TF==='5m'?2.2:3.8);   /* ampiezza per barra */
+  const band=unit*26;                                          /* larghezza del range */
+  candles=[]; let p=cfg.px, mid=cfg.px;
+  for(let i=0;i<N;i++){
+    const w=i/N;
+    mid = cfg.px + Math.sin(w*4.1)*band*0.55 + Math.sin(w*1.3+1)*band*0.3;
+    const pull=(mid-p)*0.09;                                   /* ritorno alla media */
+    const o=p, c=o+pull+(R()-0.5)*unit*2.2;
+    candles.push({o,h:Math.max(o,c)+R()*unit*0.9,l:Math.min(o,c)-R()*unit*0.9,
+                  v:14+R()*52+(i%37===0?90:0),c});
+    p=c;
+  }
+  const shift=cfg.px-candles[N-1].c;
+  candles.forEach(k=>{k.o+=shift;k.h+=shift;k.l+=shift;k.c+=shift});
+  last=cfg.px; dayOpen=cfg.px*1.0051;
+  cdiBars=[]; for(let i=0;i<170;i++) cdiBars.push((R()-0.46));
+}
+let cdiBars=[];
+
+/* un tick di mercato */
+function tick(){
+  const cfg=SYMS[SYM], k=candles[N-1];
+  const amp=cfg.px*0.00016;
+  last = +(last + (Math.random()-0.5)*amp*3).toFixed(cfg.step<0.05?2:2);
+  k.c=last; k.h=Math.max(k.h,last); k.l=Math.min(k.l,last);
+  SYMS[SYM].px=last;
+  /* nuova candela ogni 5 s */
+  if(Date.now()-lastCandle>5000){
+    lastCandle=Date.now();
+    candles.shift();
+    candles.push({o:last,h:last,l:last,c:last,v:14+Math.random()*52});
+    cdiBars.shift(); cdiBars.push(Math.random()-0.46);
+  }
+  paintHeader();
+}
+let lastCandle=Date.now();
+
+/* ══════════ layer attivi ══════════ */
+const L={walls:true,map:true,tide:false,cvd:false,bot:true,count:5,metric:'GEX',expiry:'All'};
+
+/* ══════════ canvas ══════════ */
+const box=document.getElementById('chartbox'), cv=document.getElementById('cv'), cx=cv.getContext('2d');
+const cdicv=document.getElementById('cdicv'), dx=cdicv.getContext('2d');
+const AXIS_W=78, LAB_W=190;
+let PAD_R=AXIS_W+LAB_W, PAD_B=26, PAD_L=8, PAD_T=14, lo, hi, W, H;
+let mouse=null;
+
+function layout(c,canvas){
+  const r=canvas.getBoundingClientRect(), d=devicePixelRatio||1;
+  const w=Math.max(1,Math.round(r.width)), h=Math.max(1,Math.round(r.height));
+  if(canvas.width!==w*d||canvas.height!==h*d){canvas.width=w*d;canvas.height=h*d}
+  c.setTransform(d,0,0,d,0,0); return [w,h];
+}
+function y(v){return PAD_T+(hi-v)/(hi-lo)*(H-PAD_T-PAD_B)}
+function xAt(i){return PAD_L+(i+0.5)*((W-PAD_R-PAD_L)/N)}
+const fmt=v=>v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+function walls(){return SYMS[SYM].walls.slice(0,Math.min(L.count,4))}
+
+function draw(){
+  [W,H]=layout(cx,cv); cx.clearRect(0,0,W,H);
+  const cl=Math.min(...candles.map(c=>c.l)), ch=Math.max(...candles.map(c=>c.h));
+  const span=Math.max(ch-cl, SYMS[SYM].px*0.002);
+  lo=cl-span*0.55; hi=ch+span*0.55;                    /* la finestra segue le candele */
+  walls().forEach(w=>{ if(w.px>lo-span&&w.px<hi+span){ lo=Math.min(lo,w.px-span*0.12);
+                                                       hi=Math.max(hi,w.px+span*0.12) } });
+  const plotW=W-PAD_R-PAD_L;
+
+  /* mappa */
+  if(L.map){
+    const ws=walls().slice().sort((a,b)=>a.px-b.px);
+    for(let i=0;i<ws.length-1;i++){
+      const a=ws[i], b=ws[i+1], pos=(a.sign+b.sign)>0;
+      cx.fillStyle=pos?'rgba(63,185,138,.085)':'rgba(225,86,79,.065)';
+      cx.fillRect(PAD_L,y(b.px),plotW,y(a.px)-y(b.px));
+    }
+    cx.fillStyle='rgba(225,86,79,.05)'; cx.fillRect(PAD_L,PAD_T,plotW,y(ws[ws.length-1].px)-PAD_T);
+    cx.fillStyle='rgba(225,86,79,.04)'; cx.fillRect(PAD_L,y(ws[0].px),plotW,H-PAD_B-y(ws[0].px));
+  }
+
+  /* griglia + scala */
+  const stepP=niceStep((hi-lo)/7);
+  cx.font='10px ui-monospace,monospace'; cx.textBaseline='middle'; cx.textAlign='left';
+  for(let v=Math.ceil(lo/stepP)*stepP; v<hi; v+=stepP){
+    cx.strokeStyle='rgba(255,255,255,.035)';
+    cx.beginPath(); cx.moveTo(PAD_L,y(v)+.5); cx.lineTo(W-PAD_R,y(v)+.5); cx.stroke();
+    if(Math.abs(y(v)-y(last))>15){ cx.fillStyle='#6a7580'; cx.fillText(fmt(v), W-AXIS_W+9, y(v)); }
+  }
+
+  /* muri */
+  if(L.walls) walls().forEach(w=>{
+    cx.strokeStyle=w.sign>0?'#3fb98a':'#b07ae8'; cx.globalAlpha=.55+w.s*.12;
+    cx.lineWidth=w.s>=3?2.2:1.3;
+    cx.beginPath(); cx.moveTo(PAD_L,y(w.px)); cx.lineTo(W-PAD_R,y(w.px)); cx.stroke();
+    cx.globalAlpha=1;
+  });
+
+  /* candele o tide */
+  const cw=Math.max(2.2,plotW/N*0.62);
+  if(L.tide){
+    cx.lineWidth=3.2; cx.beginPath();
+    candles.forEach((c,i)=>{const xx=xAt(i); i?cx.lineTo(xx,y((c.h+c.l)/2)):cx.moveTo(xx,y((c.h+c.l)/2))});
+    cx.strokeStyle='rgba(180,190,200,.75)'; cx.stroke();
+    candles.forEach((c,i)=>{ if(i%4)return;
+      cx.fillStyle=c.c>=c.o?'rgba(63,185,138,.75)':'rgba(225,86,79,.75)';
+      cx.fillRect(xAt(i)-2, y((c.h+c.l)/2)-2, 4, 4);
+    });
+  } else {
+    candles.forEach((c,i)=>{
+      const xx=xAt(i), up=c.c>=c.o;
+      cx.strokeStyle=up?'#3fb98a':'#e1564f'; cx.fillStyle=cx.strokeStyle; cx.lineWidth=1;
+      cx.beginPath(); cx.moveTo(xx,y(c.h)); cx.lineTo(xx,y(c.l)); cx.stroke();
+      const a=y(c.o),b=y(c.c);
+      cx.fillRect(xx-cw/2,Math.min(a,b),cw,Math.max(1.2,Math.abs(b-a)));
+    });
+  }
+
+  /* volumi */
+  const vmax=Math.max(...candles.map(c=>c.v)), vh=46;
+  candles.forEach((c,i)=>{
+    cx.fillStyle=c.c>=c.o?'rgba(63,185,138,.30)':'rgba(225,86,79,.30)';
+    const bh=c.v/vmax*vh; cx.fillRect(xAt(i)-cw/2,H-PAD_B-bh,cw,bh);
+  });
+
+  /* segnalini bot */
+  if(L.bot){
+    [[42,'LONG','#3fb98a'],[118,'SHORT','#e1564f'],[163,'OUT','#e3b23c']].forEach(([i,t,col])=>{
+      const xx=xAt(i), yy=y(candles[i].l)+16;
+      cx.fillStyle=col; cx.beginPath(); cx.arc(xx,yy-9,3.2,0,7); cx.fill();
+      cx.font='9px ui-monospace,monospace'; cx.textAlign='center';
+      cx.fillStyle='rgba(8,10,14,.85)';
+      const tw=cx.measureText(t).width+10;
+      cx.fillRect(xx-tw/2,yy+1,tw,13);
+      cx.strokeStyle=col+'66'; cx.lineWidth=1; cx.strokeRect(xx-tw/2,yy+1,tw,13);
+      cx.fillStyle=col; cx.fillText(t,xx,yy+8);
+    });
+    cx.textAlign='left';
+  }
+
+  /* asse tempi */
+  cx.fillStyle='#5c6672'; cx.textAlign='center'; cx.font='10px ui-monospace,monospace';
+  const base=new Date(); base.setSeconds(0,0);
+  const mins=TF==='1m'?1:TF==='5m'?5:15;
+  for(let k=0;k<6;k++){
+    const i=Math.round(N*(k+0.5)/6);
+    const d=new Date(base.getTime()-(N-i)*mins*60000);
+    cx.fillText(String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'), xAt(i), H-PAD_B/2);
+  }
+
+  /* linea prezzo */
+  cx.setLineDash([4,4]); cx.strokeStyle='rgba(95,200,232,.55)'; cx.lineWidth=1;
+  cx.beginPath(); cx.moveTo(PAD_L,y(last)); cx.lineTo(W-PAD_R,y(last)); cx.stroke(); cx.setLineDash([]);
+
+  /* crosshair + UN SOLO riquadro */
+  if(mouse && mouse.x<W-PAD_R){
+    cx.setLineDash([3,4]); cx.strokeStyle='rgba(255,255,255,.22)';
+    cx.beginPath(); cx.moveTo(mouse.x,PAD_T); cx.lineTo(mouse.x,H-PAD_B);
+    cx.moveTo(PAD_L,mouse.y); cx.lineTo(W-PAD_R,mouse.y); cx.stroke(); cx.setLineDash([]);
+    const v=hi-(mouse.y-PAD_T)/(H-PAD_T-PAD_B)*(hi-lo);
+    cx.fillStyle='#5fc8e8'; cx.fillRect(W-AXIS_W+2,mouse.y-9,AXIS_W-4,18);
+    cx.fillStyle='#06202a'; cx.textAlign='left'; cx.font='10px ui-monospace,monospace';
+    cx.fillText(fmt(v), W-AXIS_W+8, mouse.y);
+  }
+  placeLabels();
+}
+function niceStep(r){const p=Math.pow(10,Math.floor(Math.log10(r)));const n=r/p;
+  return (n<1.5?1:n<3?2:n<7?5:10)*p}
+
+function placeLabels(){
+  box.querySelectorAll('.walllab,.pxtag').forEach(e=>e.remove());
+  if(L.walls) walls().forEach(w=>{
+    const col=w.sign>0?'#3fb98a':'#b07ae8';
+    const d=document.createElement('div'); d.className='walllab';
+    d.textContent=`${'★'.repeat(w.s-1)} ${fmt(w.px)} · ${w.gex} · ${L.metric} ${w.k}`;
+    d.style.cssText+=`top:${y(w.px)}px;right:${AXIS_W+4}px;width:${LAB_W-10}px;text-align:left;color:${col};background:${col}1f;border:1px solid ${col}55`;
+    box.appendChild(d);
+  });
+  const t=document.createElement('div'); t.className='pxtag';
+  t.textContent=fmt(last); t.style.top=y(last)+'px'; t.style.right='2px';
+  box.appendChild(t);
+}
+
+function drawCdi(){
+  const [w,h]=layout(dx,cdicv); dx.clearRect(0,0,w,h);
+  const mid=h/2, st=w/cdiBars.length;
+  dx.strokeStyle='rgba(255,255,255,.10)'; dx.setLineDash([3,3]);
+  dx.beginPath(); dx.moveTo(0,mid); dx.lineTo(w,mid); dx.stroke(); dx.setLineDash([]);
+  cdiBars.forEach((b,i)=>{
+    const v=b*(h*0.44);
+    dx.fillStyle=v>=0?'rgba(63,185,138,.78)':'rgba(225,86,79,.78)';
+    dx.fillRect(i*st+st*0.2, v>=0?mid-v:mid, Math.max(1.4,st*0.55), Math.abs(v));
+  });
+}
+
+/* ══════════ testata viva ══════════ */
+function paintHeader(){
+  const chg=(last/dayOpen-1)*100;
+  document.getElementById('hpx').textContent=fmt(last);
+  const e=document.getElementById('hchg');
+  e.textContent=(chg>=0?'+':'−')+Math.abs(chg).toFixed(2)+'%';
+  e.style.color=chg>=0?'var(--up)':'var(--dn)';
+  e.style.background=chg>=0?'rgba(63,185,138,.12)':'rgba(225,86,79,.12)';
+  const now=new Date();
+  document.getElementById('hclock').textContent=
+    'LIVE · '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+' ET';
+  document.getElementById('hnow').textContent=fmt(last);
+}
+
+/* ══════════ interazione ══════════ */
+function togglePanels(){
+  const s=document.getElementById('side'), hidden=s.style.display==='none';
+  s.style.display=hidden?'flex':'none';
+  document.getElementById('pchev').textContent=hidden?'▸':'◂';
+  requestAnimationFrame(()=>{draw();drawCdi()});
+}
+function openMenu(id){document.querySelectorAll('.pop').forEach(p=>p.classList.toggle('open',p.id===id&&!p.classList.contains('open')))}
+function setSym(s){SYM=s;document.getElementById('hsym').textContent=s;build();paintHeader();draw();drawCdi();closeAll()}
+function setTf(t,el){TF=t;document.getElementById('htf').textContent=t;
+  document.querySelectorAll('#poptf .mi').forEach(x=>x.classList.remove('on'));el.classList.add('on');
+  build();draw();drawCdi();closeAll()}
+function closeAll(){document.querySelectorAll('.pop').forEach(p=>p.classList.remove('open'))}
+function tg(el,key){el.classList.toggle('on'); L[key]=el.classList.contains('on'); draw()}
+function setSel(key,v){L[key]=key==='count'?+v:v; draw()}
+
+function openGuide(){document.getElementById('scrim').classList.add('open')}
+function closeGuide(){document.getElementById('scrim').classList.remove('open')}
+function gtab(i,b){
+  document.querySelectorAll('.gnav button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  document.querySelectorAll('.gpane').forEach((x,j)=>x.classList.toggle('on',j===i));
+  document.querySelector('.gbody').scrollTop=0;
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeGuide();closeAll()}});
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.pop') && !e.target.closest('[data-menu]')) closeAll();
+});
+cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();mouse={x:e.clientX-r.left,y:e.clientY-r.top};draw()});
+cv.addEventListener('mouseleave',()=>{mouse=null;draw()});
+
+function redraw(){draw();drawCdi()}
+addEventListener('resize',redraw);
+new ResizeObserver(redraw).observe(box);
+new ResizeObserver(redraw).observe(cdicv);
+
+build(); paintHeader();
+requestAnimationFrame(()=>{redraw();setTimeout(redraw,60)});
+setInterval(()=>{tick();draw();drawCdi()},700);
+setInterval(()=>{document.getElementById('rtt').textContent=(150+Math.round(Math.random()*60))+' ms'},2600);
+</script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="spec.css">
+</head>
+<body>
+
+<section class="pg">
+  <div class="head">
+    <div class="brand">Volwick · Sightline · build v778</div>
+    <h1>Cosa non è stato sistemato</h1>
+  </div>
+
+  <p>La build è passata da <b>v775 a v778</b>, quindi qualcosa è stato rilasciato. Ho rifatto tutto il giro la sera dell'8 settembre, a mercato chiuso e con i futures nella pausa serale del CME — condizione utile, perché senza tick in arrivo i difetti che si autoriparano restano fermi e si misurano.</p>
+  <p>Il conto è questo: <b>un punto migliorato, dodici identici, uno peggiorato, quattro nuovi.</b></p>
+
+  <h2><span class="n">01</span> Spegni la Tide all'apertura, e falla funzionare su SPX</h2>
+  <p>È il punto più grave e non è cambiato di una virgola. L'interruttore del <b>Liquidity Tide si riaccende da solo a ogni caricamento</b>: l'ho spento, ho ricaricato, l'ho ritrovato acceso, con FLOW e LEVELS riazzerati a Off. Tre volte su tre.</p>
+  <p>E su SPX, con la Tide accesa, il grafico <b>non disegna né candele né nastro</b>: resta l'area dei prezzi vuota con le sole righe dei muri. Il doppio clic non ripara niente.</p>
+  <p>Spegnendola va peggio: il grafico resta <b>completamente vuoto e sparisce anche l'asse dei tempi</b>. Serve un secondo doppio clic per riavere le candele.</p>
+  <p>Messo insieme: <b>chi apre l'app su SPX vede un grafico senza prezzo</b>, ogni volta, senza sapere perché.</p>
+  <div class="spec">Non riaccendere la Tide da sola: se l'utente l'ha spenta, deve restare spenta. E disattivarla sugli strumenti dove non disegna nulla, scrivendo il motivo — mai lasciare il grafico vuoto.</div>
+
+  <figure>
+    <img src="fig/f01-spx-senza-candele.jpg" alt="SPX senza candele">
+    <figcaption><b>SPX appena aperto, con la Tide accesa.</b> Nessuna candela, nessun nastro: solo le righe dei muri e un moncone di volumi a sinistra. In alto a destra il tempo di risposta è a 2.825 ms.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/f02-tide-riaccesa.png" alt="Interruttore Tide acceso">
+      <figcaption><b>Dopo averla spenta e ricaricato la pagina.</b> L'interruttore è di nuovo acceso, e FLOW e LEVELS sono tornati a Off.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/f18-trattino.png" alt="Trattino fantasma">
+      <figcaption><b>Punto 12, già che siamo qui.</b> Un trattino bianco appoggiato sopra le candele. In una schermata su ES ne conto cinque.</figcaption>
+    </figure>
+  </div>
+
+  <figure>
+    <img src="fig/f03-grafico-vuoto.jpg" alt="Grafico vuoto senza asse">
+    <figcaption><b>Lo stesso schermo dopo aver spento l'interruttore.</b> Il grafico è vuoto e <b>l'asse dei tempi non c'è più</b>: nessuna etichetta sotto le candele che non ci sono.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">02</span> Ridisegna i muri quando cambia l'altezza del grafico</h2>
+  <p>Chiuso il riquadro CDI su ES, ho misurato dove cade ogni riga rispetto alla scala: <b>7720,4</b> disegnata a 7721,3 · <b>7710,4</b> a 7713,6 · <b>7705,4</b> a 7709,9 · <b>7700,4</b> a 7706,1 · <b>7690,4</b> a 7698,4 · <b>7680,4</b> a 7691,0 · <b>7655,4</b> a 7671,8.</p>
+  <p>Da <b>un punto a sedici</b>, con l'errore che cresce scendendo. E con i futures fermi <b>non si è corretto nemmeno dopo sei secondi</b>: la conferma che il raddrizzamento arriva solo con il tick di prezzo, non dal codice.</p>
+  <div class="spec">Ricalcolare la posizione dei muri quando cambia l'altezza dell'area, non solo quando arriva un prezzo.</div>
+</section>
+
+<section class="pg">
+  <figure class="tall" style="margin-top:0">
+    <img src="fig/f04-muri-fuori-posto.png" alt="Muri fuori posto" style="max-height:98mm">
+    <figcaption><b>ES, subito dopo aver chiuso il riquadro CDI.</b> La scala dei prezzi è giusta, le righe no: l'etichetta <code>7680.4</code> passa all'altezza di 7691, la <code>7655.4</code> a 7672.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:8mm"><span class="n">03</span> Fai partire il replay</h2>
+  <p>Entrato in replay, scelto 1x, premuto PLAY, aspettati trenta secondi: l'orologio segna ancora <b>09:00 ET</b> e la barra scrive <code>candles 09:00</code>. Il pulsante dice PAUSE, quindi il software crede di star suonando.</p>
+  <p>È la quarta volta che lo verifico, e stavolta con gli snapshot dell'intera giornata disponibili.</p>
+  <div class="spec">PLAY deve far avanzare l'orologio e tagliare le candele a quell'ora. Se non è pronto, il pulsante va disattivato: oggi risponde al clic e non fa niente.</div>
+
+  <figure class="crop">
+    <img src="fig/f05-replay-fermo.png" alt="Barra del replay">
+    <figcaption><b>Trenta secondi dopo aver premuto PLAY a velocità 1x.</b> Dovrebbe segnare 09:00:30.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">04</span> Sistema l'asse dei tempi</h2>
+  <p>Su SPX l'asse salta un blocco intero e ci infila una data: <code>16:15 · 16:30 · 16:45 · <b>18:00</b> · 18:15 · … · 19:45 · <b>Sep 04</b> · 20:15</code>. Mancano le 17:00–17:45 e in mezzo agli orari compare una data di quattro giorni prima.</p>
+  <p>E c'è un secondo problema, più vecchio: al primo disegno <b>la finestra temporale è sbagliata</b>. Stasera alle 17:45 il grafico di ES si è aperto mostrando dalle 04:30 alle 08:30.</p>
+  <div class="spec">Un asse solo, con orari quando la scala è a ore e date quando è a giorni. E la finestra iniziale sull'ultimo tratto di dati, non su uno pescato a caso.</div>
+
+  <figure class="crop">
+    <img src="fig/f07-asse-sep04.png" alt="Asse con Sep 04">
+    <figcaption><b>L'asse dei tempi su SPX, ingrandito.</b> Da 16:45 si salta a 18:00, e fra 19:45 e 20:15 compare «Sep 04».</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <h2><span class="n">05</span> Togli i livelli falsi dall'alert</h2>
+  <p>Il campo del prezzo dell'alert è una tendina di sei livelli più due voci che non c'entrano niente. Su SPX a 7.673 la lista è: <code>7.673,52 · 7.695 · 7.650 · 7.700 · 7.705 · 7.640 · <b>81</b> · <b>38.64</b></code>. Su ES a 7.678 le stesse due voci, identiche.</p>
+  <p>Non è teoria: ho scelto <b>81</b> e il software ha creato l'alert. La riga che compare dice «Within 5 points of 81 on SPX», con la distanza calcolata in <b>7592,52 punti</b>.</p>
+  <p>La lista non è nemmeno ordinata: 7.695 viene prima di 7.650.</p>
+  <div class="spec">Togliere le due voci estranee, ordinare la lista, e rifiutare un livello che sta a settemila punti dal prezzo. E siccome la tendina è disegnata come una casella di testo accanto a un vero campo numerico, va distinta: chi la vede prova a scriverci dentro.</div>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/f11-alert-campo81.png" alt="Campo con 81">
+      <figcaption><b>Il livello 81 selezionato</b> su uno strumento che quota 7.673.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/f12-alert-riga81.png" alt="Alert creato su 81">
+      <figcaption><b>L'alert creato.</b> Distanza dal prezzo: 7.592,52 punti.</figcaption>
+    </figure>
+  </div>
+
+  <h2 style="margin-top:9mm"><span class="n">06</span> Fai seguire IL PIANO allo strumento</h2>
+  <p>Con <b>ES a 7.678,25</b> il pannello scrive «LEVELS 7673 · CEILING TEST 7720 · floor 7525 · target 7678 · Close above 7723». Sono livelli SPX, su un grafico ES i cui muri stanno a 7700, 7695, 7690 e 7680.</p>
+  <div class="spec">Convertire IL PIANO nella scala dello strumento aperto, come già si fa per PREZZI CHE CONTANO.</div>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/f13-header-es.png" alt="Testata ES">
+      <figcaption><b>In testata.</b> ES a 7.678,25.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/f14-piano-spx.png" alt="Il piano in scala SPX">
+      <figcaption><b>Nello stesso momento, nel pannello.</b> Numeri SPX.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="pg">
+  <h2><span class="n">07</span> Sistema il multi-grafico</h2>
+  <p>Tre cose, tutte già segnalate ad agosto e tutte ancora lì.</p>
+  <p>La riga rossa in fondo alla pagina finisce ancora con un carattere di scarto: <code>… 0s ago Last Update GEX16:00 ETj</code> — la <b>j</b> attaccata, «GEX16:00» senza spazio, la frase montata al contrario.</p>
+  <p>Sotto GRID ci sono ancora <b>cinque</b> disposizioni.</p>
+  <p>E adesso c'è di peggio: nella finestra 1 <b>l'intestazione e la riga dei comandi sono stampate dentro il grafico</b>, sopra le candele, con i numeri della scala dei volumi sovrapposti.</p>
+  <div class="spec">Togliere la quinta disposizione, riscrivere la riga rossa, e dare alla barra della finestra un'area sua che non entri nel disegno.</div>
+
+  <figure>
+    <img src="fig/f08-multigrafico.jpg" alt="Due finestre affiancate">
+    <figcaption><b>Due finestre, ES a sinistra e SPX a destra.</b> Nella prima, «POSITIONS LIVE 16:00 · ES · 7.678,25 · 1m» e tutta la riga dei comandi sono disegnate sopra le candele.</figcaption>
+  </figure>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/f09-riga-rossa.png" alt="La riga rossa">
+      <figcaption><b>La riga rossa, ingrandita.</b> Identica al 27 agosto.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/f10-grid-5.png" alt="Cinque icone GRID">
+      <figcaption><b>Sotto GRID.</b> Cinque disposizioni: la quinta è quella da togliere.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="pg">
+  <h2><span class="n">08</span> Dirada i segnalini del bot</h2>
+  <p>Sul giornaliero e sulla vista multi-giorno i segnalini si ammassano: una ventina di targhette sovrapposte, diverse tagliate a metà — <code>PAPER CDI SHORT SHOR… WON</code>, <code>PAPER EMA CROSS LO…1:15 WON</code>. Il grafico sotto non si legge più.</p>
+  <p>E la parola doppia è ancora lì: <code>PAPER CDI SHORT SHORT 10:52 WON</code>.</p>
+  <div class="spec">Su scale larghe raggruppare i segnalini invece di disegnarli tutti, e non far uscire le targhette dal bordo. Correggere la stringa doppia.</div>
+
+  <figure>
+    <img src="fig/f15-segnalini.jpg" alt="Segnalini ammassati">
+    <figcaption><b>ES, vista multi-giorno.</b> I segnalini del bot coprono il grafico. L'asse in fondo mescola date e orari e salta il 5 settembre tenendo il 6, che è domenica.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">09</span> Chiedi al server la serie del timeframe scelto</h2>
+  <p>Passando da 1m a D la rete registra <b>zero richieste</b>. L'app non chiede mai una serie del timeframe scelto: ri-raggruppa quella che ha già.</p>
+  <p>Il giornaliero è la cosa che <b>è migliorata</b>: adesso disegna candele vere, dal 31 agosto all'8 settembre, non più un unico rettangolo. Ma resta l'orario in fondo a un asse di giorni — l'ultima etichetta è <code>16:59</code>.</p>
+  <div class="spec">Chiedere la serie giusta al cambio di timeframe, e sull'asse dei giorni scrivere solo giorni.</div>
+</section>
+
+<section class="pg">
+  <figure>
+    <img src="fig/f06-giornaliero.jpg" alt="Giornaliero su ES">
+    <figcaption><b>ES, timeframe D.</b> Le candele giornaliere ci sono — è il miglioramento di questa build. Ma l'asse finisce con <code>16:59</code> e i segnalini intraday si accatastano sulle stesse barre.</figcaption>
+  </figure>
+
+  <h2><span class="n">10</span> Taglia il traffico, che è aumentato</h2>
+  <p>Misura da fermo, senza toccare nulla, <b>67 secondi</b>: <b>2.147 KB</b>. Fa circa <b>115 MB l'ora per ogni scheda aperta</b>. Ieri sulla build precedente erano 71.</p>
+  <table>
+    <tbody>
+      <tr><td class="k" style="width:38mm">1.428 KB · 6 chiamate</td><td><code>spike_history/SPY_0DTE</code>, una ogni undici secondi. E parte anche quando il libro selezionato è SPXW e lo strumento è ES</td></tr>
+      <tr><td class="k">601 KB · 1 chiamata</td><td><code>SPX_replay.json</code>, in un colpo solo</td></tr>
+      <tr><td class="k">97 KB</td><td><code>SPX_afterhours.json</code></td></tr>
+      <tr><td class="k">≈ 2,8 TB al giorno</td><td>Proiezione a mille utenti simultanei, sola banda in uscita</td></tr>
+    </tbody>
+  </table>
+  <div class="spec">Cache su <code>spike_history</code>, un intervallo ragionevole al posto di venti giorni di storico, e niente richiesta ogni dieci secondi. E non interrogare un libro che l'utente non ha scelto.</div>
+
+  <h2 style="margin-top:9mm"><span class="n">11</span> Fai entrare la barra comandi nello schermo</h2>
+  <p>In replay il bordo destro di <b>PANELS</b> cade a <b>1733 pixel su una finestra da 1710</b>: ventitré pixel fuori, non cliccabile. Su un portatile da 1440 uscirebbero anche GUIDE e HIDE TOP BAR.</p>
+  <div class="spec">Far entrare la barra in 1440 pixel.</div>
+</section>
+
+<section class="pg">
+  <h2><span class="n">12</span> Un giro sui testi</h2>
+  <p>Piccoli, ma sono i primi che si notano.</p>
+  <p><code>Live (16:00</code> con la parentesi mai chiusa · <code>STALE 99m23s</code>, l'anzianità del libro contata in minuti · <code>+755K</code> della scala CDI stampato sotto la riga dei comandi · <code>PAPER CDI SHORT SHORT</code> con la parola doppia.</p>
+  <div class="spec">Chiudere la parentesi. Scrivere l'anzianità in parole — «libro delle 16:00». Dare all'etichetta della scala un margine che non entri nella barra.</div>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/f16-live-paren.png" alt="Live (16:00">
+      <figcaption><b>In basso a sinistra.</b> La parentesi non si chiude mai.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/f17-cdi-stale.png" alt="Barra del CDI">
+      <figcaption><b>La barra del CDI.</b> Anzianità in minuti, e il <code>+755K</code> della scala che spunta sotto.</figcaption>
+    </figure>
+  </div>
+
+  <h2 style="margin-top:9mm"><span class="n">13</span> Non dire che sei scollegato mentre stai caricando</h2>
+  <p>Per i primi secondi dopo ogni caricamento il pallino in alto a destra è rosso, il tempo di risposta è un trattino e in fondo alla pagina c'è scritto <code>WS disconnected</code>. Poi si sistema da solo.</p>
+  <div class="spec">Un solo indicatore, e durante l'apertura scrivere che sta collegando.</div>
+
+  <div class="note">
+    <h4>Come è stato provato</h4>
+    <p class="small">Sessione dell'8 settembre, 23:24–23:40 CEST, cioè 17:24–17:40 a New York: cash chiuso da un'ora e mezza, futures nella pausa serale del CME. Build <code>sightline.v778.js</code>. Ogni punto riprodotto e fotografato. I numeri di rete vengono dall'API delle prestazioni del browser e dalla scheda Network.</p>
+  </div>
+</section>
+
+</body>
+</html>

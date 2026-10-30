@@ -1,0 +1,272 @@
+<!doctype html><html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Volwick Command Bar</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+</head><body>
+<style>
+:root{
+  --bg:#07090D; --pane:#0A0D13; --card:#0B0F16; --line:rgba(255,255,255,.06);
+  --ink:#E7ECF3; --mut:#9AA6B8; --dim:#5D6A82; --faint:#3A4354;
+  --blue:#3D6FF5; --blueT:#6E92FF; --deep:#2B52C4;
+  --up:#4ADE80; --gold:#D9B54D; --cyan:#38BDF8;
+  --sans:Inter,-apple-system,system-ui,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono","SF Mono",Menlo,ui-monospace,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13px;
+     padding:34px 16px 90px;-webkit-font-smoothing:antialiased}
+.page{max-width:1400px;margin:0 auto}
+h1{font-size:19px;font-weight:600;letter-spacing:-.015em}
+.lede{color:var(--mut);font-size:13.5px;line-height:1.6;margin-top:9px;max-width:74ch}
+.lede b{color:var(--ink);font-weight:500}
+
+.block{margin-top:40px}
+.hd{display:flex;align-items:baseline;gap:11px;margin-bottom:5px}
+.hd .n{font-family:var(--mono);font-size:11px;color:var(--blueT)}
+.hd h2{font-size:15.5px;font-weight:600;letter-spacing:-.01em}
+.hd .tag{margin-left:auto;font-size:10px;color:var(--faint);letter-spacing:.1em}
+.why{color:var(--mut);font-size:12.5px;line-height:1.6;max-width:86ch;margin-bottom:13px}
+
+.frame{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--pane)}
+.scroll{overflow-x:auto}
+.scroll::-webkit-scrollbar{height:7px}
+.scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:0;
+       border-top:1px solid var(--line)}
+.notes div{padding:11px 14px;font-size:11.5px;color:var(--mut);line-height:1.55;
+           border-left:1px solid var(--line)}
+.notes div:first-child{border-left:0}
+.notes b{display:block;color:var(--ink);font-weight:500;font-size:11px;margin-bottom:3px}
+
+/* ====================== la barra ====================== */
+.bar{height:44px;min-width:1345px;display:flex;align-items:center;padding:0 14px;
+     white-space:nowrap;background:var(--pane)}
+.wm{display:block;flex:none}
+.mk{flex:none;display:grid;place-items:center;padding:6px 4px;border-radius:6px}
+.mk:hover{background:rgba(255,255,255,.05)}
+.sep{width:1px;height:17px;background:rgba(255,255,255,.09);flex:none;margin:0 15px}
+.gap{flex:1;min-width:14px}
+
+button{font:inherit;color:inherit;background:transparent;border:0;cursor:pointer}
+.cap{color:var(--dim);font-size:8px;letter-spacing:.15em;flex:none}
+.ctl{display:flex;align-items:center;gap:8px;height:28px;padding:0 9px;border-radius:6px;flex:none}
+.ctl:hover{background:rgba(255,255,255,.055)}
+.ctl .v{color:var(--ink);font-size:12.5px}
+.ctl .sym{color:var(--blueT);font-size:12px;letter-spacing:.06em}
+.ctl .px{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.ctl .chg{color:var(--up);font-size:10.5px;font-variant-numeric:tabular-nums}
+.car{width:7px;height:4px;flex:none;opacity:.5}
+
+.dotst{width:7px;height:7px;border-radius:50%;background:var(--up);flex:none;margin-right:11px}
+
+.tg{display:flex;align-items:center;gap:7px;height:26px;padding:0 10px;border-radius:6px;
+    color:var(--dim);font-size:9.5px;letter-spacing:.08em;flex:none;
+    border:1px solid transparent}
+.tg i{width:5px;height:5px;border-radius:50%;background:currentColor;flex:none;opacity:.5}
+.tg:hover{color:var(--mut);background:rgba(255,255,255,.045)}
+.tg.on{color:var(--blueT);background:rgba(61,111,245,.13);border-color:rgba(61,111,245,.42)}
+.tg.on i{background:var(--blue);opacity:1}
+.tg.on:active{background:var(--deep);border-color:var(--deep);color:#F5F8FF}
+
+.ghost{height:26px;padding:0 12px;border-radius:6px;color:var(--dim);font-size:9.5px;
+       letter-spacing:.1em;flex:none}
+.ghost:hover{color:var(--mut);background:rgba(255,255,255,.045)}
+.prim{height:26px;padding:0 13px;border-radius:6px;flex:none;font-size:9.5px;letter-spacing:.08em;
+      color:var(--blueT);background:rgba(61,111,245,.13);border:1px solid rgba(61,111,245,.42)}
+.prim:active{background:var(--deep);border-color:var(--deep);color:#F5F8FF}
+
+/* --- segmentato, variante B --- */
+.seg{display:flex;align-items:center;flex:none;border:1px solid rgba(255,255,255,.07);
+     border-radius:7px;padding:2px;gap:2px;height:30px}
+.seg button{height:24px;padding:0 11px;border-radius:5px;color:var(--dim);font-size:9.5px;
+     letter-spacing:.08em;display:flex;align-items:center;gap:6px}
+.seg button i{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.45}
+.seg button:hover{color:var(--mut);background:rgba(255,255,255,.05)}
+.seg button.on{color:var(--blueT);background:rgba(61,111,245,.15)}
+.seg button.on i{background:var(--blue);opacity:1}
+
+/* --- blocco strumento, variante C --- */
+.inst{display:flex;align-items:center;height:32px;border-radius:8px;flex:none;
+      background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.055);padding:0 3px}
+.inst .ctl:hover{background:rgba(255,255,255,.06)}
+.inst .div{width:1px;height:15px;background:rgba(255,255,255,.07);margin:0 2px}
+
+/* etichette in linea, variante C */
+.inl{display:flex;align-items:center;gap:7px;height:28px;padding:0 9px;border-radius:6px;flex:none}
+.inl:hover{background:rgba(255,255,255,.055)}
+.inl em{font-style:normal;color:var(--dim);font-size:10.5px}
+.inl .v{color:var(--ink);font-size:12.5px}
+
+/* la barra di oggi, per confronto */
+.old .grp{display:flex;align-items:center;height:38px;background:rgba(56,189,248,.043);
+     border-radius:9px;padding:0 6px;flex:none;margin-left:10px}
+.old .k{color:var(--cyan);font-size:8px;letter-spacing:.14em}
+.old .k.off{color:var(--dim)}
+.old .val{color:var(--mut);font-size:11.5px}
+.old .pn{height:26px;padding:0 11px;border-radius:6px;color:var(--gold);
+     background:rgba(217,181,77,.07);border:1px solid rgba(217,181,77,.5);
+     font-size:9.5px;letter-spacing:.07em;flex:none;margin:0 10px 0 6px}
+.old .ch{color:var(--dim);font-size:9.5px;letter-spacing:.07em;height:26px;padding:0 9px;
+     border-radius:6px;border:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:6px}
+.old .ch i{width:5px;height:5px;border-radius:50%;background:var(--dim)}
+.old .ch.on{color:var(--cyan);border-color:rgba(56,189,248,.45);background:rgba(56,189,248,.07)}
+.old .ch.on i{background:var(--cyan)}
+.old .dotg{width:9px;height:9px;border-radius:50%;background:var(--gold);margin-right:9px}
+.old .word{font-family:Inter,sans-serif;font-size:14.5px;font-weight:600;letter-spacing:-.012em}
+.old .word b{color:#F5F8FF}.old .word i{color:var(--blueT);font-style:normal}
+.old .sq{width:26px;height:26px;border-radius:7px;background:var(--blue);display:grid;place-items:center}
+
+.foot{margin-top:46px;border-top:1px solid var(--line);padding-top:20px;color:var(--mut);
+      font-size:12.5px;line-height:1.65;max-width:72ch}
+.foot b{color:var(--ink);font-weight:500}
+</style>
+
+<div class="page">
+  <h1>La barra dei comandi, tre modi di ordinarla</h1>
+  <p class="lede">Oggi la barra tiene <b>undici comandi</b> in tre pillole azzurre più due bottoni sciolti a destra.
+    I gruppi hanno la stessa forma ma contengono cose diverse, le etichette usano due colori, e il tasto
+    BOT TRADES scrive il proprio stato mentre gli altri lo mostrano. Qui sotto la barra di oggi e tre
+    riordini. La differenza tra i tre non è estetica: cambia <b>quanti oggetti</b> devi guardare.</p>
+
+  <div class="block">
+    <div class="hd"><span class="n">00</span><h2>Come è adesso</h2><span class="tag">RIFERIMENTO</span></div>
+    <div class="frame"><div class="scroll"><div class="bar old">
+      <span class="sq"><svg width="13" height="11" viewBox="0 0 14 12"><path d="M1 1.5 L7 10.5 L13 1.5" fill="none" stroke="#07090D" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <span class="word" style="margin-left:13px"><b>VOL</b><i>WICK</i></span>
+      <span class="grp" style="margin-left:18px"><i class="dotg"></i>
+        <span class="ctl"><span class="sym">ES</span><span class="px">7,725.00</span><span class="chg">+0.30%</span><svg class="car" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg></span>
+        <span class="ctl"><span class="v">1m</span><svg class="car" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg></span></span>
+      <span class="grp">
+        <span class="ctl"><span class="k">WALLS</span><span class="val">Top 15</span><svg class="car" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg></span>
+        <span class="ctl"><span class="k off">METRIC</span><span class="val">GEX</span><svg class="car" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg></span>
+        <span class="ctl"><span class="k off">EXPIRY</span><span class="val">All</span><svg class="car" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg></span></span>
+      <span class="grp" style="gap:4px">
+        <span class="ch on"><i></i>TIDE</span><span class="ch on"><i></i>CVD</span><span class="ch on"><i></i>CDI</span>
+        <span class="ch"><i></i>FLOW</span><span class="ch on"><i></i>MAPS</span><span class="ch"><i></i>BOT TRADES: OFF</span></span>
+      <span class="gap"></span>
+      <span class="ghost">GUIDE</span><span class="pn">PANELS</span>
+    </div></div>
+    <div class="notes">
+      <div><b>11 oggetti</b>Tre pillole della stessa forma per tre contenuti diversi.</div>
+      <div><b>Due colori di etichetta</b>WALLS è ciano, METRIC ed EXPIRY sono grigi. Stessa funzione, aspetto diverso.</div>
+      <div><b>Uno stato scritto</b>BOT TRADES stampa OFF; gli altri cinque lo mostrano accendendosi.</div>
+    </div></div>
+  </div>
+
+  <div class="block">
+    <div class="hd"><span class="n">01</span><h2>Filetti</h2><span class="tag">MENO SUPERFICI</span></div>
+    <p class="why">Via le pillole. Tutto appoggia sullo stesso fondo e i gruppi si separano con un filetto da un pixel,
+      come nella barra di TradingView o di Figma. Le etichette diventano tutte dello stesso grigio. BOT esce
+      dal gruppo delle sovrapposizioni, dove non c'entra, e va a destra con GUIDE e PANELS perché è una cosa
+      della sessione, non del grafico. È il cambio più piccolo: stessa struttura, meno rumore.</p>
+    <div class="frame"><div class="scroll"><div class="bar" id="v1">
+      <button class="mk"><svg xmlns="http://www.w3.org/2000/svg" height="14" width="91.8" class="wm" viewBox="0 0 478.060 72.852"><linearGradient id="wp1" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="478.060" y2="0"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.22" stop-color="#E2EBFF"/><stop offset="0.5" stop-color="#A9C2FF"/><stop offset="0.76" stop-color="#6E92FF"/><stop offset="1" stop-color="#3D6FF5"/></linearGradient><g transform="translate(-1.4160,71.5820)"><clipPath id="kp1"><path d="M532 0 29 1440H361L746 194H717L1102 1440H1434L931 0Z" transform="translate(0.0000,0) scale(0.048828,-0.048828)"/><path d="M786 -26Q565 -26 404.0 64.5Q243 155 156.0 322.5Q69 490 69 720Q69 951 156.0 1118.0Q243 1285 404.0 1375.5Q565 1466 787 1466Q1008 1466 1169.0 1375.5Q1330 1285 1417.0 1118.0Q1504 951 1504 720Q1504 490 1417.0 322.5Q1330 155 1169.0 64.5Q1008 -26 786 -26ZM786 235Q910 235 998.0 293.0Q1086 351 1133.0 459.5Q1180 568 1180 720Q1180 873 1133.0 981.0Q1086 1089 998.0 1147.0Q910 1205 786 1205Q663 1205 575.0 1147.0Q487 1089 440.0 981.0Q393 873 393 720Q393 568 440.0 459.5Q487 351 575.0 293.0Q663 235 786 235Z" transform="translate(69.1867,0) scale(0.048828,-0.048828)"/><path d="M142 0V1440H451V261H1145V0Z" transform="translate(143.7934,0) scale(0.048828,-0.048828)"/><path d="M365 0 38 1440H368L596 177H563L844 1440H1223L1503 177H1470L1698 1440H2027L1700 0H1275L1018 1190H1047L791 0Z" transform="translate(199.5035,0) scale(0.048828,-0.048828)"/><path d="M83 0V255H282V1185H83V1440H790V1185H591V255H790V0Z" transform="translate(298.1336,0) scale(0.048828,-0.048828)"/><path d="M774 -26Q559 -26 400.5 67.0Q242 160 155.5 328.5Q69 497 69 723Q69 946 154.0 1113.0Q239 1280 397.0 1373.0Q555 1466 773 1466Q1018 1466 1189.5 1343.5Q1361 1221 1415 989L1101 916Q1071 1061 984.5 1133.0Q898 1205 772 1205Q651 1205 566.5 1145.0Q482 1085 437.5 976.5Q393 868 393 720Q393 572 438.0 462.5Q483 353 567.0 293.5Q651 234 768 234Q894 234 980.0 306.0Q1066 378 1097 509L1418 444Q1360 218 1189.0 96.0Q1018 -26 774 -26Z" transform="translate(338.5605,0) scale(0.048828,-0.048828)"/><path d="M142 0V1440H451V851L1043 1440H1424L891 911L1462 0H1106L678 700L451 474V0Z" transform="translate(408.0891,0) scale(0.048828,-0.048828)"/></clipPath><rect x="0.416" y="-72.582" width="480.060" height="74.852" fill="url(#wp1)" clip-path="url(#kp1)"/></g></svg></button>
+      <span class="sep"></span>
+      <i class="dotst" title="online"></i>
+      <button class="ctl"><span class="sym">ES</span><span class="px">7,725.00</span><span class="chg">+0.30%</span><svg class="car" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg></button>
+      <button class="ctl"><span class="v">1m</span><svg class="car" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg></button>
+      <span class="sep"></span>
+      <button class="ctl"><span class="cap">WALLS</span><span class="v">Top 15</span><svg class="car" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg></button>
+      <button class="ctl"><span class="cap">METRIC</span><span class="v">GEX</span><svg class="car" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg></button>
+      <button class="ctl"><span class="cap">EXPIRY</span><span class="v">All</span><svg class="car" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg></button>
+      <span class="sep"></span>
+      <button class="tg on"><i></i>TIDE</button><button class="tg on"><i></i>CVD</button>
+      <button class="tg on"><i></i>CDI</button><button class="tg"><i></i>FLOW</button>
+      <button class="tg on"><i></i>MAPS</button>
+      <span class="gap"></span>
+      <button class="tg"><i></i>BOT</button>
+      <span class="sep"></span>
+      <button class="ghost">GUIDE</button>
+      <button class="prim">PANELS</button>
+    </div></div>
+    <div class="notes">
+      <div><b>9 oggetti</b>Nessuna superficie colorata a riposo: il colore resta per ciò che è acceso.</div>
+      <div><b>Etichette uguali</b>WALLS, METRIC, EXPIRY hanno lo stesso grigio e lo stesso peso.</div>
+      <div><b>BOT a destra</b>Sta con la sessione, non con le sovrapposizioni del grafico.</div>
+    </div></div>
+  </div>
+
+  <div class="block">
+    <div class="hd"><span class="n">02</span><h2>Un comando per concetto</h2><span class="tag">MENO OGGETTI</span></div>
+    <p class="why">WALLS, METRIC ed EXPIRY sono tre manopole di una cosa sola: come disegniamo i muri. Diventano
+      un bottone che porta il riassunto e apre un pannellino con le tre voci. Le cinque sovrapposizioni
+      sono tutte la stessa cosa — strati che accendi — e diventano un segmentato unico. La barra passa da
+      undici oggetti a sei. È la più ordinata delle tre e la sola che chieda lavoro nuovo: il pannellino
+      dei muri non esiste ancora.</p>
+    <div class="frame"><div class="scroll"><div class="bar" id="v2">
+      <button class="mk"><svg xmlns="http://www.w3.org/2000/svg" height="14" width="91.8" class="wm" viewBox="0 0 478.060 72.852"><linearGradient id="wp2" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="478.060" y2="0"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.22" stop-color="#E2EBFF"/><stop offset="0.5" stop-color="#A9C2FF"/><stop offset="0.76" stop-color="#6E92FF"/><stop offset="1" stop-color="#3D6FF5"/></linearGradient><g transform="translate(-1.4160,71.5820)"><clipPath id="kp2"><path d="M532 0 29 1440H361L746 194H717L1102 1440H1434L931 0Z" transform="translate(0.0000,0) scale(0.048828,-0.048828)"/><path d="M786 -26Q565 -26 404.0 64.5Q243 155 156.0 322.5Q69 490 69 720Q69 951 156.0 1118.0Q243 1285 404.0 1375.5Q565 1466 787 1466Q1008 1466 1169.0 1375.5Q1330 1285 1417.0 1118.0Q1504 951 1504 720Q1504 490 1417.0 322.5Q1330 155 1169.0 64.5Q1008 -26 786 -26ZM786 235Q910 235 998.0 293.0Q1086 351 1133.0 459.5Q1180 568 1180 720Q1180 873 1133.0 981.0Q1086 1089 998.0 1147.0Q910 1205 786 1205Q663 1205 575.0 1147.0Q487 1089 440.0 981.0Q393 873 393 720Q393 568 440.0 459.5Q487 351 575.0 293.0Q663 235 786 235Z" transform="translate(69.1867,0) scale(0.048828,-0.048828)"/><path d="M142 0V1440H451V261H1145V0Z" transform="translate(143.7934,0) scale(0.048828,-0.048828)"/><path d="M365 0 38 1440H368L596 177H563L844 1440H1223L1503 177H1470L1698 1440H2027L1700 0H1275L1018 1190H1047L791 0Z" transform="translate(199.5035,0) scale(0.048828,-0.048828)"/><path d="M83 0V255H282V1185H83V1440H790V1185H591V255H790V0Z" transform="translate(298.1336,0) scale(0.048828,-0.048828)"/><path d="M774 -26Q559 -26 400.5 67.0Q242 160 155.5 328.5Q69 497 69 723Q69 946 154.0 1113.0Q239 1280 397.0 1373.0Q555 1466 773 1466Q1018 1466 1189.5 1343.5Q1361 1221 1415 989L1101 916Q1071 1061 984.5 1133.0Q898 1205 772 1205Q651 1205 566.5 1145.0Q482 1085 437.5 976.5Q393 868 393 720Q393 572 438.0 462.5Q483 353 567.0 293.5Q651 234 768 234Q894 234 980.0 306.0Q1066 378 1097 509L1418 444Q1360 218 1189.0 96.0Q1018 -26 774 -26Z" transform="translate(338.5605,0) scale(0.048828,-0.048828)"/><path d="M142 0V1440H451V851L1043 1440H1424L891 911L1462 0H1106L678 700L451 474V0Z" transform="translate(408.0891,0) scale(0.048828,-0.048828)"/></clipPath><rect x="0.416" y="-72.582" width="480.060" height="74.852" fill="url(#wp2)" clip-path="url(#kp2)"/></g></svg></button>
+      <span class="sep"></span>
+      <i class="dotst" title="online"></i>
+      <button class="ctl"><span class="sym">ES</span><span class="px">7,725.00</span><span class="chg">+0.30%</span><svg class="car" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg></button>
+      <button class="ctl"><span class="v">1m</span><svg class="car" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg></button>
+      <span class="sep"></span>
+      <button class="ctl"><span class="cap">GAMMA</span><span class="v">Top 15 · GEX · All</span><svg class="car" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg></button>
+      <span class="sep"></span>
+      <span class="seg">
+        <button class="on"><i></i>TIDE</button><button class="on"><i></i>CVD</button>
+        <button class="on"><i></i>CDI</button><button><i></i>FLOW</button><button class="on"><i></i>MAPS</button>
+      </span>
+      <span class="gap"></span>
+      <button class="tg"><i></i>BOT</button>
+      <span class="sep"></span>
+      <button class="ghost">GUIDE</button>
+      <button class="prim">PANELS</button>
+    </div></div>
+    <div class="notes">
+      <div><b>6 oggetti</b>Da undici a sei. È la riga più corta e la più veloce da leggere.</div>
+      <div><b>Un solo blocco strati</b>TIDE, CVD, CDI, FLOW e MAPS sono la stessa cosa: stanno insieme.</div>
+      <div><b>Costa di più</b>Serve un pannellino per i tre parametri dei muri: oggi non c'è.</div>
+    </div></div>
+  </div>
+
+  <div class="block">
+    <div class="hd"><span class="n">03</span><h2>Identità a sinistra, comandi a destra</h2><span class="tag">DUE ZONE</span></div>
+    <p class="why">La barra si spezza in due. A sinistra solo cosa stai guardando — simbolo, prezzo, timeframe —
+      nell'unico riquadro della riga. A destra tutto ciò che si tocca, in un'unica fila appoggiata al bordo.
+      In mezzo resta aria. L'occhio impara subito due posti invece di quattro gruppi, e la parte vuota
+      regge bene le finestre strette: si accorcia lei prima dei comandi.</p>
+    <div class="frame"><div class="scroll"><div class="bar" id="v3">
+      <button class="mk"><svg xmlns="http://www.w3.org/2000/svg" height="14" width="91.8" class="wm" viewBox="0 0 478.060 72.852"><linearGradient id="wp3" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="478.060" y2="0"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.22" stop-color="#E2EBFF"/><stop offset="0.5" stop-color="#A9C2FF"/><stop offset="0.76" stop-color="#6E92FF"/><stop offset="1" stop-color="#3D6FF5"/></linearGradient><g transform="translate(-1.4160,71.5820)"><clipPath id="kp3"><path d="M532 0 29 1440H361L746 194H717L1102 1440H1434L931 0Z" transform="translate(0.0000,0) scale(0.048828,-0.048828)"/><path d="M786 -26Q565 -26 404.0 64.5Q243 155 156.0 322.5Q69 490 69 720Q69 951 156.0 1118.0Q243 1285 404.0 1375.5Q565 1466 787 1466Q1008 1466 1169.0 1375.5Q1330 1285 1417.0 1118.0Q1504 951 1504 720Q1504 490 1417.0 322.5Q1330 155 1169.0 64.5Q1008 -26 786 -26ZM786 235Q910 235 998.0 293.0Q1086 351 1133.0 459.5Q1180 568 1180 720Q1180 873 1133.0 981.0Q1086 1089 998.0 1147.0Q910 1205 786 1205Q663 1205 575.0 1147.0Q487 1089 440.0 981.0Q393 873 393 720Q393 568 440.0 459.5Q487 351 575.0 293.0Q663 235 786 235Z" transform="translate(69.1867,0) scale(0.048828,-0.048828)"/><path d="M142 0V1440H451V261H1145V0Z" transform="translate(143.7934,0) scale(0.048828,-0.048828)"/><path d="M365 0 38 1440H368L596 177H563L844 1440H1223L1503 177H1470L1698 1440H2027L1700 0H1275L1018 1190H1047L791 0Z" transform="translate(199.5035,0) scale(0.048828,-0.048828)"/><path d="M83 0V255H282V1185H83V1440H790V1185H591V255H790V0Z" transform="translate(298.1336,0) scale(0.048828,-0.048828)"/><path d="M774 -26Q559 -26 400.5 67.0Q242 160 155.5 328.5Q69 497 69 723Q69 946 154.0 1113.0Q239 1280 397.0 1373.0Q555 1466 773 1466Q1018 1466 1189.5 1343.5Q1361 1221 1415 989L1101 916Q1071 1061 984.5 1133.0Q898 1205 772 1205Q651 1205 566.5 1145.0Q482 1085 437.5 976.5Q393 868 393 720Q393 572 438.0 462.5Q483 353 567.0 293.5Q651 234 768 234Q894 234 980.0 306.0Q1066 378 1097 509L1418 444Q1360 218 1189.0 96.0Q1018 -26 774 -26Z" transform="translate(338.5605,0) scale(0.048828,-0.048828)"/><path d="M142 0V1440H451V851L1043 1440H1424L891 911L1462 0H1106L678 700L451 474V0Z" transform="translate(408.0891,0) scale(0.048828,-0.048828)"/></clipPath><rect x="0.416" y="-72.582" width="480.060" height="74.852" fill="url(#wp3)" clip-path="url(#kp3)"/></g></svg></button>
+      <span class="sep"></span>
+      <span class="inst">
+        <i class="dotst" style="margin:0 9px 0 8px"></i>
+        <button class="ctl" style="padding-left:2px"><span class="sym">ES</span><span class="px">7,725.00</span><span class="chg">+0.30%</span><svg class="car" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg></button>
+        <i class="div"></i>
+        <button class="ctl"><span class="v">1m</span><svg class="car" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg></button>
+      </span>
+      <span class="gap"></span>
+      <button class="inl"><em>walls</em><span class="v">Top 15</span><svg class="car" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg></button>
+      <button class="inl"><em>metric</em><span class="v">GEX</span><svg class="car" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg></button>
+      <button class="inl"><em>expiry</em><span class="v">All</span><svg class="car" viewBox="0 0 7 4"><path d="M0 0 L3.5 4 L7 0" fill="currentColor"/></svg></button>
+      <span class="sep"></span>
+      <button class="tg on"><i></i>TIDE</button><button class="tg on"><i></i>CVD</button>
+      <button class="tg on"><i></i>CDI</button><button class="tg"><i></i>FLOW</button>
+      <button class="tg on"><i></i>MAPS</button>
+      <span class="sep"></span>
+      <button class="tg"><i></i>BOT</button>
+      <button class="ghost">GUIDE</button>
+      <button class="prim" style="margin-left:4px">PANELS</button>
+    </div></div>
+    <div class="notes">
+      <div><b>Due zone</b>Cosa guardi a sinistra, cosa tocchi a destra. Niente in mezzo.</div>
+      <div><b>Etichette in minuscolo</b>walls, metric, expiry: si leggono come parole, non come sigle.</div>
+      <div><b>Regge lo schermo stretto</b>Quando la finestra si accorcia sparisce il vuoto, non un comando.</div>
+    </div></div>
+  </div>
+
+  <p class="foot">Le tre valgono tutte. Se dobbiamo consegnarne una a Matt adesso, <b>01 Filetti</b> è quella
+    che costa meno: è la stessa barra con meno superfici e un colore solo, nessun comando nuovo da costruire.
+    <b>02</b> è la più ordinata ma chiede il pannellino dei muri. <b>03</b> è la più bella su uno schermo largo
+    e la più fragile su uno stretto, perché vive di quel vuoto in mezzo. I tre punti del PDF — via LAYOUT,
+    via MORE, via HIDE TOP BAR — sono già applicati in tutte e tre.</p>
+</div>
+
+<script>
+document.querySelectorAll('.tg').forEach(function(b){
+  b.onclick=function(){b.classList.toggle('on')};
+});
+document.querySelectorAll('.seg button').forEach(function(b){
+  b.onclick=function(){b.classList.toggle('on')};
+});
+</script>
+
+</body></html>

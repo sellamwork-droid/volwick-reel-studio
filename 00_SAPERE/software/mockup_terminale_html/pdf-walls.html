@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="spec.css">
+</head>
+<body>
+
+<section class="pg">
+  <div class="head">
+    <div class="brand">Volwick · Sightline</div>
+    <h1>Muri: come disegnarli</h1>
+    <p class="sub">Cinque cose da cambiare nel disegno dei livelli gamma. Dati, calcolo, scelta dei livelli e colori restano com'è oggi.</p>
+    <div class="tag"><span><b>21 ago 2026</b></span><span>Per <b>Matt</b></span></div>
+  </div>
+
+  <h2><span class="n">01</span> Cosa fare</h2>
+
+  <div class="r">
+    <span class="num">1</span>
+    <div class="bd">
+      <h4>Sfuma le linee verso sinistra</h4>
+      <p>La linea del muro deve essere piena a destra e sparire gradualmente andando verso sinistra, invece di attraversare tutto il grafico a opacità piena.</p>
+      <div class="spec">Piena dove sta il prezzo, invisibile all'inizio dello storico. La transizione dev'essere graduale, non netta.</div>
+    </div>
+  </div>
+
+  <div class="r">
+    <span class="num">2</span>
+    <div class="bd">
+      <h4>Fai variare spessore e opacità in base al valore del muro</h4>
+      <p>Oggi un muro da 58M e uno da 5M sono disegnati uguali. Il più forte deve essere una fascia spessa e piena, il più debole un tratteggio quasi trasparente.</p>
+      <div class="spec">
+        Il muro più forte fra quelli in vista: <b>fascia spessa, piena, con un alone sfumato sopra e sotto</b>.<br>
+        Il più debole: <b>tratteggio sottile e trasparente</b>.<br>
+        Gli altri in mezzo, in proporzione al loro valore.<br>
+        La differenza deve vedersi da un metro di distanza, senza leggere le cifre.
+      </div>
+    </div>
+  </div>
+
+  <div class="r">
+    <span class="num">3</span>
+    <div class="bd">
+      <h4>Togli i prezzi dei muri dalla scala a destra</h4>
+      <p>La scala dei prezzi deve tornare a una griglia regolare, con il solo riquadro del prezzo corrente. Il valore del muro è già scritto nella sua etichetta.</p>
+    </div>
+  </div>
+
+  <div class="r">
+    <span class="num">4</span>
+    <div class="bd">
+      <h4>Una sola colonna di etichette, che non si sovrappongono mai</h4>
+      <p>Etichetta compatta con il numero del livello e il valore. Quando due etichette si toccherebbero, spostale in verticale quel tanto che basta e collega ognuna al suo livello con una linea sottile.</p>
+      <div class="spec">
+        Testo: <b>7660 · 58M</b> — il riquadro si adatta alla lunghezza del testo, non è di larghezza fissa.<br>
+        Caso peggiore da provare: SPX con Top 40 attivo, dove gli strike sono fittissimi.
+      </div>
+    </div>
+  </div>
+
+  <div class="r">
+    <span class="num">5</span>
+    <div class="bd">
+      <h4>Sbiadisci i muri lontani dal prezzo</h4>
+      <p>Più un muro è distante dal prezzo corrente, più diventa trasparente. Deve restare visibile come contesto, ma smettere di attirare l'attenzione.</p>
+    </div>
+  </div>
+
+  <div class="note">
+    <h4>Se puoi farne solo una, fai la 1</h4>
+    <p>È quella che libera il grafico. Le altre quattro si possono aggiungere in un secondo momento.</p>
+  </div>
+</section>
+
+<section class="pg">
+  <h2><span class="n">02</span> Il risultato</h2>
+
+  <figure>
+    <img src="fig/w1-muri.png" alt="Rendering proposto dei muri">
+    <figcaption>ES a 1 minuto, stessi muri di oggi. Il 7660 da 58M e il 7650 da 42M sono fasce piene; il 7680 da 5M è un tratteggio appena visibile. La scala a destra è tornata regolare.</figcaption>
+  </figure>
+
+  <h2><span class="n">03</span> Controlli finali</h2>
+  <table>
+    <tbody>
+      <tr><td class="k" style="width:56mm">Muro più forte</td><td>Si riconosce senza leggere i numeri</td></tr>
+      <tr><td class="k">Muro più debole</td><td>Si vede, ma non compete col prezzo</td></tr>
+      <tr><td class="k">Storico del grafico</td><td>Nessuna linea lo attraversa da parte a parte</td></tr>
+      <tr><td class="k">Bordo sinistro</td><td>Nessuna macchia di colore residua</td></tr>
+      <tr><td class="k">Scala dei prezzi</td><td>Numeri regolari, nessun valore di strike</td></tr>
+      <tr><td class="k">Etichette ravvicinate</td><td>Mai sovrapposte, con la linea di collegamento</td></tr>
+    </tbody>
+  </table>
+
+  <p class="small" style="margin-top:14mm;padding-top:3mm;border-top:1px solid var(--rule)">
+    Versione interattiva con tutto già applicato, da aprire nel browser:<br>
+    <span style="font-family:var(--mono);color:var(--amber)">claude.ai/code/artifact/fa8e2085-3d2a-4ccd-af9c-5fda795ae706</span>
+  </p>
+</section>
+
+</body>
+</html>

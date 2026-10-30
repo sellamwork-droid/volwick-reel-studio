@@ -1,0 +1,887 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0">
+<title>Sightline Redesign</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* ============================================================
+   TOKENS — nominati per ruolo, mai per colore
+   Regola unica: i colori dei dati non escono dal grafico,
+   i colori del marchio non entrano nel grafico.
+   ============================================================ */
+:root{
+  /* interfaccia, solo fuori dall'area di disegno */
+  --surface-app:#070A10;
+  --surface-panel:#0C111A;
+  --surface-raised:#121A26;
+  --control-rest:#1A2432;
+  --control-hover:#243449;
+  --border:#26344A;
+  --surface-plot:#05070B;      /* unica eccezione: più scura dell'app */
+  --text-primary:#ECEFF4;
+  --text-secondary:#98A4B4;
+  --text-tertiary:#6B7888;
+  --text-disabled:#4B5665;
+  --accent:#3D6FF5;
+  --accent-hover:#6E92FF;
+  --accent-pressed:#2B52C4;
+  --accent-wash:rgba(61,111,245,.13);
+  /* stati, sempre accompagnati da una parola */
+  --state-good:#3FBF7F;
+  --state-warn:#E0913F;
+  --state-error:#E0656A;
+  /* misure fisse */
+  --bar-h:34px;
+  --control-h:26px;
+  --pad-panel:14px;
+  --mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --sans:"Geist",-apple-system,system-ui,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--surface-app);color:var(--text-primary);
+     font-family:var(--sans);font-size:13px;overflow:hidden;
+     font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;background:transparent;border:0;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent-hover);outline-offset:1px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+.app{position:fixed;inset:0;display:flex;flex-direction:column}
+
+/* ---------- contenitore in alto: griglia, preset, copia su tutte ---------- */
+.top{height:46px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;
+     background:var(--surface-panel);border-bottom:1px solid var(--border)}
+.brand{display:flex;align-items:center;gap:9px;height:var(--control-h);
+       padding:0 9px 0 5px;border-radius:6px}
+.brand:hover{background:var(--control-hover)}
+.mark{width:22px;height:22px;border-radius:5px;background:var(--accent);color:#fff;
+      font-family:var(--mono);font-weight:500;font-size:12px;display:grid;place-items:center;flex:none}
+.brand .wm{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase}
+.brand .cv{color:var(--text-tertiary);font-size:8px}
+.sep{width:1px;height:20px;background:var(--border);flex:none}
+.lbl{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+     color:var(--text-tertiary)}
+.seg{display:flex;height:var(--control-h);border:1px solid var(--border);border-radius:6px;overflow:hidden;flex:none}
+.seg button{font-family:var(--mono);font-size:10px;letter-spacing:.08em;padding:0 11px;
+            color:var(--text-secondary);background:var(--control-rest)}
+.seg button+button{border-left:1px solid var(--border)}
+.seg button:hover{background:var(--control-hover);color:var(--text-primary)}
+.seg button[aria-pressed="true"]{background:var(--accent-wash);color:var(--accent-hover)}
+.btn{height:var(--control-h);display:flex;align-items:center;gap:7px;padding:0 11px;
+     border:1px solid var(--border);border-radius:6px;background:var(--control-rest);
+     font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+     color:var(--text-secondary);white-space:nowrap}
+.btn:hover{background:var(--control-hover);color:var(--text-primary)}
+.btn[aria-pressed="true"]{background:var(--accent-wash);color:var(--accent-hover);border-color:var(--accent-pressed)}
+.btn .cv{font-size:8px;color:var(--text-tertiary)}
+.grow{flex:1}
+.chip{height:var(--control-h);display:flex;align-items:center;gap:7px;padding:0 10px;
+      border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:10px;
+      color:var(--text-secondary);letter-spacing:.04em}
+.dot{width:6px;height:6px;border-radius:50%;flex:none}
+
+/* ---------- avviso di libro vecchio, una volta sola per pagina ---------- */
+.warn{flex:none;display:flex;align-items:center;gap:10px;padding:8px 14px;
+      background:rgba(224,145,63,.09);border-bottom:1px solid rgba(224,145,63,.3);
+      font-family:var(--mono);font-size:10.5px;color:#E8B57C;letter-spacing:.02em}
+.warn b{color:#F2CFA4;font-weight:500}
+.warn button{margin-left:auto;color:var(--text-tertiary);font-size:12px;line-height:1}
+
+/* ---------- le finestre, sempre affiancate ---------- */
+.grid{flex:1;display:flex;min-height:0;gap:1px;background:var(--border)}
+.win{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--surface-app)}
+.winbar{height:var(--bar-h);flex:none;display:flex;align-items:center;gap:6px;padding:0 8px;
+        background:var(--surface-panel);border-bottom:1px solid var(--border);overflow:hidden}
+.wnum{width:18px;height:18px;flex:none;border-radius:4px;display:grid;place-items:center;
+      font-family:var(--mono);font-size:9.5px;color:var(--text-tertiary);border:1px solid var(--border)}
+.win.active .wnum{color:var(--accent-hover);border-color:var(--accent-pressed);background:var(--accent-wash)}
+.fields{display:flex;height:22px;border:1px solid var(--border);border-radius:5px;overflow:hidden;min-width:0}
+.fields button{display:flex;align-items:center;gap:5px;padding:0 8px;background:var(--control-rest);
+               font-family:var(--mono);font-size:10px;color:var(--text-primary);white-space:nowrap}
+.fields button+button{border-left:1px solid var(--border)}
+.fields button:hover{background:var(--control-hover)}
+.fields .k{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-tertiary)}
+.fields .cv{font-size:8px;color:var(--text-tertiary)}
+.icb{width:24px;height:22px;flex:none;display:grid;place-items:center;border:1px solid var(--border);
+     border-radius:5px;background:var(--control-rest);font-family:var(--mono);font-size:10px;
+     color:var(--text-secondary)}
+.icb:hover{background:var(--control-hover);color:var(--text-primary)}
+.icb[aria-pressed="true"]{background:var(--accent-wash);color:var(--accent-hover);border-color:var(--accent-pressed)}
+.quote{margin-left:auto;display:flex;align-items:baseline;gap:7px;padding-left:8px;flex:none}
+.quote .t{font-family:var(--mono);font-size:10px;color:var(--text-tertiary);letter-spacing:.06em}
+.quote .p{font-family:var(--mono);font-size:12px;color:var(--text-primary)}
+.staledot{width:6px;height:6px;border-radius:50%;background:var(--state-warn);flex:none}
+.win.narrow .fields .k{display:none}
+.win.narrow .lblonly{display:none}
+.win.tiny .icb.opt{display:none}
+
+/* area del grafico + cassetto agganciato */
+.body{flex:1;display:flex;min-height:0}
+.plot{flex:1;position:relative;min-width:0;background:var(--surface-plot)}
+canvas{display:block;width:100%;height:100%}
+.drawer{width:258px;flex:none;background:var(--surface-panel);border-left:1px solid var(--border);
+        display:flex;flex-direction:column;min-height:0}
+.dhead{height:var(--bar-h);flex:none;display:flex;align-items:center;justify-content:space-between;
+       padding:0 var(--pad-panel);border-bottom:1px solid var(--border)}
+.dhead h2{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+          color:var(--text-tertiary);font-weight:500}
+.dbody{flex:1;overflow-y:auto;padding:var(--pad-panel);display:flex;flex-direction:column;gap:18px}
+.ptitle{font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;
+        color:var(--text-tertiary);margin-bottom:9px}
+.verdict{border:1px solid var(--border);border-radius:8px;padding:12px;background:var(--surface-raised)}
+.verdict .big{font-family:var(--mono);font-size:15px}
+.verdict .sub{font-family:var(--mono);font-size:10px;color:var(--text-secondary);margin-top:5px}
+.pnote{font-size:13px;line-height:1.6;color:var(--text-secondary)}
+.pnote b{color:var(--text-primary);font-weight:500}
+.lrow{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+      padding:6px 9px;border-radius:5px;font-family:var(--mono);font-size:11px;
+      background:var(--surface-raised);margin-bottom:3px;text-align:left}
+.lrow:hover{background:var(--control-hover)}
+.lrow .g{color:var(--text-tertiary);font-size:10px}
+
+/* ---------- una sola barra di stato per tutta la pagina ---------- */
+.status{height:28px;flex:none;display:flex;align-items:center;gap:0;padding:0 12px;
+        background:var(--surface-panel);border-top:1px solid var(--border);
+        font-family:var(--mono);font-size:10px;color:var(--text-tertiary);overflow:hidden;white-space:nowrap}
+.status .it{display:flex;align-items:center;gap:6px;padding:0 11px;border-right:1px solid var(--border)}
+.status .it:first-child{padding-left:0}
+.status .v{color:var(--text-secondary)}
+.status .rep{display:flex;gap:1px;margin-right:8px}
+.status .rep button{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;padding:3px 9px;
+                    border:1px solid var(--border);border-radius:4px;color:var(--text-tertiary)}
+.status .rep button[aria-pressed="true"]{background:var(--accent-wash);color:var(--accent-hover);border-color:var(--accent-pressed)}
+.legend{display:flex;align-items:center;gap:8px;margin-left:auto;padding-left:12px}
+.legend .bar{width:96px;height:7px;border-radius:2px}
+
+/* ---------- tendine ---------- */
+.menu{position:fixed;z-index:40;background:var(--surface-raised);border:1px solid var(--border);
+      border-radius:8px;padding:5px;min-width:168px;box-shadow:0 16px 44px rgba(0,0,0,.6)}
+.menu .h{font-family:var(--mono);font-size:9px;letter-spacing:.13em;text-transform:uppercase;
+         color:var(--text-tertiary);padding:6px 9px 8px}
+.menu button{display:flex;width:100%;align-items:center;justify-content:space-between;gap:16px;
+             font-family:var(--mono);font-size:11px;padding:6px 9px;border-radius:5px;color:var(--text-secondary)}
+.menu button:hover{background:var(--control-hover);color:var(--text-primary)}
+.menu button[aria-checked="true"]{background:var(--accent-wash);color:var(--accent-hover)}
+.menu button small{color:var(--text-tertiary);font-size:9.5px}
+.menu hr{border:0;border-top:1px solid var(--border);margin:5px 3px}
+.sw{width:32px;height:18px;border-radius:9px;background:var(--control-rest);border:1px solid var(--border);
+    position:relative;flex:none}
+.sw i{position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;
+      background:var(--text-disabled);transition:left .14s,background .14s}
+.sw[aria-checked="true"]{background:var(--accent-wash);border-color:var(--accent-pressed)}
+.sw[aria-checked="true"] i{left:16px;background:var(--accent-hover)}
+
+/* ---------- account ---------- */
+.scrim{position:fixed;inset:0;background:rgba(3,5,8,.6);z-index:38}
+.acct{position:fixed;top:50px;left:12px;width:272px;z-index:39;background:var(--surface-raised);
+      border:1px solid var(--border);border-radius:10px;padding:5px;box-shadow:0 18px 50px rgba(0,0,0,.62)}
+.who{display:flex;align-items:center;gap:10px;padding:10px 9px 11px}
+.av{width:32px;height:32px;border-radius:8px;background:var(--accent);color:#fff;flex:none;
+    font-family:var(--mono);font-size:12px;display:grid;place-items:center}
+.who .nm{font-size:12.5px} .who .em{font-family:var(--mono);font-size:10px;color:var(--text-tertiary);margin-top:2px}
+.plan{margin-left:auto;font-family:var(--mono);font-size:9px;letter-spacing:.11em;text-transform:uppercase;
+      color:var(--accent-hover);border:1px solid var(--accent-pressed);border-radius:4px;padding:2px 6px}
+.acct hr{border:0;border-top:1px solid var(--border);margin:4px 5px}
+.item{display:flex;width:100%;align-items:center;gap:10px;padding:8px 9px;border-radius:6px;
+      font-size:12.5px;color:var(--text-secondary);text-align:left}
+.item:hover{background:var(--control-hover);color:var(--text-primary)}
+.item .ic{width:14px;flex:none;color:var(--text-tertiary);font-family:var(--mono);font-size:11px;text-align:center}
+.item .tail{margin-left:auto;font-family:var(--mono);font-size:9.5px;color:var(--text-tertiary)}
+.item.out{color:#D89B99}
+.afoot{display:flex;justify-content:space-between;padding:9px 9px 5px;margin-top:2px;border-top:1px solid var(--border)}
+.afoot button{font-family:var(--mono);font-size:9.5px;color:var(--text-tertiary)}
+.afoot button:hover{color:var(--text-secondary);text-decoration:underline}
+
+/* ---------- riquadro al passaggio del mouse: uno solo, max 280 px ---------- */
+.tip{position:absolute;z-index:6;pointer-events:none;max-width:280px;
+     background:var(--surface-raised);border:1px solid var(--border);border-radius:7px;
+     padding:9px 11px;font-family:var(--mono);font-size:11px;line-height:1.55;
+     box-shadow:0 10px 30px rgba(0,0,0,.6)}
+.tip .k{font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--text-tertiary)}
+.tip .v{font-size:13px;margin-top:3px}
+.tip .s{color:var(--text-secondary);font-size:10.5px}
+
+/* ---------- guida ---------- */
+.modal{position:fixed;inset:0;z-index:42;display:grid;place-items:center;padding:26px;
+       background:rgba(3,5,8,.74)}
+.sheet{width:min(720px,100%);max-height:84vh;background:var(--surface-panel);
+       border:1px solid var(--border);border-radius:12px;display:flex;flex-direction:column;overflow:hidden}
+.shead{flex:none;display:flex;align-items:center;justify-content:space-between;
+       padding:16px 20px;border-bottom:1px solid var(--border)}
+.shead p{font-family:var(--mono);font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;
+         color:var(--text-tertiary);margin-bottom:4px}
+.shead h2{font-size:16px;font-weight:600}
+.stabs{flex:none;display:flex;gap:2px;padding:9px 14px;border-bottom:1px solid var(--border);
+       background:var(--surface-app);overflow-x:auto}
+.stabs button{font-family:var(--mono);font-size:10px;letter-spacing:.06em;padding:6px 11px;
+              border-radius:5px;color:var(--text-secondary);white-space:nowrap}
+.stabs button[aria-selected="true"]{background:var(--accent-wash);color:var(--accent-hover)}
+.sbody{flex:1;overflow-y:auto;padding:20px;line-height:1.7;font-size:13px;
+       color:var(--text-secondary);max-width:66ch}
+.sbody h4{font-size:13.5px;color:var(--text-primary);margin:16px 0 6px}
+.sbody h4:first-child{margin-top:0}
+.sbody p{margin-bottom:10px}
+.sbody b{color:var(--text-primary);font-weight:500}
+.sbody code{font-family:var(--mono);font-size:11.5px;color:var(--accent-hover)}
+
+@media (max-width:820px){.hidesm{display:none}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <button class="brand" id="logo"><span class="mark">V</span>
+      <span class="wm">Volwick</span><span class="cv">▾</span></button>
+    <i class="sep"></i>
+    <span class="lbl hidesm">Griglia</span>
+    <div class="seg" id="gridSeg" role="group" aria-label="Numero di finestre">
+      <button data-g="1" aria-pressed="true">1</button><button data-g="2" aria-pressed="false">2</button>
+      <button data-g="3" aria-pressed="false">3</button><button data-g="4" aria-pressed="false">4</button>
+    </div>
+    <button class="btn" id="presetBtn">Preset <span class="cv">▾</span></button>
+    <button class="btn" id="copyBtn">Copia su tutte</button>
+    <span class="grow"></span>
+    <button class="btn" id="guideBtn">Come si legge</button>
+    <button class="chip" id="connChip"><i class="dot" style="background:var(--state-good)"></i>
+      <span id="connTxt">Connesso · 268 ms</span></button>
+  </header>
+
+  <div class="warn" id="warnBar" hidden>
+    <i class="dot" style="background:var(--state-warn)"></i>
+    <span>Libro vecchio, superficie del <b>11 settembre</b>, quella di oggi è in costruzione. Finestre <b id="warnWins">2, 3</b>.</span>
+    <button id="warnClose" aria-label="Nascondi l'avviso">✕</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <footer class="status">
+    <span class="it"><span class="rep">
+      <button id="bLive" aria-pressed="true">Live</button>
+      <button id="bReplay" aria-pressed="false">Replay</button></span>
+      <span class="v num" id="stClock">15:59</span> <span>New York</span></span>
+    <span class="it"><span>Finestra</span><span class="v num" id="stWin">1</span>
+      <span class="v" id="stSym">SPX</span><span>·</span><span class="v num" id="stBars">2.087</span><span>barre</span></span>
+    <span class="it"><span>Libro</span><span class="v" id="stBook">SPXW</span>
+      <span>·</span><span>slot γ</span><span class="v num">16:00</span></span>
+    <span class="it" id="stConn"><i class="dot" style="background:var(--state-good)"></i><span class="v">Connesso</span></span>
+    <span class="legend" id="legend"></span>
+  </footer>
+</div>
+
+<script>
+/* ============================================================
+   DATI
+   ============================================================ */
+const SYMS={
+  SPX:{px:7656.98,step:5,dec:2,book:'SPXW',vol:2.1,grid:10},
+  ES :{px:7714.75,step:5,dec:2,book:'ES',  vol:2.4,grid:10},
+  MES:{px:7714.50,step:5,dec:2,book:'ES',  vol:2.4,grid:10},
+  NQ :{px:29311.75,step:25,dec:2,book:'QQQ',vol:9.5,grid:50},
+  SPY:{px:762.41,step:1,dec:2,book:'SPY',  vol:.22,grid:1},
+  VIX:{px:14.82,step:.5,dec:2,book:'VIX',  vol:.13,grid:1}
+};
+const TFS={'1m':1,'5m':5,'15m':15,'1h':60,'D':1440};
+const MAPS={none:'Nessuna',gamma:'γ Map',charm:'Charm',vega:'Vega',volga:'Volga',delta:'Delta'};
+const MAPUNIT={gamma:'M$ per punto',charm:'M$ al giorno',vega:'M$ per vol',volga:'M$ per vol²',delta:'M$ di copertura'};
+const WALLN={off:'Off',3:'Top 3',5:'Top 5',10:'Top 10',15:'Top 15',25:'Top 25'};
+const EXPS={dte0:'0DTE',week:'Settimana',month:'Mese',all:'Tutte'};
+/* palette dei dati: vive solo dentro il canvas, mai nel CSS */
+const D={callLong:'#369C6F',putLong:'#CC5858',callShort:'#35C0D8',putShort:'#A173CC',price:'#E8C268'};
+
+function lcg(s){let x=s>>>0;return()=>((x=(x*1664525+1013904223)>>>0)/4294967296)}
+const cache={};
+function series(sym,tf){
+  const k=sym+tf; if(cache[k])return cache[k];
+  const c=SYMS[sym], r=lcg(sym.charCodeAt(0)*7919+TFS[tf]*104729+sym.length), n=620;
+  const amp=c.vol*Math.sqrt(TFS[tf]); let p=c.px-amp*7; const out=[];
+  for(let i=0;i<n;i++){
+    const d=(r()-.5)*amp*1.9+(c.px-p)*.012;
+    const o=p,cl=p+d,h=Math.max(o,cl)+r()*amp*.7,l=Math.min(o,cl)-r()*amp*.7;
+    out.push({o,h,l,c:cl,v:.25+r()*.9}); p=cl;
+  }
+  const dd=c.px-out[n-1].c; out.forEach((b,i)=>{const w=i/(n-1)*dd;b.o+=w;b.h+=w;b.l+=w;b.c+=w});
+  return cache[k]=out;
+}
+function walls(sym){
+  const k='w'+sym; if(cache[k])return cache[k];
+  const c=SYMS[sym], r=lcg(sym.length*31337+sym.charCodeAt(0)), out=[];
+  const base=Math.round(c.px/c.step)*c.step;
+  for(let i=-14;i<=14;i++){
+    const price=base+i*c.step;
+    const gex=+(((r()*2-.78)*42)*(1-Math.abs(i)/19)).toFixed(1);
+    // call/put e lunga/corta gamma: quattro combinazioni, quattro colori dei dati
+    const isCall=price>=c.px, isLong=gex>=0;
+    out.push({price,gex,isCall,isLong,
+      col:isLong?(isCall?D.callLong:D.putLong):(isCall?D.callShort:D.putShort)});
+  }
+  out.sort((a,b)=>Math.abs(b.gex)-Math.abs(a.gex));
+  out.forEach((w,i)=>{w.order=i;w.flag=i===0});
+  return cache[k]=out;
+}
+function mapVal(sym,metric,px,ti){
+  const c=SYMS[sym], sd={gamma:1.7,charm:3.1,vega:5.3,volga:7.9,delta:11.3}[metric]||1;
+  const z=(px-c.px)/(c.vol*22);
+  const a=Math.sin(z*2.3+sd)*(.72+.28*Math.cos(ti*.05+sd*.7));
+  const b=Math.cos(z*.9+sd*1.9)*.55+Math.sin(z*4.1+sd*3.3)*.22;
+  return (a*.62+b*.48)*({gamma:480,charm:260,vega:330,volga:2100,delta:3.4}[metric]||100);
+}
+
+/* ============================================================
+   STATO
+   ============================================================ */
+let GRID=1, ACTIVE=0, REPLAY=null;
+const WINS=[mkWin('SPX'),mkWin('ES'),mkWin('NQ'),mkWin('VIX')];
+function mkWin(sym){return{sym,tf:'1m',walls:15,metric:'GEX',exp:'all',
+  L:{map:'gamma',tide:false,cdi:false,bot:false},drawer:true,
+  view:{i0:0,i1:0,lo:0,hi:1},cv:null,cx:null,el:null,stale:sym==='NQ'||sym==='ES'};}
+
+const fmt=(p,sym)=>p.toLocaleString('en-US',{minimumFractionDigits:SYMS[sym].dec,maximumFractionDigits:SYMS[sym].dec});
+const gfmt=(p,sym)=>p.toLocaleString('en-US',{maximumFractionDigits:SYMS[sym].step<1?1:0});
+const wfmt=(p,sym)=>SYMS[sym].step>=1?String(Math.round(p)):p.toFixed(1);
+const money=v=>{const a=Math.abs(v),s=v<0?'−':'';
+  if(a>=1000)return s+(a/1000).toFixed(2)+'B';
+  if(a>=1)return s+a.toFixed(0)+'M';
+  if(a>=.01)return s+(a*1000).toFixed(0)+'K';
+  return '0';};
+function visible(w){const s=series(w.sym,w.tf);return REPLAY===null?s:s.slice(0,Math.round(REPLAY*(s.length-1))+1)}
+const effWalls=w=>w.walls==='off'?0:(GRID>=3?Math.min(3,w.walls):w.walls);
+
+/* la finestra si rifà a ogni cambiamento: è la correzione di fondo */
+const BARS=150;
+function fit(w){
+  const s=visible(w), gap=REPLAY===null?0:Math.round(BARS*.16);
+  const n=Math.min(BARS-gap,s.length);
+  w.view.i0=s.length-n; w.view.i1=s.length+gap;
+  let lo=1e18,hi=-1e18;
+  for(let i=w.view.i0;i<s.length;i++){lo=Math.min(lo,s[i].l);hi=Math.max(hi,s[i].h)}
+  const nw=effWalls(w);
+  if(nw)walls(w.sym).filter(x=>x.order<nw).forEach(x=>{
+    if(Math.abs(x.price-s[s.length-1].c)<(hi-lo)*1.1){lo=Math.min(lo,x.price);hi=Math.max(hi,x.price)}});
+  const pad=(hi-lo)*.12||1; w.view.lo=lo-pad; w.view.hi=hi+pad;
+}
+
+/* ============================================================
+   DISEGNO — le cinque regole dei muri, implementate alla lettera
+   ============================================================ */
+const AXW=58, LABW=132, PADL=8, PADT=10, PADB=22;
+function labW(w){return effWalls(w)?LABW:10}
+
+function draw(w){
+  const cv=w.cv, cx=w.cx; if(!cv)return;
+  const r=cv.getBoundingClientRect(), dpr=Math.min(devicePixelRatio||1,2);
+  const W=Math.max(1,Math.round(r.width)), H=Math.max(1,Math.round(r.height));
+  if(cv.width!==W*dpr||cv.height!==H*dpr){cv.width=W*dpr;cv.height=H*dpr}
+  cx.setTransform(dpr,0,0,dpr,0,0);
+  cx.clearRect(0,0,W,H);
+  const V=w.view, s=visible(w), px=s[s.length-1].c;
+  const x0=PADL, x1=W-AXW-labW(w), y0=PADT, y1=H-PADB;
+  if(x1<=x0||y1<=y0)return;
+  const X=i=>x0+((i-V.i0)+.5)/(V.i1-V.i0)*(x1-x0);
+  const Y=p=>y0+(V.hi-p)/(V.hi-V.lo)*(y1-y0);
+  const MONO=n=>n+'px "Geist Mono",ui-monospace,monospace';
+
+  /* ---- mappa: verde positivo, rosso negativo, sempre ---- */
+  if(w.L.map!=='none'){
+    const cols=Math.max(8,Math.round((x1-x0)/26)), rows=26;
+    const cw=(x1-x0)/cols, ch=(y1-y0)/rows; let peak=1; const g=[];
+    for(let c=0;c<cols;c++){g[c]=[];for(let q=0;q<rows;q++){
+      const p=V.hi-(q+.5)/rows*(V.hi-V.lo);
+      const v=mapVal(w.sym,w.L.map,p,V.i0+c*(V.i1-V.i0)/cols);
+      g[c][q]=v; peak=Math.max(peak,Math.abs(v));}}
+    for(let c=0;c<cols;c++)for(let q=0;q<rows;q++){
+      const v=g[c][q], k=Math.min(1,Math.abs(v)/peak); if(k<.05)continue;
+      cx.fillStyle=(v>=0?'rgba(54,156,111,':'rgba(204,88,88,')+(k*.22).toFixed(3)+')';
+      cx.fillRect(x0+c*cw,y0+q*ch,cw+.6,ch+.6);
+    }
+    w._peak=peak;
+  }
+
+  /* ---- regola 3: l'asse porta solo la griglia regolare ---- */
+  const gstep=SYMS[w.sym].grid, span=V.hi-V.lo;
+  let st=gstep; while(span/st>9)st*=2;
+  cx.textBaseline='middle'; cx.font=MONO(10);
+  const pyTag=Y(px);
+  for(let p=Math.ceil(V.lo/st)*st;p<V.hi;p+=st){
+    const y=Y(p);
+    cx.strokeStyle='rgba(152,164,180,.055)';
+    cx.beginPath();cx.moveTo(x0,y);cx.lineTo(x1,y);cx.stroke();
+    if(Math.abs(y-pyTag)<12)continue;
+    cx.fillStyle='#6B7888'; cx.textAlign='left';
+    cx.fillText(gfmt(p,w.sym),W-AXW+8,y);
+  }
+
+  /* ---- regole 1, 2, 5: i muri ---- */
+  const nw=effWalls(w);
+  let placed=[];
+  if(nw){
+    const list=walls(w.sym).filter(x=>x.order<nw&&x.price>V.lo&&x.price<V.hi)
+                           .sort((a,b)=>b.price-a.price);
+    const maxAbs=Math.max(1,...list.map(x=>Math.abs(x.gex)));
+    const fadeStart=.65;               // pieno solo nel 35% a destra
+    list.forEach(wl=>{
+      const mag=Math.abs(wl.gex)/maxAbs;
+      const lw=1+Math.pow(mag,.85)*6;                  // regola 2: da 1 a 7 px
+      let op=.22+Math.pow(mag,.85)*.73;                // da 22% a 95%
+      const dist=Math.abs(wl.price-px)/span;           // regola 5: decadimento
+      if(dist>.14)op*=Math.max(.14,1-(dist-.14)*3.1);
+      const y=Y(wl.price);
+      const grad=cx.createLinearGradient(x0,0,x1,0);   // regola 1: sfumatura
+      grad.addColorStop(0,hexa(wl.col,0));
+      grad.addColorStop(fadeStart,hexa(wl.col,op*.55));
+      grad.addColorStop(1,hexa(wl.col,op));
+      if(mag>.35){                                     // alone, stessa sfumatura
+        const hh=lw*4, hg=cx.createLinearGradient(x0,0,x1,0);
+        hg.addColorStop(0,hexa(wl.col,0));
+        hg.addColorStop(fadeStart,hexa(wl.col,.11*mag*.5));
+        hg.addColorStop(1,hexa(wl.col,.11*mag));
+        cx.fillStyle=hg; cx.fillRect(x0,y-hh/2,x1-x0,hh);
+      }
+      cx.strokeStyle=grad; cx.lineWidth=lw;
+      cx.setLineDash(mag<.28?[3,5]:[]);
+      cx.beginPath();cx.moveTo(x0,y);cx.lineTo(x1,y);cx.stroke();
+      cx.setLineDash([]);
+      placed.push({wl,y,mag,op});
+    });
+
+    /* ---- regola 4: una sola colonna di etichette, anti collisione 25 px ---- */
+    placed.sort((a,b)=>a.y-b.y);
+    let last=-1e9;
+    placed.forEach(o=>{o.ly=Math.max(o.y,last+25); last=o.ly});
+    const over=placed.length?placed[placed.length-1].ly-(y1-8):0;
+    if(over>0)placed.forEach(o=>o.ly-=over);
+    const lxRight=W-AXW-6;
+    placed.forEach(o=>{
+      const txt=(o.wl.flag?'★ ':'')+wfmt(o.wl.price,w.sym)+'  ·  '+money(o.wl.gex);
+      cx.font=MONO(10);
+      const tw=Math.min(labW(w)-12,cx.measureText(txt).width+28);
+      const lx=lxRight-tw;
+      if(Math.abs(o.ly-o.y)>1.5){                     // linea di richiamo al livello vero
+        cx.strokeStyle=hexa(o.wl.col,.3);cx.lineWidth=1;
+        cx.beginPath();cx.moveTo(x1+1,o.y);cx.lineTo(lx-3,o.ly);cx.stroke();
+      }
+      cx.fillStyle='rgba(11,14,19,.92)';
+      cx.strokeStyle=hexa(o.wl.col,.25+o.mag*.6); cx.lineWidth=1;
+      rr(cx,lx,o.ly-8.5,tw,17,4); cx.fill(); cx.stroke();
+      cx.fillStyle=o.wl.col; cx.beginPath();
+      cx.arc(lx+9,o.ly,1.8+o.mag*2.4,0,7); cx.fill();
+      cx.fillStyle='#ECEFF4'; cx.textAlign='left';
+      cx.fillText(txt,lx+16,o.ly);
+    });
+  }
+
+  /* ---- candele ---- */
+  const bw=Math.max(1.2,(x1-x0)/(V.i1-V.i0)*.62);
+  for(let i=V.i0;i<s.length;i++){
+    const b=s[i], x=X(i), up=b.c>=b.o, col=up?D.callLong:D.putLong;
+    cx.strokeStyle=col;cx.fillStyle=col;cx.lineWidth=1;
+    cx.beginPath();cx.moveTo(x,Y(b.h));cx.lineTo(x,Y(b.l));cx.stroke();
+    const yo=Y(b.o),yc=Y(b.c);
+    cx.fillRect(x-bw/2,Math.min(yo,yc),bw,Math.max(1.1,Math.abs(yc-yo)));
+  }
+
+  /* ---- tide: area e scala sue, non esce mai dai suoi limiti ---- */
+  if(w.L.tide){
+    const hT=(y1-y0)*.2, base=y1;
+    let mx=0; for(let i=V.i0;i<s.length;i++)mx=Math.max(mx,s[i].v);
+    cx.save(); cx.beginPath(); cx.rect(x0,base-hT,x1-x0,hT); cx.clip();
+    for(let i=V.i0;i<s.length;i++){
+      const b=s[i],x=X(i),h=b.v/mx*hT*.92;
+      cx.fillStyle=hexa(b.c>=b.o?D.callLong:D.putLong,.45);
+      cx.fillRect(x-bw/2,base-h,bw,h);
+    }
+    cx.restore();
+    cx.font=MONO(9);cx.fillStyle='#6B7888';cx.textAlign='left';
+    cx.fillText('TIDE',x0+4,base-hT-7);
+  }
+
+  /* ---- bot: agganciato al prezzo della candela ---- */
+  if(w.L.bot){
+    [[V.i0+40,'long'],[s.length-24,'flat']].forEach(([i,kind])=>{
+      if(i<V.i0||i>=s.length)return;
+      const b=s[i],x=X(i),y=kind==='long'?Y(b.l)+13:Y(b.h)-13;
+      const col=kind==='long'?D.callLong:D.price;
+      cx.fillStyle=col;cx.beginPath();cx.arc(x,y,4,0,7);cx.fill();
+      cx.font=MONO(9);cx.fillStyle=col;cx.textAlign='center';
+      cx.fillText(kind==='long'?'B1 LONG':'B1 FUORI',x,y+(kind==='long'?14:-11));
+    });
+  }
+
+  /* ---- V-01: la targhetta del prezzo sta DENTRO l'area di disegno ---- */
+  cx.setLineDash([4,4]);cx.strokeStyle=hexa(D.price,.5);cx.lineWidth=1;
+  cx.beginPath();cx.moveTo(x0,pyTag);cx.lineTo(x1,pyTag);cx.stroke();cx.setLineDash([]);
+  const ptxt=fmt(px,w.sym); cx.font=MONO(11);
+  const pw=cx.measureText(ptxt).width+14;
+  cx.fillStyle=D.price; rr(cx,x1-pw-3,pyTag-9,pw,18,3); cx.fill();
+  cx.fillStyle='#1B1403';cx.textAlign='left';cx.fillText(ptxt,x1-pw+4,pyTag);
+
+  /* ---- V-11: se l'orario non ci sta intero, si salta ---- */
+  cx.font=MONO(10);cx.fillStyle='#6B7888';cx.textAlign='center';
+  const every=Math.max(1,Math.ceil(56/((x1-x0)/(V.i1-V.i0))));
+  let lx2=-1e9;
+  for(let i=V.i0;i<s.length;i+=every){
+    const x=X(i), t=barTime(w,i), tw=cx.measureText(t).width;
+    if(x-tw/2<x0||x+tw/2>x1)continue;
+    if(x-lx2<tw+24)continue;
+    cx.fillText(t,x,H-8); lx2=x;
+  }
+
+  /* ---- replay: a destra del cursore non si disegna ---- */
+  if(REPLAY!==null){
+    const xr=X(s.length-1)+bw*1.6;
+    cx.fillStyle='rgba(5,7,11,.72)';cx.fillRect(xr,y0,x1-xr,y1-y0);
+    cx.strokeStyle=hexa('#E0913F',.55);cx.setLineDash([4,4]);
+    cx.beginPath();cx.moveTo(xr,y0);cx.lineTo(xr,y1);cx.stroke();cx.setLineDash([]);
+    if(x1-xr>150){cx.font=MONO(9);cx.fillStyle='#E0913F';cx.textAlign='left';
+      cx.fillText('da qui in poi non lo sai ancora',xr+9,y0+12)}
+  }
+}
+function hexa(h,a){const n=parseInt(h.slice(1),16);
+  return `rgba(${n>>16&255},${n>>8&255},${n&255},${Math.max(0,Math.min(1,a)).toFixed(3)})`}
+function rr(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);
+  c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+
+/* V-12: tutti gli orari nel fuso di New York, dichiarato in barra di stato */
+const OPEN=9*60+30, SESS=390;
+function barTime(w,i){
+  const s=visible(w), tf=TFS[w.tf];
+  if(w.tf==='D'){const d=new Date(2026,8,11);d.setDate(d.getDate()-(s.length-1-i));
+    return d.toLocaleDateString('it-IT',{day:'numeric',month:'short'})}
+  let m=OPEN+SESS-1-(s.length-1-i)*tf; while(m<OPEN)m+=SESS;
+  return String(Math.floor(m/60)%24).padStart(2,'0')+':'+String(((m%60)+60)%60).padStart(2,'0');
+}
+
+/* ============================================================
+   COSTRUZIONE DELLE FINESTRE
+   ============================================================ */
+const $=id=>document.getElementById(id);
+function buildGrid(){
+  const g=$('grid'); g.innerHTML='';
+  for(let i=0;i<GRID;i++){
+    const w=WINS[i];
+    const el=document.createElement('section'); el.className='win'; el.dataset.i=i;
+    el.innerHTML=`
+      <div class="winbar">
+        <span class="wnum">${i+1}</span>
+        ${w.stale?'<i class="staledot" title="libro vecchio"></i>':''}
+        <div class="fields">
+          <button data-f="sym"><span class="k">Ticker</span><b>${w.sym}</b><span class="cv">▾</span></button>
+          <button data-f="tf"><span class="k">Int</span><b>${w.tf}</b><span class="cv">▾</span></button>
+          <button data-f="walls"><span class="k">Muri</span><b>${WALLN[w.walls]}</b><span class="cv">▾</span></button>
+          <button data-f="metric"><span class="k">Metrica</span><b>${w.metric}</b><span class="cv">▾</span></button>
+          <button data-f="exp"><span class="k">Scad</span><b>${EXPS[w.exp]}</b><span class="cv">▾</span></button>
+        </div>
+        <button class="icb" data-a="layers" title="Livelli (L)">≡</button>
+        ${GRID===1?`<button class="icb opt" data-a="panels" title="Pannelli (P)"
+             aria-pressed="${w.drawer}">▤</button>`:''}
+        ${GRID>1?'<button class="icb opt" data-a="close" title="Chiudi la finestra">✕</button>':''}
+        <span class="quote"><span class="t">${w.sym}</span><span class="p" data-q>${fmt(SYMS[w.sym].px,w.sym)}</span></span>
+      </div>
+      <div class="body">
+        <div class="plot"><canvas></canvas><div class="tip" hidden></div></div>
+        ${GRID===1&&w.drawer?'<aside class="drawer"><div class="dhead"><h2>Cosa dice il grafico</h2>'+
+          '<button class="icb" data-a="panels">✕</button></div><div class="dbody"></div></aside>':''}
+      </div>`;
+    g.appendChild(el);
+    w.el=el; w.cv=el.querySelector('canvas'); w.cx=w.cv.getContext('2d');
+    wire(w,i,el);
+  }
+  $('grid').querySelectorAll('.win')[ACTIVE]?.classList.add('active');
+  refresh();
+}
+function wire(w,i,el){
+  el.addEventListener('mousedown',()=>setActive(i),true);
+  el.querySelectorAll('[data-f]').forEach(b=>b.onclick=e=>{e.stopPropagation();setActive(i);field(w,b,b.dataset.f)});
+  el.querySelectorAll('[data-a]').forEach(b=>b.onclick=e=>{e.stopPropagation();setActive(i);
+    const a=b.dataset.a;
+    if(a==='layers')layersMenu(w,b);
+    if(a==='panels'){w.drawer=!w.drawer;buildGrid()}
+    if(a==='close'){GRID=Math.max(1,GRID-1);syncGridSeg();buildGrid()}
+  });
+  const plot=el.querySelector('.plot'), tip=el.querySelector('.tip');
+  plot.onmousemove=e=>{
+    if(w.L.map==='none'){tip.hidden=true;return}
+    const r=w.cv.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
+    const W=r.width,H=r.height, x1=W-AXW-labW(w);
+    if(x>x1||y>H-PADB||y<PADT){tip.hidden=true;return}
+    const V=w.view;
+    const p=V.hi-(y-PADT)/(H-PADT-PADB)*(V.hi-V.lo);
+    const ti=V.i0+(x-PADL)/(x1-PADL)*(V.i1-V.i0);
+    const v=mapVal(w.sym,w.L.map,p,ti), col=v>=0?D.callLong:D.putLong;
+    tip.hidden=false;
+    tip.innerHTML=`<div class="k">${MAPS[w.L.map]}</div>
+      <div class="v" style="color:${col}">${v>=0?'+':'−'}${money(Math.abs(v))}</div>
+      <div class="s">${MAPUNIT[w.L.map]} · cursore ${fmt(p,w.sym)}</div>`;
+    tip.style.left=Math.min(x+14,W-tip.offsetWidth-8)+'px';
+    tip.style.top=Math.max(6,y-52)+'px';
+  };
+  plot.onmouseleave=()=>{tip.hidden=true};
+  new ResizeObserver(()=>{
+    const bw=el.clientWidth;
+    el.classList.toggle('narrow',bw<560); el.classList.toggle('tiny',bw<410);
+    fit(w); draw(w);
+  }).observe(el);
+}
+function setActive(i){ACTIVE=i;
+  document.querySelectorAll('.win').forEach((e,k)=>e.classList.toggle('active',k===i));
+  status();}
+
+/* ---- tendine dei campi ---- */
+let openMenu=null;
+function menu(anchor,title,items,cur,pick){
+  closeMenu();
+  const d=document.createElement('div'); d.className='menu'; d.setAttribute('role','menu');
+  d.innerHTML=`<div class="h">${title}</div>`+items.map(o=>
+    `<button role="menuitemradio" aria-checked="${o.v===cur}" data-v="${o.v}">${o.l}${o.n?`<small>${o.n}</small>`:''}</button>`).join('');
+  document.body.appendChild(d);
+  const r=anchor.getBoundingClientRect();
+  d.style.left=Math.max(8,Math.min(r.left,innerWidth-d.offsetWidth-8))+'px';
+  d.style.top=(r.bottom+5)+'px';
+  d.querySelectorAll('button').forEach(b=>b.onclick=()=>{closeMenu();pick(b.dataset.v)});
+  openMenu=d; setTimeout(()=>document.addEventListener('mousedown',outside),0);
+}
+function outside(e){if(openMenu&&!openMenu.contains(e.target))closeMenu()}
+function closeMenu(){if(openMenu){openMenu.remove();openMenu=null;document.removeEventListener('mousedown',outside)}}
+function field(w,btn,f){
+  if(f==='sym')menu(btn,'Ticker',Object.keys(SYMS).map(k=>({v:k,l:k,n:fmt(SYMS[k].px,k)})),w.sym,v=>{w.sym=v;w.stale=(v==='NQ'||v==='ES');buildGrid()});
+  if(f==='tf')menu(btn,'Intervallo',Object.keys(TFS).map(k=>({v:k,l:k})),w.tf,v=>{w.tf=v;refresh()});
+  if(f==='walls')menu(btn,'Quanti muri',[{v:'off',l:'Off'},{v:'3',l:'Top 3'},{v:'5',l:'Top 5'},
+    {v:'10',l:'Top 10'},{v:'15',l:'Top 15'},{v:'25',l:'Top 25'}],String(w.walls),
+    v=>{w.walls=v==='off'?'off':+v;refresh()});
+  if(f==='metric')menu(btn,'Metrica dei muri',['GEX','CEX','DEX'].map(k=>({v:k,l:k})),w.metric,v=>{w.metric=v;refresh()});
+  if(f==='exp')menu(btn,'Scadenza',[{v:'dte0',l:'0DTE',n:'107'},{v:'week',l:'Settimana',n:'189'},
+    {v:'month',l:'Mese',n:'242'},{v:'all',l:'Tutte',n:'334'}],w.exp,v=>{w.exp=v;refresh()});
+}
+function layersMenu(w,btn){
+  closeMenu();
+  const d=document.createElement('div'); d.className='menu'; d.style.minWidth='196px';
+  d.innerHTML=`<div class="h">Una mappa alla volta</div>`+
+    Object.keys(MAPS).map(k=>`<button role="menuitemradio" aria-checked="${w.L.map===k}" data-m="${k}">${MAPS[k]}</button>`).join('')+
+    `<hr><div class="h">Sovrapposti</div>`+
+    [['tide','Liquidity Tide'],['cdi','CDI'],['bot','Segnali del bot']].map(([k,l])=>
+      `<button data-t="${k}">${l}<span class="sw" aria-checked="${w.L[k]}"><i></i></span></button>`).join('');
+  document.body.appendChild(d);
+  const r=btn.getBoundingClientRect();
+  d.style.left=Math.max(8,Math.min(r.left-70,innerWidth-d.offsetWidth-8))+'px';
+  d.style.top=(r.bottom+5)+'px';
+  d.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{w.L.map=b.dataset.m;closeMenu();refresh()});
+  d.querySelectorAll('[data-t]').forEach(b=>b.onclick=e=>{e.stopPropagation();
+    const k=b.dataset.t; w.L[k]=!w.L[k];
+    b.querySelector('.sw').setAttribute('aria-checked',w.L[k]); refresh();});
+  openMenu=d; setTimeout(()=>document.addEventListener('mousedown',outside),0);
+}
+
+/* ---- pannello: un solo verdetto, e i livelli sono gli stessi muri ---- */
+function drawer(w){
+  const body=w.el?.querySelector('.dbody'); if(!body)return;
+  const s=visible(w), px=s[s.length-1].c, ws=walls(w.sym);
+  const top=ws[0], near=ws.slice().sort((a,b)=>Math.abs(a.price-px)-Math.abs(b.price-px))[0];
+  const long=px<top.price, col=long?D.callLong:D.putLong;
+  const nw=effWalls(w);
+  const inView=ws.filter(x=>x.order<nw&&x.price>w.view.lo&&x.price<w.view.hi)
+                 .sort((a,b)=>b.price-a.price);
+  body.innerHTML=`
+    <div><p class="ptitle">Verdetto</p>
+      <div class="verdict" style="border-color:${hexa(col,.35)}">
+        <div class="big" style="color:${col}">${long?'Compratore':'Venditore'}</div>
+        <div class="sub">convinzione media · ${long?'+':'−'}1,5</div></div></div>
+    <div><p class="ptitle">Perché</p>
+      <p class="pnote">Il muro più grosso è a <b>${fmt(top.price,w.sym)}</b> con ${money(top.gex)}.
+      Il prezzo sta ${long?'sotto':'sopra'}, quindi i dealer ${long?'comprano mentre sale':'vendono mentre scende'}.
+      Il primo livello che tocchi è <b>${fmt(near.price,w.sym)}</b>.</p></div>
+    <div><p class="ptitle">Il piano</p>
+      <p class="pnote">Qui i dealer ${long?'comprano':'vendono'} sul tocco di ${fmt(near.price,w.sym)}.
+      La pressione si scarica verso ${fmt(top.price,w.sym)} e smette di valere se chiude
+      ${long?'sotto':'sopra'} ${fmt(near.price+(long?-1:1)*SYMS[w.sym].step*.4,w.sym)}.</p></div>
+    <div><p class="ptitle">I livelli sul grafico</p>
+      ${inView.map(x=>`<button class="lrow" data-p="${x.price}">
+        <span style="color:${x.col}">${wfmt(x.price,w.sym)}</span>
+        <span class="g">${money(x.gex)}</span></button>`).join('')}
+      <p class="pnote" style="font-size:11.5px;margin-top:8px;color:var(--text-tertiary)">
+        Sono gli stessi che vedi disegnati.</p></div>`;
+  body.querySelectorAll('.lrow').forEach(b=>b.onclick=()=>{
+    const p=+b.dataset.p, h=(w.view.hi-w.view.lo)/2;
+    w.view.lo=p-h; w.view.hi=p+h; draw(w);});
+}
+
+/* ---- barra di stato unica + legenda ---- */
+function status(){
+  const w=WINS[ACTIVE];
+  $('stWin').textContent=ACTIVE+1;
+  $('stSym').textContent=w.sym;
+  $('stBars').textContent=(visible(w).length).toLocaleString('it-IT');
+  $('stBook').textContent=SYMS[w.sym].book;
+  $('stClock').textContent=barTime(w,visible(w).length-1);
+  const stale=WINS.slice(0,GRID).map((x,i)=>x.stale?i+1:0).filter(Boolean);
+  $('warnBar').hidden=!stale.length;
+  $('warnWins').textContent=stale.join(', ');
+  const L=$('legend');
+  if(w.L.map==='none'){L.innerHTML='';return}
+  const pk=w._peak||1;
+  L.innerHTML=`<span>Mappa</span><span class="v">${MAPS[w.L.map]}</span><span>·</span>
+    <span class="v">−${money(pk)}</span>
+    <span class="bar" style="background:linear-gradient(90deg,${D.putLong},#0C111A 50%,${D.callLong})"></span>
+    <span class="v">+${money(pk)}</span><span>·</span>
+    <span>${MAPUNIT[w.L.map]}</span>`;
+}
+
+function refresh(){
+  for(let i=0;i<GRID;i++){const w=WINS[i];
+    fit(w); draw(w);
+    const q=w.el?.querySelector('[data-q]'); if(q)q.textContent=fmt(visible(w).slice(-1)[0].c,w.sym);
+    if(GRID===1&&w.drawer)drawer(w);
+  }
+  status();
+}
+
+/* ---- contenitore in alto ---- */
+function syncGridSeg(){$('gridSeg').querySelectorAll('button').forEach(b=>
+  b.setAttribute('aria-pressed',String(+b.dataset.g===GRID)))}
+$('gridSeg').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  GRID=+b.dataset.g; ACTIVE=Math.min(ACTIVE,GRID-1); syncGridSeg(); buildGrid()});
+$('copyBtn').onclick=()=>{               // propaga tutto tranne il ticker
+  const a=WINS[ACTIVE];
+  for(let i=0;i<GRID;i++){if(i===ACTIVE)continue;
+    Object.assign(WINS[i],{tf:a.tf,walls:a.walls,metric:a.metric,exp:a.exp,L:{...a.L}});}
+  buildGrid(); toast('Intervallo, muri, metrica, scadenza e livelli copiati. Il ticker no.');
+};
+$('presetBtn').onclick=e=>menu(e.currentTarget,'Preset',
+  [{v:'clean',l:'Lettura pulita',n:'1 finestra'},{v:'pair',l:'SPX ed ES',n:'2 finestre'},
+   {v:'deck',l:'Banco completo',n:'4 finestre'}],'clean',v=>{
+  if(v==='clean'){GRID=1;WINS[0].walls=15;WINS[0].L={map:'gamma',tide:false,cdi:false,bot:false}}
+  if(v==='pair'){GRID=2;WINS[0].sym='SPX';WINS[1].sym='ES';WINS[1].stale=true}
+  if(v==='deck'){GRID=4}
+  syncGridSeg(); buildGrid(); toast('Preset applicato');
+});
+$('warnClose').onclick=()=>{$('warnBar').hidden=true};
+$('bLive').onclick=()=>{REPLAY=null;syncRep();refresh()};
+$('bReplay').onclick=()=>{REPLAY=.72;syncRep();refresh()};
+function syncRep(){$('bLive').setAttribute('aria-pressed',String(REPLAY===null));
+  $('bReplay').setAttribute('aria-pressed',String(REPLAY!==null))}
+
+function toast(t){
+  const e=document.createElement('div');
+  e.style.cssText='position:fixed;left:50%;bottom:44px;transform:translateX(-50%);z-index:50;'+
+   'background:var(--surface-raised);border:1px solid var(--border);border-radius:7px;padding:9px 15px;'+
+   'font-family:var(--mono);font-size:11px;color:var(--text-secondary);box-shadow:0 10px 30px rgba(0,0,0,.55)';
+  e.textContent=t; document.body.appendChild(e); setTimeout(()=>e.remove(),2600);
+}
+
+/* ---- account ---- */
+const USER={nome:'Vincenzo Amore',mail:'power@volwick.com',piano:'Pro'};
+function closeAcct(){$('scrimEl')?.remove();$('acctEl')?.remove()}
+$('logo').onclick=()=>{
+  if($('acctEl'))return closeAcct();
+  closeMenu();
+  const sc=document.createElement('div'); sc.className='scrim'; sc.id='scrimEl';
+  const m=document.createElement('div'); m.className='acct'; m.id='acctEl';
+  m.innerHTML=`<div class="who"><span class="av">VA</span>
+      <span><span class="nm">${USER.nome}</span><div class="em">${USER.mail}</div></span>
+      <span class="plan">${USER.piano}</span></div><hr>
+    <button class="item"><span class="ic">◱</span>Account</button>
+    <button class="item"><span class="ic">◈</span>Abbonamento<span class="tail">rinnova il 14 ott</span></button>
+    <hr>
+    <button class="item"><span class="ic">◉</span>Community</button>
+    <button class="item"><span class="ic">↗</span>Invita un amico</button>
+    <hr>
+    <button class="item out"><span class="ic">⏻</span>Esci</button>
+    <div class="afoot"><button>v800 · cosa è cambiato</button><button>volwick.com</button></div>`;
+  document.body.append(sc,m);
+  sc.onclick=closeAcct;
+  m.querySelectorAll('button').forEach(b=>b.onclick=()=>{closeAcct();toast('Nel mockup si ferma qui')});
+};
+
+/* ---- guida ---- */
+const G={
+ start:['Da dove si parte',`<h4>Cosa stai guardando</h4>
+  <p>Chi vende opzioni deve comprare e vendere il sottostante per restare coperto, che lo voglia o no.
+  Questo schermo dice <b>a che prezzo</b> è costretto a farlo e <b>cosa fa il prezzo</b> quando ci arriva.</p>
+  <h4>Tre cose, in ordine</h4>
+  <p>Le <b>righe orizzontali</b> sono i muri. Lo <b>sfondo colorato</b> è la mappa. Il <b>pannello di destra</b>
+  mette insieme le due cose in una frase.</p>
+  <p>Una cosa sola sullo schermo è a colore pieno, ed è il prezzo di adesso, in oro. Tutto il resto sta
+  un tono sotto apposta.</p>`],
+ walls:['I muri',`<h4>Lo spessore è il dato</h4>
+  <p>Più il muro è grosso, più la riga è spessa e piena. Il più debole è tratteggiato. Funziona anche
+  stampato in bianco e nero: non serve distinguere i colori per capire quale conta di più.</p>
+  <h4>Perché sfumano verso sinistra</h4>
+  <p>Il muro vale adesso, non tre ore fa. Resta pieno nell'ultimo terzo, dove sta il prezzo, e sparisce
+  verso sinistra così lo storico delle candele torna leggibile.</p>
+  <h4>I quattro colori</h4>
+  <p><b style="color:${D.callLong}">Verde</b> e <b style="color:${D.putLong}">rosso</b> sono gamma lunga:
+  i dealer spingono contro il movimento e il prezzo si impiglia.
+  <b style="color:${D.callShort}">Ciano</b> e <b style="color:${D.putShort}">viola</b> sono gamma corta:
+  lo assecondano, e se rompe accelera.</p>
+  <p>I prezzi dei muri stanno nella loro etichetta a destra e non sporcano più la scala.</p>`],
+ maps:['Le mappe',`<h4>La regola unica</h4>
+  <p>Su tutte e cinque, <b style="color:${D.callLong}">verde è positivo</b> e
+  <b style="color:${D.putLong}">rosso è negativo</b>. Il numero che compare passando sopra ha lo stesso
+  colore della cella.</p>
+  <h4>Quale accendere</h4>
+  <p><b>γ Map</b> dice se sei dentro un intervallo o in rottura. È quella da tenere.</p>
+  <p><b>Charm</b> è la deriva che arriva col passare delle ore. <b>Vega</b> è cosa succede se si muove
+  la volatilità, <b>Volga</b> quanto in fretta quell'effetto si autoalimenta.
+  <b>Delta</b> è la copertura vera.</p>
+  <p>Una alla volta. Sovrapporle non aiuta nessuno.</p>`],
+ layout:['Più finestre',`<h4>Sempre affiancate</h4>
+  <p>Da una a quattro, una accanto all'altra. Mai in colonna, perché i muri sono livelli di prezzo e
+  il confronto si legge in orizzontale.</p>
+  <h4>Copia su tutte</h4>
+  <p>Propaga intervallo, muri, metrica, scadenza e livelli. <b>Non il ticker</b>, altrimenti si finisce
+  con quattro finestre che mostrano la stessa cosa.</p>
+  <h4>Il cassetto</h4>
+  <p>Esiste solo a finestra singola, e toglie larghezza al grafico invece di coprirlo. In griglia
+  sparisce anche la sua icona dalla barra.</p>
+  <p>Da tre finestre in su i muri scendono ai tre dominanti. Restringendo si perde l'etichetta del
+  campo, mai il valore.</p>`],
+ keys:['Tasti',`<h4>Comandi</h4>
+  <p><code>1</code> fino a <code>4</code> sceglie la finestra attiva.</p>
+  <p><code>⌘1</code> fino a <code>⌘4</code> cambia la disposizione.</p>
+  <p><code>L</code> apre i livelli, <code>P</code> il pannello, <code>⇧C</code> copia su tutte,
+  <code>⌘S</code> salva il preset, <code>Esc</code> chiude.</p>`]
+};
+$('guideBtn').onclick=()=>{
+  const w=document.createElement('div'); w.className='modal'; w.id='guideModal';
+  w.innerHTML=`<div class="sheet">
+    <div class="shead"><div><p>Come si legge</p><h2>Volwick Sightline</h2></div>
+      <button class="btn" id="gc">Chiudi</button></div>
+    <div class="stabs" role="tablist">${Object.keys(G).map(k=>
+      `<button role="tab" aria-selected="false" data-k="${k}">${G[k][0]}</button>`).join('')}</div>
+    <div class="sbody"></div></div>`;
+  document.body.appendChild(w);
+  const show=k=>{w.querySelector('.sbody').innerHTML=G[k][1];
+    w.querySelectorAll('.stabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.k===k)))};
+  w.querySelectorAll('.stabs button').forEach(b=>b.onclick=()=>show(b.dataset.k));
+  w.querySelector('#gc').onclick=()=>w.remove();
+  w.onclick=e=>{if(e.target===w)w.remove()};
+  show('start');
+};
+
+/* ---- tastiera ---- */
+addEventListener('keydown',e=>{
+  const mod=e.metaKey||e.ctrlKey;
+  if(e.key==='Escape'){closeMenu();closeAcct();$('guideModal')?.remove();return}
+  if(mod&&e.key.toLowerCase()==='s'){e.preventDefault();toast('Preset salvato');return}
+  if(mod&&'1234'.includes(e.key)){e.preventDefault();GRID=+e.key;ACTIVE=Math.min(ACTIVE,GRID-1);
+    syncGridSeg();buildGrid();return}
+  if(e.target.tagName==='INPUT')return;
+  if('1234'.includes(e.key)&&!mod){const i=+e.key-1; if(i<GRID)setActive(i); return}
+  if(e.key==='l'||e.key==='L'){const b=WINS[ACTIVE].el?.querySelector('[data-a="layers"]');
+    if(b)layersMenu(WINS[ACTIVE],b); return}
+  if(e.key==='p'||e.key==='P'){if(GRID===1){WINS[0].drawer=!WINS[0].drawer;buildGrid()} return}
+  if(e.shiftKey&&(e.key==='C'||e.key==='c')){$('copyBtn').click()}
+});
+
+/* ---- vita ---- */
+setInterval(()=>{
+  if(REPLAY!==null)return;
+  for(let i=0;i<GRID;i++){const w=WINS[i], s=series(w.sym,w.tf), b=s[s.length-1];
+    b.c+=(Math.random()-.5)*SYMS[w.sym].vol*.3; b.h=Math.max(b.h,b.c); b.l=Math.min(b.l,b.c);
+    const q=w.el?.querySelector('[data-q]'); if(q)q.textContent=fmt(b.c,w.sym);
+    draw(w);}
+  const ms=240+Math.round(Math.random()*80);
+  $('connTxt').textContent='Connesso · '+ms+' ms';
+},950);
+
+buildGrid();
+</script>
+</body></html>

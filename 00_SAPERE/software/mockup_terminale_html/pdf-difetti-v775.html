@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="spec.css">
+</head>
+<body>
+
+<section class="pg">
+  <div class="head">
+    <div class="brand">Volwick · Sightline</div>
+    <h1>I difetti da correggere</h1>
+  </div>
+
+  <h2><span class="n">01</span> Non impaginare il grafico prima che arrivino i dati</h2>
+  <p>Aprendo la pagina, o cambiando strumento, il grafico compare in uno stato che sembra normale e non lo è. Tre volte su cinque <b>non ci sono candele</b>: restano l'istogramma dei volumi e due muri. L'asse dei tempi finisce circa un'ora e venti nel futuro. La targhetta del prezzo a destra o manca, o segna un numero diverso da quello scritto in testata. La scala dei volumi a sinistra è ancora quella dello strumento di prima, i muri disegnati sono meno di quelli elencati nel pannello, e la barra dei comandi appare in versione corta, senza GUIDE e senza HIDE TOP BAR.</p>
+  <p>Un doppio clic sul grafico rimette a posto tutto insieme. Il che dice esattamente dov'è il problema: non nei dati, nel momento in cui il grafico viene disegnato.</p>
+  <p>La console lo scrive da sola: <code>positioned viewport from seed (2498 bars, no WS snapshot yet)</code>, mentre lo snapshot che arriva davvero ne porta 361. La vista viene calcolata su un conteggio che non è quello vero.</p>
+  <div class="spec">Il ridisegno non deve dipendere dall'arrivo di un tick di prezzo: va chiamato <b>quando i dati sono pronti</b>, quando cambia lo strumento e quando cambia l'altezza dell'area del grafico.</div>
+
+  <div class="note">
+    <h4>Attenzione: i punti 02, 03 e 05 sono lo stesso difetto</h4>
+    <p>Tutto quello che dipende dalla geometria del grafico resta indietro insieme. Oggi a rimettere le cose a posto è il tick di prezzo, non il codice: su ES ne arriva uno al secondo e si raddrizza in tre secondi, su SPX a mercato chiuso non arriva niente e resta rotto finché non si fa doppio clic. È anche il motivo per cui in collaudo non si vede quasi mai. <b>Sistemando questo punto cadono anche gli altri tre.</b></p>
+  </div>
+
+  <figure>
+    <img src="fig/f01-nq-prima.jpg" alt="NQ appena caricata">
+    <figcaption><b>NQ, appena caricata la pagina, alle 04:42 di New York.</b> L'asse arriva alle 07:00. In alto il banner rosso della superficie vecchia, in basso a sinistra <code>WS disconnected</code>, e nel pannello i numeri di SPX.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/f02-nq-targhetta-prima.png" alt="Targhetta staccata">
+      <figcaption><b>Prima.</b> La targhetta segna 29655,00, ma la riga del prezzo è più in basso e in testata c'è scritto 29.647,50.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/f04-nq-targhetta-dopo.png" alt="Targhetta allineata">
+      <figcaption><b>Dopo il doppio clic.</b> 29644,50, che è il prezzo vero, e sta sulla sua riga.</figcaption>
+    </figure>
+  </div>
+
+  <figure>
+    <img src="fig/f03-nq-dopo.jpg" alt="NQ dopo il doppio clic">
+    <figcaption><b>Lo stesso schermo dopo un doppio clic.</b> L'asse va da 01:30 a 04:44, che è l'ora vera. Il banner è sparito, il pallino in alto a destra è verde. Non è arrivato nessun dato nuovo: è cambiato solo il momento in cui il grafico è stato ridisegnato.</figcaption>
+  </figure>
+
+</section>
+
+<section class="pg">
+  <h2><span class="n">02</span> Ridisegna i muri quando cambia l'altezza del grafico</h2>
+  <p>Chiudendo il riquadro CVD o CDI il grafico si allarga, la scala dei prezzi si riadatta subito, <b>le righe dei muri no</b>: restano dove stavano. L'etichetta continua a scrivere il numero giusto, la riga sta da un'altra parte, e l'errore cresce scendendo — quasi zero in cima, fino a tredici punti in fondo.</p>
+  <p>È il più pericoloso di tutti, perché non sembra un errore. Chi guarda il grafico e non l'etichetta entra a un livello che non esiste. Su ES si autoripara in pochi secondi, appena arriva un tick; su SPX a mercato chiuso no, dopo venti secondi era ancora lì.</p>
+  <div class="spec">Ricalcolare la posizione dei muri anche quando cambia <b>l'altezza dell'area</b>, non solo quando arriva un prezzo. Finché non è fatto, meglio nascondere le righe durante il riadattamento che disegnarle nel posto sbagliato.</div>
+
+  <figure class="tall">
+    <img src="fig/f05-muri-fuori-posto.png" alt="Muri fuori posto">
+    <figcaption><b>SPX, subito dopo aver chiuso il riquadro CVD.</b> La scala è giusta, le righe no. <b>7735</b> è disegnata a 7736,7 · <b>7730</b> a 7732,9 · <b>7715</b> a 7721,8 · <b>7705</b> a 7714,2 · <b>7700</b> a 7710,5 · <b>7690</b> a 7702,9.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <figure>
+    <img src="fig/f06-muri-fuori-posto-full.jpg" alt="Lo stesso schermo intero">
+    <figcaption><b>Lo stesso istante, schermo intero.</b> La riga viola etichettata 7700 passa all'altezza di 7710 sulla scala di destra.</figcaption>
+  </figure>
+
+  <h2><span class="n">03</span> Non lasciare accesi i muri della metrica di prima</h2>
+  <p>Passando da GEX a DEX, la testata scrive DEX, l'elenco a destra mostra i valori DEX e anche la riga di stato dice DEX — ma sul grafico restano disegnati i muri <b>GEX</b>, cioè numeri che nell'elenco DEX non esistono. Dopo una ventina di secondi arrivano quelli giusti. Uguale cambiando la scadenza.</p>
+  <p>Alla terza prova, con il grafico in buono stato, i muri sono passati subito: è la conferma che anche questo è il punto 01. Quando il grafico è nello stato sbagliato, lo strato dei muri non si rinfresca.</p>
+  <div class="spec">Finché i muri nuovi non sono pronti, tenere i vecchi <b>smorzati</b> e scrivere che stanno arrivando. Mai lasciarli accesi come se fossero quelli della metrica scelta.</div>
+
+  <figure class="crop">
+    <img src="fig/f27-label-asse.png" alt="Etichetta sopra l'asse">
+    <figcaption><b>Sempre in DEX.</b> L'etichetta <code>7695 −418.04B</code> è disegnata sopra l'asse dei tempi e copre la data. E i valori sono in miliardi con due decimali: <code>−1113.24B</code> invece di −1,11T.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <h2><span class="n">04</span> Fai partire il replay</h2>
+  <p>Si entra in REPLAY, si sceglie 1x, si preme PLAY. Il pulsante diventa PAUSE — quindi il software crede di star suonando — ma <b>l'orologio non avanza mai</b>: dopo trenta secondi segna ancora 09:00 ET. Uguale a 10x. Le candele non si muovono di una barra.</p>
+  <p>Accanto all'orologio la barra scrive <code>candles 04:44</code>, che è l'ora vera: sta dicendo da sola che le candele sono rimaste in diretta mentre l'orologio finge di essere alle nove.</p>
+  <p>Le frecce di slot invece funzionano, ma muovono solo il libro dealer e saltano in modo irregolare — 09:00, poi 09:20, poi 09:31 — pur essendo etichettate «slot di 10 minuti» mentre gli slot sono da cinque.</p>
+  <div class="spec">PLAY deve far avanzare l'orologio e tagliare le candele a quell'ora. Se il replay non è pronto, <b>disattiva il pulsante</b>: oggi risponde al clic e non fa niente, che è peggio. E togli <code>candles 04:44</code>, che è uno scarto interno e non un'informazione per chi guarda.</div>
+
+  <figure class="crop">
+    <img src="fig/f07-replay.png" alt="Barra del replay">
+    <figcaption><b>Trenta secondi dopo aver premuto PLAY a 1x.</b> Il pulsante dice PAUSE, l'orologio è ancora 09:00. Dovrebbe segnare 09:00:30.</figcaption>
+  </figure>
+
+  <div class="note">
+    <h4>Quattro avvisi per dire la stessa cosa</h4>
+    <p>In replay lo schermo scrive nello stesso momento <b>REPLAY</b> nella barra in alto, <b>REPLAY · NOT LIVE</b> in una pastiglia al centro, <b>REPLAY</b> in basso a sinistra e <b>This is not live</b> in basso a destra. Ne basta uno.</p>
+  </div>
+</section>
+
+<section class="pg">
+  <h2><span class="n">05</span> Spegni la Tide dove non funziona</h2>
+  <p>Accendendo il Liquidity Tide con SPX aperto <b>spariscono tutte le candele</b>, e non tornano nemmeno col doppio clic. Spegnendolo va peggio: il grafico resta <b>completamente vuoto</b>, senza candele e senza volumi, con le sole righe dei muri e un'unica etichetta tagliata sull'asse. Per uscirne serve un doppio clic.</p>
+  <p>La guida scrive «Futures and SPY only», quindi il limite lo conosciamo già — ma l'interruttore si attiva su SPX senza nessun avviso.</p>
+  <p>E costa: al momento dell'accensione il tempo di risposta in alto a destra è schizzato a <b>4,4 · 9,2 · 12,8 secondi</b> nelle tre prove, mentre il pallino restava verde.</p>
+  <div class="spec">Disattivare l'interruttore sugli strumenti che non lo sostengono, e scrivere perché. In nessun caso accendere o spegnere una sovrapposizione deve poter svuotare il grafico.</div>
+
+  <figure>
+    <img src="fig/f08-tide-on.jpg" alt="SPX con la Tide accesa">
+    <figcaption><b>SPX con il Liquidity Tide acceso.</b> Nessuna candela: restano i volumi, i muri e i segnalini del bot.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <figure>
+    <img src="fig/f09-tide-off.jpg" alt="SPX dopo aver spento la Tide">
+    <figcaption><b>Lo stesso schermo dopo aver spento l'interruttore.</b> Grafico vuoto: quattro righe di muro e, sull'asse dei tempi, una sola etichetta tagliata a metà — <code>09:3</code>. La scala dei volumi è rimasta disegnata anche se non c'è più niente da misurare.</figcaption>
+  </figure>
+
+  <h2><span class="n">06</span> Accetta il prezzo che l'utente scrive nell'alert</h2>
+  <p>Nel campo del prezzo si scrive un numero e <b>il campo lo cambia da solo mentre digiti</b>, agganciandolo al muro più vicino. Scritto 7900 su SPX diventa 7.730. Scritto 7900 su ES diventa 7.728. Scritto 7722 su ES, l'alert nasce su 7.713. Nessun avviso, nessun elenco da cui scegliere.</p>
+  <p>E una volta creato, l'alert <b>non si vede da nessuna parte</b>: nessuna riga sul grafico, nessun contatore sul pulsante, nessun suono quando scatta. Per sapere che esiste bisogna riaprire la finestra.</p>
+  <div class="spec">O il campo prende il prezzo scritto, o mostra un elenco di livelli da scegliere. Cambiare il numero in silenzio è la peggiore delle due. E l'alert va disegnato sul grafico, contato sul pulsante, e quando scatta deve farsi sentire.</div>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/f10-alert-campo.png" alt="Il campo cambia da solo">
+      <figcaption><b>Scritto 7900.</b> Il campo mostra 7.730 prima ancora di premere il pulsante.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/f11-alert-riga.png" alt="L'alert creato">
+      <figcaption><b>L'alert nato da quel 7900.</b> E «points» al plurale anche quando è uno.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="pg">
+  <h2><span class="n">07</span> Fai seguire IL PIANO allo strumento</h2>
+  <p>Il blocco IL PIANO non si aggiorna quando si cambia strumento: tiene i numeri dell'ultimo che aveva un libro proprio. Su NQ a 29.651 scrive «LEVELS 7719 · Range 7705 → 7730». Su ES a 7.723 scrive «CEILING TEST 7740 · 7675 floor · Range 7650 → 7705», che sono livelli SPX, mentre i muri ES disegnati sul grafico stanno a 7728 e 7713.</p>
+  <p>L'elenco PREZZI CHE CONTANO invece converte bene, e scrive <code>7.818 · SPX 7.780</code>. Quindi la conversione esiste già: è IL PIANO che non la usa.</p>
+  <div class="spec">Convertire IL PIANO nella scala dello strumento aperto, come già si fa per PREZZI CHE CONTANO. Sugli strumenti senza libro proprio, <b>svuotare il blocco</b> e scrivere che il piano non c'è — mai tenere quello di prima.</div>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/f12-nq-testata.png" alt="Testata NQ">
+      <figcaption><b>In testata.</b> NQ a 29.647,50. E l'orario delle posizioni è <code>--</code>.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/f13-piano-7719.png" alt="Il piano con numeri SPX">
+      <figcaption><b>Nello stesso momento, nel pannello.</b> LEVELS 7719 su uno strumento che quota 29.647.</figcaption>
+    </figure>
+  </div>
+
+  <h2 style="margin-top:9mm"><span class="n">08</span> Aggrega davvero i timeframe</h2>
+  <p>Il contatore <code>Bars</code> in fondo alla pagina <b>non cambia mai</b> cambiando timeframe: 7000 su ES e 361 su SPX, identici da 1m a D. Il software non chiede una serie aggregata, ri-raggruppa quella che ha già.</p>
+  <p>Il risultato è che a 15m la finestra salta a quattro giorni con metà schermo vuoto, e a D restano tre o cinque blocchi giganti tagliati ai bordi. Tornando a 1m la finestra larga resta, col chip che dice 1m.</p>
+  <div class="spec">Chiedere al server la serie del timeframe scelto, e riportare la vista sull'ultimo tratto utile a ogni cambio.</div>
+</section>
+
+<section class="pg">
+  <div class="duo">
+    <figure>
+      <img src="fig/f14-tf-d-es.jpg" alt="Timeframe D su ES">
+      <figcaption><b>ES, timeframe D.</b> Tre blocchi e nient'altro. L'asse giornaliero finisce con un orario: <code>Sep 07 · 04:20</code>.</figcaption>
+    </figure>
+    <figure>
+      <img src="fig/f15-tf-d-spx.jpg" alt="Timeframe D su SPX">
+      <figcaption><b>SPX, timeframe D.</b> Cinque candele giganti tagliate sopra e sotto, e in fondo all'asse <code>03:24</code>.</figcaption>
+    </figure>
+  </div>
+
+  <h2><span class="n">09</span> Sistema il multi-grafico</h2>
+  <p>Quattro cose insieme, tutte già segnalate ad agosto.</p>
+  <p>La riga rossa in fondo alla pagina finisce ancora con un carattere di scarto — <code>Last Update GEX16:00 ETj</code> — con la <b>j</b> attaccata, senza spazio dopo GEX, e la frase montata al contrario.</p>
+  <p>Le targhette dei muri e i numeri della scala sono disegnati <b>sopra</b> la barra dei comandi di ciascuna finestra.</p>
+  <p>Due finestre sullo stesso strumento mostrano intervalli di tempo diversi.</p>
+  <p>E sotto GRID ci sono <b>ancora cinque</b> disposizioni: la quinta apre quattro grafici in fila, con i comandi tagliati a metà parola.</p>
+  <div class="spec">Togliere la quinta disposizione. Riscrivere la riga rossa. Dare alle targhette un margine che non entri nella barra della finestra. Allineare le finestre sullo stesso intervallo quando lo strumento è lo stesso.</div>
+
+  <figure class="crop">
+    <img src="fig/f17-riga-rossa.png" alt="La riga rossa con la j">
+    <figcaption><b>La riga rossa, ingrandita.</b> Il carattere finale è lì dal 27 agosto.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <figure>
+    <img src="fig/f16-multi-2.jpg" alt="Due grafici affiancati">
+    <figcaption><b>Due finestre, ES a sinistra e SPX a destra.</b> Nella prima il numero <code>150K</code> della scala dei volumi è stampato sopra la riga dei comandi, e la targhetta del prezzo copre le etichette della scala.</figcaption>
+  </figure>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/f18-grid-5.png" alt="Cinque icone sotto GRID">
+      <figcaption><b>Sotto GRID.</b> Cinque disposizioni: la quinta è quella da togliere.</figcaption>
+    </figure>
+    <figure>
+      <img src="fig/f32-grid-4.jpg" alt="Quattro grafici in fila">
+      <figcaption><b>Cosa apre la quinta.</b> Comandi tagliati, prima finestra vuota, quattro scale dei prezzi identiche.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="pg">
+  <h2><span class="n">10</span> Decidi se lo strumento ha un libro oppure no</h2>
+  <p>Su NQ, GOLD, SPY e QQQ la riga sotto il grafico scrive che lo strumento <b>non ha un libro di esposizione dealer</b> — e nello stesso schermo il software disegna i muri e ne stampa i valori: su NQ <code>29688 218M</code>, <code>29647 195M</code>, <code>29606 534M</code>. Su QQQ i valori sono identici a quelli di NQ, senza che da nessuna parte sia scritto «via NQ».</p>
+  <p>Sempre su NQ compare un banner rosso: <b>sta mostrando la superficie del 4 settembre</b>, di tre giorni prima. Su SPX ed ES la stessa cosa è scritta solo come «GEX 16:00:00», senza data e senza avviso. E il banner <b>sparisce</b> appena si fa un doppio clic.</p>
+  <div class="spec">Una versione sola: o lo strumento ha un libro derivato e allora si scrive da dove viene, o non ce l'ha e allora non si disegnano muri. La data del libro va scritta sempre, su tutti gli strumenti, e l'avviso non deve sparire con un ridisegno.</div>
+
+  <figure class="crop">
+    <img src="fig/f20-no-book.png" alt="La riga che nega il libro">
+    <figcaption><b>La riga sotto il grafico su NQ.</b> Nello stesso schermo di questa riga ci sono tre muri disegnati con i loro valori in milioni.</figcaption>
+  </figure>
+
+  <figure class="crop">
+    <img src="fig/f19-banner-0904.png" alt="Il banner della superficie vecchia">
+    <figcaption><b>Il banner su NQ.</b> Il 7 settembre mostra la superficie del 4. Sugli altri strumenti la stessa informazione non compare affatto.</figcaption>
+  </figure>
+
+  <h2 style="margin-top:9mm"><span class="n">11</span> Chiedi il libro che è selezionato</h2>
+  <p>Con SPX aperto il selettore del riquadro CDI dice <b>SPXW</b>, ma le chiamate che partono chiedono <code>/api/spike_history/SPY_0DTE</code>. Accanto, l'anzianità del libro è scritta in minuti e secondi — <code>STALE 3645m54s</code>, cioè sessanta ore — e su NQ lo stesso selettore dice <code>book — (n/a)</code> con un secondo <code>n/a</code> di fianco.</p>
+  <div class="spec">Chiedere il libro che è selezionato. E scrivere l'anzianità in parole: «libro di venerdì, 16:00».</div>
+
+  <figure class="crop">
+    <img src="fig/f21-cdi-stale.png" alt="La barra del CDI">
+    <figcaption><b>La barra del CDI con SPX aperto.</b> Selettore su SPXW, contatore a 3645 minuti, e l'etichetta <code>+7.9M</code> della scala che spunta sotto la riga dei comandi.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <h2><span class="n">12</span> Un formato numerico solo, e una passata sui testi</h2>
+  <p>Presi uno per uno sono difetti piccoli. Stanno tutti sulla stessa schermata, e messi insieme fanno sembrare il software un prototipo.</p>
+
+  <h3>Le unità</h3>
+  <p>La legenda della mappa gamma scrive <code>+3.4KM$ per point</code>, con la K e la M attaccate. In metrica DEX i valori sono in miliardi con due decimali (<code>−1199.92B</code>) invece che in migliaia di miliardi. Nel CDI compare <code>$1388.0M</code>. In metrica ALL convivono sullo stesso grafico 15M, −579K e −1113,24B.</p>
+
+  <h3>Le etichette</h3>
+  <p>In ALL le targhette si accavallano a due a due, e lo stesso prezzo compare due volte nell'elenco perché il numero di muri si applica per metrica e non in totale.</p>
+
+  <h3>I testi</h3>
+  <p><code>PAPER CDI SHORT SHORT 10:03 WON</code>, con la parola doppia · <code>Live (16:00</code>, con la parentesi mai chiusa · <code>POSITIONS LIVE --:--</code> · <code>no bars in view</code> · <code>CVD 0 shares · stalled 2m</code>, con «shares» su un indice.</p>
+
+  <div class="spec">Una funzione sola per formattare i numeri, con una regola per K, M, B e T e lo stesso numero di decimali ovunque. Una passata su tutte le stringhe visibili. In ALL, ridurre il numero di muri per metrica e impilare le targhette senza sovrapporle.</div>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/f24-gamma-km.png" alt="Legenda gamma">
+      <figcaption><b>La legenda della mappa gamma.</b> <code>3.4KM$</code>.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/f25-short-short.png" alt="Segnalino del bot">
+      <figcaption><b>Un segnalino del bot su ES.</b> «SHORT SHORT».</figcaption>
+    </figure>
+  </div>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/f26-live-paren.png" alt="Live (16:00">
+      <figcaption><b>In basso a sinistra.</b> La parentesi non si chiude mai.</figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/f22-etichette-all.png" alt="Targhette accavallate">
+      <figcaption><b>In metrica ALL.</b> Due targhette sullo stesso livello, una sopra l'altra.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="pg">
+  <figure class="mid">
+    <img src="fig/f23-unita-miste.png" alt="Elenco con unità miste">
+    <figcaption><b>L'elenco PREZZI CHE CONTANO in metrica ALL.</b> Il 7.825 compare due volte e il 7.750 anche. E nella stessa colonna convivono −37M, 6M, −1199.92B, −1M, 549K e −886.93B.</figcaption>
+  </figure>
+
+  <h2><span class="n">13</span> Fai entrare la barra comandi nello schermo</h2>
+  <p>Entrando in replay si aggiunge un pulsante alla barra in alto, e l'ultimo — <b>PANELS</b> — finisce fuori dallo schermo: il suo bordo destro cade a 1742 pixel su una finestra larga 1710. Trentadue pixel oltre il bordo, non cliccabile. <b>Su un portatile da 1440 uscirebbero anche GUIDE e HIDE TOP BAR.</b></p>
+  <p>Fuori dal replay la barra si riordina da sola: cambiando la scadenza sparisce la pastiglia della variazione percentuale e tutti i pulsanti scivolano di lato. Nel riquadro CDI, cambiando gamba, <code>C $335 · P $170</code> diventa <code>C $0 · P $0</code> e i pulsanti si spostano sotto il cursore — in una prova il clic su «All legs» è finito su «Multi-leg».</p>
+  <div class="spec">Far entrare la barra in <b>1440 pixel</b>, che è lo schermo di un portatile normale. E dare alle pastiglie che compaiono e spariscono una larghezza fissa, così i pulsanti non si muovono sotto le dita.</div>
+
+  <figure class="crop">
+    <img src="fig/f28-panels-tagliato.png" alt="PANELS tagliato">
+    <figcaption><b>L'angolo in alto a destra in modalità replay.</b> Il pulsante PANELS è tagliato dal bordo della finestra.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <h2><span class="n">14</span> Non dire che sei scollegato mentre stai caricando</h2>
+  <p>Per i primi quindici–venticinque secondi dopo il caricamento il pallino in alto a destra è rosso, il tempo di risposta è un trattino, e in fondo alla pagina c'è scritto <code>WS disconnected</code>. Il software funziona: sta dicendo all'utente di essere scollegato proprio nel momento in cui l'utente lo guarda per la prima volta.</p>
+  <p>In una prova è successo il contrario: pallino <b>verde con 170 ms</b> in alto e <code>WS disconnected</code> in basso nello stesso istante. La riga di stato non si aggiorna finché qualcosa non forza un ridisegno.</p>
+  <div class="spec">Un solo indicatore di connessione, aggiornato dallo stesso posto. E durante l'apertura scrivere che sta collegando, non che è scollegato.</div>
+
+  <div class="duo">
+    <figure class="crop">
+      <img src="fig/f29-conn-rosso.png" alt="Pallino rosso">
+      <figcaption><b>In alto a destra, appena caricata la pagina.</b></figcaption>
+    </figure>
+    <figure class="crop">
+      <img src="fig/f30-ws-disc.png" alt="WS disconnected">
+      <figcaption><b>In fondo, nello stesso momento.</b></figcaption>
+    </figure>
+  </div>
+
+  <h2 style="margin-top:9mm"><span class="n">15</span> Il traffico</h2>
+  <p>Questi non sono difetti dell'interfaccia, sono la bolletta. Numeri presi con l'API delle prestazioni del browser, su una sessione singola.</p>
+  <table>
+    <tbody>
+      <tr><td class="k" style="width:34mm">3,5 → 23,7 s</td><td>Tempo prima che compaia il primo pixel, su quattro caricamenti di fila. La pagina è pronta a 0,23 s: il resto è schermo vuoto. E peggiora a ogni ricarica</td></tr>
+      <tr><td class="k">34,4 MB</td><td>In 17,8 minuti di sessione, 161 richieste. Fa circa <b>116 MB l'ora per ogni scheda aperta</b></td></tr>
+      <tr><td class="k">19,1 MB · 55%</td><td>Quanto di quel traffico è una chiamata sola: <code>spike_history/SPY_0DTE</code>, 73 volte</td></tr>
+      <tr><td class="k">1 MB ogni 39 s</td><td>Con il riquadro CDI aperto: quattro chiamate in 39 secondi, 256 KB l'una, fino a 2,4 s ciascuna. La richiesta è <code>hours=480&amp;limit=30000</code>, cioè venti giorni di storico riscaricati ogni dieci secondi</td></tr>
+      <tr><td class="k">≈ 2,8 TB al giorno</td><td>Proiezione a mille utenti simultanei, sola banda in uscita</td></tr>
+      <tr><td class="k">4,4 · 9,2 · 12,8 s</td><td>Tempo di risposta subito dopo aver acceso il Liquidity Tide, in tre prove. Il pallino resta verde</td></tr>
+      <tr><td class="k">691 righe</td><td>Messaggi scritti in console in una sessione: i log di sviluppo sono accesi in produzione</td></tr>
+      <tr><td class="k">401 a tratti</td><td><code>/api/mm_gex/SPX?metric=GEX&amp;_t=…</code> ha risposto 401 tre volte a due minuti di distanza, sempre con lo <b>stesso</b> parametro anti-cache: il ritentativo non lo rigenera, quindi non può guarire da solo. Il codice commenta «user sees a plain-language line», ma a schermo non compare niente</td></tr>
+    </tbody>
+  </table>
+  <div class="spec">Prima cosa da tagliare: <code>spike_history</code>. Cache, un intervallo ragionevole al posto di venti giorni, e niente richiesta ogni dieci secondi. È metà del traffico.</div>
+</section>
+
+<section class="pg">
+  <h2><span class="n">16</span> Quello che manca</h2>
+  <p>Non sono difetti. Sono le prime cose che chiederà chi paga.</p>
+
+  <div class="gap"><b>OHLC sul mirino</b><span>Passando il mouse su una candela si leggono solo prezzo e ora. Mai apertura, massimo, minimo, chiusura, volume. È la prima cosa che cerca un trader, e c'è su qualunque altra piattaforma.</span></div>
+  <div class="gap"><b>Zoom</b><span>La rotella è inerte sul grafico, sulla scala dei prezzi e sull'asse dei tempi. C'è solo il trascinamento orizzontale, e per tornare all'ultima candela serve il doppio clic.</span></div>
+  <div class="gap"><b>Alert che si sentano</b><span>Nessun suono, nessuna notifica, nessuna riga sul grafico, nessun contatore. Chi non tiene aperta la finestra degli alert non sa che sono scattati.</span></div>
+  <div class="gap"><b>Memoria delle impostazioni</b><span>Dopo la ricarica torna lo strumento, ma il timeframe torna a 1m e la mappa scelta si perde lasciando acceso il pulsante MAPS.</span></div>
+  <div class="gap"><b>Guida allineata</b><span>Solo in inglese, firmata «darkvol», e cita un «PRO LAYOUT» che nel menù non esiste: ci sono Recommended, Creator's View e Command Deck.</span></div>
+  <div class="gap"><b>Sezione IN TESTING</b><span>Esposta in produzione dentro il menù MORE, con «Level alerts» duplicato del pulsante ALERTS e un «Refresh walls» che esiste perché l'aggiornamento automatico non è affidabile.</span></div>
+
+  <figure>
+    <img src="fig/f31-hover-no-ohlc.jpg" alt="Il mirino senza OHLC">
+    <figcaption><b>Il mirino su una candela.</b> Si legge il valore della mappa e il prezzo sotto il cursore. Della candela — apertura, massimo, minimo, chiusura, volume — non compare niente.</figcaption>
+  </figure>
+</section>
+
+
+</body>
+</html>

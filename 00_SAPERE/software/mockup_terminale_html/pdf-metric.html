@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="spec.css">
+</head>
+<body>
+
+<section class="pg">
+  <div class="head">
+    <div class="brand">Volwick · Sightline</div>
+    <h1>Metrica: come sistemarla</h1>
+    <p class="sub">GEX, CEX e DEX sono tre letture degli stessi muri. Il selettore che le sceglie ha sette cose da correggere.</p>
+    <div class="tag"><span><b>22 ago 2026</b></span><span>Per <b>Matt</b></span></div>
+  </div>
+
+  <div class="note">
+    <h4>Come si lega ai muri</h4>
+    <p>La <b>metrica</b> decide da quale libro vengono i muri; il selettore <b>Muri</b> decide quanti disegnarne. Sono due manopole sullo stesso oggetto, e tutte le regole del documento sui muri — sfumatura, spessore proporzionale, colonna unica di etichette, decadimento per distanza — valgono identiche per tutte e tre le metriche. Qui c'è solo quello che è specifico della metrica.</p>
+  </div>
+
+  <h2><span class="n">01</span> Le quattro viste</h2>
+  <p>Prima le immagini. Sono dati veri di ES/SPX: gli stessi muri letti con le tre misure.</p>
+
+  <figure>
+    <img src="fig/m-gex.png" alt="Vista GEX">
+    <figcaption><b>GEX.</b> I muri di gamma, in milioni. La vista si adatta ai livelli di questa metrica: dal 7650 al 7750.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="fig/m-cex.png" alt="Vista CEX">
+    <figcaption><b>CEX.</b> I muri di charm stanno più in basso, e la vista scende con loro. Con la scala della metrica precedente questi livelli sarebbero rimasti fuori schermo.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <figure>
+    <img src="fig/m-dex.png" alt="Vista DEX">
+    <figcaption><b>DEX.</b> Valori in miliardi, ma pesati fra loro: il 511B è la fascia piena, il 185B il tratteggio. È il peso relativo a contare, non la cifra.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="fig/m-all.png" alt="Vista multi-metrica">
+    <figcaption><b>ALL.</b> Le tre insieme, con meno muri per metrica e il tratto che dice quale metrica è: pieno GEX, tratteggiato CEX, punteggiato DEX. Il colore continua a dire se il muro frena o accelera.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <h2><span class="n">02</span> Cosa fare</h2>
+
+  <div class="r">
+    <span class="num">1</span>
+    <div class="bd">
+      <h4>Stacca ALL dagli altri tre</h4>
+      <p>GEX, CEX e DEX sono alternative: se ne guarda una alla volta. ALL non è una quarta metrica, è un modo di guardarne più di una insieme. Oggi sono quattro pulsanti uguali in fila, con ALL infilato in mezzo fra CEX e DEX.</p>
+      <p>E soprattutto: <b>ALL resta verde acceso anche quando è spento</b>, quindi non si capisce mai se la multi-metrica è attiva.</p>
+    </div>
+  </div>
+
+  <figure>
+    <img src="fig/m-btn-oggi.png" alt="Il selettore metrica oggi">
+    <figcaption>Oggi. È selezionato GEX e ALL è spento, ma resta verde lo stesso.</figcaption>
+  </figure>
+
+  <figure>
+    <img src="fig/m-btn-dopo.png" alt="Il selettore metrica rifatto">
+    <figcaption>Come deve venire. Le tre metriche in un blocco, ALL staccato da uno spazio ma sempre lì di fianco. Si accende solo quando è davvero attivo, e allora nessuna delle tre resta selezionata.</figcaption>
+  </figure>
+</section>
+
+<section class="pg">
+  <div class="r">
+    <span class="num">2</span>
+    <div class="bd">
+      <h4>Fai seguire la riga di stato alla metrica</h4>
+      <p>Selezionando DEX, la riga sotto il grafico continua a dire «CEX dealer walls». Deve sempre nominare la metrica che si sta guardando, con la stessa struttura per tutte e tre. In multi-metrica oggi il formato cambia del tutto: va uniformato anche quello.</p>
+    </div>
+  </div>
+
+  <div class="r">
+    <span class="num">3</span>
+    <div class="bd">
+      <h4>Pesa ogni metrica su se stessa</h4>
+      <p>Le tre arrivano in unità diverse: gamma in milioni, charm in migliaia, delta in miliardi. Finché se ne guarda una alla volta non è un problema. Messe insieme lo diventa, perché lo spessore delle linee smette di significare qualcosa: un muro delta diventa enorme e uno charm sparisce, solo per via dell'unità.</p>
+      <p>In multi-metrica ogni muro va pesato <b>rispetto agli altri muri della sua stessa metrica</b>. Così il più forte di ciascuna ha lo stesso peso visivo, e restano confrontabili.</p>
+    </div>
+  </div>
+
+  <div class="r">
+    <span class="num">4</span>
+    <div class="bd">
+      <h4>In multi-metrica disegna meno muri per metrica</h4>
+      <p>Il numero di muri si applica <b>per metrica, non in totale</b>: con Top 5 e tutte e tre accese diventano quindici linee e quindici etichette. Accendendo ALL il numero deve scendere da solo ai più forti di ciascuna metrica.</p>
+    </div>
+  </div>
+
+  <div class="r">
+    <span class="num">5</span>
+    <div class="bd">
+      <h4>Distingui le metriche col tratto, non col colore</h4>
+      <p>Il colore dei muri dice già se frenano o accelerano, ed è la cosa più importante del prodotto: non va usato per altro. In multi-metrica la metrica si distingue dal <b>tratto della linea</b> — pieno, tratteggiato, punteggiato — e dal nome scritto nell'etichetta.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pg">
+  <div class="r">
+    <span class="num">6</span>
+    <div class="bd">
+      <h4>Scrivi le etichette sempre allo stesso modo</h4>
+      <p>Oggi con una metrica sola l'etichetta dice <b>SPX 7710</b>, in multi-metrica <b>GEX·SPX 7710</b>. Il nome del ticker è di troppo in entrambi i casi: è già scritto nella barra della finestra. L'ordine deve essere sempre lo stesso, e l'unica cosa che cambia è il nome della metrica davanti.</p>
+    </div>
+  </div>
+
+  <figure>
+    <img src="fig/m-label.png" alt="Anatomia dell'etichetta">
+    <figcaption>Le due sole forme che l'etichetta deve avere.</figcaption>
+  </figure>
+
+  <div class="r">
+    <span class="num">7</span>
+    <div class="bd">
+      <h4>Riadatta la vista, e non svuotare il grafico</h4>
+      <p>Cambiando metrica i muri possono finire fuori dallo schermo e il grafico resta vuoto senza dire perché: dopo il cambio la vista va riportata dove sono i muri, oppure va scritto quanti ce ne sono fuori campo.</p>
+      <p>E durante il cambio i muri vecchi spariscono, lasciando due o tre secondi di «Loading dealer walls…». Vanno tenuti visibili e smorzati finché non arrivano i nuovi, così il grafico non si svuota mai. Le metriche già caricate non andrebbero richieste di nuovo: tornando su una già vista deve comparire subito.</p>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

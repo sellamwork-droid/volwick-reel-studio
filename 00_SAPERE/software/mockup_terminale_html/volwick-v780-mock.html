@@ -1,0 +1,1597 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0">
+<title>Volwick Sightline v780</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* interfaccia: vale solo fuori dall'area di disegno */
+  --bg:#070A10;        /* fondo applicazione */
+  --pane:#0C111A;      /* pannelli e barre */
+  --pane2:#121A26;     /* superficie rialzata */
+  --line:#1A2432;      /* controllo a riposo, divisori */
+  --hov:#243449;       /* controllo sotto il puntatore */
+  --line2:#26344A;     /* bordo */
+  --plot:#05070B;      /* tela del grafico, unica cosa piu scura dell'app */
+  --ink:#ECEFF4;
+  --mut:#98A4B4;
+  --faint:#6B7888;
+  --off:#4B5665;
+  --accent:#3D6FF5;    /* solo fondi e bordi */
+  --accent-t:#6E92FF;  /* testo e icone sull'accento */
+  --accent-p:#2B52C4;
+  --wash:rgba(61,111,245,.13);
+  /* stati, sempre con una parola accanto */
+  --good:#3FBF7F; --warn:#E0913F; --err:#E0656A;
+  /* alias tenuti per non toccare il resto del foglio */
+  --amber:#6E92FF; --amber-dim:#2B52C4;
+  --up:#369C6F; --dn:#CC5858; --blue:#35C0D8;
+  /* scala: cinque gradini, ognuno con un ruolo, niente valori sparsi */
+  --t-price:16px;   /* il numero piu letto dello schermo */
+  --t-brand:14.5px; /* il marchio */
+  --t-read:13px;    /* ticker e testo dei pannelli */
+  --t-ctl:11.5px;   /* valori dei controlli */
+  --t-ui:10px;      /* interruttori e utilita */
+  --t-lab:9px;      /* etichette di gruppo */
+  --mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --sans:"Geist",-apple-system,system-ui,"Segoe UI",sans-serif;
+}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:13px;overflow:hidden}
+button{font:inherit;color:inherit;background:transparent;border:0;cursor:pointer}
+button:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent-t);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.app{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--bg)}
+
+/* top bar: logo a sinistra, PANELS a destra, niente altro */
+.top{height:52px;flex:none;display:flex;align-items:center;justify-content:space-between;
+     padding:0 16px;border-bottom:1px solid var(--line);gap:16px}
+.brandbtn{display:flex;align-items:center;gap:7px;padding:6px 10px 6px 6px;border-radius:7px;flex:none}
+.brandbtn:hover{background:var(--hov)}
+.mark{width:23px;height:23px;display:block;flex:none;color:#EEF2F7}
+.word{font-family:var(--sans);font-size:var(--t-brand);font-weight:600;letter-spacing:-.012em;display:block;flex:none;line-height:1}
+  .word b{color:#EEF2F7;font-weight:600}
+  .word i{color:var(--accent-t);font-style:normal;font-weight:600}
+.brandbtn .cv{color:var(--faint);font-size:9px}
+.topright{display:flex;align-items:center;gap:12px}
+.conn{font-family:var(--mono);font-size:var(--t-ui);letter-spacing:.06em;color:var(--faint);
+      display:flex;align-items:center;gap:7px;white-space:nowrap;flex:none;padding-left:4px}
+  .conn .dot{width:5px;height:5px;border-radius:50%;background:var(--good)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--up);flex:none}
+.gbtn{font-family:var(--mono);font-size:var(--t-ui);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;flex:none;
+      border:1px solid var(--line2);border-radius:8px;padding:7px 14px;color:var(--mut)}
+.gbtn:hover{color:var(--ink);border-color:var(--faint)}
+.gbtn.on{color:var(--accent-t);border-color:var(--accent-p)}
+
+/* strip strumento */
+.wrap{flex:1;display:flex;min-height:0}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.strip{height:46px;flex:none;display:flex;align-items:center;padding:0 12px;gap:2px;
+       border-bottom:1px solid var(--line);background:var(--pane);overflow:hidden}
+.sym{display:flex;align-items:baseline;gap:9px;white-space:nowrap;flex:none;padding:6px 10px;border-radius:7px}
+.sym:hover{background:var(--hov)}
+.sym b{font-family:var(--mono);font-size:var(--t-read);letter-spacing:.06em;color:var(--accent-t);font-weight:500}
+.sym .px{font-family:var(--mono);font-size:var(--t-price);font-weight:500;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.sym .cv{color:var(--faint);font-size:9px}
+.vr{width:1px;height:18px;background:var(--line2);margin:0 10px;flex:none}
+.ctl{font-family:var(--mono);font-size:var(--t-ctl);color:var(--mut);padding:7px 10px;border-radius:7px;
+     display:flex;align-items:center;gap:7px;white-space:nowrap}
+.ctl:hover{background:var(--hov);color:var(--ink)}
+.ctl em{font-style:normal;color:var(--faint);font-size:var(--t-lab);letter-spacing:.14em;text-transform:uppercase}
+.ctl b{color:var(--ink);font-weight:500;font-size:var(--t-ctl)}
+.ctl .cv{color:var(--faint);font-size:9px}
+.tog{font-family:var(--mono);font-size:var(--t-ui);letter-spacing:.1em;color:var(--faint);white-space:nowrap;
+     padding:7px 11px;border-radius:7px;display:flex;align-items:center;gap:7px;text-transform:uppercase}
+.tog:hover{color:var(--ink);background:var(--hov)}
+.tog i{width:5px;height:5px;border-radius:50%;background:var(--line2);flex:none;font-style:normal}
+.tog.on{color:var(--accent-t)}
+.tog.on i{background:var(--accent-t)}
+.spacer{flex:1;min-width:8px}
+  .grouplab{font-family:var(--mono);font-size:var(--t-lab);letter-spacing:.17em;text-transform:uppercase;
+           color:var(--faint);padding-right:9px;flex:none;white-space:nowrap;transition:color .15s}
+  .grouplab.on{color:var(--accent-t)}
+  .fieldset{display:flex;border:1px solid var(--line2);border-radius:7px;overflow:hidden;flex:none}
+  .fieldset .ctl{border-radius:0;background:var(--line)}
+  .fieldset .ctl+.ctl{border-left:1px solid var(--line2)}
+
+/* grafico */
+.statebar{flex:none;display:flex;align-items:center;gap:9px;padding:8px 14px;
+          font-family:var(--mono);font-size:var(--t-ui);letter-spacing:.03em;line-height:1.4;
+          border-bottom:1px solid var(--line2)}
+.statebar .dot{width:6px;height:6px;border-radius:50%;flex:none}
+.statebar button{margin-left:auto;font-family:var(--mono);font-size:var(--t-lab);
+                 letter-spacing:.12em;text-transform:uppercase;border:1px solid currentColor;
+                 border-radius:5px;padding:4px 10px;opacity:.8;flex:none}
+.statebar button:hover{opacity:1}
+.statebar.warn{background:rgba(224,145,63,.08);border-bottom-color:rgba(224,145,63,.3);color:#E8B57C}
+.statebar.warn .dot{background:var(--warn)}
+.statebar.err{background:rgba(224,101,106,.09);border-bottom-color:rgba(224,101,106,.32);color:#EC9A9D}
+.statebar.err .dot{background:var(--err)}
+.statebar.mute{background:var(--pane);color:var(--mut)}
+.statebar.mute .dot{background:var(--faint)}
+.chartbox{flex:1;position:relative;min-height:0;background:var(--plot)}
+canvas{display:block;width:100%;height:100%}
+.tip{position:absolute;pointer-events:none;background:#0b0f14;border:1px solid var(--line2);
+     border-radius:7px;padding:8px 11px;font-family:var(--mono);font-size:11px;line-height:1.5;
+     white-space:nowrap;z-index:6;box-shadow:0 8px 24px rgba(0,0,0,.55)}
+.tip{max-width:280px}
+  .tip .k{color:var(--faint);font-size:var(--t-lab);letter-spacing:.14em;text-transform:uppercase}
+  .tip .amt{font-size:var(--t-ctl);color:var(--mut)}
+  .tip .s{color:var(--mut);font-size:var(--t-ctl);margin-top:2px}
+  .tip .s2{color:var(--mut);font-size:var(--t-ctl);margin-top:6px;line-height:1.5;white-space:normal}
+  .tip .src{color:var(--faint);font-size:var(--t-lab);margin-top:8px;padding-top:7px;
+            border-top:1px solid var(--line2);white-space:normal;line-height:1.4}
+.tip .v{font-size:13px}
+.stale{position:absolute;top:10px;left:50%;transform:translateX(-50%);font-family:var(--mono);
+       font-size:10px;letter-spacing:.08em;background:#2a1414;color:#e88b84;border:1px solid #4a2020;
+       border-radius:5px;padding:4px 11px;z-index:5}
+
+/* barra replay */
+.foot{height:46px;flex:none;display:flex;align-items:center;gap:12px;padding:0 12px;
+      border-top:1px solid var(--line);background:var(--pane)}
+.seg{display:flex;border:1px solid var(--line2);border-radius:8px;overflow:hidden;flex:none}
+.seg button{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;padding:6px 13px;color:var(--mut)}
+.seg button.on{background:var(--wash);color:var(--accent-t)}
+.clock{font-family:var(--mono);font-size:11.5px;border:1px solid var(--line2);border-radius:8px;
+       padding:6px 12px;display:flex;align-items:center;gap:10px;flex:none;font-variant-numeric:tabular-nums}
+.clock span{color:var(--faint);font-size:9px;letter-spacing:.14em}
+.scrub{flex:1;min-width:60px;height:18px;position:relative;display:flex;align-items:center;cursor:pointer}
+.scrub .trk{position:absolute;left:0;right:0;height:3px;background:var(--line2);border-radius:2px}
+.scrub .fil{position:absolute;left:0;height:3px;background:var(--accent-p);border-radius:2px}
+.scrub .hd{position:absolute;width:11px;height:11px;border-radius:50%;background:var(--accent-t);
+           transform:translateX(-50%);border:2px solid var(--bg)}
+
+/* CDI */
+.cdi{height:124px;flex:none;border-top:1px solid var(--line2);background:var(--plot);display:flex;flex-direction:column}
+.cdibar{height:32px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;
+        border-bottom:1px solid var(--line);background:var(--pane);font-family:var(--mono);
+        font-size:10.5px;color:var(--mut);overflow:hidden;white-space:nowrap}
+.cdibar em{font-style:normal;color:var(--faint);font-size:9px;letter-spacing:.14em;text-transform:uppercase}
+.cdibar .c{color:var(--up)} .cdibar .p{color:var(--dn)}
+.pill{border:1px solid var(--line2);border-radius:6px;padding:3px 9px;color:var(--mut);font-size:10px}
+.pill.on{border-color:var(--amberdim);color:var(--amber)}
+.cdiwrap{flex:1;position:relative;min-height:0}
+.empty{position:absolute;inset:0;display:grid;place-content:center;text-align:center;
+       font-family:var(--mono);font-size:11px;color:var(--faint);line-height:1.7}
+
+/* linguetta dei pannelli: corsia sua, testo orizzontale, mai ruotato */
+.edgerail{width:26px;flex:none;background:var(--pane);border-left:1px solid var(--line2);
+          display:flex;align-items:center;justify-content:center}
+.edgetab{width:20px;height:62px;border-radius:6px;background:var(--line);border:1px solid var(--line2);
+         display:grid;place-items:center;color:var(--mut);font-family:var(--mono);font-size:12px;
+         line-height:1;position:relative}
+.edgetab:hover{background:var(--hov);color:var(--ink)}
+.edgetab .tablab{position:absolute;right:26px;white-space:nowrap;font-size:var(--t-ui);
+                 letter-spacing:.1em;text-transform:uppercase;background:var(--surface,var(--pane2));
+                 border:1px solid var(--line2);border-radius:6px;padding:6px 10px;
+                 opacity:0;pointer-events:none;transition:opacity .12s;color:var(--ink)}
+.edgetab:hover .tablab{opacity:1}
+.edgetab[aria-expanded="false"] .chev{transform:rotate(180deg)}
+.edgetab[aria-expanded="false"]{color:var(--accent-t);border-color:var(--accent-p);background:var(--wash)}
+
+/* pannello destro */
+.side{width:312px;flex:none;border-left:1px solid var(--line);background:var(--pane);
+      display:flex;flex-direction:column;min-height:0}
+.sidehead{height:46px;flex:none;display:flex;align-items:center;justify-content:space-between;
+          padding:0 14px;border-bottom:1px solid var(--line)}
+.sidehead h2{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--faint);
+             text-transform:uppercase;font-weight:500}
+.sidebody{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:16px}
+.sec{font-family:var(--mono);font-size:var(--t-lab);letter-spacing:.18em;color:var(--faint);
+     text-transform:uppercase;margin-bottom:8px}
+.verdict{border:1px solid;border-radius:10px;padding:13px;text-align:center}
+.verdict .big{font-family:var(--mono);font-size:17px;letter-spacing:.02em}
+.verdict .sub{font-family:var(--mono);font-size:10px;color:var(--mut);margin-top:6px;letter-spacing:.06em}
+.note{font-size:12px;line-height:1.6;color:var(--mut);border-left:2px solid var(--line2);padding-left:11px}
+.note b{color:var(--ink);font-weight:500}
+.lvl{display:flex;align-items:center;justify-content:space-between;padding:7px 11px;
+     border-left:2px solid var(--line2);margin-bottom:3px;font-family:var(--mono);font-size:11.5px;
+     background:var(--pane2);border-radius:0 6px 6px 0;font-variant-numeric:tabular-nums;width:100%;text-align:left}
+.lvl:hover{background:#161c24}
+.lvl.now{border-left-color:var(--accent-p);color:var(--accent-t)}
+.lvl .g{color:var(--faint);font-size:10px}
+
+/* popover ancorato (preferenze, stato dei dati) */
+.pop{position:fixed;background:#0b0f14;border:1px solid var(--line2);border-radius:12px;
+     z-index:22;width:360px;max-width:92vw;max-height:76vh;overflow-y:auto;padding:4px 16px 16px;
+     box-shadow:0 20px 54px rgba(0,0,0,.62)}
+.pophead{position:sticky;top:0;background:#0b0f14;display:flex;align-items:center;
+         justify-content:space-between;padding:13px 0 11px;border-bottom:1px solid var(--line);margin-bottom:6px}
+.pophead h3{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--faint);
+            text-transform:uppercase;font-weight:500}
+.pop .block{margin-top:16px}
+
+/* menu dell'account sotto il logo */
+.scrim{position:fixed;inset:0;background:rgba(4,6,9,.55);z-index:20}
+.acct{position:fixed;top:56px;left:14px;width:286px;background:#0b0f14;z-index:21;
+      border:1px solid var(--line2);border-radius:12px;padding:6px;
+      box-shadow:0 22px 60px rgba(0,0,0,.6)}
+.who{display:flex;align-items:center;gap:11px;padding:11px 10px 12px}
+.av{width:36px;height:36px;border-radius:10px;background:var(--accent);color:#fff;flex:none;
+    font-family:var(--mono);font-weight:600;font-size:14px;display:grid;place-items:center}
+.who .nm{font-size:13px;font-weight:500}
+.who .em{font-family:var(--mono);font-size:10.5px;color:var(--faint);margin-top:2px}
+.plan{margin-left:auto;font-family:var(--mono);font-size:9px;letter-spacing:.14em;
+      text-transform:uppercase;color:var(--accent-t);border:1px solid var(--accent-p);
+      border-radius:5px;padding:3px 7px;flex:none}
+.acct hr{border:0;border-top:1px solid var(--line);margin:5px 6px}
+.item{display:flex;width:100%;align-items:center;gap:11px;padding:9px 10px;border-radius:8px;
+      font-size:12.5px;color:#c6cdd6;text-align:left}
+.item:hover{background:var(--hov);color:var(--ink)}
+.item .ic{width:15px;flex:none;color:var(--faint);font-family:var(--mono);font-size:12px;text-align:center}
+.item .tail{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--faint)}
+.item.out{color:#c9857f}
+.item.out:hover{background:rgba(225,86,79,.08)}
+.acctfoot{display:flex;justify-content:space-between;gap:12px;padding:11px 11px 7px;margin-top:3px;
+          border-top:1px solid var(--line)}
+.acctfoot button{font-family:var(--mono);font-size:10px;color:var(--faint);letter-spacing:.04em}
+.acctfoot button:hover{color:var(--mut);text-decoration:underline}
+
+/* pannello impostazioni a tutta pagina */
+.settings{position:fixed;inset:0;z-index:23;display:grid;place-items:center;
+          padding:26px;background:rgba(4,6,9,.74)}
+.setbox{width:min(900px,100%);height:min(620px,100%);background:var(--pane);
+        border:1px solid var(--line2);border-radius:14px;display:flex;overflow:hidden}
+.rail{width:206px;flex:none;border-right:1px solid var(--line);background:var(--bg);
+      display:flex;flex-direction:column;padding:14px 10px;gap:2px}
+.rail .rh{font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--faint);
+          text-transform:uppercase;padding:8px 10px 10px}
+.rail button{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:8px;
+             font-size:12.5px;color:var(--mut);text-align:left;width:100%}
+.rail button:hover{background:var(--hov);color:var(--ink)}
+.rail button.on{background:var(--wash);color:var(--accent-t)}
+.rail .grow{flex:1}
+.setmain{flex:1;display:flex;flex-direction:column;min-width:0}
+.sethead{height:56px;flex:none;display:flex;align-items:center;justify-content:space-between;
+         padding:0 20px;border-bottom:1px solid var(--line)}
+.sethead h2{font-size:15px;font-weight:600}
+.setbody{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:24px}
+.block h3{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--faint);
+          text-transform:uppercase;font-weight:500;margin-bottom:10px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:11px 0;
+     border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .lab{font-size:12.5px}
+.row .hint{font-size:11px;color:var(--faint);margin-top:3px;line-height:1.45;max-width:46ch}
+.row .val{font-family:var(--mono);font-size:12px;color:var(--ink);flex:none}
+.choice{display:flex;border:1px solid var(--line2);border-radius:7px;overflow:hidden;flex:none}
+.choice button{font-family:var(--mono);font-size:10.5px;padding:5px 10px;color:var(--mut)}
+.choice button.on{background:var(--wash);color:var(--accent-t)}
+.sw{width:38px;height:21px;border-radius:11px;background:var(--line2);position:relative;flex:none;transition:background .15s}
+.sw i{position:absolute;top:3px;left:3px;width:15px;height:15px;border-radius:50%;background:#5c6875;
+      transition:left .15s,background .15s;font-style:normal}
+.sw.on{background:var(--wash);border:1px solid var(--accent-p)} .sw.on i{left:19px;background:var(--accent-t)}
+.mbtn{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+       border:1px solid var(--line2);border-radius:8px;padding:8px 14px;color:var(--mut);flex:none}
+.mbtn:hover{color:var(--ink);border-color:var(--faint)}
+.mbtn.pri{color:var(--accent-t);border-color:var(--accent-p)}
+.mbtn.warn:hover{color:var(--dn);border-color:#5a2b28}
+.planbox{border:1px solid var(--accent-p);border-radius:11px;padding:16px;background:var(--wash);
+         display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.planbox .big{font-family:var(--mono);font-size:18px;color:var(--accent-t)}
+.planbox .sub{font-size:11.5px;color:var(--mut);margin-top:5px}
+.tab2{border:1px solid var(--line2);border-radius:10px;overflow:hidden}
+.tab2 .r{display:flex;align-items:center;gap:14px;padding:10px 13px;border-bottom:1px solid var(--line);
+         font-family:var(--mono);font-size:11.5px}
+.tab2 .r:last-child{border-bottom:0}
+.tab2 .r .d{color:var(--mut);width:96px;flex:none}
+.tab2 .r .a{margin-left:auto;color:var(--faint);font-size:10.5px}
+.stat{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11.5px}
+.stat i{width:6px;height:6px;border-radius:50%;flex:none;font-style:normal}
+.changes li{list-style:none;font-size:11.5px;color:var(--mut);line-height:1.5;padding:4px 0 4px 16px;position:relative}
+.changes li::before{content:"";position:absolute;left:2px;top:10px;width:5px;height:5px;
+                    border-radius:50%;background:var(--up)}
+
+/* dropdown */
+.dd{position:fixed;background:#0b0f14;border:1px solid var(--line2);border-radius:9px;
+    padding:6px;z-index:22;min-width:160px;box-shadow:0 14px 40px rgba(0,0,0,.6)}
+.dd .h{font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--faint);
+       text-transform:uppercase;padding:6px 10px 8px}
+.dd button{display:flex;width:100%;justify-content:space-between;gap:16px;align-items:center;
+           font-family:var(--mono);font-size:11.5px;padding:7px 10px;border-radius:6px;color:var(--mut)}
+.dd button:hover{background:var(--hov);color:var(--ink)}
+.dd button.on{background:var(--wash);color:var(--accent-t)}
+.dd button small{color:var(--faint);font-size:9.5px}
+.dd hr{border:0;border-top:1px solid var(--line);margin:6px 4px}
+
+/* guida */
+.modal{position:fixed;inset:0;z-index:24;display:grid;place-items:center;padding:24px;
+       background:rgba(4,6,9,.72)}
+.sheet{width:min(880px,100%);max-height:88vh;background:var(--pane);border:1px solid var(--line2);
+       border-radius:14px;display:flex;flex-direction:column;overflow:hidden}
+.sheethead{flex:none;display:flex;align-items:center;justify-content:space-between;
+           padding:18px 22px;border-bottom:1px solid var(--line)}
+.sheethead h2{font-size:17px;font-weight:600}
+.sheethead p{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--faint);
+             text-transform:uppercase;margin-bottom:5px}
+.tabs{flex:none;display:flex;gap:2px;padding:10px 14px;border-bottom:1px solid var(--line);
+      overflow-x:auto;background:var(--bg)}
+.tabs button{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;padding:7px 12px;
+             border-radius:7px;color:var(--mut);white-space:nowrap}
+.tabs button.on{background:var(--wash);color:var(--accent-t)}
+.sheetbody{flex:1;overflow-y:auto;padding:24px 28px;line-height:1.75;font-size:13.5px;color:var(--mut);max-width:70ch}
+  .sheetbody h4{font-size:14px;color:var(--ink);margin:20px 0 7px;font-weight:600}
+  .sheetbody h4:first-child{margin-top:0}
+  .sheetbody p{margin-bottom:11px}
+  .sheetbody b{color:var(--ink);font-weight:500}
+.sheetbody h4{font-size:14px;color:var(--ink);margin:18px 0 7px}
+.sheetbody h4:first-child{margin-top:0}
+.sheetbody p{margin-bottom:11px}
+.sheetbody b{color:var(--ink);font-weight:500}
+.sheetbody .g{color:var(--up)} .sheetbody .r{color:var(--dn)}
+.sheetbody code{font-family:var(--mono);font-size:12px;color:var(--amber)}
+
+.lbl-min{display:none}
+  .strip.l1 .pfx{display:none}
+  .strip.l2 #prefBtn .lbl-full{display:none}
+  .strip.l2 #prefBtn .lbl-min{display:inline;font-size:13px}
+  .strip.l3 #guideBtn .lbl-full{display:none}
+  .strip.l3 #guideBtn .lbl-min{display:inline;font-size:13px}
+  .strip.l4 .word{display:none}
+  .strip.l5 .grouplab{display:none}
+  @media (max-width:900px){
+  .side{display:none}
+  .strip{overflow-x:auto}
+}
+
+/* ---------- guida ---------- */
+.gsheet{width:min(900px,100%);height:min(640px,100%);background:var(--pane);
+        border:1px solid var(--line2);border-radius:12px;display:flex;overflow:hidden}
+.grail{width:216px;flex:none;background:var(--bg);border-right:1px solid var(--line2);
+       padding:14px 10px;display:flex;flex-direction:column;gap:1px;overflow-y:auto}
+.grh{font-family:var(--mono);font-size:var(--t-lab);letter-spacing:.18em;text-transform:uppercase;
+     color:var(--faint);padding:6px 10px 12px}
+.grail button{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:7px;
+              font-size:var(--t-read);color:var(--mut);text-align:left;width:100%}
+.grail button:hover{background:var(--hov);color:var(--ink)}
+.grail button.on{background:var(--wash);color:var(--accent-t)}
+.gn{font-family:var(--mono);font-size:var(--t-lab);color:var(--faint);flex:none;width:16px}
+.grail button.on .gn{color:var(--accent-t)}
+.gmain{flex:1;display:flex;flex-direction:column;min-width:0}
+.ghead{height:56px;flex:none;display:flex;align-items:center;justify-content:space-between;
+       padding:0 22px;border-bottom:1px solid var(--line2)}
+.ghead h2{font-size:var(--t-read);font-weight:500;letter-spacing:0;display:flex;align-items:center;gap:10px;color:var(--ink)}
+  .ghsep{color:var(--line2)}
+.gbody{flex:1;overflow-y:auto;padding:22px}
+.glead{font-size:16px;line-height:1.5;color:var(--ink);font-weight:500;max-width:52ch;
+       padding-bottom:18px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.gblocks{display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:18px 26px}
+.gb h4{font-family:var(--mono);font-size:var(--t-lab);letter-spacing:.16em;text-transform:uppercase;
+       color:var(--faint);font-weight:500;margin-bottom:6px}
+.gb p{font-size:var(--t-read);line-height:1.6;color:var(--mut)}
+.gv{border:1px solid var(--line2);border-radius:9px;padding:14px;background:var(--bg);margin-bottom:18px}
+.gvh{font-family:var(--mono);font-size:var(--t-lab);letter-spacing:.18em;text-transform:uppercase;
+     color:var(--faint);margin-bottom:9px}
+.gl{display:flex;align-items:center;gap:10px;padding:4px 0;font-size:12.5px;color:var(--mut)}
+.gl b{color:var(--ink);font-weight:500}
+.gk{width:56px;height:8px;border-radius:2px;flex:none}
+.gline{width:56px;flex:none;border-radius:1px}
+.sw-{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+.sw- i{width:9px;height:9px;border-radius:2px;display:block}
+.gramp{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;color:var(--faint)}
+.gramp i{flex:1;height:8px;border-radius:2px;
+         background:linear-gradient(90deg,#CC5858,var(--bg) 50%,#369C6F)}
+.gnote{font-size:12px;color:var(--faint);margin-top:10px}
+@media (max-width:760px){.grail{width:150px}.gblocks{grid-template-columns:1fr}}
+</style>
+
+<div class="app">
+  <div class="wrap">
+    <div class="main">
+      <div class="strip">
+        <button class="brandbtn" id="logo" aria-label="Account e impostazioni">
+          <span class="word" aria-label="Volwick"><b>VOL</b><i>WICK</i></span><span class="cv">▾</span>
+        </button>
+        <i class="vr"></i>
+        <button class="sym" id="symBtn"><b id="symName">SPX</b><span class="px" id="symPx">7,656.98</span><span class="cv">▾</span></button>
+        <button class="ctl" id="tfBtn"><b id="tfName">1m</b><span class="cv">▾</span></button>
+        <i class="vr"></i>
+        <span class="grouplab" id="wallLab">Muri</span>
+        <div class="fieldset">
+          <button class="ctl" id="wallBtn"><b id="wallName">Top 5</b><span class="cv">▾</span></button>
+          <button class="ctl" id="metBtn"><b id="metName">GEX</b><span class="cv">▾</span></button>
+          <button class="ctl" id="expBtn"><b id="expName">Tutte</b><span class="cv">▾</span></button>
+        </div>
+        <i class="vr"></i>
+        <button class="tog" id="mapBtn"><i></i><span class="pfx">Mappa ·</span><b id="mapName">Gamma</b><span class="cv">▾</span></button>
+        <button class="tog" id="tideBtn"><i></i>Tide</button>
+        <button class="tog" id="cdiBtn"><i></i>CDI</button>
+        <button class="tog" id="botBtn"><i></i>Bot</button>
+        <span class="spacer"></span>
+        <button class="tog" id="prefBtn" aria-label="Preferenze del grafico"><i style="background:transparent"></i><span class="lbl-full">⚙ Preferenze</span><span class="lbl-min">⚙</span></button>
+        <i class="vr"></i>
+        <button class="gbtn" id="guideBtn" title="Come si legge"><span class="lbl-full">Guida</span><span class="lbl-min">?</span></button>
+      </div>
+
+      <div class="statebar" id="stateBar" hidden><i class="dot"></i><span id="stateTxt"></span>
+        <button id="stateAct" hidden></button></div>
+      <div class="chartbox" id="chartbox">
+        <canvas id="cv"></canvas>
+      </div>
+
+      <div class="foot">
+        <div class="seg">
+          <button id="liveBtn" class="on">LIVE</button>
+          <button id="replayBtn">REPLAY</button>
+        </div>
+        <div class="clock"><span>ORA</span><b id="clock">15:59 ET</b></div>
+        <div class="scrub" id="scrub" role="slider" tabindex="0" aria-label="Posizione del replay" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+          <i class="trk"></i><i class="fil" id="fil"></i><i class="hd" id="hd"></i>
+        </div>
+        <button class="gbtn" id="speedBtn">10×</button>
+        <span class="conn" id="connChip"><i class="dot"></i><span id="rtt">Connesso</span></span>
+      </div>
+
+      <div class="cdi" id="cdiPane" hidden>
+        <div class="cdibar">
+          <em>CDI</em><span id="cdiBook">SPXW</span>
+          <span class="c" id="cdiC">C $41K</span><span style="color:var(--faint)">·</span><span class="p" id="cdiP">P $26K</span>
+          <button class="pill" data-leg="single">Una gamba</button>
+          <button class="pill" data-leg="multi">Più gambe</button>
+          <button class="pill on" data-leg="all">Tutte</button>
+          <span class="spacer"></span>
+          <span style="color:var(--faint)" id="cdiAge">aggiornato 6s fa</span>
+        </div>
+        <div class="cdiwrap"><canvas id="cdiCv"></canvas></div>
+      </div>
+    </div>
+
+    <div class="edgerail">
+      <button class="edgetab" id="panelsBtn" title="Pannelli" aria-expanded="true">
+        <span class="chev">›</span><span class="tablab">Pannelli</span></button>
+    </div>
+    <aside class="side" id="side">
+      <div class="sidehead"><h2>Cosa dice il grafico</h2></div>
+      <div class="sidebody" id="sideBody"></div>
+    </aside>
+  </div>
+</div>
+
+<div class="tip" id="tip" hidden></div>
+
+<script>
+/* ---------------------------------------------------------------
+   dati finti ma coerenti: prezzi, muri e mappe per ogni strumento
+--------------------------------------------------------------- */
+const SYMS={
+  SPX:{px:7656.98,step:5,dec:2,book:'SPXW',vol:2.1, libro:'vero'},
+  ES :{px:7714.75,step:5,dec:2,book:'ES',  vol:2.4, libro:'vecchio',dataLibro:'11 settembre'},
+  NQ :{px:29311.75,step:25,dec:2,book:'QQQ',vol:9.5,libro:'assente'},
+  SPY:{px:762.41,step:1,dec:2,book:'SPY',  vol:0.22,libro:'vero'},
+  VIX:{px:14.82,step:0.5,dec:2,book:'VIX', vol:0.13,libro:'vero'}
+};
+const TFS={'1m':1,'5m':5,'15m':15,'1h':60,'D':1440};
+const MAPS={none:'Nessuna',gamma:'Gamma',charm:'Charm',vega:'Vega',volga:'Volga',delta:'Delta'};
+const MAPUNIT={gamma:'per punto',charm:'al giorno',vega:'per punto di vol',volga:'per vol²',delta:'di copertura'};
+const WALLN={off:'Off',3:'Top 3',5:'Top 5',10:'Top 10',20:'Top 20'};
+const EXPS={all:'Tutte',dte0:'0DTE',week:'Settimana',month:'Mese'};
+
+const S={sym:'SPX',tf:'1m',map:'gamma',walls:5,metric:'GEX',exp:'all',
+  tide:false,cdi:true,bot:false,panels:true,replay:null,speed:10,
+  stato:'ok',cross:null,intensity:2,tz:'ET',sound:true,lang:'it',due:true,alMuro:true,alFlow:true,alSize:'1000',alBot:false,alScreen:true,alMail:false,alFollow:true,lean:true};
+
+function lcg(seed){let s=seed>>>0;return()=>((s=(s*1664525+1013904223)>>>0)/4294967296)}
+
+const cache={};
+function series(sym,tf){
+  const k=sym+tf; if(cache[k])return cache[k];
+  const c=SYMS[sym], r=lcg(sym.charCodeAt(0)*7919+TFS[tf]*104729), n=620;
+  const amp=c.vol*Math.sqrt(TFS[tf]); let p=c.px-amp*7, out=[];
+  for(let i=0;i<n;i++){
+    const pull=(c.px-p)*0.012, drift=(r()-0.5)*amp*1.9+pull;
+    const o=p, cl=p+drift, h=Math.max(o,cl)+r()*amp*0.7, l=Math.min(o,cl)-r()*amp*0.7;
+    out.push({o,h,l,c:cl,v:0.25+r()*0.9,t:i}); p=cl;
+  }
+  // porta l'ultima chiusura sul prezzo dichiarato
+  const d=c.px-out[n-1].c;
+  out.forEach((b,i)=>{const w=i/(n-1)*d;b.o+=w;b.h+=w;b.l+=w;b.c+=w});
+  cache[k]=out; return out;
+}
+function walls(sym){
+  const k='w'+sym; if(cache[k])return cache[k];
+  const c=SYMS[sym], r=lcg(sym.length*31337+7), out=[];
+  const base=Math.round(c.px/c.step)*c.step;
+  for(let i=-9;i<=9;i++){
+    const price=base+i*c.step;
+    const mag=(r()*2-0.75)*38*(1-Math.abs(i)/13);
+    out.push({price,gex:+mag.toFixed(1),rank:Math.abs(mag)});
+  }
+  out.sort((a,b)=>b.rank-a.rank);
+  out.forEach((w,i)=>w.order=i);
+  cache[k]=out; return out;
+}
+/* valore della mappa: liscio, con due segni, deterministico */
+function mapVal(sym,metric,px,ti){
+  const c=SYMS[sym], seed={gamma:1.7,charm:3.1,vega:5.3,volga:7.9,delta:11.3}[metric]||1;
+  const z=(px-c.px)/(c.vol*22);
+  const a=Math.sin(z*2.3+seed)*(0.72+0.28*Math.cos(ti*0.05+seed*0.7));
+  const b=Math.cos(z*0.9+seed*1.9)*0.55+Math.sin(z*4.1+seed*3.3)*0.22;
+  const k={gamma:480,charm:260,vega:330,volga:2100,delta:3.4}[metric]||100;
+  return (a*0.62+b*0.48)*k;
+}
+
+/* ---------------------------------------------------------------
+   la correzione centrale: la finestra si rifà a OGNI cambiamento
+--------------------------------------------------------------- */
+const VIEW={i0:0,i1:0,lo:0,hi:1};
+const BARS=150;
+function visible(){const s=series(S.sym,S.tf);return S.replay===null?s:s.slice(0,S.replay+1)}
+function fit(){
+  const s=visible(), gap=S.replay===null?0:Math.round(BARS*0.18);
+  const n=Math.min(BARS-gap,s.length);
+  VIEW.i0=s.length-n; VIEW.i1=s.length+gap;
+  let lo=1e18,hi=-1e18;
+  for(let i=VIEW.i0;i<s.length;i++){lo=Math.min(lo,s[i].l);hi=Math.max(hi,s[i].h)}
+  if(S.walls!=='off'&&hasWalls()){
+    if(hasWalls())walls(S.sym).filter(w=>w.order<S.walls).forEach(w=>{
+      if(w.price>lo-(hi-lo)*0.9&&w.price<hi+(hi-lo)*0.9){lo=Math.min(lo,w.price);hi=Math.max(hi,w.price)}
+    });
+  }
+  const pad=(hi-lo)*0.12||1; VIEW.lo=lo-pad; VIEW.hi=hi+pad;
+}
+
+/* ---------------------------------------------------------------
+   disegno
+--------------------------------------------------------------- */
+const cv=document.getElementById('cv'), cx=cv.getContext('2d');
+const cdiCv=document.getElementById('cdiCv'), cdx=cdiCv.getContext('2d');
+const AXW=64, GUT=138, PADL=10, PADT=12, PADB=26;
+let W=0,H=0,CW=0,CH=0;
+
+function sizeCanvas(c,ctx){
+  const r=c.getBoundingClientRect(), d=Math.min(devicePixelRatio||1,2);
+  const w=Math.max(1,Math.round(r.width)), h=Math.max(1,Math.round(r.height));
+  if(c.width!==w*d||c.height!==h*d){c.width=w*d;c.height=h*d}
+  ctx.setTransform(d,0,0,d,0,0); return [w,h];
+}
+const padR=()=>AXW+(S.walls==='off'?12:GUT);
+const xOf=i=>PADL+((i-VIEW.i0)+0.5)/(VIEW.i1-VIEW.i0)*(W-PADL-padR());
+const yOf=p=>PADT+(VIEW.hi-p)/(VIEW.hi-VIEW.lo)*(H-PADT-PADB);
+const fmt=p=>p.toLocaleString('en-US',{minimumFractionDigits:SYMS[S.sym].dec,maximumFractionDigits:SYMS[S.sym].dec});
+const money=v=>{const a=Math.abs(v);const s=v<0?'−':'+';
+  return a>=1000?s+'$'+(a/1000).toFixed(2)+'B':a>=1?s+'$'+a.toFixed(1)+'M':s+'$'+(a*1000).toFixed(0)+'K'};
+
+/* ora di mercato: l'ultima barra sta alle 15:59, si conta a ritroso senza mai tornare indietro */
+const SESS=390, OPEN=9*60+30;
+function barTime(i){
+  const s=visible(), tf=TFS[S.tf];
+  if(S.tf==='D'){const d=new Date(2026,8,11);d.setDate(d.getDate()-(s.length-1-i));
+    return d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}
+  let back=(s.length-1-i)*tf;
+  let m=OPEN+SESS-1-back;
+  while(m<OPEN){m+=SESS}
+  const hh=Math.floor(m/60)%24, mm=((m%60)+60)%60;
+  return String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0');
+}
+
+const hasWalls=()=>SYMS[S.sym].libro!=='assente';
+const bookStale=()=>SYMS[S.sym].libro==='vecchio';
+function MONOF(n){return n+'px "Geist Mono",ui-monospace,monospace'}
+function draw(){
+  [W,H]=sizeCanvas(cv,cx);
+  cx.clearRect(0,0,W,H);
+  const s=visible(), pr=padR(), x0=PADL, x1=W-pr, y0=PADT, y1=H-PADB;
+  const px=s[s.length-1].c;
+
+  // --- mappa (sotto a tutto). verde = positivo, rosso = negativo. sempre.
+  if(S.map!=='none'&&hasWalls()){
+    const xR=W-AXW, cols=Math.round(26*(xR-x0)/(x1-x0)), rows=30,
+          cwd=(xR-x0)/cols, chg=(y1-y0)/rows;
+    const alpha=[0.16,0.24,0.36][S.intensity-1];
+    let peak=1;
+    const grid=[];
+    for(let c=0;c<cols;c++){grid[c]=[];for(let r=0;r<rows;r++){
+      const p=VIEW.hi-(r+0.5)/rows*(VIEW.hi-VIEW.lo);
+      const v=mapVal(S.sym,S.map,p,VIEW.i0+(x0+c*cwd-x0)/(x1-x0)*(VIEW.i1-VIEW.i0));
+      grid[c][r]=v; peak=Math.max(peak,Math.abs(v));
+    }}
+    for(let c=0;c<cols;c++)for(let r=0;r<rows;r++){
+      const v=grid[c][r], k=Math.min(1,Math.abs(v)/peak);
+      if(k<0.05)continue;
+      const cxm=x0+c*cwd+cwd/2;
+      const fade=cxm<=x1?1:Math.max(0,1-(cxm-x1)/(xR-x1)*1.15);
+      if(fade<=0)continue;
+      cx.fillStyle=(v>=0?'rgba(54,156,111,':'rgba(204,88,88,')+(k*alpha*.74*fade).toFixed(3)+')';
+      cx.fillRect(x0+c*cwd,y0+r*chg,cwd+0.6,chg+0.6);
+    }
+    cv._peak=peak;
+  }
+
+  // --- griglia + asse prezzi
+  const span=VIEW.hi-VIEW.lo;
+  const raw=span/6, mag=Math.pow(10,Math.floor(Math.log10(raw)));
+  const stepP=[1,2,2.5,5,10].map(m=>m*mag).find(v=>v>=raw)||mag*10;
+  const tagY=yOf(px);
+  cx.font='11px '+getComputedStyle(document.body).getPropertyValue('--mono');
+  cx.textBaseline='middle';
+  for(let p=Math.ceil(VIEW.lo/stepP)*stepP;p<VIEW.hi;p+=stepP){
+    const y=yOf(p);
+    cx.strokeStyle='rgba(152,164,180,.05)';cx.beginPath();cx.moveTo(x0,y);cx.lineTo(W-AXW,y);cx.stroke();
+    if(Math.abs(y-tagY)<13)continue;
+    if(S.cross&&Math.abs(y-S.cross.y)<13)continue;              // niente etichetta sotto la targhetta
+    cx.fillStyle='#6B7888';cx.textAlign='left';cx.fillText(fmt(p),W-AXW+8,y);
+  }
+
+  // --- muri ancorati al prezzo, etichette in una corsia loro
+  if(S.walls!=='off'&&hasWalls()){
+    const list=walls(S.sym).filter(w=>w.order<S.walls&&w.price>VIEW.lo&&w.price<VIEW.hi)
+                           .sort((a,b)=>b.price-a.price);
+    const used=[];
+    list.forEach(w=>{
+      const y=yOf(w.price), pos=w.gex>=0, col=pos?'#3fb98a':'#e1564f';
+      cx.strokeStyle=pos?'rgba(54,156,111,.5)':'rgba(204,88,88,.5)';
+      cx.lineWidth=w.order===0?1.6:1;
+      cx.beginPath();cx.moveTo(x0,y);cx.lineTo(W-AXW,y);cx.stroke();
+      let ly=y; while(used.some(u=>Math.abs(u-ly)<15))ly+=15;  // niente etichette accavallate
+      used.push(ly);
+      const txt=(w.order===0?'★ ':'')+fmt(w.price)+'  '+money(w.gex);
+      cx.font='9.5px '+getComputedStyle(document.body).getPropertyValue('--mono');
+      const tw=cx.measureText(txt).width+16;
+      cx.fillStyle='rgba(11,15,20,.92)';cx.strokeStyle=col;cx.lineWidth=1;
+      const lx=W-AXW-tw-8;
+      cx.beginPath();cx.roundRect(lx,ly-8,tw,16,4);cx.fill();cx.stroke();
+      cx.fillStyle=col;cx.textAlign='left';cx.fillText(txt,lx+8,ly);
+      if(Math.abs(ly-y)>2){cx.strokeStyle=col;cx.globalAlpha=.4;
+        cx.beginPath();cx.moveTo(lx,ly);cx.lineTo(W-AXW-4,y);cx.stroke();cx.globalAlpha=1}
+    });
+  }
+
+  // --- candele
+  const bw=Math.max(1.5,(x1-x0)/(VIEW.i1-VIEW.i0)*0.62);
+  for(let i=VIEW.i0;i<s.length;i++){
+    const b=s[i], x=xOf(i), up=b.c>=b.o, col=up?'#3fb98a':'#e1564f';
+    cx.strokeStyle=col;cx.fillStyle=col;cx.lineWidth=1;
+    cx.beginPath();cx.moveTo(x,yOf(b.h));cx.lineTo(x,yOf(b.l));cx.stroke();
+    const yo=yOf(b.o),yc=yOf(b.c);
+    cx.fillRect(x-bw/2,Math.min(yo,yc),bw,Math.max(1.2,Math.abs(yc-yo)));
+  }
+
+  // --- tide, con la sua scala, solo quando è accesa
+  if(S.tide){
+    const hT=(y1-y0)*0.22, base=y1;
+    let mx=0; for(let i=VIEW.i0;i<s.length;i++)mx=Math.max(mx,s[i].v);
+    for(let i=VIEW.i0;i<s.length;i++){
+      const b=s[i],x=xOf(i),h=b.v/mx*hT;
+      cx.fillStyle=b.c>=b.o?'rgba(54,156,111,.5)':'rgba(204,88,88,.5)';
+      cx.fillRect(x-bw/2,base-h,bw,h);
+    }
+    cx.font='9.5px '+getComputedStyle(document.body).getPropertyValue('--mono');
+    cx.fillStyle='#6B7888';cx.textAlign='left';cx.fillText('TIDE',x0+4,base-hT-8);
+  }
+
+  // --- segnali del bot, agganciati al prezzo della candela
+  if(S.bot){
+    [[VIEW.i0+38,'long'],[s.length-26,'flat']].forEach(([i,kind])=>{
+      if(i<VIEW.i0||i>=s.length)return;
+      const b=s[i],x=xOf(i),y=kind==='long'?yOf(b.l)+14:yOf(b.h)-14;
+      const col=kind==='long'?'#369C6F':'#E8C268';
+      cx.fillStyle=col;cx.beginPath();cx.arc(x,y,5,0,7);cx.fill();
+      cx.font='9.5px '+getComputedStyle(document.body).getPropertyValue('--mono');
+      cx.fillStyle=col;cx.textAlign='center';
+      cx.fillText(kind==='long'?'B1 LONG':'B1 FUORI',x,y+(kind==='long'?16:-12));
+    });
+  }
+
+  // --- linea e targhetta del prezzo
+  cx.setLineDash([5,4]);cx.strokeStyle='rgba(232,194,104,.5)';cx.lineWidth=1;
+  cx.beginPath();cx.moveTo(x0,tagY);cx.lineTo(W-AXW,tagY);cx.stroke();cx.setLineDash([]);
+  const vivo=S.stato==='ok'&&S.replay===null;
+  cx.fillStyle=vivo?'#E8C268':'rgba(232,194,104,.16)';
+  cx.beginPath();cx.roundRect(W-AXW+2,tagY-9,AXW-6,18,3);cx.fill();
+  if(!vivo){cx.strokeStyle='rgba(232,194,104,.5)';cx.lineWidth=1;cx.stroke();}
+  cx.font='11px '+getComputedStyle(document.body).getPropertyValue('--mono');
+  cx.fillStyle=vivo?'#1B1403':'#E8C268';cx.textAlign='left';cx.fillText(fmt(px),W-AXW+8,tagY);
+
+  // --- asse del tempo, salta le etichette che non ci stanno
+  cx.font='10.5px '+getComputedStyle(document.body).getPropertyValue('--mono');
+  cx.fillStyle='#6B7888';cx.textAlign='center';
+  const every=Math.ceil(50/((x1-x0)/(VIEW.i1-VIEW.i0)));
+  let lastX=-99;
+  for(let i=VIEW.i0;i<s.length;i+=every){
+    const x=xOf(i), t=barTime(i), w=cx.measureText(t).width;
+    if(x-w/2<x0||x+w/2>x1)continue;
+    if(x-lastX<w+22)continue;
+    cx.fillText(t,x,H-10); lastX=x;
+  }
+
+  // --- bordo del replay: a destra del cursore non c'è niente
+  if(S.replay!==null){
+    const x=xOf(s.length-1)+bw*1.6;
+    cx.strokeStyle='rgba(224,145,63,.55)';cx.setLineDash([4,4]);
+    cx.beginPath();cx.moveTo(x,y0);cx.lineTo(x,y1);cx.stroke();cx.setLineDash([]);
+    cx.fillStyle='rgba(8,10,14,.75)';cx.fillRect(x,y0,x1-x,y1-y0);
+    cx.font='9.5px '+getComputedStyle(document.body).getPropertyValue('--mono');
+    cx.fillStyle='#E0913F';cx.textAlign='left';
+    cx.fillText('da qui in poi non lo sai ancora',x+10,y0+14);
+  }
+  // --- caricamento: griglia e assi ci sono gia, il resto no
+  if(S.stato==='loading'){
+    cx.fillStyle='rgba(7,10,16,.72)';cx.fillRect(0,0,W,H);
+    cx.font=MONOF(11);cx.fillStyle='#98A4B4';cx.textAlign='center';
+    cx.fillText('Carico '+S.sym+' · '+S.tf,(W-padR())/2,H/2);
+  }
+
+  // --- strumento senza libro dealer: si dice, non si lascia vuoto
+  if(!hasWalls()&&S.stato!=='loading'){
+    const bx=(W-padR())/2, by=PADT+26;
+    cx.textAlign='center';
+    cx.font=MONOF(11);cx.fillStyle='#E8B57C';
+    cx.fillText(S.sym+' non ha un libro dealer',bx,by);
+    cx.font=MONOF(10);cx.fillStyle='#6B7888';
+    cx.fillText('Muri e mappe disponibili su SPX, ES, MES, SPY, VIX',bx,by+17);
+  }
+
+  // --- mirino: croce tratteggiata + prezzo sulla scala + ora sull'asse
+  if(S.cross&&S.stato!=='loading'){
+    const {x,y}=S.cross, xEnd=W-AXW;
+    cx.save();
+    cx.setLineDash([3,4]);cx.strokeStyle='rgba(152,164,180,.34)';cx.lineWidth=1;
+    cx.beginPath();cx.moveTo(PADL,y+.5);cx.lineTo(xEnd,y+.5);
+    cx.moveTo(x+.5,PADT);cx.lineTo(x+.5,H-PADB);cx.stroke();
+    cx.setLineDash([]);
+    const p=VIEW.hi-(y-PADT)/(H-PADT-PADB)*(VIEW.hi-VIEW.lo);
+    const ptxt=fmt(p); cx.font=MONOF(11);
+    cx.fillStyle='#1A2432';cx.strokeStyle='#26344A';cx.lineWidth=1;
+    cx.beginPath();cx.roundRect(W-AXW+2,y-9,AXW-6,18,3);cx.fill();cx.stroke();
+    cx.fillStyle='#ECEFF4';cx.textAlign='left';cx.fillText(ptxt,W-AXW+8,y);
+    const i=Math.round(VIEW.i0+(x-PADL)/(W-PADL-padR())*(VIEW.i1-VIEW.i0));
+    const ttxt=barTime(Math.max(VIEW.i0,Math.min(visible().length-1,i)));
+    const tw=cx.measureText(ttxt).width+16;
+    cx.fillStyle='#1A2432';cx.strokeStyle='#26344A';
+    cx.beginPath();cx.roundRect(Math.max(PADL,Math.min(x-tw/2,W-padR()-tw)),H-PADB+1,tw,17,3);
+    cx.fill();cx.stroke();
+    cx.fillStyle='#ECEFF4';cx.textAlign='center';
+    cx.fillText(ttxt,Math.max(PADL+tw/2,Math.min(x,W-padR()-tw/2)),H-PADB+9.5);
+    cx.restore();
+  }
+  drawCdi();
+}
+
+function drawCdi(){
+  if(!S.cdi||document.getElementById('cdiPane').hidden)return;
+  const [w,h]=sizeCanvas(cdiCv,cdx);
+  cdx.clearRect(0,0,w,h);
+  const s=visible(), x0=PADL, x1=w-padR(), mid=h/2;
+  const bw=Math.max(1.5,(x1-x0)/(VIEW.i1-VIEW.i0)*0.62);
+  const r=lcg(S.sym.charCodeAt(1)*7717);
+  cdx.strokeStyle='rgba(152,164,180,.09)';cdx.setLineDash([3,4]);
+  cdx.beginPath();cdx.moveTo(x0,mid);cdx.lineTo(x1,mid);cdx.stroke();cdx.setLineDash([]);
+  for(let i=VIEW.i0;i<s.length;i++){
+    const b=s[i], x=PADL+((i-VIEW.i0)+0.5)/(VIEW.i1-VIEW.i0)*(x1-x0);
+    const v=(b.c-b.o)/(SYMS[S.sym].vol)*0.9+(b.v-0.7)*0.5;
+    const hh=Math.min(mid-6,Math.abs(v)*mid*0.8);
+    cdx.fillStyle=v>=0?'rgba(54,156,111,.8)':'rgba(204,88,88,.8)';
+    cdx.fillRect(x-bw/2,v>=0?mid-hh:mid,bw,hh);
+  }
+}
+
+/* ---------------------------------------------------------------
+   pannello destro: un solo verdetto, e i livelli sono gli stessi muri
+--------------------------------------------------------------- */
+function renderSide(){
+  if(!hasWalls()){
+    document.getElementById('sideBody').innerHTML=`
+      <div><p class="sec">Verdetto</p>
+        <div class="verdict" style="border-color:var(--line2);background:var(--pane2)">
+          <div class="big" style="color:var(--mut);font-size:15px">Non disponibile</div>
+          <div class="sub">${S.sym} non ha un libro dealer</div></div></div>
+      <div><p class="sec">Perché</p>
+        <p class="note">Il verdetto nasce dai muri, e i muri nascono dalle posizioni aperte sulle opzioni.
+        Su ${S.sym} quel libro non esiste, quindi non c'è niente da cui ricavarlo.</p></div>
+      <div><p class="sec">Dove funziona</p>
+        <p class="note">SPX, ES, MES, SPY e VIX hanno il libro. Su ${S.sym} restano prezzo, volume e replay.</p></div>`;
+    return;
+  }
+  const s=visible(), px=s[s.length-1].c, ws=walls(S.sym);
+  const near=ws.slice().sort((a,b)=>Math.abs(a.price-px)-Math.abs(b.price-px))[0];
+  const top=ws[0];
+  const long=px<top.price;
+  const col=long?'#369C6F':'#CC5858';
+  const shown=ws.filter(w=>w.price>VIEW.lo&&w.price<VIEW.hi)
+                .sort((a,b)=>b.price-a.price).slice(0,9);
+  document.getElementById('sideBody').innerHTML=`
+    <div>
+      <p class="sec">Verdetto</p>
+      <div class="verdict" style="border-color:${col}33;background:${col}0d">
+        <div class="big" style="color:${col}">${long?'↗ Compratore':'↘ Venditore'}</div>
+        <div class="sub">convinzione media · ${long?'+':'−'}1.5</div>
+      </div>
+    </div>
+    <div>
+      <p class="sec">Perché</p>
+      <p class="note">Il muro più grosso è a <b>${fmt(top.price)}</b> con ${money(top.gex)}.
+      Il prezzo sta ${long?'sotto':'sopra'}, quindi i dealer ${long?'comprano mentre sale':'vendono mentre scende'}.
+      Il livello che tocchi per primo è <b>${fmt(near.price)}</b>.</p>
+    </div>
+    <div>
+      <p class="sec">Il piano</p>
+      <p class="note">Qui i dealer <b>${long?'comprano':'vendono'}</b> sul tocco di ${fmt(near.price)}.
+      La pressione si scarica verso ${fmt(top.price)} e smette di valere se chiude
+      ${long?'sotto':'sopra'} ${fmt(near.price+(long?-1:1)*SYMS[S.sym].step*0.4)}.</p>
+    </div>
+    <div>
+      <p class="sec">I livelli sul grafico</p>
+      ${shown.map(w=>`<button class="lvl ${Math.abs(w.price-px)<SYMS[S.sym].step/2?'now':''}" data-price="${w.price}">
+        <span>${fmt(w.price)}</span><span class="g">${money(w.gex)}</span></button>`).join('')}
+      <p class="note" style="margin-top:10px;border:0;padding:0;font-size:11px">
+        Sono gli stessi che vedi disegnati. Cliccane uno per portarci sopra la finestra.</p>
+    </div>`;
+  document.getElementById('sideBody').querySelectorAll('.lvl').forEach(b=>{
+    b.onclick=()=>{const p=+b.dataset.price, sp=(VIEW.hi-VIEW.lo)/2;
+      VIEW.lo=p-sp;VIEW.hi=p+sp;draw()};
+  });
+}
+
+/* ---------------------------------------------------------------
+   menu a tendina generico
+--------------------------------------------------------------- */
+let openDD=null;
+function dropdown(anchor,title,items,current,pick){
+  closeDD();
+  const d=document.createElement('div'); d.className='dd';
+  d.innerHTML=`<div class="h">${title}</div>`+items.map(it=>
+    `<button data-v="${it.v}" class="${it.v===current?'on':''}">${it.l}${it.n?`<small>${it.n}</small>`:''}</button>`).join('');
+  document.body.appendChild(d);
+  const r=anchor.getBoundingClientRect();
+  d.style.left=Math.min(r.left,innerWidth-d.offsetWidth-10)+'px';
+  d.style.top=(r.bottom+6)+'px';
+  d.querySelectorAll('button').forEach(b=>b.onclick=()=>{closeDD();pick(b.dataset.v)});
+  openDD=d;
+  setTimeout(()=>document.addEventListener('mousedown',outside),0);
+}
+function outside(e){if(openDD&&!openDD.contains(e.target))closeDD()}
+function closeDD(){if(openDD){openDD.remove();openDD=null;document.removeEventListener('mousedown',outside)}}
+
+/* ---------------------------------------------------------------
+   applica lo stato allo schermo
+--------------------------------------------------------------- */
+const STATI={
+  ok:null,
+  loading:{c:'mute',t:()=>'Carico i dati di '+S.sym+'…'},
+  closed:{c:'mute',t:()=>'Mercato chiuso · riapre lunedì alle 09:30 di New York. Quello che vedi è l\'ultima seduta.'},
+  offline:{c:'err',t:()=>'Connessione persa · riprovo fra pochi secondi. Il prezzo è fermo a '+
+    fmt(visible().slice(-1)[0].c)+', non è quello di adesso.',a:'Riprova'}
+};
+function paintState(){
+  const bar=$('stateBar'), txt=$('stateTxt'), act=$('stateAct');
+  let st=STATI[S.stato]||null, cls='', label='', action='';
+  if(st){cls=st.c;label=st.t();action=st.a||''}
+  else if(!hasWalls()){cls='warn';
+    label=S.sym+' non ha un libro dealer. Vedi prezzo e volume, non i muri.';}
+  else if(bookStale()){cls='warn';
+    label='Libro del '+SYMS[S.sym].dataLibro+' · quello di oggi è in costruzione. I muri restano indicativi, i numeri no.';}
+  bar.hidden=!label; bar.className='statebar '+cls;
+  txt.textContent=label;
+  act.hidden=!action; act.textContent=action;
+  $('connChip').style.opacity=S.stato==='offline'?1:'';
+  $('rtt').textContent=S.stato==='offline'?'Disconnesso':(S.stato==='closed'?'Mercato chiuso':'Connesso');
+  $('connChip').querySelector('.dot').style.background=
+    S.stato==='offline'?'var(--err)':(S.stato==='closed'?'var(--faint)':'var(--good)');
+}
+function apply(){
+  document.getElementById('symName').textContent=S.sym;
+  document.getElementById('tfName').textContent=S.tf;
+  document.getElementById('wallName').textContent=WALLN[S.walls];
+  document.getElementById('wallLab').classList.toggle('on',S.walls!=='off');
+  document.getElementById('metName').textContent=S.metric;
+  document.getElementById('expName').textContent=EXPS[S.exp];
+  document.getElementById('mapName').textContent=S.map==='none'?'Off':MAPS[S.map];
+  document.getElementById('mapBtn').classList.toggle('on',S.map!=='none');
+  document.getElementById('tideBtn').classList.toggle('on',S.tide);
+  document.getElementById('cdiBtn').classList.toggle('on',S.cdi);
+  document.getElementById('botBtn').classList.toggle('on',S.bot);
+  document.getElementById('panelsBtn').setAttribute('aria-expanded',String(S.panels));
+  document.getElementById('side').style.display=S.panels?'':'none';
+  document.getElementById('cdiPane').hidden=!S.cdi;
+  document.getElementById('cdiBook').textContent=SYMS[S.sym].book;
+  document.getElementById('liveBtn').classList.toggle('on',S.replay===null);
+  document.getElementById('replayBtn').classList.toggle('on',S.replay!==null);
+  document.getElementById('speedBtn').textContent=S.speed+'×';
+  document.getElementById('speedBtn').style.opacity=S.replay===null?.35:1;
+  const s=series(S.sym,S.tf);
+  const idx=S.replay===null?s.length-1:S.replay;
+  const pc=(idx/(s.length-1))*100;
+  document.getElementById('fil').style.width=pc+'%';
+  document.getElementById('hd').style.left=pc+'%';
+  document.getElementById('scrub').setAttribute('aria-valuenow',Math.round(pc));
+  document.getElementById('clock').textContent=barTime(idx)+' '+(S.tz==='ET'?'ET':'loc');
+  document.getElementById('symPx').textContent=fmt(visible().slice(-1)[0].c);
+  paintState();
+  fit(); draw(); renderSide();
+}
+
+/* ---------------------------------------------------------------
+   comandi
+--------------------------------------------------------------- */
+const $=id=>document.getElementById(id);
+function load(change){            // i primi istanti hanno una faccia, non sono un buco
+  const prev=S.stato; S.stato='loading'; apply();
+  setTimeout(()=>{change(); S.stato=prev==='loading'?'ok':prev; apply();},450);
+}
+$('symBtn').onclick=e=>dropdown(e.currentTarget,'Strumento',
+  Object.keys(SYMS).map(k=>({v:k,l:k,n:fmt(SYMS[k].px)})),S.sym,v=>{load(()=>S.sym=v)});
+$('tfBtn').onclick=e=>dropdown(e.currentTarget,'Intervallo',
+  Object.keys(TFS).map(k=>({v:k,l:k})),S.tf,v=>{load(()=>S.tf=v)});
+$('wallBtn').onclick=e=>dropdown(e.currentTarget,'Quanti muri',
+  [{v:'off',l:'Off'},{v:'3',l:'Top 3'},{v:'5',l:'Top 5'},{v:'10',l:'Top 10'},{v:'20',l:'Top 20'}],
+  String(S.walls),v=>{S.walls=v==='off'?'off':+v;apply()});
+$('metBtn').onclick=e=>dropdown(e.currentTarget,'Metrica dei muri',
+  ['GEX','CEX','DEX'].map(k=>({v:k,l:k})),S.metric,v=>{S.metric=v;apply()});
+$('expBtn').onclick=e=>dropdown(e.currentTarget,'Scadenza',
+  [{v:'dte0',l:'0DTE',n:'107'},{v:'week',l:'Settimana',n:'189'},{v:'month',l:'Mese',n:'242'},{v:'all',l:'Tutte',n:'334'}],
+  S.exp,v=>{S.exp=v;apply()});
+$('mapBtn').onclick=e=>dropdown(e.currentTarget,'Una mappa alla volta',
+  Object.keys(MAPS).map(k=>({v:k,l:MAPS[k]})),S.map,v=>{S.map=v;apply()});
+$('tideBtn').onclick=()=>{S.tide=!S.tide;apply()};
+$('cdiBtn').onclick=()=>{S.cdi=!S.cdi;apply()};
+$('botBtn').onclick=()=>{S.bot=!S.bot;apply()};
+$('panelsBtn').onclick=()=>{S.panels=!S.panels;apply()};
+
+$('liveBtn').onclick=()=>{S.replay=null;stopPlay();apply()};
+$('replayBtn').onclick=()=>{if(S.replay===null){S.replay=Math.round(series(S.sym,S.tf).length*0.72);apply()}};
+$('speedBtn').onclick=()=>{S.speed={1:10,10:30,30:60,60:1}[S.speed];apply()};
+document.querySelectorAll('.pill[data-leg]').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.pill[data-leg]').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on')});
+
+let playT=null;
+function stopPlay(){if(playT){clearInterval(playT);playT=null}}
+function seek(clientX){
+  const r=$('scrub').getBoundingClientRect();
+  const k=Math.max(0,Math.min(1,(clientX-r.left)/r.width));
+  const s=series(S.sym,S.tf), i=Math.round(k*(s.length-1));
+  S.replay=i>=s.length-1?null:i; apply();
+}
+$('scrub').onmousedown=e=>{seek(e.clientX);
+  const mv=ev=>seek(ev.clientX), up=()=>{removeEventListener('mousemove',mv);removeEventListener('mouseup',up)};
+  addEventListener('mousemove',mv);addEventListener('mouseup',up)};
+$('scrub').onkeydown=e=>{
+  const s=series(S.sym,S.tf), cur=S.replay===null?s.length-1:S.replay;
+  if(e.key==='ArrowLeft'){S.replay=Math.max(0,cur-5);apply();e.preventDefault()}
+  if(e.key==='ArrowRight'){const n=cur+5;S.replay=n>=s.length-1?null:n;apply();e.preventDefault()}};
+
+/* tooltip della mappa: il numero prende il colore della cella */
+const tip=$('tip');
+let rafPend=false;
+function nearestWall(py,tolPx){
+  if(S.walls==='off'||!hasWalls())return null;
+  const list=walls(S.sym).filter(w=>w.order<S.walls&&w.price>VIEW.lo&&w.price<VIEW.hi);
+  let best=null,bd=1e9;
+  list.forEach(w=>{const d=Math.abs(yOf(w.price)-py); if(d<bd){bd=d;best=w}});
+  return bd<=tolPx?best:null;
+}
+function wallCopy(w){
+  const call=w.price>=visible().slice(-1)[0].c, lungo=w.gex>=0;
+  const tipo=(call?'Call':'Put')+' · gamma '+(lungo?'lunga':'corta');
+  const senso=lungo
+    ? 'Chi si copre spinge contro il movimento. Qui il prezzo tende a impigliarsi.'
+    : 'Chi si copre asseconda il movimento. Se rompe, accelera.';
+  return {tipo,senso,col:lungo?(call?'#369C6F':'#CC5858'):(call?'#35C0D8':'#A173CC')};
+}
+$('chartbox').onmousemove=e=>{
+  const r=cv.getBoundingClientRect(), x=e.clientX-r.left, y=e.clientY-r.top;
+  if(x>W-padR()||y>H-PADB||y<PADT||S.stato==='loading'){
+    if(S.cross){S.cross=null;tip.hidden=true;schedule()}
+    return;
+  }
+  S.cross={x,y}; schedule();
+
+  const wl=nearestWall(y,6);
+  if(wl){                                   // un riquadro alla volta: il muro vince sulla mappa
+    const c=wallCopy(wl);
+    tip.hidden=false; tip.style.maxWidth='280px';
+    tip.innerHTML=`<div class="k">Muro · ${S.metric}</div>
+      <div class="v" style="color:${c.col}">${fmt(wl.price)}<span class="amt"> ${wl.gex>=0?'+':'−'}$${Math.abs(wl.gex).toFixed(1)}M</span></div>
+      <div class="s">${c.tipo}</div>
+      <div class="s2">${c.senso}</div>
+      <div class="src">${SYMS[S.sym].libro==='vero'?'Libro reale · '+SYMS[S.sym].book
+        :'Stimato da '+SYMS[S.sym].book+' · non è un libro dealer'}</div>`;
+  } else if(S.map!=='none'){
+    const p=VIEW.hi-(y-PADT)/(H-PADT-PADB)*(VIEW.hi-VIEW.lo);
+    const i=VIEW.i0+(x-PADL)/(W-PADL-padR())*(VIEW.i1-VIEW.i0);
+    const v=mapVal(S.sym,S.map,p,i), col=v>=0?'#369C6F':'#CC5858';
+    tip.hidden=false; tip.style.maxWidth='280px';
+    tip.innerHTML=`<div class="k">${MAPS[S.map]}</div>
+      <div class="v" style="color:${col}">${money(v)}<span class="amt"> ${MAPUNIT[S.map]}</span></div>
+      <div class="s">cursore ${fmt(p)}</div>`;
+  } else tip.hidden=true;
+
+  if(!tip.hidden){
+    tip.style.left=Math.min(x+16,r.width-tip.offsetWidth-8)+'px';
+    tip.style.top=Math.max(8,Math.min(y-tip.offsetHeight-14,r.height-tip.offsetHeight-8))+'px';
+  }
+};
+$('chartbox').onmouseleave=()=>{tip.hidden=true;S.cross=null;schedule()};
+function schedule(){ if(rafPend)return; rafPend=true;
+  requestAnimationFrame(()=>{rafPend=false;draw()}); }
+
+/* ---------------------------------------------------------------
+   il logo apre l'account. le impostazioni sono una pagina a parte.
+--------------------------------------------------------------- */
+const USER={nome:'Vincenzo Amore',mail:'power@volwick.com',piano:'Pro',
+            prezzo:'149 € al mese',rinnovo:'14 ottobre 2026',carta:'•••• 4417'};
+
+function closeOverlay(){document.getElementById('scrim')?.remove();
+                        document.getElementById('acct')?.remove()}
+function openAccount(){
+  if(document.getElementById('acct'))return closeOverlay();
+  closePop();
+  const sc=document.createElement('div'); sc.className='scrim'; sc.id='scrim';
+  const m=document.createElement('div'); m.className='acct'; m.id='acct';
+  m.innerHTML=`
+    <div class="who"><span class="av">VA</span>
+      <span><span class="nm">${USER.nome}</span><div class="em">${USER.mail}</div></span>
+      <span class="plan">${USER.piano}</span></div>
+    <hr>
+    <button class="item" data-go="account"><span class="ic">◱</span>Account</button>
+    <button class="item" data-go="piano"><span class="ic">◈</span>Abbonamento
+      <span class="tail">rinnova il 14 ott</span></button>
+    <hr>
+    <button class="item" data-site="community"><span class="ic">◉</span>Community</button>
+    <button class="item" data-go="invita"><span class="ic">↗</span>Invita un amico</button>
+    <hr>
+    <button class="item out" data-out="1"><span class="ic">⏻</span>Esci</button>
+    <div class="acctfoot">
+      <button data-news="1">v780 · cosa è cambiato</button>
+      <button data-site="sito">volwick.com</button>
+    </div>`;
+  document.body.append(sc,m);
+  sc.onclick=closeOverlay;
+  m.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{closeOverlay();openSettings(b.dataset.go)});
+  m.querySelectorAll('[data-site]').forEach(b=>b.onclick=()=>{closeOverlay();
+    toast(b.dataset.site==='community'?'Si aprirebbe la community, già dentro come Pro'
+                                      :'Si aprirebbe volwick.com in una scheda nuova')});
+  m.querySelector('[data-news]').onclick=()=>{closeOverlay();openNews()};
+  m.querySelector('[data-out]').onclick=()=>{closeOverlay();toast('Torneresti alla landing page')};
+}
+function openNews(){
+  const w=document.createElement('div'); w.className='modal'; w.id='newsModal';
+  w.innerHTML=`<div class="sheet" style="width:min(520px,100%)">
+    <div class="sheethead"><div><p>Build v780 · 14 settembre</p><h2>Cosa è cambiato</h2></div>
+      <button class="mbtn" id="nClose">Chiudi</button></div>
+    <div class="sheetbody">
+      <div class="changes"><ul>
+        <li>La finestra si rifà a ogni cambio di strumento, intervallo o serie.</li>
+        <li>Verde uguale positivo su tutte e cinque le mappe.</li>
+        <li>I muri restano attaccati al prezzo quando cambia la scala.</li>
+        <li>Le etichette hanno una corsia loro e non coprono più l'asse.</li>
+        <li>Il replay smette di disegnare dopo il cursore.</li>
+        <li>Un solo orologio, alimentato da un solo valore.</li>
+      </ul></div>
+      <p style="margin-top:16px;font-size:12px;color:var(--faint)">
+        L'elenco completo, con i commenti, sta sulla community.</p>
+    </div></div>`;
+  document.body.appendChild(w);
+  w.querySelector('#nClose').onclick=()=>w.remove();
+  w.onclick=e=>{if(e.target===w)w.remove()};
+}
+
+function toast(t){
+  const e=document.createElement('div');
+  e.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:40;'+
+    'background:#0b0f14;border:1px solid var(--line2);border-radius:9px;padding:10px 16px;'+
+    'font-family:var(--mono);font-size:11.5px;color:var(--mut);box-shadow:0 12px 36px rgba(0,0,0,.5)';
+  e.textContent=t; document.body.appendChild(e); setTimeout(()=>e.remove(),2400);
+}
+
+const SECT={
+ account:['Account',()=>`
+  <div class="block"><h3>Chi sei</h3>
+    <div class="row"><div><div class="lab">Nome</div></div><div class="val">${USER.nome}</div></div>
+    <div class="row"><div><div class="lab">Email</div>
+      <div class="hint">È quella con cui entri dal sito.</div></div><div class="val">${USER.mail}</div></div>
+    <div class="row"><div><div class="lab">Lingua</div></div>
+      ${OPT('lang',[{v:'it',l:'Italiano'},{v:'en',l:'English'}],S.lang)}</div>
+  </div>
+  <div class="block"><h3>Accesso</h3>
+    <div class="row"><div><div class="lab">Password</div>
+      <div class="hint">Cambiata l'ultima volta il 2 agosto.</div></div>
+      <button class="mbtn" data-toast="Ti arriverebbe un link via email">Cambia</button></div>
+  </div>
+  <div class="block"><h3>Zona pericolosa</h3>
+    <div class="row"><div><div class="lab">Chiudi l'account</div>
+      <div class="hint">Cancella lo storico e le impostazioni. Non si torna indietro.</div></div>
+      <button class="mbtn warn" data-toast="Chiederebbe conferma via email">Chiudi</button></div>
+  </div>`],
+
+ piano:['Abbonamento',()=>`
+  <div class="planbox">
+    <div><div class="big">Volwick ${USER.piano}</div>
+      <div class="sub">${USER.prezzo} · si rinnova il ${USER.rinnovo}</div></div>
+    <div style="display:flex;gap:8px">
+      <button class="mbtn pri" data-toast="Porterebbe al confronto dei piani">Cambia piano</button>
+    </div>
+  </div>
+  <div class="block"><h3>Gestione</h3>
+    <div class="row"><div><div class="lab">Gestisci l'abbonamento</div>
+      <div class="hint">Carta, fatture, pausa e chiusura stanno tutte qui dentro.</div></div>
+      <button class="mbtn" data-manage="1">Apri</button></div>
+  </div>`],
+
+ grafico:['Impostazioni del grafico',()=>`
+  <div class="block"><h3>Come si apre</h3>
+    <div class="row"><div><div class="lab">Strumento</div>
+      <div class="hint">Quello che trovi sullo schermo al primo caricamento.</div></div>
+      ${OPT('bsym',Object.keys(SYMS).map(k=>({v:k,l:k})),S.sym)}</div>
+    <div class="row"><div><div class="lab">Intervallo</div></div>
+      ${OPT('btf',['1m','5m','15m','1h'].map(k=>({v:k,l:k})),S.tf)}</div>
+    <div class="row"><div><div class="lab">Prendi quello che ho ora</div>
+      <div class="hint">Fotografa lo stato attuale del terminale e lo usa come apertura.</div></div>
+      <button class="mbtn" data-toast="Salvato come stato di apertura">Usa quello di adesso</button></div>
+  </div>
+  <div class="block"><h3>Cosa è acceso all'apertura</h3>
+    <div class="row"><div class="lab">Mappa</div>
+      ${OPT('bmap',[{v:'gamma',l:'γ'},{v:'charm',l:'Charm'},{v:'vega',l:'Vega'},{v:'none',l:'Off'}],S.map)}</div>
+    <div class="row"><div class="lab">Muri</div>
+      ${OPT('bwall',[{v:'off',l:'Off'},{v:'3',l:'3'},{v:'5',l:'5'},{v:'10',l:'10'}],String(S.walls))}</div>
+    <div class="row"><div class="lab">Liquidity Tide</div>${SW('tide')}</div>
+    <div class="row"><div class="lab">CDI</div>${SW('cdi')}</div>
+    <div class="row"><div class="lab">Segnali del bot</div>${SW('bot')}</div>
+    <div class="row"><div class="lab">Pannello di destra</div>${SW('panels')}</div>
+  </div>
+  <div class="block"><h3>Lettura</h3>
+    <div class="row"><div><div class="lab">Orari</div>
+      <div class="hint">Vale per l'asse, i tooltip e l'orologio insieme.</div></div>
+      ${OPT('btz',[{v:'ET',l:'ET'},{v:'loc',l:'Locale'}],S.tz)}</div>
+    <div class="row"><div><div class="lab">Intensità della mappa</div>
+      <div class="hint">Quanto copre le candele. Non è una scelta di colore.</div></div>
+      ${OPT('bint',[{v:'1',l:'Lieve'},{v:'2',l:'Media'},{v:'3',l:'Piena'}],String(S.intensity))}</div>
+  </div>
+  <div class="block"><h3>Ricomincia</h3>
+    <div class="row"><div><div class="lab">Riporta tutto come appena installato</div>
+      <div class="hint">Tocca solo il grafico. Account e abbonamento restano.</div></div>
+      <button class="mbtn warn" data-reset="1">Azzera</button></div>
+  </div>`],
+
+ avvisi:['Avvisi',()=>`
+  <div class="block"><h3>Quando avvisarti</h3>
+    <div class="row"><div><div class="lab">Il prezzo tocca un muro</div>
+      <div class="hint">Solo per i muri che stai guardando sul grafico.</div></div>${SW('alMuro')}</div>
+    <div class="row"><div><div class="lab">Passa un blocco grosso</div>
+      <div class="hint">Sopra la soglia che imposti qui sotto.</div></div>${SW('alFlow')}</div>
+    <div class="row"><div><div class="lab">Soglia del blocco</div></div>
+      ${OPT('alSize',[{v:'250',l:'250'},{v:'1000',l:'1.000'},{v:'5000',l:'5.000'}],S.alSize)}</div>
+    <div class="row"><div><div class="lab">Il bot apre o chiude</div></div>${SW('alBot')}</div>
+  </div>
+  <div class="block"><h3>Dove riceverli</h3>
+    <div class="row"><div><div class="lab">Qui sullo schermo</div></div>${SW('alScreen')}</div>
+    <div class="row"><div><div class="lab">Suono</div>
+      <div class="hint">Si spegne insieme agli avvisi, mai da solo.</div></div>${SW('sound')}</div>
+    <div class="row"><div><div class="lab">Email</div>
+      <div class="hint">A ${USER.mail}, al massimo uno ogni cinque minuti.</div></div>${SW('alMail')}</div>
+  </div>
+  <div class="block"><h3>Su quali strumenti</h3>
+    <div class="row"><div><div class="lab">Segui lo strumento aperto</div>
+      <div class="hint">Se lo spegni, scegli tu la lista qui sotto.</div></div>${SW('alFollow')}</div>
+    <div class="row"><div class="lab">Lista</div>
+      <div class="val" style="color:var(--mut)">SPX · ES · NQ</div></div>
+  </div>`],
+
+ dati:['Dati e connessione',()=>`
+  <div class="block"><h3>Adesso</h3>
+    <div class="tab2">
+      <div class="r"><span class="d">Prezzi</span><span class="stat"><i style="background:var(--up)"></i>in tempo reale</span><span class="a">268 ms</span></div>
+      <div class="r"><span class="d">Book opzioni</span><span class="stat"><i style="background:var(--up)"></i>SPXW collegato</span><span class="a">6 s fa</span></div>
+      <div class="r"><span class="d">Superficie gamma</span><span class="stat"><i style="background:var(--amber)"></i>del 11 settembre</span><span class="a">oggi in costruzione</span></div>
+      <div class="r"><span class="d">Flusso bot</span><span class="stat"><i style="background:var(--up)"></i>attivo</span><span class="a">12 s fa</span></div>
+    </div>
+    <div class="row" style="border:0;padding-top:14px"><div><div class="lab">Ricarica i dati</div>
+      <div class="hint">Se qualcosa sembra fermo, da qui riparte senza ricaricare la pagina.</div></div>
+      <button class="mbtn" data-toast="Dati richiesti di nuovo">Ricarica</button></div>
+  </div>
+  <div class="block"><h3>Quanto scarica</h3>
+    <div class="row"><div><div class="lab">Chiedi solo lo strumento aperto</div>
+      <div class="hint">Con questo acceso passi da circa 77 MB l'ora a 22.</div></div>${SW('lean')}</div>
+    <div class="row"><div><div class="lab">Consumo di oggi</div></div>
+      <div class="val">184 MB</div></div>
+  </div>`],
+
+ aiuto:['Aiuto e novità',()=>`
+  <div class="block"><h3>Imparare</h3>
+    <div class="row"><div><div class="lab">Come si legge il grafico</div>
+      <div class="hint">Muri, mappe, Tide, CDI e replay in cinque schede.</div></div>
+      <button class="mbtn pri" data-guide="1">Apri la guida</button></div>
+  </div>
+  <div class="block"><h3>Cosa cambia in questa build</h3>
+    <div class="changes"><ul>
+      <li>La finestra si rifà a ogni cambio di strumento, intervallo o serie.</li>
+      <li>Verde uguale positivo su tutte e cinque le mappe.</li>
+      <li>I muri restano attaccati al prezzo quando cambia la scala.</li>
+      <li>Le etichette hanno una corsia loro e non coprono più l'asse.</li>
+      <li>Il replay smette di disegnare dopo il cursore.</li>
+      <li>Un solo orologio, alimentato da un solo valore.</li>
+    </ul></div>
+  </div>
+  <div class="block"><h3>Se qualcosa non va</h3>
+    <div class="row"><div><div class="lab">Segnala un problema</div>
+      <div class="hint">Allega da solo la schermata e lo stato del terminale.</div></div>
+      <button class="mbtn" data-toast="Aprirebbe il modulo con la schermata già allegata">Segnala</button></div>
+    <div class="row"><div><div class="lab">Scrivici</div>
+      <div class="hint">Rispondiamo entro un giorno lavorativo.</div></div>
+      <button class="mbtn" data-toast="ciao@volwick.com">Scrivi</button></div>
+  </div>
+  <div class="block"><h3>Questa versione</h3>
+    <div class="row"><div class="lab">Build</div><div class="val">v780 · 14 settembre 2026</div></div>
+    <div class="row"><div class="lab">Termini e privacy</div>
+      <button class="mbtn" data-toast="Aprirebbe volwick.com/termini">Leggi</button></div>
+  </div>`],
+
+ invita:['Invita un amico',()=>`
+  <div class="planbox">
+    <div><div class="big">Un mese a testa</div>
+      <div class="sub">Chi entra col tuo link ha il primo mese a metà prezzo. Tu ne guadagni uno gratis.</div></div>
+  </div>
+  <div class="block"><h3>Il tuo link</h3>
+    <div class="row"><div class="val" style="color:var(--amber)">volwick.com/?r=power</div>
+      <button class="mbtn pri" data-toast="Link copiato">Copia</button></div>
+  </div>
+  <div class="block"><h3>A che punto sei</h3>
+    <div class="tab2">
+      <div class="r"><span class="d">Inviti aperti</span><span>12</span><span class="a">link visitati</span></div>
+      <div class="r"><span class="d">Iscritti</span><span>3</span><span class="a">di cui 2 ancora attivi</span></div>
+      <div class="r"><span class="d">Mesi guadagnati</span><span style="color:var(--up)">2</span><span class="a">già scalati</span></div>
+    </div>
+  </div>`]
+};
+
+function OPT(id,opts,cur){return `<div class="choice">${opts.map(o=>
+  `<button data-ch="${id}" data-v="${o.v}" class="${o.v===cur?'on':''}">${o.l}</button>`).join('')}</div>`}
+function SW(k){return `<button class="sw ${S[k]?'on':''}" data-sw="${k}" role="switch" aria-checked="${!!S[k]}"><i></i></button>`}
+
+let popEl=null;
+function closePop(){if(popEl){popEl.remove();popEl=null;document.removeEventListener('mousedown',popOut)}}
+function popOut(e){if(popEl&&!popEl.contains(e.target))closePop()}
+function popover(anchorEl,title,html,wire){
+  if(popEl&&popEl.dataset.t===title)return closePop();
+  closePop(); closeOverlay();
+  const d=document.createElement('div'); d.className='pop'; d.dataset.t=title;
+  d.innerHTML=`<div class="pophead"><h3>${title}</h3>
+    <button class="mbtn" style="padding:5px 11px">Chiudi</button></div>${html}`;
+  document.body.appendChild(d);
+  const r=anchorEl.getBoundingClientRect();
+  d.style.left=Math.max(10,Math.min(r.left,innerWidth-d.offsetWidth-10))+'px';
+  d.style.top=(r.bottom+8)+'px';
+  d.querySelector('.pophead .mbtn').onclick=closePop;
+  popEl=d; if(wire)wire(d);
+  setTimeout(()=>document.addEventListener('mousedown',popOut),0);
+}
+function wirePrefs(root){
+  root.querySelectorAll('[data-sw]').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.sw; S[k]=!S[k]; b.classList.toggle('on',S[k]);
+    b.setAttribute('aria-checked',S[k]); apply();
+  });
+  root.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{
+    const g=b.dataset.ch, v=b.dataset.v;
+    root.querySelectorAll(`[data-ch="${g}"]`).forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    if(g==='bsym')S.sym=v; if(g==='btf')S.tf=v; if(g==='bmap')S.map=v;
+    if(g==='bwall')S.walls=v==='off'?'off':+v; if(g==='btz')S.tz=v;
+    if(g==='bint')S.intensity=+v; if(g==='bstato')S.stato=v;
+    apply();
+  });
+  root.querySelectorAll('[data-toast]').forEach(b=>b.onclick=()=>toast(b.dataset.toast));
+  root.querySelectorAll('[data-sym]').forEach(b=>b.onclick=()=>{closePop();load(()=>S.sym=b.dataset.sym)});
+  root.querySelectorAll('[data-reset]').forEach(b=>b.onclick=()=>{
+    Object.assign(S,{map:'none',walls:'off',metric:'GEX',exp:'all',
+      tide:false,cdi:false,bot:false,replay:null});
+    closePop(); apply(); toast('Grafico pulito. Restano solo le candele.');
+  });
+}
+$('prefBtn').onclick=e=>popover(e.currentTarget,'Preferenze del grafico',`
+  <div class="block"><h3>Come si apre</h3>
+    <div class="row"><div><div class="lab">Strumento</div></div>
+      ${OPT('bsym',Object.keys(SYMS).map(k=>({v:k,l:k})),S.sym)}</div>
+    <div class="row"><div><div class="lab">Intervallo</div></div>
+      ${OPT('btf',['1m','5m','15m','1h'].map(k=>({v:k,l:k})),S.tf)}</div>
+    <div class="row"><div><div class="lab">Prendi quello che ho ora</div>
+      <div class="hint">Fotografa il terminale com'è e lo usa come apertura.</div></div>
+      <button class="mbtn" data-toast="Salvato come stato di apertura">Usa</button></div>
+  </div>
+  <div class="block"><h3>Cosa è acceso all'apertura</h3>
+    <div class="row"><div class="lab">Mappa</div>
+      ${OPT('bmap',[{v:'gamma',l:'γ'},{v:'charm',l:'Charm'},{v:'vega',l:'Vega'},{v:'none',l:'Off'}],S.map)}</div>
+    <div class="row"><div class="lab">Muri</div>
+      ${OPT('bwall',[{v:'off',l:'Off'},{v:'3',l:'3'},{v:'5',l:'5'},{v:'10',l:'10'}],String(S.walls))}</div>
+    <div class="row"><div class="lab">Liquidity Tide</div>${SW('tide')}</div>
+    <div class="row"><div class="lab">CDI</div>${SW('cdi')}</div>
+    <div class="row"><div class="lab">Segnali del bot</div>${SW('bot')}</div>
+    <div class="row"><div class="lab">Pannello di destra</div>${SW('panels')}</div>
+  </div>
+  <div class="block"><h3>Lettura</h3>
+    <div class="row"><div><div class="lab">Orari</div>
+      <div class="hint">Vale per l'asse, i tooltip e l'orologio insieme.</div></div>
+      ${OPT('btz',[{v:'ET',l:'ET'},{v:'loc',l:'Locale'}],S.tz)}</div>
+    <div class="row"><div><div class="lab">Togli tutto dal grafico</div>
+      <div class="hint">Spegne mappa, muri, Tide, CDI e bot. Restano solo le candele.</div></div>
+      <button class="mbtn warn" data-reset="1">Togli tutto</button></div>
+  </div>`+CONNBLOCK+`
+  <div class="block"><h3>Stati da rivedere · solo nel mockup</h3>
+    <div class="row"><div><div class="lab">Come si presenta quando</div>
+      <div class="hint">Serve a Matt per vedere ogni stato senza aspettare che capiti.</div></div>
+      ${OPT('bstato',[{v:'ok',l:'Normale'},{v:'closed',l:'Chiuso'},{v:'offline',l:'Offline'}],S.stato)}</div>
+    <div class="row"><div><div class="lab">Libro vecchio</div>
+      <div class="hint">Succede davvero scegliendo ES.</div></div>
+      <button class="mbtn" data-sym="ES">Vai su ES</button></div>
+    <div class="row"><div><div class="lab">Strumento senza libro</div>
+      <div class="hint">Succede davvero scegliendo NQ.</div></div>
+      <button class="mbtn" data-sym="NQ">Vai su NQ</button></div>
+  </div>`,wirePrefs);
+
+const CONNBLOCK=`
+  <div class="block">
+    <div class="tab2">
+      <div class="r"><span class="d">Prezzi</span><span class="stat"><i style="background:var(--up)"></i>in tempo reale</span><span class="a">268 ms</span></div>
+      <div class="r"><span class="d">Book opzioni</span><span class="stat"><i style="background:var(--up)"></i>SPXW</span><span class="a">6 s fa</span></div>
+      <div class="r"><span class="d">Superficie γ</span><span class="stat"><i style="background:var(--amber)"></i>del 11 settembre</span><span class="a">oggi in corso</span></div>
+      <div class="r"><span class="d">Flusso bot</span><span class="stat"><i style="background:var(--up)"></i>attivo</span><span class="a">12 s fa</span></div>
+    </div>
+    <div class="row" style="padding-top:14px"><div><div class="lab">Ricarica i dati</div>
+      <div class="hint">Se qualcosa sembra fermo, riparte senza ricaricare la pagina.</div></div>
+      <button class="mbtn" data-toast="Dati richiesti di nuovo">Ricarica</button></div>
+    <div class="row"><div><div class="lab">Scarica solo lo strumento aperto</div>
+      <div class="hint">Da circa 77 MB l'ora a 22.</div></div>${SW('lean')}</div>
+    <div class="row"><div class="lab">Consumo di oggi</div><div class="val">184 MB</div></div>
+  </div>`;
+
+function manage(body){
+  body.innerHTML=`
+  <div class="block"><h3>Cosa ti serve</h3>
+    <div class="row"><div><div class="lab">Cambiare la carta o scaricare le fatture</div>
+      <div class="hint">Si apre il portale dei pagamenti, fuori dal terminale.</div></div>
+      <button class="mbtn" data-toast="Aprirebbe il portale dei pagamenti">Apri il portale</button></div>
+    <div class="row"><div><div class="lab">Metterlo in pausa</div>
+      <div class="hint">Da uno a tre mesi. Non paghi e ritrovi tutto com'era.</div></div>
+      <div class="choice">
+        <button data-toast="In pausa per 1 mese">1 mese</button>
+        <button data-toast="In pausa per 2 mesi">2 mesi</button>
+        <button data-toast="In pausa per 3 mesi">3 mesi</button></div></div>
+    <div class="row"><div><div class="lab">Passare a un piano più leggero</div>
+      <div class="hint">Meno strumenti, stesso terminale, 49 € al mese.</div></div>
+      <button class="mbtn" data-toast="Porterebbe al confronto dei piani">Vedi i piani</button></div>
+    <div class="row"><div><div class="lab">Chiuderlo</div>
+      <div class="hint">Resti dentro fino al ${USER.rinnovo}, poi si ferma. Una domanda sola e hai finito.</div></div>
+      <button class="mbtn warn" data-close="1">Chiudi l'abbonamento</button></div>
+  </div>
+  <p class="hint" style="padding:0 2px">Puoi tornare indietro in qualsiasi momento, il posto è questo.</p>`;
+  body.querySelectorAll('[data-toast]').forEach(b=>b.onclick=()=>toast(b.dataset.toast));
+  body.querySelector('[data-close]').onclick=()=>{
+    body.innerHTML=`<div class="block"><h3>Una domanda sola</h3>
+      <p class="hint" style="margin-bottom:10px">Perché lo chiudi? Serve a noi, non cambia niente per te.</p>
+      ${['Costa troppo','Non lo uso abbastanza','Mi manca qualcosa','Ho trovato di meglio','Altro']
+        .map(r=>`<button class="lvl" data-r="1" style="font-family:var(--sans);font-size:12.5px">${r}</button>`).join('')}
+    </div>`;
+    body.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{
+      body.innerHTML=`<div class="block"><h3>Fatto</h3>
+        <p class="pnote" style="font-size:13px;line-height:1.7;color:var(--mut)">
+        L'abbonamento resta attivo fino al <b style="color:var(--ink)">${USER.rinnovo}</b> e poi si ferma.
+        Ti arriva una email di conferma. Se cambi idea prima di quella data, da qui riparte con un clic.</p>
+        <button class="mbtn pri" data-toast="Rinnovo riattivato" style="margin-top:12px">Ho cambiato idea</button></div>`;
+      body.querySelector('[data-toast]').onclick=e=>toast(e.currentTarget.dataset.toast);
+    });
+  };
+}
+function openSettings(which){
+  document.getElementById('setWrap')?.remove();
+  document.getElementById('newsModal')?.remove();
+  closePop();
+  const w=document.createElement('div'); w.className='settings'; w.id='setWrap';
+  const keys=['account','piano','invita'];
+  w.innerHTML=`<div class="setbox">
+    <nav class="rail">
+      <div class="rh">Impostazioni</div>
+      ${keys.map(k=>`<button data-k="${k}">${SECT[k][0]}</button>`).join('')}
+      <div class="grow"></div>
+    </nav>
+    <div class="setmain">
+      <div class="sethead"><h2></h2><button class="mbtn" id="setClose">Chiudi</button></div>
+      <div class="setbody"></div>
+    </div></div>`;
+  document.body.appendChild(w);
+  const body=w.querySelector('.setbody'), title=w.querySelector('.sethead h2');
+  const show=k=>{
+    title.textContent=SECT[k][0];
+    body.innerHTML=SECT[k][1]();
+    body.scrollTop=0;
+    w.querySelectorAll('.rail button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
+    body.querySelectorAll('[data-sw]').forEach(b=>b.onclick=()=>{
+      const key=b.dataset.sw; S[key]=!S[key];
+      b.classList.toggle('on',S[key]); b.setAttribute('aria-checked',S[key]); apply();
+    });
+    body.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{
+      const g=b.dataset.ch, v=b.dataset.v;
+      body.querySelectorAll(`[data-ch="${g}"]`).forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      if(g==='bsym')S.sym=v; if(g==='btf')S.tf=v; if(g==='bmap')S.map=v;
+      if(g==='bwall')S.walls=v==='off'?'off':+v; if(g==='btz')S.tz=v;
+      if(g==='bint')S.intensity=+v; if(g==='bstato')S.stato=v; if(g==='lang')S.lang=v; if(g==='alSize')S.alSize=v;
+      apply();
+    });
+    body.querySelectorAll('[data-toast]').forEach(b=>b.onclick=()=>toast(b.dataset.toast));
+    body.querySelectorAll('[data-manage]').forEach(b=>b.onclick=()=>manage(body));
+    body.querySelectorAll('[data-guide]').forEach(b=>b.onclick=()=>{w.remove();openGuide()});
+    body.querySelectorAll('[data-reset]').forEach(b=>b.onclick=()=>{
+      Object.assign(S,{sym:'SPX',tf:'1m',map:'gamma',walls:5,metric:'GEX',exp:'all',
+        tide:false,cdi:true,bot:false,panels:true,replay:null,intensity:2,tz:'ET'});
+      apply(); show('grafico'); toast('Grafico riportato allo stato iniziale');
+    });
+  };
+  w.querySelectorAll('.rail button').forEach(b=>b.onclick=()=>show(b.dataset.k));
+  w.querySelector('#setClose').onclick=()=>w.remove();
+  w.onclick=e=>{if(e.target===w)w.remove()};
+  show(which&&SECT[which]?which:'account');
+}
+$('logo').onclick=openAccount;
+
+/* ---------------------------------------------------------------
+   guida, riscritta per quello che c'è davvero
+--------------------------------------------------------------- */
+const SW_=(c,l)=>`<span class="sw-"><i style="background:${c}"></i>${l}</span>`;
+const GUIDE=[
+{k:'cosa',n:'01',t:'Cos\'è questo schermo',
+ lead:'Ti mostra i prezzi dove qualcuno è obbligato a comprare e a vendere.',
+ b:[['Perché esiste quell\'obbligo',
+     'Chi vende opzioni incassa un premio. Per non rimetterci deve continuare a comprare e vendere il sottostante mentre il prezzo si muove. Non è un\'opinione, è aritmetica.'],
+    ['Cosa ne ricavi tu',
+     'Quegli ordini forzati si concentrano su certi prezzi. Sapere quali sono ti dice dove il mercato incontra resistenza e dove invece scivola.'],
+    ['Cosa non è',
+     'Non è un segnale. Non ti dice di comprare o vendere. Ti dice dove c\'è gente costretta a operare.']],
+ v:`<div class="gv"><div class="gvh">Le tre cose che vedi</div>
+    <div class="gl"><span class="gk" style="background:linear-gradient(90deg,transparent,#369C6F)"></span>
+      <b>Righe</b> i muri, i prezzi che contano</div>
+    <div class="gl"><span class="gk" style="background:linear-gradient(90deg,#CC585833,#369C6F44)"></span>
+      <b>Sfondo</b> la mappa, quanto pesa ogni zona</div>
+    <div class="gl"><span class="gk" style="background:var(--pane2);border:1px solid var(--line2)"></span>
+      <b>Pannello</b> le due cose scritte in italiano</div></div>`},
+
+{k:'muri',n:'02',t:'I muri',
+ lead:'Ogni riga orizzontale è un prezzo dove la copertura è concentrata.',
+ b:[['Lo spessore è il dato',
+     'Più il muro è grosso, più la riga è spessa. Il più debole è tratteggiato. Funziona anche in bianco e nero.'],
+    ['Sfumano verso sinistra',
+     'Il muro vale adesso. Resta pieno dove sta il prezzo e sparisce andando indietro nel tempo.'],
+    ['La stella',
+     'Sta sul muro più grosso. È quello che fa da calamita verso la chiusura.'],
+    ['Quanti tenerne',
+     'Top 5 quasi sempre. Top 15 la mattina, per vedere la struttura intera.'],
+    ['L\'errore da principiante',
+     'Trattarlo come un livello al punto. È una zona: un muro a 7650 significa che fra 7648 e 7652 succede qualcosa.']],
+ v:`<div class="gv"><div class="gvh">Spessore</div>
+    <div class="gl"><span class="gline" style="height:1px;opacity:.45;border-top:1px dashed #369C6F;background:none"></span><b>debole</b></div>
+    <div class="gl"><span class="gline" style="height:3px;background:#369C6F;opacity:.7"></span><b>medio</b></div>
+    <div class="gl"><span class="gline" style="height:6px;background:#369C6F"></span><b>forte</b></div>
+    <div class="gvh" style="margin-top:14px">Colori</div>
+    <div class="gl">${SW_('#369C6F','verde')}${SW_('#CC5858','rosso')}<b>frenano</b></div>
+    <div class="gl">${SW_('#35C0D8','ciano')}${SW_('#A173CC','viola')}<b>accelerano</b></div></div>`},
+
+{k:'mappe',n:'03',t:'Le mappe',
+ lead:'Lo sfondo colorato. I muri dicono dove, la mappa dice quanto.',
+ b:[['La regola unica',
+     'Verde è positivo, rosso è negativo, su tutte e cinque. Il numero che compare passando sopra ha lo stesso colore della cella.'],
+    ['γ Map',
+     'Quella da tenere. Dice se sei in un intervallo, dove il prezzo rimbalza, o in rottura, dove scappa.'],
+    ['Charm',
+     'La deriva che arriva con le ore. La mattina conta poco, l\'ultima ora conta tanto.'],
+    ['Vega e Volga',
+     'Vega dice se la zona regge quando la volatilità si muove. Volga dice quanto in fretta quell\'effetto si autoalimenta.'],
+    ['Delta',
+     'La copertura vera e propria. Verde vuol dire che stanno comprando.'],
+    ['L\'errore da principiante',
+     'Cercare una direzione. Vega e Volga dicono quanto sarà violento il movimento, non da che parte va.']],
+ v:`<div class="gv"><div class="gvh">Scala</div>
+    <div class="gramp"><span>−</span><i></i><span>+</span></div>
+    <div class="gnote">Una mappa alla volta. Due insieme non si leggono.</div></div>`},
+
+{k:'tide',n:'04',t:'La Tide',
+ lead:'Il volume vero che passa, barra per barra.',
+ b:[['Come si legge','Una barra molto più alta delle vicine vuol dire che a quel prezzo è passato qualcosa di grosso.'],
+    ['Quando conta','Prime due ore e ultima. In mezzo alla giornata il volume è basso e i picchi dicono poco.'],
+    ['Quando ignorarla','Fuori orario e nelle mezze giornate. Ha senso sui futures e su SPY, non su tutto.'],
+    ['L\'errore da principiante','Lasciarla accesa sempre. Accendila quando verifichi un livello, poi spegnila.']]},
+
+{k:'cdi',n:'05',t:'Il CDI',
+ lead:'Dove stanno entrando i soldi sulle opzioni che scadono oggi.',
+ b:[['Come si legge','Non la singola barra, ma da che parte pende l\'ultima mezz\'ora. In alto premio sulle call, in basso sulle put.'],
+    ['Una gamba o più gambe','Una gamba tiene solo gli ordini semplici, quelli direzionali. Più gambe sono le strategie combinate.'],
+    ['Quando è vuoto','Se non è passato ancora niente, la fascia non si apre. Non è un guasto.'],
+    ['L\'errore da principiante','Leggerlo come un sondaggio. Chi compra call può stare coprendo altro. Dice dove passano i soldi, non cosa pensa la gente.']]},
+
+{k:'replay',n:'06',t:'Il replay',
+ lead:'Riavvolge la giornata e la fa ripartire, senza mostrarti il futuro.',
+ b:[['Come funziona','Dal cursore in poi il grafico smette di disegnare. Un solo orologio vale per tutto lo schermo.'],
+    ['Come allenarsi','Fermati, scrivi su un foglio cosa ti aspetti, poi fai andare avanti. Senza scriverlo prima stai solo guardando.'],
+    ['L\'errore da principiante','Rifare sempre le giornate movimentate. Nelle giornate noiose i muri funzionano meglio ed è lì che si impara.']]},
+
+{k:'avvisi',n:'07',t:'Gli avvisi',
+ lead:'Ti chiamano quando succede una delle tre cose che hai scelto.',
+ b:[['Cosa può avvisarti','Il prezzo che tocca un muro, un blocco sopra la tua soglia, il bot che apre o chiude.'],
+    ['Dove arrivano','Sullo schermo, con il suono se lo lasci acceso, e per email se la attivi.'],
+    ['Quanti tenerne','Pochi. Tre che significano qualcosa valgono più di venti, perché dopo il quinto smetti di guardarli.'],
+    ['L\'errore da principiante','Metterlo su ogni muro. Mettilo su quelli che ti farebbero cambiare idea.']]},
+
+{k:'dubbi',n:'08',t:'Quando non fidarsi',
+ lead:'Cinque momenti in cui quello che vedi è corretto ma vale meno del solito.',
+ b:[['Libro vecchio','Se compare l\'avviso, stai guardando la fotografia di una sessione precedente. I muri restano indicativi, i numeri no.'],
+    ['Ultima mezz\'ora sulle giornaliere','Le opzioni che scadono oggi si spengono in fretta. I muri possono sparire in pochi minuti.'],
+    ['Volume basso','Agosto, fra Natale e Capodanno, le mezze giornate. I livelli restano disegnati ma non fermano niente.'],
+    ['Numeri troppo tondi','Se i valori sono sospettosamente regolari è una stima e non un libro vero. Il riquadro te lo dice.'],
+    ['Fuori orario','La sera i muri sono quelli della chiusura. Contesto, non livelli operativi.']]},
+
+{k:'parole',n:'09',t:'Le parole',
+ lead:'Il minimo per capire tutto il resto.',
+ b:[['Gamma','Quanto cambia in fretta la copertura necessaria quando il prezzo si muove.'],
+    ['Gamma lunga','Chi si copre vende quando sale e compra quando scende. Frena.'],
+    ['Gamma corta','Fa il contrario. Accelera.'],
+    ['GEX, CEX, DEX','Tre modi di pesare gli stessi contratti: per gamma, per charm, per delta.'],
+    ['Strike','Il prezzo di esercizio. I muri stanno sugli strike, per questo sono a intervalli regolari.'],
+    ['0DTE','Opzioni che scadono oggi. Muovono tanto e poi svaniscono.'],
+    ['Libro','L\'insieme delle posizioni da cui si calcolano i muri. In basso c\'è scritto quale stai usando.'],
+    ['Premio','Quanto costa un\'opzione. Il CDI misura premio, non contratti.']]}
+];
+
+function openGuide(){
+  document.getElementById('guideModal')?.remove();
+  const w=document.createElement('div'); w.className='modal'; w.id='guideModal';
+  w.innerHTML=`<div class="gsheet">
+    <nav class="grail">
+      <div class="grh">Come si legge</div>
+      ${GUIDE.map(g=>`<button data-k="${g.k}"><span class="gn">${g.n}</span>${g.t}</button>`).join('')}
+    </nav>
+    <div class="gmain">
+      <div class="ghead"><h2></h2><button class="ghost" id="gClose">Chiudi</button></div>
+      <div class="gbody"></div>
+    </div></div>`;
+  document.body.appendChild(w);
+  const show=k=>{
+    const g=GUIDE.find(x=>x.k===k);
+    w.querySelector('.ghead h2').innerHTML=`<span class="word" style="display:inline;font-size:13px"><b>VOL</b><i>WICK</i></span><span class="ghsep">/</span>${g.t}`;
+    w.querySelector('.gbody').innerHTML=
+      `<p class="glead">${g.lead}</p>`+
+      (g.v||'')+
+      `<div class="gblocks">${g.b.map(([h,p])=>
+        `<div class="gb"><h4>${h}</h4><p>${p}</p></div>`).join('')}</div>`;
+    w.querySelector('.gbody').scrollTop=0;
+    w.querySelectorAll('.grail button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
+  };
+  w.querySelectorAll('.grail button').forEach(b=>b.onclick=()=>show(b.dataset.k));
+  w.querySelector('#gClose').onclick=()=>w.remove();
+  w.onclick=e=>{if(e.target===w)w.remove()};
+  show('cosa');
+}
+$('guideBtn').onclick=openGuide;
+addEventListener('keydown',e=>{if(e.key==='Escape'){
+  closeDD();
+  document.getElementById('guideModal')?.remove();
+  document.getElementById('setWrap')?.remove();
+  document.getElementById('newsModal')?.remove();
+  closePop();
+  closeOverlay();
+}});
+
+/* vita: il prezzo si muove, l'orologio pure */
+setInterval(()=>{
+  if(S.replay!==null||S.stato!=='ok')return;
+  const s=series(S.sym,S.tf), b=s[s.length-1];
+  b.c+=(Math.random()-0.5)*SYMS[S.sym].vol*0.35;
+  b.h=Math.max(b.h,b.c); b.l=Math.min(b.l,b.c);
+  $('symPx').textContent=fmt(b.c);
+  $('rtt').textContent='Connesso · '+(240+Math.round(Math.random()*90))+' ms';
+  $('cdiC').textContent='C $'+(30+Math.round(Math.random()*40))+'K';
+  $('cdiP').textContent='P $'+(20+Math.round(Math.random()*40))+'K';
+  draw();
+},900);
+
+const strip=document.querySelector('.strip');
+function fitBar(){
+  const L=['l1','l2','l3','l4','l5'];
+  L.forEach(c=>strip.classList.remove(c));
+  for(const c of L){ if(strip.scrollWidth<=strip.clientWidth+1)break; strip.classList.add(c); }
+}
+new ResizeObserver(()=>{fitBar();fit();draw()}).observe(document.getElementById('chartbox'));
+new ResizeObserver(fitBar).observe(strip);
+fitBar();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitBar);
+setTimeout(fitBar,400);
+apply();
+</script>
+</body></html>

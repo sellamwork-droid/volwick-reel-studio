@@ -1,0 +1,873 @@
+<meta charset="utf-8">
+<title>Volwick Sightline — mock Mappe</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--bg:#080B10;--panel:#0C1017;--panel2:#11161F;--line:#1B2230;--line2:#232B3A;--line3:#2E3849;
+ --ink:#F0F3F8;--ink2:#C8D0DC;--mut:#8A94A6;--mut2:#5D6A82;--mut3:#414C60;
+ --gold:#E8C268;--grn:#369C6F;--red:#CC5858;--blu:#4C92CC;--vio:#A173CC;--cy:#7FD4E8;
+ --sans:'IBM Plex Sans',system-ui,-apple-system,sans-serif;--mono:'IBM Plex Mono',ui-monospace,monospace;}
+*{box-sizing:border-box;margin:0;padding:0;font-family:var(--sans)}
+html,body{height:100%}
+body{background:#05070A;color:var(--ink);overflow:hidden;font-size:13px}
+.wrap{height:100vh;display:flex;flex-direction:column}
+
+/* ── striscia mock (fuori dall'app) ── */
+.mk{flex:none;background:#05070A;border-bottom:1px solid #171E2A;padding:7px 12px 8px;
+ display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.mk .lb{font-size:8.5px;letter-spacing:.2em;color:var(--mut3);margin-right:6px}
+.mk button{height:23px;min-width:23px;padding:0 7px;border-radius:5px;border:1px solid #222A38;
+ background:transparent;color:var(--mut);font-size:10.5px;cursor:pointer}
+.mk button:hover{color:var(--ink2);border-color:#33404F}
+.mk button.on{color:#05070A;background:var(--gold);border-color:var(--gold);font-weight:700}
+.mk .rs{margin-left:auto;letter-spacing:.13em;font-size:9px}
+.note{flex:none;background:rgba(232,194,104,.07);border-bottom:1px solid rgba(232,194,104,.2);
+ padding:6px 13px;font-size:11px;color:var(--gold);display:flex;gap:9px;align-items:baseline}
+.note b{font-weight:700;flex:none}
+.note span{color:var(--ink2)}
+
+.shell{flex:1;display:flex;flex-direction:column;min-height:0;background:var(--bg);position:relative}
+.top{height:34px;display:flex;align-items:center;padding:0 14px;border-bottom:1px solid var(--line);flex:none}
+.crumb{font-size:11px;color:var(--mut2)}.crumb b{color:var(--ink);font-weight:600}
+.push{flex:1}
+.htr{height:24px;padding:0 11px;border:1px solid var(--line3);border-radius:6px;background:transparent;
+ color:var(--ink2);font-size:9px;letter-spacing:.14em;cursor:pointer}
+.conn{display:flex;align-items:center;gap:6px;margin-left:14px;font-size:9px;letter-spacing:.13em;color:var(--mut2)}
+.conn i{width:6px;height:6px;border-radius:50%;background:var(--grn)}
+
+.bar{height:44px;display:flex;align-items:center;gap:8px;padding:0 11px;border-bottom:1px solid var(--line);
+ background:var(--panel);flex:none;position:relative;z-index:40}
+.mark{width:23px;height:23px;border-radius:6px;background:linear-gradient(150deg,#E8C268,#B4923D);
+ color:#0A0D13;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer}
+.bdot{width:7px;height:7px;border-radius:50%;border:none;padding:0;cursor:pointer;background:var(--grn)}
+.v{display:flex;align-items:center;gap:7px;height:29px;padding:0 9px;border-radius:7px;
+ border:1px solid var(--line2);background:#0E131B;font-size:12.5px;color:var(--ink);cursor:pointer}
+.v:hover{border-color:var(--line3)}
+.v k{font-size:9.5px;letter-spacing:.13em;color:var(--mut);font-weight:600}
+.v u{color:var(--mut2);font-size:9px;text-decoration:none}
+.v b{font-weight:700}
+.tkv{font-weight:700;color:var(--gold);font-size:13px}
+.pxv{font-weight:600}.chg{font-size:10.5px}.chg.dn{color:var(--red)}.chg.up{color:var(--grn)}
+.sep{width:1px;height:22px;background:var(--line2);margin:0 3px}
+.fam{display:flex;gap:7px;padding-left:10px;position:relative}
+.fam:before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:2px;border-radius:2px}
+.fam.book:before{background:rgba(76,146,204,.55)}
+.fam.over:before{background:rgba(232,194,104,.55)}
+.chip{height:25px;padding:0 10px;border-radius:6px;border:1px solid var(--line2);background:transparent;
+ font-size:10px;letter-spacing:.1em;color:var(--mut);display:flex;align-items:center;gap:6px;cursor:pointer}
+.chip:hover{color:var(--ink2)}
+.chip.on{color:var(--gold);border-color:rgba(232,194,104,.45);background:rgba(232,194,104,.08)}
+.chip i{width:5px;height:5px;border-radius:50%;background:currentColor;display:block}
+.gui{height:25px;padding:0 11px;border-radius:6px;border:1px solid var(--line2);background:transparent;
+ font-size:9.5px;letter-spacing:.13em;color:var(--mut);cursor:pointer}
+.gui:hover{color:var(--ink2)}
+.gui.on{color:var(--gold);border-color:rgba(232,194,104,.5);background:rgba(232,194,104,.08)}
+
+.fly{position:absolute;top:100%;margin-top:7px;background:var(--panel2);border:1px solid var(--line3);
+ border-radius:10px;padding:7px;min-width:158px;z-index:90;box-shadow:0 16px 44px rgba(0,0,0,.6)}
+.fly h4{font-size:8px;letter-spacing:.18em;color:var(--mut3);padding:5px 8px 7px;font-weight:500}
+.opt{display:flex;align-items:center;width:100%;gap:9px;padding:7px 9px;border-radius:6px;border:none;
+ background:transparent;color:var(--ink2);font-size:12.5px;cursor:pointer;text-align:left}
+.opt:hover{background:rgba(255,255,255,.045)}
+.opt[aria-checked=true]{color:var(--gold);background:rgba(232,194,104,.09)}
+.opt s{margin-left:auto;font-size:9.5px;color:var(--mut3);text-decoration:none}
+.fly hr{border:none;border-top:1px solid var(--line2);margin:5px 6px}
+.seg{display:flex;gap:4px;padding:0 3px 3px}
+.seg button{flex:1;height:26px;border-radius:6px;border:1px solid var(--line2);background:transparent;
+ color:var(--mut);font-size:11px;cursor:pointer}
+.seg button[aria-pressed=true]{color:var(--gold);border-color:rgba(232,194,104,.5);background:rgba(232,194,104,.09)}
+.trow{display:flex;align-items:center;gap:9px;padding:6px 8px;font-size:11.5px;color:var(--ink2)}
+.sw{width:34px;height:19px;border-radius:11px;border:1px solid var(--line3);background:#161C27;position:relative;cursor:pointer}
+.sw:after{content:'';position:absolute;left:2px;top:2px;width:13px;height:13px;border-radius:50%;background:var(--mut2);transition:.15s}
+.sw[aria-checked=true]{background:rgba(54,156,111,.3);border-color:var(--grn)}
+.sw[aria-checked=true]:after{left:17px;background:var(--grn)}
+.num{width:66px;height:25px;border-radius:6px;border:1px solid var(--line2);background:#0E131B;color:var(--ink);
+ font-size:11.5px;text-align:right;padding:0 7px;margin-left:auto}
+.gsel{display:flex;gap:6px;padding:0 4px 4px}
+.gsel button{width:37px;height:31px;border:1px solid var(--line2);border-radius:7px;background:transparent;
+ display:grid;gap:2px;padding:6px;cursor:pointer}
+.gsel button[aria-pressed=true]{border-color:rgba(232,194,104,.6);background:rgba(232,194,104,.08)}
+.gsel s{background:var(--mut2);border-radius:1px;display:block}
+.gsel button[aria-pressed=true] s{background:var(--gold)}
+.g1{grid-template-columns:1fr}.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:1fr 1fr 1fr}.g4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+
+.body{flex:1;display:flex;min-height:0}
+.col{flex:1;display:flex;flex-direction:column;min-width:0}
+.plot{flex:1;position:relative;min-height:0}
+canvas{position:absolute;inset:0;width:100%;height:100%}
+.pgrid{flex:1;display:grid;gap:1px;background:var(--line);min-height:0}
+.pane{background:var(--bg);display:flex;flex-direction:column;min-width:0;overflow:hidden;cursor:pointer}
+.pane.act .pbar{box-shadow:inset 3px 0 0 var(--gold)}
+.pbar{height:38px;display:flex;align-items:center;gap:7px;padding:0 9px;background:var(--panel);
+ border-bottom:1px solid var(--line);flex:none}
+.pbar .v{height:27px;font-size:12.5px}
+.pbar .v k{font-size:9.5px;font-weight:600;color:var(--mut)}
+.pbar .v b{font-weight:700}
+
+.tbar{height:38px;display:flex;align-items:center;gap:10px;padding:0 11px;border-top:1px solid var(--line);
+ background:var(--panel);flex:none}
+.mode{display:flex;background:#0E131B;border:1px solid var(--line2);border-radius:7px;overflow:hidden}
+.mode button{height:25px;padding:0 12px;border:none;background:transparent;color:var(--mut);
+ font-size:9.5px;letter-spacing:.12em;cursor:pointer;display:flex;align-items:center;gap:6px}
+.mode button.on{color:var(--ink);background:#161D28}
+.mode button.on i{width:6px;height:6px;border-radius:50%;background:var(--grn);display:block}
+.jump{display:flex;align-items:center;gap:5px}
+.jb{width:24px;height:25px;border:1px solid var(--line2);border-radius:6px;background:transparent;color:var(--mut);cursor:pointer}
+.jv{height:25px;padding:0 13px;border:1px solid var(--line2);border-radius:6px;background:#0E131B;color:var(--ink);
+ font-size:11.5px;cursor:pointer}
+.tl{flex:1;position:relative;height:30px}
+.tlbar{position:absolute;left:0;right:0;top:9px;height:3px;background:#232B3A;border-radius:2px;cursor:pointer}
+.tlfill{position:absolute;left:0;top:0;height:100%;background:var(--gold);border-radius:2px}
+.tlknob{position:absolute;top:-5px;width:13px;height:13px;border-radius:50%;background:var(--gold);margin-left:-6px}
+.tlt{position:absolute;left:0;right:0;top:17px;display:flex;justify-content:space-between;font-size:8.5px;color:var(--mut3)}
+.tlend{position:absolute;left:0;right:0;top:-8px;display:flex;justify-content:space-between;
+ font-size:7.5px;letter-spacing:.14em;color:var(--mut3)}
+
+.dock{width:300px;flex:none;background:var(--panel);border-left:1px solid var(--line);display:flex;flex-direction:column}
+.dhead{height:34px;display:flex;align-items:center;padding:0 12px;border-bottom:1px solid var(--line);
+ font-size:9px;letter-spacing:.19em;color:var(--mut)}
+.dx{margin-left:auto;background:transparent;border:none;color:var(--mut2);cursor:pointer;font-size:13px}
+.dsrc{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line);
+ background:rgba(232,194,104,.06)}
+.dsrc i{width:3px;height:14px;background:var(--gold);border-radius:2px;flex:none}
+.dsrc b{font-size:10px;letter-spacing:.13em;color:var(--gold);font-weight:700}
+.dsrc span{font-size:8px;color:var(--mut3);margin-left:auto;letter-spacing:.1em}
+.dscroll{flex:1;overflow-y:auto;padding:12px}
+.dsec{margin-bottom:15px}
+.dsec h6{font-size:8px;letter-spacing:.2em;color:var(--mut3);font-weight:500;margin-bottom:8px}
+.hero{border:1px solid var(--line2);border-radius:9px;padding:11px;text-align:center;background:#0E131B}
+.hero b{display:block;font-size:15px;letter-spacing:.1em;font-weight:700;color:var(--ink)}
+.hero span{font-size:9.5px;color:var(--mut2)}
+.warn{margin-top:8px;border:1px solid rgba(204,88,88,.3);background:rgba(204,88,88,.07);border-radius:8px;
+ padding:9px 10px;font-size:10.5px;color:#E4A3A3;line-height:1.5}
+.warn b{color:#fff}
+.card{border:1px solid rgba(232,194,104,.22);border-radius:9px;padding:10px;background:rgba(232,194,104,.035)}
+.lead{font-size:11.5px;color:var(--gold);font-weight:600;margin-bottom:8px}
+.kv{display:flex;gap:9px;font-size:11px;padding:4px 0;line-height:1.45;border-top:1px solid rgba(255,255,255,.045)}
+.kv:first-child{border-top:none}
+.kv span{color:var(--mut2);flex:none;width:44px;font-size:8.5px;letter-spacing:.14em;padding-top:2px}
+.kv b{color:var(--ink2);font-weight:500}
+.kv b em{font-style:normal;color:var(--ink);font-weight:700}
+.lvl{display:flex;align-items:center;border:1px solid var(--line2);border-radius:7px;padding:8px 10px;
+ margin-bottom:5px;background:#0E131B}
+.lvl b{font-size:12.5px;font-weight:600}
+.lvl span{margin-left:auto;font-size:9px;color:var(--mut2)}
+.lvl.sq b{color:var(--cy)}.lvl.mag b{color:var(--grn)}
+.lvl.now{border-color:rgba(255,255,255,.28);background:#151B25}.lvl.now b{color:#fff}
+.lvl s{font-size:8.5px;color:var(--mut3);text-decoration:none;margin-left:7px}
+.empty{border:1px dashed var(--line3);border-radius:9px;padding:16px 12px;text-align:center}
+.empty b{display:block;font-size:11.5px;color:var(--ink2);margin-bottom:5px}
+.empty span{font-size:10px;color:var(--mut2);line-height:1.6}
+.stat{height:26px;display:flex;align-items:center;gap:16px;padding:0 13px;border-top:1px solid var(--line);
+ background:var(--panel);font-size:9.5px;color:var(--mut2);flex:none}
+.stat b{color:var(--ink2);font-weight:500}
+
+.ask{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:120;width:308px;
+ background:var(--panel2);border:1px solid var(--line3);border-radius:12px;padding:13px;
+ box-shadow:0 26px 70px rgba(0,0,0,.72)}
+.ask h5{font-size:9px;letter-spacing:.18em;color:var(--mut);font-weight:500;margin-bottom:10px}
+.aopt{display:flex;align-items:center;width:100%;gap:9px;padding:10px 11px;border-radius:8px;
+ border:1px solid var(--line2);background:#0E131B;color:var(--ink2);font-size:12.5px;cursor:pointer;
+ margin-bottom:6px;text-align:left}
+.aopt em{margin-left:auto;font-style:normal;color:var(--mut2);font-size:11px}
+.aopt.sel{border-color:rgba(232,194,104,.55);background:rgba(232,194,104,.09);color:var(--gold)}
+
+.repl{height:34px;display:flex;align-items:center;gap:8px;padding:0 12px;border-top:1px solid var(--line);
+ background:#0E131B;flex:none}
+.rb{height:23px;padding:0 11px;border-radius:6px;border:1px solid var(--line2);background:transparent;
+ color:var(--mut);font-size:9.5px;letter-spacing:.11em;cursor:pointer}
+.rb.on{color:var(--gold);border-color:rgba(232,194,104,.5);background:rgba(232,194,104,.08)}
+.hint{font-size:9.5px;color:var(--mut3);margin-left:6px}
+.sub{border-top:1px solid var(--line);background:#0A0E14;display:flex;flex-direction:column;flex:none}
+.subh{height:24px;display:flex;align-items:center;gap:9px;padding:0 11px;font-size:9.5px;color:var(--mut2);flex:none}
+.subh b{color:var(--gold);letter-spacing:.13em}
+.subh em{font-style:normal;color:var(--grn)}
+.subh s{text-decoration:none;color:var(--ink2);letter-spacing:.06em}
+.pill{height:17px;padding:0 8px;border-radius:5px;border:1px solid var(--line2);background:transparent;
+ color:var(--mut);font-size:9px;cursor:pointer}
+.pill.on{color:var(--gold);border-color:rgba(232,194,104,.5);background:rgba(232,194,104,.08)}
+
+/* ── tipografia: Plex Sans per il testo, Plex Mono solo per i numeri ── */
+*{font-family:var(--sans)}
+body{-webkit-font-smoothing:antialiased;letter-spacing:.005em}
+.mk .lb,.note b,.gui,.chip,.dhead,.dsec h6,.fly h4,.dsrc b,.dsrc span,.ask h5,.rb,.mode button,.htr,.conn,.v k,.pill,.subh b{
+ font-family:var(--sans);font-weight:600}
+.v k{letter-spacing:.14em;font-size:9px;color:var(--mut)}
+.gui,.chip,.rb,.mode button{letter-spacing:.11em}
+.dhead,.dsec h6,.fly h4,.ask h5{letter-spacing:.17em}
+.tkv,.pxv,.chg,.jv,.num,.lvl b,.lvl s,.kv b em,.lead,.stat b,.subh em,.hero span,.aopt em,.pbar b,
+.crumb,.conn,.repl span{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.v b{font-family:var(--sans);font-weight:600;letter-spacing:.01em}
+.hero b{font-family:var(--sans);font-weight:600;letter-spacing:.12em;font-size:14.5px}
+.hero span{font-size:9.5px;letter-spacing:.02em}
+.lvl b{font-weight:600;letter-spacing:.01em}
+.lvl span,.warn,.kv b,.empty span,.note span,.hint{font-family:var(--sans)}
+.kv span{letter-spacing:.15em;font-weight:600}
+.lead{font-weight:600;letter-spacing:.01em}
+.opt span,.trow span,.aopt{font-family:var(--sans)}
+.opt s{font-family:var(--mono)}
+.stat{letter-spacing:.02em}
+.mk button{font-family:var(--mono);font-weight:600}
+</style>
+<body><div class="wrap"><div class="mk" id="mk"></div><div class="note" id="nt"></div><div class="shell" id="app"></div></div>
+<script>
+const GRN='#369C6F',RED='#CC5858',BLU='#4C92CC',VIO='#A173CC',GOLD='#E8C268',CY='#7FD4E8';
+
+/* ─────────────────────────────────────────────────────────
+   STRUMENTI — mappa reale dichiarata dall'app
+   src  = libro opzioni da cui arrivano i muri
+   k,b  = conversione strike del libro -> prezzo dello strumento
+   step = passo degli strike nel libro
+   ───────────────────────────────────────────────────────── */
+const INS={
+ SPX :{px:7669.79,ch: 0.32,src:null ,k:1    ,b:0    ,step:5   ,tick:0.01,dec:2,unit:'M',sz:[-98,89,-34,36,29]},
+ ES  :{px:7685.00,ch:-0.07,src:'SPX',k:1    ,b:15.21,step:5   ,tick:0.25,dec:2,unit:'M',sz:[-98,89,-34,36,29]},
+ MES :{px:7685.25,ch:-0.07,src:'SPX',k:1    ,b:15.21,step:5   ,tick:0.25,dec:2,unit:'M',sz:[-98,89,-34,36,29]},
+ NQ  :{px:29288.25,ch:0.11,src:'QQQ',k:41.22,b:0    ,step:1   ,tick:0.25,dec:2,unit:'M',sz:[-118,96,-41,44,31]},
+ RTY :{px:3013.90,ch:-0.09,src:'IWM',k:10.00,b:0    ,step:1   ,tick:0.10,dec:2,unit:'M',sz:[-37,31,-13,15,11]},
+ VIX :{px:15.66 ,ch:-1.26,src:null ,k:1    ,b:0    ,step:1   ,tick:0.01,dec:2,unit:'M',sz:[-12,9,-4,5,3]},
+ VX  :{px:17.24 ,ch:-0.06,src:'VIX',k:1    ,b:0    ,step:1   ,tick:0.05,dec:2,unit:'M',sz:[-12,9,-4,5,3]},
+ SPY :{px:765.87,ch: 0.32,src:null ,k:1    ,b:0    ,step:1   ,tick:0.01,dec:2,unit:'B',sz:[-2.3,1.9,-0.8,1.1,0.7]},
+ QQQ :{px:710.56,ch: 0.61,src:null ,k:1    ,b:0    ,step:1   ,tick:0.01,dec:2,unit:'B',sz:[-1.4,1.1,-0.5,0.6,0.4]},
+ BTC :{px:78665.00,ch:0.49,src:'IBIT',k:1420,b:0   ,step:1.25,tick:1   ,dec:2,unit:'M',sz:[-64,52,-23,26,19]},
+ GOLD:{px:4676.20,ch:-0.84,src:'GLD',k:10.86,b:0   ,step:1   ,tick:0.10,dec:2,unit:'M',sz:[-290,240,-105,118,88]}};
+
+const TFS=['1m','5m','15m','1h','4h','D'];
+const WALLS=['Off','Top 3','Top 5','Top 10','Top 15','Top 25','Top 40'];
+const METR=['GEX','CEX','DEX','ALL'];
+const EXP=[['0DTE','90 · 26 Aug'],['This week','136 · 26 – 28 Aug'],['This month','152 · 26 – 31 Aug'],['All','348 strikes']];
+const WINS=[{tk:'ES',tf:'1m'},{tk:'SPX',tf:'1m'},{tk:'SPY',tf:'5m'},{tk:'NQ',tf:'1m'}];
+const OFFS=[3,2,1,-3,-4];             // muri, in passi di strike
+const STARS=[2,1,0,0,0];
+
+let S={tk:'ES',tf:'1m',grid:1,act:0,walls:'Off',metric:'GEX',exp:'All',
+ tide:0,flow:'Off',thr:100,levels:'Off',cvd:0,cdi:0,maps:1,map:'g',proj:0,oi:0,
+ panels:0,ask:0,open:null,replay:0,playing:0,rt:0.42,demo:0,cvdHi:null,mapHi:null};
+
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=(v,d)=>v.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const inst=()=>INS[S.tk];
+const srcOf=t=>INS[t].src;                       // null = libro proprio
+
+/* muri SEMPRE nella scala dello strumento a schermo (punto 02)
+   strike = numero dello strike nel libro, p = prezzo sullo strumento */
+function wallsOf(tk,metric){
+ const i=INS[tk], m=metric||S.metric;
+ const nW={'Off':0,'Top 3':3,'Top 5':5,'Top 10':5,'Top 15':5,'Top 25':5,'Top 40':5}[S.walls];
+ const base=Math.round(((i.px-i.b)/i.k)/i.step)*i.step;
+ const mult=m==='CEX'?0.42:m==='DEX'?-1.85:1;    // DEX cambia davvero i numeri
+ return OFFS.slice(0,nW).map((o,n)=>{
+  const strike=+(base+o*i.step).toFixed(4);
+  const p=Math.round((strike*i.k+i.b)/i.tick)*i.tick;
+  const sz=+(i.sz[n]*mult).toFixed(i.unit==='B'?1:0);
+  return {strike,p,sz,st:STARS[n],unit:m==='DEX'?(i.unit==='B'?'B Δ':'M Δ'):i.unit};
+ }).sort((a,b)=>b.p-a.p);
+}
+const szTxt=w=>(w.sz>0?'+':'')+w.sz+w.unit;
+
+function render(){
+ document.getElementById('mk').innerHTML=mkbar();
+ document.getElementById('nt').innerHTML=noteHtml();
+ document.getElementById('app').innerHTML = S.grid>1?viewGrid():viewOne();
+ requestAnimationFrame(()=>{paint();observe();});
+}
+
+/* ── striscia mock ── */
+const DEMOS=[
+ ['La mappa sta sotto le candele','Il prezzo si disegna sopra la mappa. Dove la mappa è più forte le candele restano nitide lo stesso.'],
+ ['La mappa si ferma dove finisce il prezzo','Non continua sotto il grafico: volume e orari restano puliti.'],
+ ['Il colore ha un tetto','Non arriva mai al pieno. Il verso e la forma non cambiano, cambia solo quanto pesa la tinta.'],
+ ['Vicino allo zero non si tinge','Il fondo scuro torna a dire «qui non succede nulla», e la mappa prende una forma.'],
+ ['La griglia va alla risoluzione del grafico','Niente lastre larghe molte barre: la mappa segue il grafico.'],
+ ['La riga dove il colore cambia segno','Il confine fra la metà verde e quella rossa, senza indovinarlo a occhio.'],
+ ['La scala e il valore sotto il puntatore','La scala dice quanto vale una tinta. Passando sul grafico compaiono il valore e il prezzo.'],
+ ['Il clic sulla mappa già attiva non spegne','Si spegne solo con Nessuna. Cliccando due volte sulla stessa voce non succede niente.'],
+ ['Il menù è scritto, e in italiano','Ogni mappa ha accanto una riga che dice cosa misura.']];
+function mkbar(){return `<span class="lb">MOCK · MAPPE</span>
+ ${DEMOS.map((d,n)=>`<button data-demo="${n+1}" class="${S.demo===n+1?'on':''}" title="${esc(d[0])}">${n+1}</button>`).join('')}
+ <button class="rs" data-demo="0">RIPRISTINA</button>`;}
+function noteHtml(){const d=DEMOS[S.demo-1];
+ return d?`<b>${S.demo}. ${esc(d[0])}</b><span>${esc(d[1])}</span>`
+ :`<b>Mock interattivo</b><span>Tutti i tasti funzionano. I numeri a sinistra aprono il singolo aggiornamento.</span>`;}
+function demo(n){
+ S.demo=n;S.ask=0;S.playing=0;S.mapHi=null;S.open=null;
+ Object.assign(S,{tk:'ES',tf:'1m',grid:1,act:0,walls:'Off',metric:'GEX',exp:'All',
+   tide:0,cvd:0,cdi:0,maps:1,map:'g',panels:0,replay:0,rt:0.42});
+ if(n===8||n===9){S.open='maps';}
+ render();
+}
+
+/* ── barra strumenti ── */
+function bar(){const i=inst();
+ return `<div class="bar">
+  <button class="mark">V</button>
+  <button class="bdot"></button>
+  <div style="position:relative"><button class="v" data-fly="tk">
+    <span class="tkv">${S.tk}</span><span class="pxv">${fmt(i.px,i.dec)}</span>
+    <span class="chg ${i.ch<0?'dn':'up'}">${i.ch>0?'+':''}${i.ch.toFixed(2)}%</span><u>▾</u></button>
+    ${S.open==='tk'?flyTk():''}</div>
+  <div style="position:relative"><button class="v" data-fly="tf"><b>${S.tf}</b><u>▾</u></button>
+    ${S.open==='tf'?flyList('tf',TFS,S.tf,'Timeframe'):''}</div>
+  <div style="position:relative"><button class="v" data-fly="lay"><k>LAYOUT</k><b>${S.grid}</b><u>▾</u></button>
+    ${S.open==='lay'?flyLay():''}</div>
+  <span class="sep"></span>
+  <div class="fam book">
+   <div style="position:relative"><button class="v" data-fly="walls"><k>WALLS</k><b>${S.walls}</b><u>▾</u></button>
+     ${S.open==='walls'?flyList('walls',WALLS,S.walls,'Walls'):''}</div>
+   <div style="position:relative"><button class="v" data-fly="metric"><k>METRIC</k><b>${S.metric}</b><u>▾</u></button>
+     ${S.open==='metric'?flyMetric():''}</div>
+   <div style="position:relative"><button class="v" data-fly="exp"><k>EXPIRY</k><b>${S.exp}</b><u>▾</u></button>
+     ${S.open==='exp'?flyExp():''}</div>
+  </div>
+  <div class="fam over" style="position:relative">
+   <button class="chip ${S.tide?'on':''}" data-fly="tide"><i></i>LIQUIDITY TIDE</button>
+   <button class="chip ${S.cvd?'on':''}" data-tog="cvd"><i></i>CVD</button>
+   <button class="chip ${S.cdi?'on':''}" data-tog="cdi"><i></i>CDI</button>
+   <button class="chip ${S.maps&&S.map?'on':''}" data-fly="maps"><i></i>MAPS</button>
+   <button class="chip ${S.proj||S.oi?'on':''}" data-fly="more">MORE</button>
+   ${S.open==='tide'?flyTide():''}${S.open==='more'?flyMore():''}${S.open==='maps'?flyMaps():''}
+  </div>
+  <div class="push"></div>
+  ${S.replay?'<button class="gui on" data-live="1">REPLAY</button>':''}
+  <button class="gui" data-fly="guide">GUIDE</button>
+  <button class="gui" data-hide>HIDE TOP BAR</button>
+  <button class="chip ${S.panels?'on':''}" data-panels>PANELS</button>
+  ${S.open==='guide'?'<div class="fly" style="right:0;min-width:214px"><h4>How to read</h4><button class="opt"><span>Walls and magnets</span></button><button class="opt"><span>Metrics</span></button><button class="opt"><span>Liquidity Tide</span></button><button class="opt"><span>Replay</span></button></div>':''}
+ </div>`;}
+
+const MAPINFO={
+ g:['γ Map','quanto i dealer devono comprare o vendere per ogni punto di prezzo','M$ per punto'],
+ c:['Charm','quanto quella posizione si consuma con il passare delle ore','M$ al giorno'],
+ v:['Vega','quanto la posizione cambia se sale la volatilità','M$ per punto di vol'],
+ o:['Volga','quanto quella sensibilità stessa si muove','M$']};
+function flyMaps(){
+ const on=S.maps&&S.map;
+ const it=(k,nm,ds,act)=>`<button class="opt" data-map="${k}" aria-checked="${act}"
+   style="display:block;text-align:left;height:auto;padding:7px 10px">
+   <span style="display:block;font-size:12px;color:var(--ink)">${nm}</span>
+   <span style="display:block;font-size:10.5px;color:var(--mut3);line-height:1.4;margin-top:1px">${ds}</span>
+  </button>`;
+ return `<div class="fly" style="right:0;min-width:330px;max-width:330px"><h4>Una mappa alla volta</h4>
+ ${Object.keys(MAPINFO).map(k=>it(k,MAPINFO[k][0],esc(MAPINFO[k][1]),on&&S.map===k)).join('')}
+ ${it('','Nessuna','spegne la mappa',!on)}</div>`;}
+function flyTk(){return `<div class="fly" style="left:0;min-width:236px"><h4>Instrument</h4>
+ ${Object.keys(INS).map(k=>{const i=INS[k];return `<button class="opt" data-set="tk" data-val="${k}" aria-checked="${S.tk===k}">
+  <span>${k}</span><s style="color:var(--mut3)">${i.src?'book '+i.src:'own book'}</s>
+  <s style="color:${i.ch<0?RED:GRN};margin-left:9px">${i.ch>0?'+':''}${i.ch.toFixed(2)}%</s></button>`;}).join('')}</div>`;}
+function flyList(f,arr,cur,t){return `<div class="fly" style="left:0"><h4>${t}</h4>
+ ${arr.map(v=>`<button class="opt" data-set="${f}" data-val="${v}" aria-checked="${cur===v}"><span>${v}</span></button>`).join('')}</div>`;}
+function flyMetric(){return `<div class="fly" style="left:0"><h4>Metric</h4>
+ ${METR.slice(0,3).map(v=>`<button class="opt" data-set="metric" data-val="${v}" aria-checked="${S.metric===v}"><span>${v}</span></button>`).join('')}
+ <hr><button class="opt" data-set="metric" data-val="ALL" aria-checked="${S.metric==='ALL'}"><span>ALL</span></button></div>`;}
+function flyExp(){return `<div class="fly" style="left:0;min-width:216px"><h4>Expiry</h4>
+ ${EXP.slice(0,3).map(([v,n])=>`<button class="opt" data-set="exp" data-val="${v}" aria-checked="${S.exp===v}">
+  <span>${v}</span><s>${n}</s></button>`).join('')}
+ <hr><button class="opt" data-set="exp" data-val="All" aria-checked="${S.exp==='All'}"><span>All</span><s>348 strikes</s></button></div>`;}
+function gi(k){const c=k===1?'g1':k===2?'g2':k===3?'g3':'g4';
+ return `<span class="${c}" style="display:grid;gap:2px;width:100%;height:100%">${'<s></s>'.repeat(k)}</span>`;}
+/* punto 10 — quattro icone, una per disposizione */
+function flyLay(){return `<div class="fly" style="left:0;min-width:206px"><h4>Grid</h4>
+ <div class="gsel">${[1,2,3,4].map(k=>`<button data-grid="${k}" aria-pressed="${S.grid===k}" title="${k} chart">${gi(k)}</button>`).join('')}</div>
+ <hr><h4>Presets</h4>
+ <button class="opt" data-grid="1"><span>Recommended</span><s>1 chart</s></button>
+ <button class="opt" data-grid="4"><span>Creator's View</span><s>4 charts</s></button>
+ <hr><button class="opt"><span>Save my layout…</span></button></div>`;}
+function flyTide(){return `<div class="fly" style="left:0;min-width:268px">
+ <div class="trow" style="padding-bottom:8px"><span style="color:var(--ink);font-weight:600">Liquidity Tide</span>
+  <button class="sw" aria-checked="${!!S.tide}" data-tog="tide" style="margin-left:auto"></button></div><hr>
+ <h4>Flow</h4><div class="seg">${['Off','All','Mega'].map(v=>`<button data-set="flow" data-val="${v}" aria-pressed="${S.flow===v}">${v}</button>`).join('')}</div>
+ <div class="trow"><span>Size threshold (contracts)</span><input class="num" type="number" min="1" max="99999" value="${S.thr}" data-thr></div><hr>
+ <h4>Levels</h4><div class="seg">${['Off','Today','All'].map(v=>`<button data-set="levels" data-val="${v}" aria-pressed="${S.levels===v}">${v}</button>`).join('')}</div></div>`;}
+function flyMore(){return `<div class="fly" style="right:0;min-width:236px"><h4>Morning projections</h4>
+ <div class="trow"><span>9:20 — morning book</span><button class="sw" aria-checked="${!!S.proj}" data-tog="proj" style="margin-left:auto"></button></div><hr>
+ <h4>In testing</h4>
+ <div class="trow"><span>OI Edge</span><button class="sw" aria-checked="${!!S.oi}" data-tog="oi" style="margin-left:auto"></button></div>
+ <hr><button class="opt" data-alloff><span>Turn everything off</span></button></div>`;}
+
+/* ── pannello (READS THE CHART) ─────────────────────────────
+   Tutto quello che c'è dentro nasce dallo strumento passato:
+   punti 01 · 02 · 03 · 04 · 05
+   ────────────────────────────────────────────────────────── */
+function pxAt(tk,cut){const p=series(tk);
+ return p[Math.max(0,Math.min(p.length-1,Math.floor(cut*p.length)-1))][1];}
+function dock(src,tk,px){
+ tk=tk||S.tk; const i=INS[tk], d=i.dec, p=px||i.px, w=wallsOf(tk), src2=i.src;
+ const head=`<div class="dhead">READS THE CHART<button class="dx" data-panels>✕</button></div>
+  ${src?`<div class="dsrc"><i></i><b>${src}</b><span>ACTIVE WINDOW</span></div>`:''}`;
+ if(!w.length) return `<aside class="dock">${head}<div class="dscroll">
+   <div class="empty"><b>WALLS is off</b><span>Turn WALLS back on to read ${tk}.</span></div></div></aside>`;
+ const above=w.filter(x=>x.p>p), below=w.filter(x=>x.p<=p);
+ const idx=above.length;                            // w è ordinato dal più alto al più basso
+ let ceil,flr;
+ if(idx===0){ceil=w[0];flr=w[1]||w[0];}             // prezzo sopra ogni muro
+ else if(idx===w.length){ceil=w[w.length-2]||w[0];flr=w[w.length-1];}
+ else {ceil=w[idx-1];flr=w[idx];}
+ const mag =w.filter(x=>x.sz>0).sort((a,b)=>Math.abs(a.p-p)-Math.abs(b.p-p))[0]||w[0];
+ const piv =w.filter(x=>x.sz<0).sort((a,b)=>Math.abs(a.p-p)-Math.abs(b.p-p))[0]||w[0];
+ const note=x=>src2?`<s>${src2} ${fmt(x.strike,x.strike%1?2:0)}</s>`:'';
+ const li=x=>`<div class="lvl ${x.sz<0?'sq':'mag'}"><b>${fmt(x.p,d)}</b>${note(x)}
+   <span>${x.sz<0?'breaks and runs':'magnet'} · ${szTxt(x)}</span></div>`;
+ const M=S.metric;
+ return `<aside class="dock">${head}<div class="dscroll">
+  <section class="dsec"><h6>DIRECTION</h6>
+   <div class="hero"><b>· NEUTRAL</b><span>${M} reading · score −0.1${S.replay?' · '+clockAt(S.rt)+' ET':''}</span></div>
+   <div class="warn">🧲 MAGNET <b>${fmt(mag.p,d)}</b> ${src2?'('+src2+' '+fmt(mag.strike,mag.strike%1?2:0)+')':''} · ⚠<br>
+    WEAK γ — no pin, BREAKOUT RISK (gravity unreliable today)</div>
+  </section>
+  <section class="dsec"><h6>THE PLAN</h6>
+   <div class="card">
+    <div class="lead">LEVELS · ${fmt(ceil.p,d)} ↔ ${fmt(flr.p,d)} · ${S.replay?'replay '+clockAt(S.rt)+' ET':'5h 14m to close'}</div>
+    <div class="kv"><span>${idx?'CEILING':'BREAKOUT'}</span><b>${idx?`test <em>${fmt(ceil.p,d)}</em> · floor backstop <em>${fmt(flr.p,d)}</em>`:`above every wall · <em>${fmt(ceil.p,d)}</em> now acts as floor`}</b></div>
+    <div class="kv"><span>TRADE</span><b>${idx?`fade ${fmt(ceil.p,d)} on touch · target midpoint ${fmt((ceil.p+flr.p)/2,d)}`:`buy the pullback to ${fmt(ceil.p,d)} · target ${fmt(p+(ceil.p-flr.p)*0.6,d)}`}</b></div>
+    <div class="kv"><span>STOP</span><b>close ${idx?'above':'below'} ${fmt(idx?ceil.p+(ceil.p-flr.p)*0.12:ceil.p-(ceil.p-flr.p)*0.12,d)}</b></div>
+    <div class="kv"><span>PIVOT</span><b><em>${fmt(piv.p,d)}</em> (${szTxt(piv)} short-γ)</b></div>
+   </div>
+  </section>
+  <section class="dsec"><h6>PRICES THAT MATTER</h6>
+   ${above.map(li).join('')}
+   <div class="lvl now"><b>${fmt(p,d)}</b><span>price now</span></div>
+   ${below.map(li).join('')}
+  </section>
+ </div></aside>`;}
+
+/* ── vista a un grafico ── */
+function viewOne(){
+ return `${topbar()}${bar()}<div class="body"><div class="col">
+  <div class="plot"><canvas id="c" data-tk="${S.tk}"></canvas></div>
+  ${S.cvd?subCvd():''}
+  ${S.cdi?subCdi():''}
+  ${timebar()}${S.replay?replayBar():''}
+ </div>${S.panels?dock('',S.tk,S.replay?pxAt(S.tk,S.rt):0):''}</div>${statline()}`;}
+function statline(){const i=inst();
+ return `<div class="stat">Sightline<span style="color:var(--mut3)">·</span>Ticker <b>${S.tk}</b>
+  <span style="color:var(--mut3)">·</span>Bars <b>1 808</b>
+  <span style="color:var(--mut3)">·</span>Gamma slot <b>${i.src?'via '+i.src:'own book'} · ${S.metric} ${S.replay?clockAt(S.rt)+':00':'10:40:00'}</b>
+  <span style="color:var(--mut3)">·</span>WS <b>connected</b><span class="push"></span>RTT <b>174ms</b></div>`;}
+function topbar(){return `<div class="top"><span class="crumb">Markets / <b>Sightline</b></span><div class="push"></div>
+ <button class="htr">HOW TO READ</button><span class="conn">CONN <i></i>174ms</span></div>`;}
+function sub(k,t,v){return `<div class="sub" style="height:86px">
+ <div class="subh"><b>${k}</b><em>${v}</em><span>${t}</span><div class="push"></div>
+  <button class="pill" data-tog="${k.toLowerCase()}">✕</button></div>
+ <div class="plot"><canvas class="sc" data-k="${k}"></canvas></div></div>`;}
+function subCdi(){return `<div class="sub" style="height:112px">
+ <div class="subh"><b>CDI</b><span>book <u style="color:var(--ink2);text-decoration:none">SPXW</u> ▾</span>
+  <span>C <em>$415K</em> · P <em style="color:var(--red)">$462K</em></span>
+  <button class="pill on">Single-leg</button><button class="pill">Multi-leg</button><button class="pill">All legs</button>
+  <span style="color:var(--mut3);font-style:italic">(0DTE only)</span><div class="push"></div>
+  <button class="pill" data-tog="cdi">✕</button></div>
+ <div class="plot"><canvas class="sc" data-k="CDI"></canvas></div></div>`;}
+function timebar(){const t=S.replay?S.rt:1;
+ return `<div class="tbar">
+  <div class="mode"><button class="${S.replay?'':'on'}" data-live="1">${S.replay?'':'<i></i>'}LIVE</button>
+   <button class="${S.replay?'on':''}" data-live="0">${S.replay?'<i></i>':''}REPLAY</button></div>
+  <div class="jump"><button class="jb" data-step="-1">◀</button>
+   <button class="jv">${S.replay?clockAt(S.rt)+' ET':'Live (10:40)'}</button>
+   <button class="jb" data-step="1">▶</button></div>
+  <div class="tl"><div class="tlend"><span>OPEN</span><span>CLOSE</span></div>
+   <div class="tlbar" data-tl><span class="tlfill" style="width:${t*100}%"></span>
+    <span class="tlknob" style="left:${t*100}%"></span></div>
+   <div class="tlt"><span>09:30</span><span>11:00</span><span>12:30</span><span>14:00</span><span>15:30</span><span>16:00</span></div></div>
+  <button class="gui">SNAPSHOT</button>
+  <button class="gui ${S.replay?'on':''}" data-live="${S.replay?1:0}">REPLAY</button>
+  <button class="gui">ALERTS</button></div>`;}
+function clockAt(f){const m=570+Math.round(f*390);return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');}
+/* punto 09 — replay: le candele si fermano davvero al momento scelto */
+function replayBar(){return `<div class="repl">
+  <button class="rb on">REPLAY</button>
+  <button class="rb ${S.playing?'on':''}" data-play>${S.playing?'PAUSE':'PLAY'}</button>
+  <span style="font-size:11px;color:var(--ink2)">${clockAt(S.rt)} ET</span>
+  ${['1x','10x','30x','60x'].map((v,k)=>`<button class="rb ${k===1?'on':''}">${v}</button>`).join('')}
+  <span class="hint">candele, volumi e pannello si fermano tutti a ${clockAt(S.rt)}</span>
+  <div class="push"></div><button class="rb" data-live="1">EXIT REPLAY</button></div>`;}
+
+/* ── vista multi (punto 05) ── */
+function viewGrid(){const k=S.grid;
+ const cols=k===2?'1fr 1fr':k===3?'1fr 1fr 1fr':'1fr 1fr', rows=k===4?'1fr 1fr':'1fr';
+ if(S.act>=k)S.act=0;
+ let panes='';
+ for(let n=0;n<k;n++){const w=WINS[n],i=INS[w.tk];
+  panes+=`<div class="pane ${n===S.act?'act':''}" data-act="${n}">
+   <div class="pbar"><b style="color:${n===S.act?'var(--gold)':'var(--mut2)'};font-size:11px">${n+1}</b>
+    <span class="bdot"></span>
+    <button class="v"><span class="tkv">${w.tk}</span><b>${fmt(i.px,i.dec)}</b><u>▾</u></button>
+    <button class="v"><b>${w.tf}</b><u>▾</u></button>
+    <div class="fam book"><button class="v"><k>WALLS</k><b>${S.walls}</b><u>▾</u></button>
+     <button class="v"><k>METRIC</k><b>${S.metric}</b><u>▾</u></button></div>
+    <div class="push"></div><button class="jb">✕</button></div>
+   <div class="plot"><canvas class="pc" data-tk="${w.tk}"></canvas></div></div>`;}
+ return `${topbar()}<div class="bar">
+   <button class="mark">V</button>
+   <div style="position:relative"><button class="v" data-fly="lay"><k>LAYOUT</k><b>${k}</b><u>▾</u></button>
+    ${S.open==='lay'?flyLay():''}</div>
+   <button class="v"><k>PRESET</k><b>${k} charts</b><u>▾</u></button>
+   <button class="gui">COPY SETTINGS</button>
+   <div class="push"></div><button class="gui">GUIDE</button>
+   <button class="chip ${S.panels?'on':''}" data-askpanels>PANELS</button>
+   <button class="gui" data-grid="1">EXIT LAYOUT</button></div>
+  <div class="body"><div class="col"><div class="pgrid" style="grid-template-columns:${cols};grid-template-rows:${rows}">${panes}</div></div>
+   ${S.panels?dock('WINDOW '+(S.act+1)+' · '+WINS[S.act].tk,WINS[S.act].tk):''}</div>
+  ${S.ask?ask(k):''}
+  <div class="stat">Sightline<span style="color:var(--mut3)">·</span><b>${k} charts</b>
+   <span style="color:var(--mut3)">·</span>panel reads <b>window ${S.act+1} · ${WINS[S.act].tk}</b>
+   <span style="color:var(--mut3)">·</span>Gamma slot <b>${INS[WINS[S.act].tk].src?'via '+INS[WINS[S.act].tk].src:'own book'} · ${S.metric}</b>
+   <span style="color:var(--mut3)">·</span>WS <b>connected</b><span class="push"></span>RTT <b>174ms</b></div>`;}
+function ask(k){return `<div class="ask"><h5>PANELS — WHICH CHART?</h5>
+ ${WINS.slice(0,k).map((w,n)=>`<button class="aopt ${n===S.act?'sel':''}" data-pick="${n}">
+  Window ${n+1} · ${w.tk}<em>${fmt(INS[w.tk].px,INS[w.tk].dec)}</em></button>`).join('')}</div>`;}
+
+/* ── grafico ── */
+function paint(){
+ const one=document.getElementById('c'); if(one) chart(one,S.tk,S.replay?S.rt:1);
+ document.querySelectorAll('canvas.pc').forEach(c=>chart(c,c.dataset.tk,1,1));
+ document.querySelectorAll('canvas.sc').forEach(c=>subchart(c,c.dataset.k));
+ document.querySelectorAll('canvas.cvdc').forEach(cvdPane);
+ cvdHover();mapHover();
+}
+function mapHover(){
+ const cv=document.getElementById('c'); if(!cv)return;
+ if(!(S.maps&&S.map)){cv.onmousemove=null;cv.onmouseleave=null;return;}
+ cv.onmousemove=e=>{const r=cv.getBoundingClientRect();
+  S.mapHi=[e.clientX-r.left,e.clientY-r.top];
+  chart(cv,S.tk,S.replay?S.rt:1);};
+ cv.onmouseleave=()=>{S.mapHi=null;chart(cv,S.tk,S.replay?S.rt:1);};
+}
+function rndFrom(s){let x=s;return()=>{x=(x*1103515245+12345)&0x7fffffff;return x/0x7fffffff;};}
+function series(tk){
+ const i=INS[tk],rnd=rndFrom(tk.split('').reduce((a,c)=>a+c.charCodeAt(0),7)*13+3);
+ const n=190;let v=0,raw=[];
+ for(let k=0;k<n;k++){v=v*0.965+(rnd()-.5);raw.push(v);}      // ritorno alla media
+ const mn=Math.min(...raw),mx=Math.max(...raw),span=(mx-mn)||1;
+ const amp=i.px*0.0046;
+ const norm=raw.map(x=>(x-raw[n-1])/span*amp+i.px);           // ultimo valore = prezzo
+ const pts=[];
+ for(let k=0;k<n;k++){const o=k?norm[k-1]:norm[0],c=norm[k],w=amp*0.055;
+  const vol=(900+rnd()*2200)*(k>n*0.80?2.2+rnd()*3.4:1);
+  pts.push([o,c,Math.max(o,c)+rnd()*w,Math.min(o,c)-rnd()*w,vol]);}
+ return pts;
+}
+function subchart(cv,k){
+ const r=cv.getBoundingClientRect(),dpr=devicePixelRatio||1;
+ const W=Math.max(40,Math.round(r.width)),H=Math.max(20,Math.round(r.height));
+ cv.width=W*dpr;cv.height=H*dpr;const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);
+ const AXL=60,AXR=Math.min(96,W*0.14),L=W-AXR,rnd=rndFrom(k==='CVD'?991:557);
+ const n=190,bw=(L-AXL)/n;let v=0,pts=[];
+ for(let i=0;i<n;i++){ if(k==='CVD'){v+=(rnd()-.46);pts.push(v);}
+  else{const big=i>n*0.80?2.6+rnd()*3.2:1;pts.push((rnd()-.5)*big);} }
+ const mx=Math.max(...pts.map(Math.abs))||1, cut=(S.replay?S.rt:1)*n;
+ g.strokeStyle='#141A24';g.setLineDash([2,4]);g.beginPath();g.moveTo(AXL,H/2+.5);g.lineTo(L,H/2+.5);g.stroke();g.setLineDash([]);
+ if(k==='CVD'){g.beginPath();g.moveTo(AXL,H/2);
+  pts.forEach((p,i)=>{if(i<=cut)g.lineTo(AXL+i*bw,H/2-p/mx*(H/2-8));});
+  g.lineTo(AXL+Math.min(n,cut)*bw,H/2);g.fillStyle='rgba(54,156,111,.16)';g.fill();
+  g.strokeStyle=GRN;g.lineWidth=1.3;g.beginPath();
+  pts.forEach((p,i)=>{if(i>cut)return;const y=H/2-p/mx*(H/2-8);i?g.lineTo(AXL+i*bw,y):g.moveTo(AXL,y);});g.stroke();}
+ else{for(let i=0;i<n;i++){if(i>cut)break;const h=(pts[i]/mx)*(H/2-8);
+  g.fillStyle=h>=0?'rgba(54,156,111,.7)':'rgba(204,88,88,.7)';
+  g.fillRect(AXL+i*bw+bw*.18,H/2-Math.max(h,0),Math.max(bw*.64,1),Math.abs(h));}}
+ g.font='8.5px "IBM Plex Mono",monospace';g.fillStyle='#414C60';
+ g.fillText(k==='CVD'?'+5.9K':'+4.7M',6,14);g.fillText(k==='CVD'?'0':'−4.7M',6,H-6);
+ g.fillStyle='#0A0E14';g.fillRect(L,0,AXR,H);
+ g.strokeStyle='#1B2230';g.beginPath();g.moveTo(L+.5,0);g.lineTo(L+.5,H);g.stroke();
+ g.fillStyle='#5D6A82';g.font='9.5px "IBM Plex Mono",monospace';
+ g.fillText(k==='CVD'?'+5907':'$1.3M',L+9,H/2+4);}
+
+/* ════════ CVD — come deve venire ════════ */
+const CVDR={SPX:null,VIX:null,VX:null,ES:[3010,2418],MES:[5630,5064],NQ:[-330,-229],RTY:[-140,-96],
+ SPY:[-1810000,-1763015],QQQ:[-702000,-664000],BTC:[-336,-299],GOLD:[-612,-583]};
+const CVDU={SPY:'azioni',QQQ:'azioni'};
+const cvdUnit=t=>CVDU[t]||'contratti';
+function kF(v){if(!v)return '0';const a=Math.abs(v),s=v<0?'−':'+';
+ if(a>=1e6)return s+(a/1e6).toFixed(2).replace('.',',')+'M';
+ if(a>=1e3)return s+(a/1e3).toFixed(2).replace('.',',')+'K';
+ return s+Math.round(a);}
+function cvdWalk(rnd,m,st,en){
+ const raw=[];let v=0;
+ for(let k=0;k<m;k++){v=v*0.985+(rnd()-0.5);raw.push(v);}
+ const mn=Math.min(...raw),mx=Math.max(...raw),sp=(mx-mn)||1,amp=Math.abs(en-st)||Math.abs(en)*0.2||1;
+ return raw.map((x,k)=>st+(en-st)*k/Math.max(1,m-1)+((x-mn)/sp-0.5)*amp*0.34);}
+function cvdData(tk,tf){
+ const r=CVDR[tk]; if(!r)return null;
+ const rnd=rndFrom(tk.split('').reduce((a,c)=>a+c.charCodeAt(0),11)*17+5);
+ if(tf==='1m')return cvdWalk(rnd,190,r[0],r[1]);
+ const out=[],D=10,m=19;
+ for(let d=0;d<D;d++)out.push(...cvdWalk(rnd,m,0,r[1]*(0.35+rnd()*1.3)));
+ return out;}
+function cvdClock(i,n){if(S.tf!=='1m')return 'giorno '+(Math.floor(i/19)+1);
+ const t=390+Math.round(i/n*185);
+ return String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')+' ET';}
+function subCvd(){const d=cvdData(S.tk,S.tf),last=d?Math.round(d[d.length-1]):0,neg=last<0;
+ return `<div class="sub" style="height:126px">
+ <div class="subh"><b>CVD</b>
+  <em id="cvdRead" style="color:${d?(neg?'var(--red)':'var(--grn)'):'var(--mut3)'}">${d?kF(last)+' '+cvdUnit(S.tk):'nessun blocco oggi'}</em>
+  <span>${d&&cvdZeroOut(d)?'lo zero è fuori scala':''}</span>
+  <div class="push"></div><button class="pill" data-tog="cvd">✕</button></div>
+ <div class="plot"><canvas class="cvdc"></canvas></div></div>`;}
+function cvdZeroOut(d){if(!d)return 0;const hi=Math.max(...d),lo=Math.min(...d);return !(lo<=0&&hi>=0);}
+function cvdPane(cv){
+ const rct=cv.getBoundingClientRect(),dpr=devicePixelRatio||1;
+ const W=Math.max(60,Math.round(rct.width)),H=Math.max(40,Math.round(rct.height));
+ cv.width=W*dpr;cv.height=H*dpr;const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);
+ const AXL=58,AXR=Math.min(104,W*0.14),L=W-AXR,PAD=13,data=cvdData(S.tk,S.tf);
+ g.fillStyle='#0A0E14';g.fillRect(L,0,AXR,H);
+ g.strokeStyle='#1B2230';g.beginPath();g.moveTo(L+.5,0);g.lineTo(L+.5,H);g.stroke();
+ if(!data){cv.__cvd=null;
+  g.textAlign='center';g.fillStyle='#5D6A82';g.font='11.5px "IBM Plex Sans",sans-serif';
+  g.fillText('Nessuna operazione a blocco arrivata oggi su '+S.tk+'.',(AXL+L)/2,H/2-3);
+  g.fillStyle='#414C60';g.font='10px "IBM Plex Sans",sans-serif';
+  g.fillText('La curva compare alla prima.',(AXL+L)/2,H/2+14);g.textAlign='left';return;}
+ const n=data.length,cut=(S.replay?S.rt:1)*n;
+ let hi=Math.max(...data),lo=Math.min(...data);const sp=(hi-lo)||Math.abs(hi)||1;
+ hi+=sp*0.14;lo-=sp*0.14;
+ const zin=lo<=0&&hi>=0,y=v=>PAD+(hi-v)/(hi-lo)*(H-PAD*2);
+ const li=Math.min(n-1,Math.floor(cut)),neg=data[li]<0;
+ const col=neg?'#CC5858':'#369C6F',fl=neg?'rgba(204,88,88,.13)':'rgba(54,156,111,.13)';
+ const bw=(L-AXL)/n,yb=zin?y(0):(neg?PAD:H-PAD);
+ g.beginPath();g.moveTo(AXL,yb);
+ data.forEach((v,i)=>{if(i<=cut)g.lineTo(AXL+i*bw,y(v));});
+ g.lineTo(AXL+Math.min(n,cut)*bw,yb);g.closePath();g.fillStyle=fl;g.fill();
+ if(zin){g.strokeStyle='#242C3B';g.setLineDash([2,4]);g.beginPath();
+  g.moveTo(AXL,y(0)+.5);g.lineTo(L,y(0)+.5);g.stroke();g.setLineDash([]);}
+ g.strokeStyle=col;g.lineWidth=1.5;g.beginPath();
+ data.forEach((v,i)=>{if(i>cut)return;const yy=y(v);i?g.lineTo(AXL+i*bw,yy):g.moveTo(AXL,yy);});g.stroke();
+ g.fillStyle=col;g.beginPath();g.arc(AXL+li*bw,y(data[li]),2.7,0,7);g.fill();
+ g.textAlign='left';g.font='9.5px "IBM Plex Mono",monospace';g.fillStyle='#5D6A82';
+ g.fillText(kF(Math.round(hi)),L+9,13);
+ g.fillText(kF(Math.round(lo)),L+9,H-6);
+ if(zin){g.fillStyle='#414C60';g.fillText('0',L+9,y(0)+3.5);}
+ // valore corrente: pastiglia sull'asse, come il prezzo sul grafico
+ const tx=kF(Math.round(data[li]));
+ g.font='600 10.5px "IBM Plex Mono",monospace';
+ const tw=g.measureText(tx).width, py=Math.min(H-22,Math.max(22,y(data[li])));
+ g.fillStyle=col;g.beginPath();g.roundRect(L+5,py-8,tw+12,16,3);g.fill();
+ g.fillStyle='#08111A';g.fillText(tx,L+11,py+3.5);
+ if(S.cvdHi!=null&&S.cvdHi>=0&&S.cvdHi<n&&S.cvdHi<=cut){const hx=AXL+S.cvdHi*bw;
+  g.strokeStyle='#3A4658';g.setLineDash([2,3]);g.beginPath();g.moveTo(hx+.5,0);g.lineTo(hx+.5,H);g.stroke();g.setLineDash([]);
+  g.fillStyle='#0A0E14';g.beginPath();g.arc(hx,y(data[S.cvdHi]),3.4,0,7);g.fill();
+  g.strokeStyle=col;g.lineWidth=1.6;g.beginPath();g.arc(hx,y(data[S.cvdHi]),3.4,0,7);g.stroke();}
+ cv.__cvd={data,AXL,bw,n,cut};}
+function cvdHover(){
+ const cv=document.querySelector('canvas.cvdc'),out=document.getElementById('cvdRead');
+ if(!cv||!out)return;const base=out.textContent;
+ cv.onmousemove=e=>{const m=cv.__cvd;if(!m)return;
+  const r=cv.getBoundingClientRect(),i=Math.round((e.clientX-r.left-m.AXL)/m.bw);
+  if(i<0||i>=m.n||i>m.cut)return;
+  S.cvdHi=i;cvdPane(cv);
+  const v=Math.round(m.data[i]);
+  out.textContent=cvdClock(i,m.n)+' · '+kF(v);};
+ cv.onmouseleave=()=>{S.cvdHi=null;cvdPane(cv);out.textContent=base;};}
+
+
+/* ════════ Mappe — la superficie, e come va disegnata ════════ */
+const MTH=0.17, MCAP=0.26;                     /* soglia dello zero · tetto del colore */
+function mseed(m,tk){return ({g:3,c:11,v:23,o:37}[m]||3)*7
+ + tk.split('').reduce((a,c)=>a+c.charCodeAt(0),0)%13;}
+function msurf(m,tk,tx,pv){
+ const s=mseed(m,tk);
+ const drift=0.055*Math.sin(tx*3.1+s)+0.03*Math.sin(tx*7.7+s*2);
+ const p=pv+drift; let v=0;
+ v+=0.92*Math.exp(-Math.pow((p-0.62)/0.075,2));
+ v-=0.80*Math.exp(-Math.pow((p-0.40)/0.090,2));
+ v+=0.45*Math.exp(-Math.pow((p-0.80)/0.055,2));
+ v-=0.38*Math.exp(-Math.pow((p-0.18)/0.070,2));
+ v*=(1+0.22*Math.sin(tx*5.3+s*1.7));
+ v+=0.10*Math.sin(tx*11+p*19+s);
+ const r=Math.sin((Math.floor(tx*140)*7+Math.floor(p*90)*3+s))*10000;
+ v+=((r-Math.floor(r))*2-1)*0.055;
+ if(m==='c')v=-v*0.86+0.10*Math.sin(p*7+s);
+ if(m==='v')v=Math.abs(v)*0.9-0.28;
+ if(m==='o')v=v*0.55+0.30*Math.sin(p*9+tx*4+s);
+ return Math.max(-1,Math.min(1,v));}
+function msm(m,tk,tx,pv){let a=0;for(let k=-2;k<=2;k++)a+=msurf(m,tk,tx,pv+k*0.010);return a/5;}
+function mval(m,tk,tx,pv){return msurf(m,tk,tx,pv)*128;}
+function mfmt(v){return (v>=0?'+':'−')+Math.abs(v).toFixed(1);}
+/* il confine: dove si passa dal verde al rosso */
+function medge(m,tk){
+ const N=170,out=[];
+ for(let i=0;i<N;i++){const tx=i/(N-1);let prev=msm(m,tk,tx,1),best=null,bc=0;
+  for(let j=1;j<=200;j++){const pv=1-j/200,v=msm(m,tk,tx,pv);
+   if((v>0)!==(prev>0)){let up=-2,dn=2;
+    for(let k=1;k<=9;k++){up=Math.max(up,msm(m,tk,tx,Math.min(1,pv+k*0.007)));
+     dn=Math.min(dn,msm(m,tk,tx,Math.max(0,pv-k*0.007)));}
+    if(up>0.32&&dn<-0.32&&(up-dn)>bc){bc=up-dn;best=pv;}}
+   prev=v;}
+  out.push(best);}
+ return out;}
+
+function chart(cv,tk,cut,mini){
+ const r=cv.getBoundingClientRect(),dpr=devicePixelRatio||1;
+ const W=Math.max(60,Math.round(r.width)),H=Math.max(60,Math.round(r.height));
+ cv.width=W*dpr;cv.height=H*dpr;const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,W,H);
+ const i=INS[tk],d=i.dec;
+ const AXL=mini?0:58, AXR=Math.min(96,W*0.13), L=W-AXR, TB=22, PT=12, PH=H-TB-PT;
+ const pts=series(tk), w=wallsOf(tk);
+ let hi=Math.max(...pts.map(v=>v[2])), lo=Math.min(...pts.map(v=>v[3]));
+ w.forEach(x=>{hi=Math.max(hi,x.p);lo=Math.min(lo,x.p);});
+ const pad=(hi-lo)*0.09; hi+=pad; lo-=pad;
+ const Y=v=>PT+(hi-v)/(hi-lo)*PH, n=pts.length, bw=(L-AXL)/n, X=k=>AXL+k*bw;
+ const vmax=Math.max(...pts.map(v=>v[4]))*4.2;
+ const VY=v=>PT+PH-(v/vmax)*PH;
+ // griglia
+ g.strokeStyle='#121826';g.lineWidth=1;
+ for(let k=0;k<=6;k++){const y=PT+k*PH/6;g.beginPath();g.moveTo(AXL,y+.5);g.lineTo(L,y+.5);g.stroke();}
+ // mappa — sotto le candele, dentro l'area del prezzo, col tetto e la soglia
+ if(S.maps&&S.map){
+  const cols=Math.max(120,Math.min(360,Math.round((L-AXL)/2.4))), rows=190;
+  const off=document.createElement('canvas');off.width=cols;off.height=rows;
+  const oc=off.getContext('2d'),im=oc.createImageData(cols,rows),D=im.data;
+  for(let jj=0;jj<rows;jj++)for(let ii=0;ii<cols;ii++){
+   const tx=ii/(cols-1),pv=1-jj/(rows-1),v=msurf(S.map,tk,tx,pv),av=Math.abs(v);
+   const al=av<MTH?0:Math.min(MCAP,(av-MTH)*MCAP/(1-MTH)*1.35);
+   const o=(jj*cols+ii)*4;
+   if(v>0){D[o]=54;D[o+1]=156;D[o+2]=111;}else{D[o]=204;D[o+1]=88;D[o+2]=88;}
+   D[o+3]=Math.round(al*255);}
+  oc.putImageData(im,0,0);
+  g.imageSmoothingEnabled=true;
+  g.drawImage(off,0,0,cols,rows,AXL,PT,L-AXL,PH);
+  // il confine fra verde e rosso
+  const ed=medge(S.map,tk);
+  g.strokeStyle='rgba(232,194,104,.62)';g.lineWidth=1.2;g.beginPath();
+  let opn=false;
+  ed.forEach((pv,ii)=>{if(pv===null){opn=false;return;}
+   const xx=AXL+(L-AXL)*ii/(ed.length-1), yy=PT+(1-pv)*PH;
+   if(!opn){g.moveTo(xx,yy);opn=true;}else g.lineTo(xx,yy);});
+  g.stroke();
+ }
+ // volumi (scala a sinistra)
+ for(let k=0;k<n;k++){if(k>cut*n)break;
+  g.fillStyle=pts[k][1]>=pts[k][0]?'rgba(54,156,111,.30)':'rgba(204,88,88,.30)';
+  g.fillRect(X(k)+bw*.14,VY(pts[k][4]),Math.max(bw*.72,1),PT+PH-VY(pts[k][4]));}
+ // muri
+ w.forEach(x=>{const col=x.sz<0?CY:GRN, y=Y(x.p);
+  g.strokeStyle=col;g.globalAlpha=x.st===2?.85:x.st===1?.75:.55;
+  g.lineWidth=x.st===2?4:x.st===1?3:1.4;
+  g.beginPath();g.moveTo(AXL,y+.5);g.lineTo(L,y+.5);g.stroke();g.globalAlpha=1;});
+ // liquidity tide
+ if(S.tide){const rnd=rndFrom(7717);
+  for(let k=0;k<26;k++){const kk=Math.floor(n*(0.52+rnd()*0.47));if(kk>cut*n)continue;
+   const yv=lo+ (hi-lo)*(0.28+rnd()*0.5), y=Y(yv), ww=6+rnd()*30;
+   g.strokeStyle='rgba(226,232,240,.55)';g.lineWidth=2.4;
+   g.beginPath();g.moveTo(X(kk),y);g.lineTo(X(kk)+ww,y);g.stroke();}}
+ // candele
+ for(let k=0;k<n;k++){if(k>cut*n)break;
+  const o=pts[k][0],c=pts[k][1],h=pts[k][2],l=pts[k][3],x=X(k)+bw/2,up=c>=o;
+  g.strokeStyle=up?GRN:RED;g.fillStyle=up?'rgba(54,156,111,.92)':'rgba(204,88,88,.92)';
+  g.lineWidth=1;g.beginPath();g.moveTo(x,Y(h));g.lineTo(x,Y(l));g.stroke();
+  g.fillRect(x-bw*.3,Y(Math.max(o,c)),Math.max(bw*.6,1.2),Math.max(Math.abs(Y(o)-Y(c)),1.2));}
+ // linea prezzo corrente
+ const last=pts[Math.max(0,Math.min(n-1,Math.floor(cut*n)-1))][1];
+ g.strokeStyle='rgba(127,212,232,.6)';g.setLineDash([4,4]);g.lineWidth=1;
+ g.beginPath();g.moveTo(AXL,Y(last)+.5);g.lineTo(L,Y(last)+.5);g.stroke();g.setLineDash([]);
+ /* etichette muri — punto 07: sempre pallino · stelle · prezzo · dimensione,
+    sempre dentro l'area del grafico, mai sopra la scala dei prezzi */
+ w.forEach(x=>{const col=x.sz<0?CY:GRN, y=Y(x.p);
+  const stars=x.st===2?'★★ ':x.st===1?'★ ':'';
+  const tx='● '+stars+fmt(x.p,d)+'   '+szTxt(x);
+  g.font='600 '+(mini?9.5:10.5)+'px "IBM Plex Mono",monospace';
+  const tw=g.measureText(tx).width+14, bx=Math.max(AXL+4,L-tw-6);
+  g.fillStyle='rgba(9,13,19,.93)';g.beginPath();g.roundRect(bx,y-9,tw,18,4);g.fill();
+  g.strokeStyle=col;g.lineWidth=1;g.stroke();
+  g.fillStyle=col;g.fillText(tx,bx+7,y+4);});
+ // linea replay
+ if(cut<1){const x=X(Math.floor(cut*n));
+  g.strokeStyle=RED;g.setLineDash([5,4]);g.lineWidth=1;
+  g.beginPath();g.moveTo(x,PT-6);g.lineTo(x,PT+PH);g.stroke();g.setLineDash([]);
+  g.fillStyle=RED;g.beginPath();g.roundRect(x+4,PT-6,88,17,4);g.fill();
+  g.fillStyle='#0A0E14';g.font='600 9.5px "IBM Plex Mono",monospace';g.fillText('▶ '+clockAt(cut)+' ET',x+10,PT+6);}
+ // scala volumi a sinistra
+ if(AXL){g.font='9.5px "IBM Plex Mono",monospace';g.fillStyle='#414C60';
+  const raw=vmax/9, pow=Math.pow(10,Math.floor(Math.log10(raw)));
+  const stp=[1,2,2.5,5,10].map(m=>m*pow).find(v=>v>=raw)||pow*10;
+  for(let v=stp;v<vmax;v+=stp){const y=VY(v);if(y<PT+6)break;
+   g.fillText((v>=1000?Math.round(v/1000)+'K':Math.round(v)),6,y+4);}}
+ // scala prezzi a destra
+ g.fillStyle='#0A0E14';g.fillRect(L,0,AXR,H);
+ g.strokeStyle='#1B2230';g.beginPath();g.moveTo(L+.5,0);g.lineTo(L+.5,H);g.stroke();
+ g.font='10.5px "IBM Plex Mono",monospace';g.fillStyle='#7C879A';
+ for(let k=0;k<=8;k++){const v=hi-(hi-lo)*k/8;g.fillText(fmt(v,d),L+8,PT+k*PH/8+4);}
+ g.fillStyle=CY;g.beginPath();g.roundRect(L,Y(last)-9,AXR,18,3);g.fill();
+ g.fillStyle='#0A0E14';g.font='600 10.5px "IBM Plex Mono",monospace';g.fillText(fmt(last,d),L+8,Y(last)+4);
+ // asse dei tempi
+ g.fillStyle='#5D6A82';g.font='9.5px "IBM Plex Mono",monospace';
+ ['03:00','04:00','05:00','06:00','07:00','08:00','09:00','10:00'].forEach((t,k,a)=>{
+  const x=AXL+k*(L-AXL-34)/(a.length-1);g.fillText(t,x,H-7);});
+ // ── mappa: la scala dei colori, e il valore sotto il puntatore ──
+ if(S.maps&&S.map&&!mini){
+  const u=MAPINFO[S.map][2];
+  // mirino e lettura
+  if(S.mapHi){
+   const hx=S.mapHi[0], hy=S.mapHi[1];
+   if(hx>=AXL&&hx<=L&&hy>=PT&&hy<=PT+PH){
+    g.strokeStyle='#4A5668';g.setLineDash([2,3]);g.lineWidth=1;
+    g.beginPath();g.moveTo(hx+.5,PT);g.lineTo(hx+.5,PT+PH);g.stroke();
+    g.beginPath();g.moveTo(AXL,hy+.5);g.lineTo(L,hy+.5);g.stroke();g.setLineDash([]);
+    const tx=(hx-AXL)/(L-AXL), pv=1-(hy-PT)/PH;
+    const val=mval(S.map,tk,tx,pv), pr=hi-(hi-lo)*(hy-PT)/PH;
+    const t1=mfmt(val)+' '+u, t2=fmt(pr,d);
+    g.font='600 11px "IBM Plex Mono",monospace';
+    const w1=g.measureText(t1).width;
+    g.font='11px "IBM Plex Mono",monospace';
+    const w2=g.measureText(t2).width, bw2=Math.max(w1,w2)+18, bh=38;
+    const bx=hx>(AXL+L)/2?hx-bw2-12:hx+12, by=Math.min(PT+PH-bh-4,Math.max(PT+4,hy-bh/2));
+    g.fillStyle='rgba(9,13,19,.94)';g.beginPath();g.roundRect(bx,by,bw2,bh,5);g.fill();
+    g.strokeStyle='#232B3A';g.lineWidth=1;g.stroke();
+    g.font='600 11px "IBM Plex Mono",monospace';
+    g.fillStyle=val>=0?GRN:RED;g.fillText(t1,bx+9,by+16);
+    g.font='11px "IBM Plex Mono",monospace';g.fillStyle='#8A94A6';g.fillText(t2,bx+9,by+31);
+   }
+  }
+  // scala dei colori
+  const LW=132,LH=8,lx=AXL+12,ly=PT+PH-30;
+  g.font='9.5px "IBM Plex Mono",monospace';
+  const wA=g.measureText('−128').width, wB=g.measureText('+128').width;
+  const wU=g.measureText(u).width, boxW=wA+wB+wU+LW+34;
+  g.fillStyle='rgba(8,11,16,.86)';g.beginPath();g.roundRect(lx-8,ly-9,boxW,26,5);g.fill();
+  g.strokeStyle='#232B3A';g.lineWidth=1;g.stroke();
+  g.fillStyle='#8A94A6';g.fillText('−128',lx,ly+8);
+  const gx=lx+wA+7, gr=g.createLinearGradient(gx,0,gx+LW,0);
+  gr.addColorStop(0,'#CC5858');gr.addColorStop(.30,'#5A3540');gr.addColorStop(.5,'#0C1017');
+  gr.addColorStop(.70,'#2C5748');gr.addColorStop(1,'#369C6F');
+  g.fillStyle=gr;g.beginPath();g.roundRect(gx,ly,LW,LH,2);g.fill();
+  g.fillStyle='#8A94A6';g.fillText('+128',gx+LW+7,ly+8);
+  g.fillStyle='#414C60';g.fillText(u,gx+LW+wB+14,ly+8);
+  if(S.mapHi){const tx=(S.mapHi[0]-AXL)/(L-AXL), pv=1-(S.mapHi[1]-PT)/PH;
+   if(tx>=0&&tx<=1&&pv>=0&&pv<=1){
+    const mx=gx+LW*(0.5+msurf(S.map,tk,tx,pv)*0.5);
+    g.fillStyle='#F0F3F8';g.fillRect(mx-1,ly-3,2,LH+6);}}
+ }
+}
+let ro;function observe(){if(ro)ro.disconnect();ro=new ResizeObserver(()=>paint());
+ document.querySelectorAll('.plot').forEach(e=>ro.observe(e));}
+
+/* ── eventi — ogni tasto degli aggiornamenti è attivo ── */
+document.addEventListener('click',e=>{
+ const pn=e.target.closest('.pane'); if(pn&&pn.dataset.act!==undefined)S.act=+pn.dataset.act;
+ const tl=e.target.closest('[data-tl]');
+ if(tl){const r=tl.getBoundingClientRect();S.rt=Math.min(1,Math.max(0,(e.clientX-r.left)/r.width));
+  S.replay=S.rt<0.995?1:0;S.demo=0;return render();}
+ const t=e.target.closest('button'); if(!t){S.open=null;S.ask=0;return render();}
+ const d=t.dataset;
+ if(d.demo!==undefined) return demo(+d.demo);
+ if(d.map!==undefined){                       /* punto 03: la voce attiva non spegne */
+   if(d.map===''){S.maps=0;S.map=null;}else{S.maps=1;S.map=d.map;}
+   S.mapHi=null;S.open=null;}
+ else if(d.fly!==undefined){S.open=S.open===d.fly?null:d.fly;}
+ else if(d.set!==undefined){S[d.set]=d.val; if(['tk','tf','walls','metric','exp'].includes(d.set))S.open=null;}
+ else if(d.grid!==undefined){S.grid=+d.grid;S.open=null;S.ask=0;}
+ else if(d.tog!==undefined){S[d.tog]=S[d.tog]?0:1;}
+ else if(d.panels!==undefined){S.panels=S.panels?0:1;S.open=null;}
+ else if(d.askpanels!==undefined){S.ask=S.ask?0:1;S.open=null;}
+ else if(d.pick!==undefined){S.act=+d.pick;S.ask=0;S.panels=1;}
+ else if(d.live!==undefined){S.replay=d.live==='1'?0:1;S.playing=0;if(!S.replay)S.rt=1;else if(S.rt>=1)S.rt=0.52;}
+ else if(d.play!==undefined){S.playing=S.playing?0:1;}
+ else if(d.step!==undefined){if(!S.replay){S.replay=1;S.rt=0.52;}
+  S.rt=Math.min(1,Math.max(0.04,S.rt+(+d.step)*0.02));}
+ else if(d.hide!==undefined){}
+ else if(d.alloff!==undefined){S.tide=0;S.cvd=0;S.cdi=0;S.maps=0;S.map=null;S.proj=0;S.oi=0;S.open=null;}
+ else S.open=null;
+ render();});
+document.addEventListener('input',e=>{if(e.target.dataset.thr!==undefined)S.thr=e.target.value;});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){S.open=null;S.ask=0;render();}});
+addEventListener('resize',()=>paint());
+setInterval(()=>{if(S.replay&&S.playing){S.rt=Math.min(1,S.rt+0.005);if(S.rt>=1){S.playing=0;}render();}},240);
+render();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(paint);
+</script>

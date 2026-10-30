@@ -24,5 +24,8 @@ Guardali prima di disegnare qualsiasi parte Volwick in un video: colori, spessor
 
 **Attenzione:** sono registrazioni del mercato reale. Servono solo come riferimento per capire com'è il terminale. **Mai** dentro un video, né i fotogrammi né i dati (licenza CME): nei video si usano solo sessioni simulate, disegnate con il motore come in questi riferimenti.
 
+## I video esempio dei format
+`esempi_format/`: 8 fotogrammi per ogni video da cui nascono i format (trendline, indicatore, micro lezione, libro, edit motion, quiz "Buy or Sell?"). Video interi su Drive in `02_LIBRERIA/03_VIDEO_CONSIGLIATI/<categoria>`; come li abbiamo trasformati in versioni Volwick: `../06_DOCS/MOTORE_VX_FORMAT.md`.
+
 Regole che vincono su tutto, in quest'ordine: `../REGOLE/PREFERENZE_E_FORMATI.md` (le decisioni di Power, la più recente vince), poi `02_TERMINALE_COSA_SI_PUO_MOSTRARE.md`, poi il resto.
 Nei video: solo funzioni presenti nella build, mai previsioni di direzione ("came out at a coin flip"), mai dati reali, Block Prints mai chiamati dark pool, un muro rosso è un supporto difeso e non un segnale ribassista.

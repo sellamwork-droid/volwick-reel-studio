@@ -20,10 +20,10 @@ Questa cartella è il sistema completo per generare i reel Volwick (TikTok, Inst
 | `01_HOOK/` | `clip/` archivio dei clip hook, `CATALOGO_HOOK.csv` (stato, movimento, evento di mercato), `_schede/` fotogrammi di ogni clip |
 | `02_AUDIO/` | `AUDIO_TREND.md` audio virali della settimana (si scelgono in app), `brani_con_licenza/` file mixabili |
 | `03_FORMATI/` | i 5 formati, ognuno con `MODELLO.md` |
-| `04_RENDER/<VIDEO>/` | ogni video finito (fuori dal repository: cartella condivisa dei render) |
+| `04_RENDER/` | cartella di lavoro locale, fuori dal repository (i video finiti vanno su Drive in `01_VIDEO` con `studio.py consegna`) |
 | `05_PUBBLICATI/` | registro di cosa è uscito, quando e con quali numeri |
 | `06_DOCS/` | schede di ogni video, studio degli hook, layer, motore, lingue |
-| `07_RIFERIMENTI/` | i video esempio da cui nascono i format (solo sul Mac di Power, non nel repository) |
+| `07_RIFERIMENTI/` | `RIFERIMENTI.csv`: i video consigliati e gli esempi dei format (video su Drive in `02_LIBRERIA/03_VIDEO_CONSIGLIATI`, fotogrammi in `00_SAPERE/esempi_format`) |
 | `REGOLE/` | `PREFERENZE_E_FORMATI.md`, tutte le regole di Power con il registro datato |
 | `FINALE_APPROVATO.png` | il finale di ogni video, sempre questo |
 
@@ -34,7 +34,7 @@ Questa cartella è il sistema completo per generare i reel Volwick (TikTok, Inst
 4. Fogli di controllo (stills) prima del render: zone sicure, logo, scritte, riga dei layer.
 5. Render a 60 fps, audio, mix in due versioni (con base e MUSIC READY).
 6. Controllo finale: loudness circa −14,5/−15 LUFS, picco sotto −1,5 dBTP, durata, fotogrammi chiave.
-7. Consegna in `04_RENDER/<NOME_VIDEO>/` con caption (offerta solo in caption). Scheda del video in `06_DOCS/`. Se usi un hook, aggiorna `CATALOGO_HOOK.csv` (stato "usato <video>").
+7. Consegna con `studio.py consegna` (vedi Consegna): video su Drive in `01_VIDEO/<ID>_<NOME>/` con caption (offerta solo in caption). Scheda del video in `06_DOCS/`. Se usi un hook, aggiorna `CATALOGO_HOOK.csv` (stato "usato <video>").
 
 ## Comandi (dal Terminale)
 ```
@@ -59,10 +59,10 @@ Hook + grafico: `ffmpeg -i hook.mp4 -i silent.mp4 -filter_complex "[0:v][1:v]con
 - Niente pubblicazione sui social da parte di Claude, niente password o chiavi in chat o nei file, niente acquisti.
 
 ## Aggiornamento continuo (regola fissa di Power)
-Questa cartella locale è la fonte. Ogni cosa nuova si salva qui subito, senza aspettare che Power lo chieda:
+Il repository (e la sua copia su ogni computer) è la fonte. Ogni cosa nuova si salva qui subito, senza aspettare che Power lo chieda:
 - regola o correzione nuova → registro di `REGOLE/PREFERENZE_E_FORMATI.md` (e nel progetto VOLWICK su claude.ai se la sessione lo vede);
 - modifica al motore → `00_MOTORE` (mai solo in una copia di lavoro);
-- video finito → `04_RENDER/<NOME>/` + scheda in `06_DOCS/`;
+- video finito → Drive `01_VIDEO/<ID>_<NOME>/` con `studio.py consegna` + memoria in `MEMORIA/video/` + scheda in `06_DOCS/`;
 - hook nuovo o usato → `01_HOOK/clip` + `CATALOGO_HOOK.csv`;
 - audio della settimana → `02_AUDIO/AUDIO_TREND.md`.
 Prima di salvare un file che altri possono aver cambiato, rileggilo e aggiungi solo la parte nuova.

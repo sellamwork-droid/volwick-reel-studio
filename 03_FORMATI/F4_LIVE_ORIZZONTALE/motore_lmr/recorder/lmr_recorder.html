@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8">
+<title>Volwick · LMR Recorder</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#040913;--panel:#0a1222;--line:#17233d;--ink:#e8eefc;--ink2:#9fb0d0;--ink3:#5d6d8e;--blue:#2F6BFF;--blue2:#8AB6FF;--red:#ff4d5e;--amber:#ffb547;--green:#33d17a}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Inter",sans-serif}
+main{max-width:760px;margin:0 auto;padding:28px 20px 60px}
+h1{font:700 22px/1 "JetBrains Mono",ui-monospace,monospace;letter-spacing:.18em;margin:0 0 4px}
+.sub{color:var(--ink3);font:600 12px ui-monospace,monospace;letter-spacing:.14em;margin-bottom:24px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin:14px 0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+button{font:700 13px ui-monospace,monospace;letter-spacing:.08em;border:1px solid var(--line);background:#0f1a31;color:var(--ink);border-radius:9px;padding:11px 14px;cursor:pointer}
+button.primary{background:var(--blue);border-color:var(--blue)}button:disabled{opacity:.35;cursor:default}
+button.stop{background:#3a0f16;border-color:var(--red);color:#ffd5da}
+label{color:var(--ink2);font-size:13px}input,select{background:#050b17;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:600 13px ui-monospace,monospace}
+.state{font:700 30px ui-monospace,monospace;letter-spacing:.06em}
+.rec{color:var(--red)}.ok{color:var(--green)}.warn{color:var(--amber)}
+.kv{display:grid;grid-template-columns:170px 1fr;gap:6px 12px;font:600 13px ui-monospace,monospace}.kv div:nth-child(odd){color:var(--ink3)}
+#log{font:12px/1.5 ui-monospace,monospace;color:var(--ink2);max-height:260px;overflow:auto;white-space:pre-wrap}
+.note{color:var(--ink3);font-size:13px}
+</style></head>
+<body><main>
+<h1>VOLWICK · LMR RECORDER</h1>
+<div class="sub">LIVE MARKET REACTIONS · REGISTRAZIONE DEL TERMINALE</div>
+
+<div class="card">
+  <div class="row">
+    <button id="bDir">1 · CARTELLA 02_RECORDINGS</button>
+    <span id="dirName" class="note">nessuna cartella scelta</span>
+  </div>
+  <div class="row" style="margin-top:12px">
+    <label>Strumento <input id="inst" value="ES" size="5"></label>
+    <label>Segmento (min) <input id="segMin" type="number" value="5" min="1" max="15" style="width:64px"></label>
+    <label>Stop automatico alle (ET) <input id="stopEt" value="16:05" size="6"></label>
+    <label>Bitrate (Mbps) <input id="mbps" type="number" value="10" min="4" max="40" style="width:64px"></label>
+  </div>
+  <div class="row" style="margin-top:14px">
+    <button id="bStart" class="primary" disabled>2 · SCEGLI LA SCHEDA DEL TERMINALE E REGISTRA</button>
+    <button id="bMark" disabled>SEGNA MOMENTO (M)</button>
+    <button id="bStop" class="stop" disabled>STOP</button>
+  </div>
+  <p class="note">Nel selettore di Chrome scegli <b>Scheda</b> e poi la scheda di volwick.com/dashboard. Tieni questa pagina in una finestra visibile: così il Mac resta sveglio.</p>
+</div>
+
+<div class="card">
+  <div id="state" class="state">PRONTO</div>
+  <div class="kv" style="margin-top:12px">
+    <div>Ora ET</div><div id="etNow">-</div>
+    <div>Sessione</div><div id="sess">-</div>
+    <div>Segmento</div><div id="seg">-</div>
+    <div>Durata totale</div><div id="dur">-</div>
+    <div>Cattura</div><div id="cap">-</div>
+    <div>Fotogrammi</div><div id="frames">-</div>
+    <div>Formato</div><div id="fmt">-</div>
+  </div>
+</div>
+
+<div class="card"><div id="log"></div></div>
+
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
+const etFmt=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',hour12:false,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',fractionalSecondDigits:3});
+function et(ms){const p=Object.fromEntries(etFmt.formatToParts(new Date(ms)).map(x=>[x.type,x.value]));return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute}:${p.second}.${p.fractionalSecond} ET`;}
+function etHM(ms){const p=Object.fromEntries(etFmt.formatToParts(new Date(ms)).map(x=>[x.type,x.value]));return p.hour+':'+p.minute;}
+const iso=ms=>new Date(ms).toISOString();
+const clock=()=>performance.timeOrigin+performance.now();   // millisecond wall clock, monotonic within the page
+
+let dir=null, sessDir=null, stream=null, track=null, rec=null, writable=null;
+let session=null, seg=null, segTimer=null, stopping=false, wakeLock=null, mime='', ext='';
+const L=[]; function log(m){const line=`${et(clock()).slice(11,23)}  ${m}`;L.push(line);$('log').textContent=L.slice(-200).join('\n');$('log').scrollTop=1e9;}
+
+function pickMime(){
+  const c=[['video/mp4;codecs=avc1.640033','mp4'],['video/mp4;codecs=avc1.64002A','mp4'],['video/mp4;codecs=avc1','mp4'],['video/mp4','mp4'],['video/webm;codecs=h264','webm'],['video/webm;codecs=vp9','webm'],['video/webm','webm']];
+  for(const [m,e] of c) if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m)) return [m,e];
+  return ['',''];
+}
+
+$('bDir').onclick=async()=>{
+  try{ dir=await window.showDirectoryPicker({id:'lmr-recordings',mode:'readwrite'}); $('dirName').textContent=dir.name; $('bStart').disabled=false; log('cartella: '+dir.name); }
+  catch(e){ log('cartella non scelta: '+e.message); }
+};
+
+async function writeJSON(handleDir,name,obj){ const fh=await handleDir.getFileHandle(name,{create:true}); const w=await fh.createWritable(); await w.write(JSON.stringify(obj,null,2)); await w.close(); }
+
+async function startSegment(){
+  const n=session.segments.length+1, name=`${session.id}_seg${String(n).padStart(3,'0')}`;
+  const fh=await sessDir.getFileHandle(`${name}.${ext}`,{create:true});
+  writable=await fh.createWritable();
+  const s={index:n,file:`${name}.${ext}`,json:`${name}.json`,mime,requested_fps:60,
+    recorder_start_utc:null,recorder_start_et:null,first_chunk_utc:null,end_utc:null,end_et:null,
+    bytes:0,chunks:0,stats_start:frameStats(),stats_end:null,interruptions:[],marks:[],settings:track.getSettings()};
+  seg=s; session.segments.push(s);
+  const r=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:(+$('mbps').value||10)*1e6});
+  let q=Promise.resolve();
+  r.ondataavailable=ev=>{ if(!ev.data||!ev.data.size) return; if(!s.first_chunk_utc) s.first_chunk_utc=iso(clock()); s.bytes+=ev.data.size; s.chunks++; q=q.then(()=>writable.write(ev.data)).catch(e=>{ s.interruptions.push({utc:iso(clock()),what:'write error: '+e.message}); log('ERRORE scrittura: '+e.message); }); };
+  r.onstart=()=>{ const t=clock(); s.recorder_start_utc=iso(t); s.recorder_start_et=et(t); s.recorder_start_ms=t; log(`segmento ${n} avviato`); };
+  r.onerror=e=>{ s.interruptions.push({utc:iso(clock()),what:'recorder error: '+(e.error&&e.error.message)}); log('ERRORE registratore'); };
+  const done=new Promise(res=>{ r.onstop=async()=>{ const t=clock(); s.end_utc=iso(t); s.end_et=et(t); s.duration_s=+((t-s.recorder_start_ms)/1000).toFixed(3); s.stats_end=frameStats();
+      await q; try{ await writable.close(); }catch(e){ s.interruptions.push({utc:iso(t),what:'close error: '+e.message}); }
+      await writeJSON(sessDir,s.json,{session:session.id,instrument:session.instrument,...s});
+      await writeJSON(sessDir,`${session.id}_session.json`,session);
+      log(`segmento ${n} chiuso · ${(s.bytes/1e6).toFixed(1)} MB · ${s.duration_s}s`); res(); }; });
+  s._stop=()=>{ if(r.state!=='inactive') r.stop(); return done; };
+  r.start(1000);
+  clearTimeout(segTimer); segTimer=setTimeout(rotate, (+$('segMin').value||5)*60*1000);
+}
+async function rotate(){ if(stopping||!seg) return; const old=seg; const p=old._stop(); await startSegment(); await p; }
+
+function frameStats(){ try{ const st=track&&track.stats; if(st) return {delivered:st.deliveredFrames,discarded:st.discardedFrames,total:st.totalFrames}; }catch(e){} return null; }
+
+$('bStart').onclick=async()=>{
+  try{
+    [mime,ext]=pickMime(); if(!mime){ log('MediaRecorder non supportato'); return; }
+    stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:{ideal:60,max:60},cursor:'never',displaySurface:'browser'},audio:false,preferCurrentTab:false,selfBrowserSurface:'exclude',surfaceSwitching:'exclude',monitorTypeSurfaces:'exclude'});
+    track=stream.getVideoTracks()[0]; try{ track.contentHint='detail'; }catch(e){}
+    const now=clock(), d=new Date(now), inst=($('inst').value||'ES').toUpperCase().replace(/[^A-Z0-9]/g,'');
+    const day=et(now).slice(0,10), id=`${day}_${inst}_${etHM(now).replace(':','')}ET`;
+    sessDir=await (await dir.getDirectoryHandle(`${day}_${inst}`,{create:true}));
+    session={id,instrument:inst,recorder:'lmr_recorder.html v1',user_agent:navigator.userAgent,start_utc:iso(now),start_et:et(now),
+      tz_browser:Intl.DateTimeFormat().resolvedOptions().timeZone,track_label:track.label,settings:track.getSettings(),segments:[],marks:[],interruptions:[]};
+    track.addEventListener('ended',onEnded); track.addEventListener('mute',()=>{ const x={utc:iso(clock()),what:'track muted'}; session.interruptions.push(x); seg&&seg.interruptions.push(x); log('ATTENZIONE: cattura sospesa'); });
+    track.addEventListener('unmute',()=>{ const x={utc:iso(clock()),what:'track unmuted'}; session.interruptions.push(x); seg&&seg.interruptions.push(x); log('cattura ripresa'); });
+    stopping=false; await startSegment();
+    try{ wakeLock=await navigator.wakeLock.request('screen'); }catch(e){ log('wake lock non disponibile: usa caffeinate'); }
+    $('bStart').disabled=true; $('bStop').disabled=false; $('bMark').disabled=false; $('bDir').disabled=true;
+    $('state').textContent='● REC'; $('state').className='state rec'; $('fmt').textContent=mime;
+    const s=track.getSettings(); $('cap').textContent=`${track.label} · ${s.width}×${s.height} · ${s.frameRate} fps`;
+    $('sess').textContent=id; log('sessione '+id);
+  }catch(e){ log('avvio non riuscito: '+e.message); }
+};
+async function onEnded(){
+  if(stopping) return; const x={utc:iso(clock()),what:'capture ended (scheda chiusa o condivisione interrotta)'}; session.interruptions.push(x); seg&&seg.interruptions.push(x);
+  log('INTERRUZIONE: la cattura si è fermata. Un clic su 2 riparte in un nuovo segmento.');
+  clearTimeout(segTimer); if(seg) await seg._stop(); seg=null;
+  $('state').textContent='INTERROTTA'; $('state').className='state warn'; $('bStart').disabled=false; $('bStop').disabled=true; $('bMark').disabled=true;
+}
+async function stopAll(reason){
+  if(stopping) return; stopping=true; clearTimeout(segTimer); log('stop: '+reason);
+  if(seg) await seg._stop(); seg=null; session.stop_utc=iso(clock()); session.stop_reason=reason; await writeJSON(sessDir,`${session.id}_session.json`,session);
+  stream&&stream.getTracks().forEach(t=>t.stop()); try{ wakeLock&&wakeLock.release(); }catch(e){}
+  $('state').textContent='SALVATA'; $('state').className='state ok'; $('bStop').disabled=true; $('bMark').disabled=true; $('bStart').disabled=false; $('bDir').disabled=false;
+}
+$('bStop').onclick=()=>stopAll('manuale');
+function mark(){ if(!seg||!seg.recorder_start_ms) return; const t=clock(), m={utc:iso(t),et:et(t),segment:seg.index,t_in_segment_s:+((t-seg.recorder_start_ms)/1000).toFixed(3)}; seg.marks.push(m); session.marks.push(m); log('momento segnato: '+m.et.slice(11)); }
+$('bMark').onclick=mark; document.addEventListener('keydown',e=>{ if(e.key==='m'||e.key==='M') mark(); });
+document.addEventListener('visibilitychange',async()=>{ if(document.visibilityState==='visible'&&session&&!stopping){ try{ wakeLock=await navigator.wakeLock.request('screen'); }catch(e){} } });
+setInterval(()=>{
+  const t=clock(); $('etNow').textContent=et(t).slice(11,19)+' ET';
+  if(session&&!stopping&&seg){ $('seg').textContent=`${seg.index} · ${(seg.bytes/1e6).toFixed(1)} MB`; $('dur').textContent=Math.round((t-Date.parse(session.start_utc))/1000)+' s';
+    const st=frameStats(); if(st) $('frames').textContent=`consegnati ${st.delivered} · scartati ${st.discarded}`;
+    const stopAt=$('stopEt').value.trim(); if(/^\d{1,2}:\d{2}$/.test(stopAt)&&etHM(t)===stopAt.padStart(5,'0')) stopAll('stop automatico '+stopAt+' ET'); }
+},500);
+window.addEventListener('beforeunload',e=>{ if(session&&!stopping){ e.preventDefault(); e.returnValue=''; } });
+</script>
+</main></body></html>

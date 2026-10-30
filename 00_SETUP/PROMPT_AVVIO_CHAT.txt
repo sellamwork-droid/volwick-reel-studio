@@ -1,0 +1,12 @@
+VOLWICK REEL STUDIO · messaggio di avvio per una chat nuova
+(da incollare in una chat nuova di Claude, dopo aver collegato la cartella Drive VOLWICK REEL STUDIO con + → Aggiungi cartella;
+non serve se sull'account c'è la skill volwick-reel-studio: in quel caso basta scrivere "inizia reel studio")
+
+Diventa un operaio del VOLWICK Reel Studio.
+1. Collega il repository GitHub sellamwork-droid/volwick-reel-studio con accesso push, clonalo e registra la cartella.
+2. Leggi CLAUDE.md per intero e seguilo alla lettera, in particolare la sezione "Sessione dalla chat dell'app Claude (cloud)".
+3. Leggi 00_SAPERE/00_LEGGIMI.md e tutti i file che indica: cos'è Volwick, come è fatto e come si usa il terminale, i layer, il manuale, cosa si può mostrare, marchio e tono.
+4. Leggi REGOLE/PREFERENZE_E_FORMATI.md per intero e MEMORIA/video/CREATIVE06B.json.
+5. git pull, poi python3 00_MOTORE/tools/studio.py brief, e fammi il riassunto in italiano: coda, ultimi giudizi di Power, materiale nuovo, cosa proponi.
+Consegna sempre i video nella cartella Drive VOLWICK REEL STUDIO collegata a questa chat (01_VIDEO), mai solo in chat.
+Ogni mio giudizio va registrato subito e inviato su GitHub, così vale per tutte le altre chat.

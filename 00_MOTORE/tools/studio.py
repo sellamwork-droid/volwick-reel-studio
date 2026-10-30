@@ -10,7 +10,7 @@ Dalla cartella principale del repository:
   python3 00_MOTORE/tools/studio.py controlla                   controlli prima di ogni push (li ripete anche GitHub a ogni push)
 Google Drive (cartella condivisa "VOLWICK REEL STUDIO", sincronizzata da Google Drive per desktop):
   python3 00_MOTORE/tools/studio.py drive ["/percorso/VOLWICK REEL STUDIO"]   trova o imposta la cartella e crea la struttura (una volta per computer)
-  python3 00_MOTORE/tools/studio.py arrivi                      prende quello che è stato caricato in 00_CARICA_QUI (hook, audio, video di riferimento) e lo cataloga
+  python3 00_MOTORE/tools/studio.py arrivi                      prende quello che è stato caricato in 00_CARICA_QUI (video hook, musica, video consigliati per categoria) e lo cataloga
   python3 00_MOTORE/tools/studio.py consegna V0012 <cartella con mp4 e CAPTION.txt>   porta il video su Drive con nomi standard, scheda, indice, stato e commento sulla Issue
   python3 00_MOTORE/tools/studio.py indice                      rifà INDICE_VIDEO.csv su Drive
 """
@@ -25,7 +25,18 @@ CHIAVI = ['id', 'nome', 'formato', 'scena', 'stato', 'creato', 'sessione']
 AUD = os.path.join(ROOT, '02_AUDIO', 'CATALOGO_AUDIO.csv')
 RIF = os.path.join(ROOT, '07_RIFERIMENTI', 'RIFERIMENTI.csv')
 CONF = os.path.expanduser('~/.volwick_studio.json')
-DRIVE_DIRS = ['00_CARICA_QUI/HOOK', '00_CARICA_QUI/AUDIO', '00_CARICA_QUI/RIFERIMENTI', '01_VIDEO', '02_LIBRERIA/AUDIO', '02_LIBRERIA/RIFERIMENTI', '03_ARCHIVIO_CARICAMENTI']
+CATEGORIE = [('01_VOCE_E_SPIEGAZIONE', 'formato F1: una voce o una persona che spiega un concetto'),
+             ('02_REPLAY_SCHERMO', 'formato F2: registrazioni di schermo, grafici che si muovono, tutorial'),
+             ('03_EDIT_E_MUSICA', 'formato F3: montaggi a tempo di musica, transizioni, ritmo'),
+             ('04_LIVE_MERCATO', 'formato F4: reazioni al mercato in diretta, video orizzontali'),
+             ('05_CONFRONTO', 'formato F5: prima e dopo, A contro B, noi contro gli altri strumenti'),
+             ('06_HOOK_E_APERTURE', 'aperture fortissime dei primi 2 secondi da studiare'),
+             ('07_COMPETITOR', 'video di altri strumenti di trading e dei concorrenti'),
+             ('08_ALTRO', 'tutto il resto: Claude lo guarda e lo classifica')]
+IN_HOOK, IN_MUS, IN_CONS = '00_CARICA_QUI/01_VIDEO_HOOK', '00_CARICA_QUI/02_MUSICA', '00_CARICA_QUI/03_VIDEO_CONSIGLIATI'
+VECCHIE = {IN_HOOK: '00_CARICA_QUI/HOOK', IN_MUS: '00_CARICA_QUI/AUDIO', IN_CONS: '00_CARICA_QUI/RIFERIMENTI'}   # nomi della prima versione, letti ancora se esistono
+LIB_MUS, LIB_CONS = '02_LIBRERIA/02_MUSICA', '02_LIBRERIA/03_VIDEO_CONSIGLIATI'
+DRIVE_DIRS = [IN_HOOK, IN_MUS] + [f'{IN_CONS}/{c}' for c, _ in CATEGORIE] + ['01_VIDEO', LIB_MUS] + [f'{LIB_CONS}/{c}' for c, _ in CATEGORIE] + ['03_ARCHIVIO_CARICAMENTI', '04_ARCHIVIO_VIDEO']
 VIDEO_EXT = ('.mp4', '.mov', '.m4v', '.webm', '.mkv')
 AUDIO_EXT = ('.mp3', '.wav', '.m4a', '.aac', '.flac', '.aiff')
 ENGINE = ['00_MOTORE/engine', '00_MOTORE/scenes/vx_common', '00_MOTORE/vx', '00_MOTORE/tools']
@@ -101,14 +112,14 @@ def brief():
     print('\n7. MATERIALE CARICATO DAL TEAM')
     d = drive_root(quiet=True)
     if d:
-        att = sum(len([n for n in os.listdir(os.path.join(d, '00_CARICA_QUI', x)) if not n.startswith('.') and not n.upper().startswith('LEGGIMI')]) for x in ('HOOK', 'AUDIO', 'RIFERIMENTI') if os.path.isdir(os.path.join(d, '00_CARICA_QUI', x)))
+        att = in_attesa(d)
         print(f'  Drive: {d}')
         if att: print(f'  {att} file nuovi in 00_CARICA_QUI: li prendo in carico adesso.'); arrivi(); print('  >> Fai commit e push di 01_HOOK, 02_AUDIO e 07_RIFERIMENTI prima di iniziare.')
         else: print('  00_CARICA_QUI vuota')
     else: print('  Drive non configurato su questo computer (`studio.py drive`).')
-    da_st = [r['file'] for r in csv_rows(RIF) if r.get('stato') == 'da studiare']
+    da_st = [f"{r.get('categoria','')}/{r['file']}" for r in csv_rows(RIF) if r.get('stato') == 'da studiare']
     da_asc = [r['file'] for r in csv_rows(AUD) if r.get('stato') == 'da ascoltare']
-    if da_st: print('  Riferimenti da studiare (scheda in 06_DOCS/RIFERIMENTI, poi lezioni o regole): ' + ', '.join(da_st))
+    if da_st: print('  Video consigliati da studiare (scheda in 06_DOCS/RIFERIMENTI, poi lezioni, regole o formati): ' + ', '.join(da_st))
     if da_asc: print('  Audio da ascoltare e classificare (licenza da confermare con Power): ' + ', '.join(da_asc))
     print('\nPrima di consegnare: `python3 00_MOTORE/tools/studio.py controlla`.')
 
@@ -185,16 +196,15 @@ def controlla():
 # ---------------- Google Drive ----------------
 LEGGIMI_DRIVE = """VOLWICK REEL STUDIO · cartella condivisa
 
-00_CARICA_QUI   qui chiunque del team mette il materiale nuovo, da qualsiasi computer o dal telefono:
-                HOOK         clip da usare come hook (verticali, senza marchi, scritte, @nomi o persone famose)
-                AUDIO        brani o effetti CON LICENZA da mixare dentro i video (i brani famosi non si caricano: si scelgono in app)
-                RIFERIMENTI  video di altri da studiare (format, hook, montaggio)
-                Al primo Claude che lavora vengono catalogati e spostati in 02_LIBRERIA o nel motore. Non serve dire niente.
-01_VIDEO        un cartella per video: <ID>_<NOME>/ con i video finiti, CAPTION.txt e SCHEDA.txt. La crea Claude.
-02_LIBRERIA     audio e riferimenti già catalogati.
+00_CARICA_QUI   qui chiunque del team mette il materiale nuovo, da qualsiasi computer o dal telefono. Basta trascinare il file:
+                01_VIDEO_HOOK         clip da usare come hook (verticali, senza marchi, scritte, @nomi o persone famose)
+                02_MUSICA             brani o effetti CON LICENZA da mixare nei video (i brani famosi non si caricano: si scelgono in app)
+                03_VIDEO_CONSIGLIATI  video di altri da studiare, nella categoria giusta:
+""" + "".join(f"                      {c:<24}{t}\n" for c, t in CATEGORIE) + """                Il primo Claude che parte li cataloga e li sposta in 02_LIBRERIA o nel motore. Non serve dire niente.
+01_VIDEO        una cartella per video: <ID>_<NOME>/ con i video finiti, CAPTION.txt e SCHEDA.txt. La crea Claude.
+02_LIBRERIA     musica e video consigliati già catalogati, con le stesse categorie.
 03_ARCHIVIO_CARICAMENTI   gli originali caricati, per data.
-04_ARCHIVIO_VIDEO         tutti i video generati prima del Reel Studio (Content Engine, Live Market Reactions, Video Studio IG e ambassador,
-                          Viral Reels, VX), ogni versione, con INDICE_ARCHIVIO.csv. Da qui in poi ogni video nuovo arriva in 01_VIDEO.
+04_ARCHIVIO_VIDEO         tutti i video generati prima del Reel Studio, ogni versione, con INDICE_ARCHIVIO.csv.
 INDICE_VIDEO.csv          tutti i video con stato, formato, hook e ultimo giudizio. Si apre con Fogli Google.
 
 Le cartelle e i nomi dei file li gestisce Claude: non rinominare e non spostare a mano.
@@ -255,42 +265,61 @@ def libero(dst):
     return dst
 
 
+def cartelle_in(d, rel):
+    return [os.path.join(d, x) for x in (rel, VECCHIE.get(rel)) if x and os.path.isdir(os.path.join(d, x))]
+
+
+def file_in(cartella, ricorsivo=False):
+    out = []
+    for base, dirs, ns in os.walk(cartella):
+        out += [os.path.join(base, n) for n in sorted(ns) if not n.startswith('.') and not n.upper().startswith('LEGGIMI')]
+        if not ricorsivo: break
+    return out
+
+
+def in_attesa(d):
+    return sum(len(file_in(c, True)) for rel in (IN_HOOK, IN_MUS, IN_CONS) for c in cartelle_in(d, rel))
+
+
 def arrivi():
     d = drive_root()
     if not d: return
     oggi = dt.date.today().isoformat(); arch = os.path.join(d, '03_ARCHIVIO_CARICAMENTI', oggi); fatti = 0
     def archivia(src, sotto):
         os.makedirs(os.path.join(arch, sotto), exist_ok=True); shutil.move(src, libero(os.path.join(arch, sotto, os.path.basename(src))))
-    # HOOK -> 01_HOOK/clip nel repository, catalogo automatico
-    hk = os.path.join(d, '00_CARICA_QUI', 'HOOK'); nuovi_hook = 0
-    for n in sorted(os.listdir(hk)) if os.path.isdir(hk) else []:
-        src = os.path.join(hk, n)
-        if n.startswith('.') or n.upper().startswith('LEGGIMI') or not os.path.isfile(src): continue
-        if not n.lower().endswith(VIDEO_EXT): print('salto (non è un video):', n); continue
-        if os.path.getsize(src) > 45e6: print('hook troppo pesante per il repository (oltre 45 MB), accorcialo:', n); continue
-        dst = os.path.join(ROOT, '01_HOOK', 'clip', n)
-        if os.path.exists(dst): print('hook già in archivio, lo salto:', n)
-        else: shutil.copy2(src, dst); nuovi_hook += 1
-        archivia(src, 'HOOK'); fatti += 1
+    # 01_VIDEO_HOOK -> 01_HOOK/clip nel repository, catalogo automatico
+    nuovi_hook = 0
+    for c in cartelle_in(d, IN_HOOK):
+        for src in file_in(c):
+            n = os.path.basename(src)
+            if not n.lower().endswith(VIDEO_EXT): print('salto (non è un video):', n); continue
+            if os.path.getsize(src) > 45e6: print('hook troppo pesante per il repository (oltre 45 MB), accorcialo:', n); continue
+            dst = os.path.join(ROOT, '01_HOOK', 'clip', n)
+            if os.path.exists(dst): print('hook già in archivio, lo salto:', n)
+            else: shutil.copy2(src, dst); nuovi_hook += 1
+            archivia(src, '01_VIDEO_HOOK'); fatti += 1
     if nuovi_hook:
         r = subprocess.run([sys.executable, os.path.join(ROOT, '00_MOTORE', 'tools', 'hook_index.py'), ROOT], capture_output=True, text=True)
         print(r.stdout.strip() or r.stderr.strip()[-300:])
-    # AUDIO -> 02_LIBRERIA/AUDIO su Drive, riga in 02_AUDIO/CATALOGO_AUDIO.csv
-    au = os.path.join(d, '00_CARICA_QUI', 'AUDIO'); campi = ['file', 'durata_s', 'caricato', 'licenza', 'stato', 'formato_consigliato', 'note']
-    for n in sorted(os.listdir(au)) if os.path.isdir(au) else []:
-        src = os.path.join(au, n)
-        if n.startswith('.') or n.upper().startswith('LEGGIMI') or not os.path.isfile(src): continue
-        if not n.lower().endswith(AUDIO_EXT): print('salto (non è un audio):', n); continue
-        dst = libero(os.path.join(d, '02_LIBRERIA', 'AUDIO', n)); shutil.move(src, dst)
-        csv_add(AUD, campi, {'file': os.path.basename(dst), 'durata_s': durata(dst), 'caricato': oggi, 'licenza': 'da confermare con Power', 'stato': 'da ascoltare'}); fatti += 1
-    # RIFERIMENTI -> 02_LIBRERIA/RIFERIMENTI su Drive, riga in 07_RIFERIMENTI/RIFERIMENTI.csv
-    rf = os.path.join(d, '00_CARICA_QUI', 'RIFERIMENTI'); campi = ['file', 'durata_s', 'caricato', 'stato', 'formato', 'scheda', 'note']
-    for n in sorted(os.listdir(rf)) if os.path.isdir(rf) else []:
-        src = os.path.join(rf, n)
-        if n.startswith('.') or n.upper().startswith('LEGGIMI') or not os.path.isfile(src): continue
-        if not n.lower().endswith(VIDEO_EXT): print('salto (non è un video):', n); continue
-        dst = libero(os.path.join(d, '02_LIBRERIA', 'RIFERIMENTI', n)); shutil.move(src, dst)
-        csv_add(RIF, campi, {'file': os.path.basename(dst), 'durata_s': durata(dst), 'caricato': oggi, 'stato': 'da studiare'}); fatti += 1
+    # 02_MUSICA -> 02_LIBRERIA/02_MUSICA su Drive, riga in 02_AUDIO/CATALOGO_AUDIO.csv
+    campi = ['file', 'durata_s', 'caricato', 'licenza', 'stato', 'formato_consigliato', 'note']
+    for c in cartelle_in(d, IN_MUS):
+        for src in file_in(c):
+            n = os.path.basename(src)
+            if not n.lower().endswith(AUDIO_EXT): print('salto (non è un audio):', n); continue
+            os.makedirs(os.path.join(d, LIB_MUS), exist_ok=True)
+            dst = libero(os.path.join(d, LIB_MUS, n)); shutil.move(src, dst)
+            csv_add(AUD, campi, {'file': os.path.basename(dst), 'durata_s': durata(dst), 'caricato': oggi, 'licenza': 'da confermare con Power', 'stato': 'da ascoltare'}); fatti += 1
+    # 03_VIDEO_CONSIGLIATI/<categoria> -> 02_LIBRERIA/03_VIDEO_CONSIGLIATI/<categoria>, riga in 07_RIFERIMENTI/RIFERIMENTI.csv
+    campi = ['file', 'categoria', 'durata_s', 'caricato', 'stato', 'formato', 'scheda', 'note']; nomi = [x for x, _ in CATEGORIE]
+    for c in cartelle_in(d, IN_CONS):
+        for src in file_in(c, True):
+            n = os.path.basename(src); sotto = os.path.relpath(os.path.dirname(src), c).split(os.sep)[0]
+            cat = sotto if sotto in nomi else '08_ALTRO'
+            if not n.lower().endswith(VIDEO_EXT): print('salto (non è un video):', n); continue
+            os.makedirs(os.path.join(d, LIB_CONS, cat), exist_ok=True)
+            dst = libero(os.path.join(d, LIB_CONS, cat, n)); shutil.move(src, dst)
+            csv_add(RIF, campi, {'file': os.path.basename(dst), 'categoria': cat, 'durata_s': durata(dst), 'caricato': oggi, 'stato': 'da studiare'}); fatti += 1
     print(f'caricamenti presi in carico: {fatti}' + (' (fai commit e push di 01_HOOK, 02_AUDIO, 07_RIFERIMENTI)' if fatti else ''))
 
 

@@ -87,6 +87,7 @@ Nessun file a mano in Drive, nessun rinomina: l'ordine lo tiene lo script.
 - **Hook**: il catalogo li analizza da solo; tu guardi la scheda in `01_HOOK/_schede`, compili evento di mercato, formato consigliato e stato (approvato, escluso con motivo).
 
 ### Prendere un lavoro
+- Se chi ti usa chiede un video nuovo a parole, aprilo tu come scheda: `gh api "repos/{owner}/{repo}/issues" -f title="VIDEO · <nome>" -f body="<formato, evento, layer, hook, note>" -f "labels[]=da-fare"`. Poi lo prendi come gli altri.
 - La coda sono le Issues: `gh issue list --label da-fare` (oppure `gh api "repos/{owner}/{repo}/issues?labels=da-fare"`). Prendi la più vecchia, etichetta `in-lavorazione` (togli `da-fare`), commenta "presa da <computer/sessione>". Una scheda già `in-lavorazione` non si tocca.
 - L'ID del video è `V` + numero della scheda a quattro cifre (scheda #12 → `V0012`): è unico anche con dieci Claude in parallelo.
 - Apri subito la sua memoria e fai il push, così gli altri vedono che è occupato:

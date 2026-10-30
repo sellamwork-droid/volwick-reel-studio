@@ -117,6 +117,10 @@ Lingue del motore: EN, ES, PT (Brasile), DE, IT, AR, JA, HI (hindi aggiunto il 2
 - **CREATIVE 01 (replay realistico).** Sembra una registrazione dello schermo: cursore umano che disegna supporto e resistenza, replay con candele che si formano, poi la stessa sessione continua in Volwick. Overlay minimi, niente glitch, zoom, flash o 3D. Chiude col finale approvato.
 
 ## Lavoro in parallelo su più chat (30 ottobre 2026)
+- **Sistema unico su GitHub (23:00).** Repository privato sellamwork-droid/volwick-reel-studio: motore, regole, hook, memoria dei video e coda dei lavori (Issues con etichette da-fare, in-lavorazione, da-rivedere, da-rifare, fatto). Ogni Claude su ogni computer parte da `git pull --rebase` e `python3 00_MOTORE/tools/studio.py brief`, prende una scheda, lavora nella sua cartella di scena e fa il push. ID video = V + numero della scheda (V0012). Istruzioni complete nel CLAUDE.md del repository.
+- **Il sistema impara.** Ogni giudizio di Power va sul video (MEMORIA/video/<ID>.json, feedback e stato), le correzioni valide per il futuro diventano lezioni o regole del registro, quelle tecniche passano nel motore con una pull request. Push subito: gli altri Claude lo ricevono al loro git pull.
+- **Controlli automatici** (`studio.py controlla`, ripetuti da GitHub a ogni push): niente chiavi, niente video nel repository, riga dei layer e finale approvato nelle scene attive.
+- **Render fuori dal repository**, nella cartella condivisa dei render (da decidere: Google Drive o Mac).
 - **Un video diverso per ogni chat.** Così le chat non si sovrascrivono a vicenda; ogni file consegnato inizia col nome del suo video.
 - **Ogni chat lavora sulla sua copia del motore** (originale in 13_REEL_STUDIO/00_MOTORE). Se una chat migliora il motore e il miglioramento serve anche alle altre, Power lo dice alla chat principale, che lo porta nella cartella comune.
 - **Le regole nuove vanno salvate in questo file** (e in claude/volwick-preferenze-e-formati.md nel progetto). Se Power dà una regola a una sola chat, quella chat la salva qui, così le altre la leggono alla lettura successiva.

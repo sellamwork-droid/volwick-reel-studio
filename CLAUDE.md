@@ -87,6 +87,16 @@ Nessun file a mano in Drive, nessun rinomina: l'ordine lo tiene lo script.
 - **Audio** (`CATALOGO_AUDIO.csv` stato "da ascoltare"): durata, BPM, tono, formato consigliato. Si mixa dentro un video solo dopo che Power ha confermato la licenza (colonna licenza). I brani famosi non si mixano mai: si scelgono in app.
 - **Hook**: il catalogo li analizza da solo; tu guardi la scheda in `01_HOOK/_schede`, compili evento di mercato, formato consigliato e stato (approvato, escluso con motivo).
 
+### Sessione dalla chat dell'app Claude (cloud)
+Una chat dell'app Claude (progetto VOLWICK) può lavorare come le sessioni del Terminale. Lavora nel cloud, quindi tre cose cambiano.
+1. **Avvio:** collega il repository (`add_repo` sellamwork-droid/volwick-reel-studio, accesso push), clonalo, registra la cartella, `pip install -r 00_MOTORE/requirements.txt` se manca qualcosa, `git config user.name "Claude (Volwick Reel Studio)"` e `user.email noreply@anthropic.com`. Poi tutto come "Inizio di ogni sessione". Il render (Playwright, ffmpeg) gira nel cloud senza installazioni.
+2. **Drive:** la chat arriva a Drive solo attraverso il computer collegato (strumenti remote-devices). Il materiale caricato in `00_CARICA_QUI` lo prende in carico la prossima sessione del Terminale: la chat lo segnala e basta.
+3. **Consegna:** `mkdir -p /tmp/vw_drive && VW_DRIVE=/tmp/vw_drive python3 00_MOTORE/tools/studio.py consegna V0012 <cartella>` prepara `01_VIDEO/V0012_<NOME>/` e `INDICE_VIDEO.csv` in `/tmp/vw_drive`. Poi copiali in `/mnt/user-data/outputs/` e mandali al computer con `device_commit_files`:
+   - se tra le cartelle collegate (get_device_info) c'è **VOLWICK REEL STUDIO** di Google Drive: direttamente in `<quella cartella>/01_VIDEO/V0012_<NOME>/` e `<quella cartella>/INDICE_VIDEO.csv`;
+   - altrimenti in `~/Desktop/VOLWICK/13_REEL_STUDIO/04_RENDER/_DA_CARICARE/V0012_<NOME>/`: la prossima sessione del Terminale li porta su Drive da sola (`studio.py arrivi`, lanciato dal brief);
+   - nessun computer collegato o file oltre 30 MB: mandali in chat e dillo a Power.
+   Poi commit e push della memoria come sempre. Nella cartella 13_REEL_STUDIO del Mac non si scrive mai a mano: si aggiorna con `git pull`.
+
 ### Prendere un lavoro
 - Se chi ti usa chiede un video nuovo a parole, aprilo tu come scheda: `gh api "repos/{owner}/{repo}/issues" -f title="VIDEO · <nome>" -f body="<formato, evento, layer, hook, note>" -f "labels[]=da-fare"`. Poi lo prendi come gli altri.
 - La coda sono le Issues: `gh issue list --label da-fare` (oppure `gh api "repos/{owner}/{repo}/issues?labels=da-fare"`). Prendi la più vecchia, etichetta `in-lavorazione` (togli `da-fare`), commenta "presa da <computer/sessione>". Una scheda già `in-lavorazione` non si tocca.

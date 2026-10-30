@@ -112,7 +112,7 @@ def brief():
     print('\n7. MATERIALE CARICATO DAL TEAM')
     d = drive_root(quiet=True)
     if d:
-        att = in_attesa(d)
+        att = in_attesa(d) + (len(os.listdir(os.path.join(ROOT, '04_RENDER', '_DA_CARICARE'))) if os.path.isdir(os.path.join(ROOT, '04_RENDER', '_DA_CARICARE')) else 0)
         print(f'  Drive: {d}')
         if att: print(f'  {att} file nuovi in 00_CARICA_QUI: li prendo in carico adesso.'); arrivi(); print('  >> Fai commit e push di 01_HOOK, 02_AUDIO e 07_RIFERIMENTI prima di iniziare.')
         else: print('  00_CARICA_QUI vuota')
@@ -281,9 +281,23 @@ def in_attesa(d):
     return sum(len(file_in(c, True)) for rel in (IN_HOOK, IN_MUS, IN_CONS) for c in cartelle_in(d, rel))
 
 
+def postino(d):
+    """Video consegnati dalle chat dell'app Claude quando Drive non era collegato: stanno in 04_RENDER/_DA_CARICARE sul Mac, qui vanno su Drive."""
+    src = os.path.join(ROOT, '04_RENDER', '_DA_CARICARE'); n = 0
+    for nome in sorted(os.listdir(src)) if os.path.isdir(src) else []:
+        a = os.path.join(src, nome)
+        if not os.path.isdir(a): continue
+        b = os.path.join(d, '01_VIDEO', nome); os.makedirs(b, exist_ok=True)
+        for f in os.listdir(a): shutil.move(os.path.join(a, f), os.path.join(b, f))
+        os.rmdir(a); n += 1; print('portato su Drive:', nome)
+    if n: indice()
+    return n
+
+
 def arrivi():
     d = drive_root()
     if not d: return
+    postino(d)
     oggi = dt.date.today().isoformat(); arch = os.path.join(d, '03_ARCHIVIO_CARICAMENTI', oggi); fatti = 0
     def archivia(src, sotto):
         os.makedirs(os.path.join(arch, sotto), exist_ok=True); shutil.move(src, libero(os.path.join(arch, sotto, os.path.basename(src))))

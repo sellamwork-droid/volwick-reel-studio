@@ -119,7 +119,7 @@ function cube(x, y, s, a, lab) { const g = VW.g, d = s * 0.45; g.save(); g.globa
 // the drops land on the real volume bars of the touch: each landed drop makes that bar taller and brighter (no extra bars drawn)
 const DROPB = [55, 56, 57, 58], DN = 16, DDUR = 0.4, dropT0 = (bi, n) => 4.95 + bi * 0.1 + n * 0.045;
 let TNOW = 0;
-const VAMP = i => { if (ABS !== 11 && ABS !== 12) return 0; const bi = DROPB.indexOf(i); if (bi < 0) return 0; let got = 0; for (let n = 0; n < DN; n++) if (TNOW >= dropT0(bi, n) + DDUR) got++; return (got / DN) * (1 - seg(TNOW, 5.95, 6.35)); };
+const VAMP = i => { if (ABS === 13) { const bi = DROPB.indexOf(i); if (bi < 0) return 0; const ar = 4.98 + bi * 0.12 + 0.5; return eo(LN(TNOW, ar - 0.15, ar + 0.45)) * (1 - seg(TNOW, 6.0, 6.4)); } if (ABS !== 11 && ABS !== 12) return 0; const bi = DROPB.indexOf(i); if (bi < 0) return 0; let got = 0; for (let n = 0; n < DN; n++) if (TNOW >= dropT0(bi, n) + DDUR) got++; return (got / DN) * (1 - seg(TNOW, 5.95, 6.35)); };
 function levelLight(t, wx, wy) {   // the call wall line that is already there lights up in its own green (no new line)
   const cA = SLOW ? ckAt(TOUCH) : TOUCH, c = SLOW ? CLOCK : t, k = seg(c, cA - 0.06, cA + 0.1) * (1 - seg(t, 5.7, 6.0)); if (k <= 0) return; const g = VW.g, w = WALLS[1], col = VX.WALL[w.fam], y = Math.round(Y(w.p)) + 0.5, xr = CX1 - 178, xl = CX0D;
   const pulse = 0.6 + 0.4 * Math.sin((c - cA) * 7 - 1.2), grow = eo(seg(c, cA - 0.05, cA + 0.45));
@@ -128,6 +128,18 @@ function levelLight(t, wx, wy) {   // the call wall line that is already there l
   const gr = g.createLinearGradient(xl, 0, xr, 0); gr.addColorStop(0, VW.rgba(col, 0.25 * k)); gr.addColorStop(1, VW.rgba(col, k)); g.strokeStyle = gr; g.lineWidth = 3 + 2.5 * pulse; g.shadowColor = col; g.shadowBlur = 26 * pulse;
   g.beginPath(); g.moveTo(xl, y); g.lineTo(xr, y); g.stroke(); g.beginPath(); g.fillStyle = VW.rgba(col, k); g.arc(xr + 6, y, 7 + 3 * pulse, 0, 7); g.fill(); g.restore(); }
 function absorbFx(t, S) {
+  if (ABS === 13) {   // Power 31 Oct 18:30: soft light that fades as it goes down from the wall into the volume bars (no rain of drops)
+    if (t < 4.6 || t > 6.5) return; const g = VW.g, wx = X(57, S), wy = Y(7733.25), gold = VX.GOLD; levelLight(t, wx, wy);
+    const out = 1 - seg(t, 6.0, 6.4); g.save(); g.globalCompositeOperation = 'lighter';
+    DROPB.forEach((i, bi) => { const b = barAt(i, S); if (!b) return; const x = X(i, S), vtop = DB - Math.min(40, b.v / 3600 * 40) * (1 + 2.6 * VAMP(i)), t0 = 4.98 + bi * 0.12, u = eio(LN(t, t0, t0 + 0.5)); if (u <= 0) return;
+      const yf = mix(wy + 4, vtop, u), w = Math.round(8 * SP / SP0) + 10;
+      for (const [ww, aa] of [[w * 2.2, 0.10], [w * 1.2, 0.18], [w * 0.45, 0.32]]) { const gr = g.createLinearGradient(0, wy, 0, yf); gr.addColorStop(0, VW.rgba(gold, 0)); gr.addColorStop(0.35, VW.rgba(gold, aa * 0.5 * out)); gr.addColorStop(1, VW.rgba('#FFE7A0', aa * out * (1 - 0.5 * u)));
+        g.fillStyle = gr; g.fillRect(x - ww / 2, wy, ww, yf - wy); } });
+    g.globalCompositeOperation = 'source-over';
+    const mk = seg(t, 4.95, 5.05) * (1 - seg(t, 5.9, 6.15)); if (mk > 0) { const n = Math.round(2500 * eo(lin(t, 4.95, 5.6)) / 50) * 50, mx = CX0D + 18, my = Y(SUP) + 16, mw = 330;
+      g.globalAlpha = mk; box(mx, my, mw, 58, 'rgba(10,8,0,0.9)', gold, 7, 2); txt('ABSORBED AT THE WALL', mx + 14, my + 17, '700 14px VWMono', '#C9B27A');
+      txt(n.toLocaleString('en-US'), mx + mw - 14, my + 17, '800 20px VWMono', gold, 'right'); box(mx + 14, my + 36, mw - 28, 10, '#2A2410', null, 5); box(mx + 14, my + 36, (mw - 28) * n / 2500, 10, gold, null, 5); g.globalAlpha = 1; }
+    g.restore(); return; }
   if (ABS === 11 || ABS === 12) {   // clean: level lights up on the touch, then the volume drops into the existing volume bars, which grow and light up
     if (t < 4.6 || t > 6.4) return; const g = VW.g, wx = X(57, S), wy = Y(7733.25), gold = VX.GOLD; levelLight(t, wx, wy);
     const out = 1 - seg(t, 5.95, 6.35); g.save(); g.globalCompositeOperation = 'lighter';
@@ -412,7 +424,7 @@ function drawDark(t, S, cur) {
   // the trader's own levels stay on screen
   for (const [p, lab] of [[SUP, 'YOUR LEVEL']]) { hline(p, '#7FA2FF', 2, [8, 6], CX0D, CX1, 0.9); const y = Y(p); box(CX0D + 290, y - 22, 98, 18, 'rgba(41,98,255,0.9)', null, 3); txt(lab, CX0D + 339, y - 12, '700 12px VWMono', '#FFFFFF', 'center'); }
   WALLS.forEach((w, j) => { const t0 = E.walls + j * BT / 2 * 0.5; wallLine(w, seg(t, t0, t0 + 0.06), eo(lin(t, t0, t0 + 0.12))); });
-  if (ABS !== 11 && ABS !== 12) wallHit(t); absorbFx(t, S);
+  if (ABS < 11) wallHit(t); absorbFx(t, S);
   const bpk = eo(lin(t, E.prints, E.prints + 0.35)); PRINTS.forEach(pr => printMark(pr, S, bpk));
   crosshair(cur, 'dark', CX0D, HDR, ybot, t > E.tip - 0.1 ? 0 : 1);
   g.restore();
@@ -487,7 +499,7 @@ function setView(t, S) {
   const A = CAMK[q], B = CAMK[Math.min(q + 1, CAMK.length - 1)], u = B === A ? 1 : eio(clamp((t - A[0]) / (B[0] - A[0]), 0, 1));
   let z = mix(A[1], B[1], u); const pf = mix(fprice(A[2], S), fprice(B[2], S), u);
   XR = XR0 - 210 * eio(seg(t, 4.15, 4.55)) * (1 - eio(seg(t, 5.75, 6.15)));
-  if (SLOW && (ABS === 11 || ABS === 12)) { const cA = ckAt(TOUCH), cB = ckAt(4.824); z *= 1 + 0.14 * eio(seg(CLOCK, cA - 0.35, cA + 0.3)) * (1 - eio(seg(CLOCK, cB, cB + 0.6))); }
+  if (SLOW && (ABS === 11 || ABS === 12 || ABS === 13)) { const cA = ckAt(TOUCH), cB = ckAt(HOLD_END); z *= 1 + 0.14 * eio(seg(CLOCK, cA - 0.35, cA + 0.3)) * (1 - eio(seg(CLOCK, cB, cB + 0.6))); }
   if (ABS === 8 || ABS === 10) z *= 1 + 0.32 * eio(seg(t, 4.9, 5.25)) * (1 - eio(seg(t, 5.85, 6.2)));
   PX = PX0 * z; SP = SP0 * (1 + (z - 1) * 0.8); PTOP = pf + (MIDY() - HDR) / PX;
 }
@@ -567,7 +579,10 @@ const HDRV = +(new URLSearchParams(location.search).get('hdr') || 2);   // Power
 // Power 31 Oct 17:35: stay slow through the absorption and the first part of the drop, then ease back to normal speed (speed curve, no jump)
 const SPD_R = 0.3;
 // Power 31 Oct 17:50: slow down gently into the touch (candle still green), stay almost still ~0.8 s on the level, then let it drop at normal speed
-const TOUCH = 4.80, LN = (s, a, b) => clamp((s - a) / (b - a), 0, 1), spd = s => s < 4.55 ? 1 : s < 4.78 ? mix(1, 0.15, LN(s, 4.55, 4.78)) : s < TOUCH ? mix(0.15, 0.03, LN(s, 4.78, TOUCH)) : s < 4.824 ? 0.03 : s < 4.98 ? mix(0.03, 1, LN(s, 4.824, 4.98) ** 0.6) : 1;
+const TOUCH = 4.80, LN = (s, a, b) => clamp((s - a) / (b - a), 0, 1), spd1 = s => s < 4.55 ? 1 : s < 4.78 ? mix(1, 0.15, LN(s, 4.55, 4.78)) : s < TOUCH ? mix(0.15, 0.03, LN(s, 4.78, TOUCH)) : s < 4.824 ? 0.03 : s < 4.98 ? mix(0.03, 1, LN(s, 4.824, 4.98) ** 0.6) : 1;
+// Power 31 Oct 18:30 (?slow=2): the whole rip-touch-drop much longer: the rip slows, ~1.5 s still on the level, the drop at half speed
+const spd2 = s => s < 3.84 ? 1 : s < 4.5 ? mix(1, 0.55, eio(LN(s, 3.84, 4.5))) : s < TOUCH ? mix(0.55, 0.03, LN(s, 4.5, TOUCH)) : s < 4.84 ? 0.03 : s < 5.0 ? mix(0.03, 0.45, LN(s, 4.84, 5.0) ** 0.6) : s < 5.9 ? 0.45 : s < 6.3 ? mix(0.45, 1, eio(LN(s, 5.9, 6.3))) : 1;
+const spd = s => SLOW === 2 ? spd2(s) : spd1(s), HOLD_END = SLOW === 2 ? 4.84 : 4.824;
 const SLT = (() => { const sc = [0], ck = [0], h = 0.002; let s = 0, c = 0; while (s < 20) { c += h / spd(s + h / 2); s += h; sc.push(s); ck.push(c); } return { sc, ck }; })();
 const ckAt = s => { const { sc, ck } = SLT, i = Math.min(sc.length - 1, Math.max(0, Math.round(s / 0.002))); return ck[i]; };
 let CLOCK = 0;

@@ -202,9 +202,9 @@ function space(g, t, glowA = 0.14) { const bg = g.createLinearGradient(0, 0, 0, 
 // per beat underneath (M02), the whole world tints with the market (M03), counter that steps on the beat (M04),
 // particles that swarm into the V (M05). Song: trap section with a 1.1 s break and a drop at 4.20 s (99.5 BPM, beat 0.603 s).
 // Simulated ES session, declared on screen. No forecasts. Approved ending elements and layout.
-const B = 0.603, G = k => 4.20 + B * k;
-const T = { words: [0.0, 0.59, 1.19, 1.79], fold: 2.39, brk: 3.0, drop: 4.20, cuts: [0, 1, 2, 3, 4, 5].map(G), c3: G(6), down: G(8), gold: G(11), flip: G(12),
-  c4: G(13), steps: [13, 14, 15, 16, 17].map(G), end: G(19), loop0: 19.0, total: 19.45 };
+const B = 0.6735, G = k => 6 * 0.6735 + B * k;   // instrumental (90s hip-hop beat, no lyrics), 89 BPM; the drop is made with a low-pass on the break
+const T = { words: [0, B, 2 * B, 3 * B], fold: 4 * B, brk: 4.5 * B, drop: G(0), cuts: [0, 1, 2, 3, 4, 5].map(G), c3: G(6), down: G(8), gold: G(11), flip: G(15),
+  c4: G(13), steps: [13, 14, 15].map(G), hero: G(16), end: G(18), loop0: G(18) + 3.4, total: G(18) + 3.85 };
 let R, CAM, CAMS, S_STARS, stars, gl, S_LOGO, mono, wm, wmRef;
 // ---------- S1: four word cards that stack on the beat, each with a live layer behind the word ----------
 const WORDS = [ { s: 'SEE', vis: 'cvd' }, { s: 'WHERE', vis: 'maps' }, { s: 'DEALERS', vis: 'walls' }, { s: 'HEDGE.', vis: 'prints' } ];
@@ -237,140 +237,103 @@ function secBreak(g, t) {
   wm.material.uniforms.op.value = k * (1 - out); wm.material.uniforms.sweep.value = mix(-0.4, 1.6, lin(t, T.brk + 0.4, T.drop - 0.1)); wm.material.uniforms.rev.value = 1;
   setCam(CAM, 0, 0, D, 0, 0, 0); starsCam(t, 0, 0.3); stars.material.opacity = 0.5; draw3D([[S_STARS, CAMS], [S_LOGO, CAM]]); stars.material.opacity = 1; blit(g, 1, 0.8);
 }
-// ---------- S2: fixed layer row on top, one 3D shot per beat underneath ----------
-const CHIPS = [ { s: 'WALLS', g: 'DEALER' }, { s: 'METRIC', g: 'DEALER' }, { s: 'EXPIRY', g: 'DEALER' }, { s: 'MAPS', g: 'DEALER' }, { s: 'BLOCK PRINTS', g: 'ACTIVITY' }, { s: 'CVD', g: 'ACTIVITY' }, { s: 'CDI', g: 'ACTIVITY' }, { s: 'FLOW', g: 'ACTIVITY' } ];
-const SHOTS = ['WALLS', 'MAPS', 'BLOCK PRINTS', 'CVD', 'CDI', 'FLOW'];
-function layerRow(g, t, active, a = 1) {   // the real layer row, two lines, the active chip lights up
-  g.save(); g.globalAlpha = a; const wmI = VW.assets.wm, hh = 46, ww = hh * wmI.width / wmI.height; g.globalCompositeOperation = 'lighter'; g.drawImage(wmI, 110, 282 - hh / 2, ww, hh); g.globalCompositeOperation = 'source-over';
-  txt(g, '·  ES  ·  1m', 110 + ww + 18, 283, '600 28px VWMono', '#97A3B3');
-  let x = 110, y = 348; const F = '600 25px VWMono';
-  CHIPS.forEach((c, i) => { if (i === 4) { x = 110; y = 404; } if (i === 0 || i === 4) { txt(g, c.g, x, y, '600 19px VWMono', '#5E6B80'); g.font = '600 19px VWMono'; x += g.measureText(c.g).width + 14; }
-    g.font = F; const w = g.measureText(c.s).width + 24, on = c.s === active, gd = c.s === 'BLOCK PRINTS'; rr(g, x, y - 21, w, 42, 10);
-    g.fillStyle = on ? (gd ? 'rgba(242,193,78,0.35)' : 'rgba(47,107,255,0.45)') : (gd ? 'rgba(242,193,78,0.08)' : 'rgba(255,255,255,0.04)'); g.fill();
-    if (on) { g.shadowColor = gd ? '#F2C14E' : '#5A8CFF'; g.shadowBlur = 26; } g.strokeStyle = gd ? (on ? '#FFE3A0' : 'rgba(242,193,78,0.7)') : (on ? '#B9D0FF' : 'rgba(150,170,210,0.25)'); g.lineWidth = on ? 2.5 : 1.5; g.stroke(); g.shadowBlur = 0;
-    txt(g, c.s, x + 12, y + 1, F, gd ? (on ? '#FFF1C9' : '#F2C14E') : (on ? '#FFFFFF' : '#7F8AA0')); x += w + 9; });
-  g.fillStyle = 'rgba(140,170,230,0.2)'; g.fillRect(0, 446, W, 1.5); g.restore(); }
-let SH = {};
-function lights(sc, warm = false) { sc.add(new THREE.AmbientLight(0xffffff, 0.55)); const d = new THREE.DirectionalLight(warm ? 0xfff0d0 : 0xdfe8ff, 2.4); d.position.set(600, 1200, 900); sc.add(d); const d2 = new THREE.DirectionalLight(0x6f8fff, 1.0); d2.position.set(-900, 300, -600); sc.add(d2); }
-const GOLD = () => new THREE.MeshStandardMaterial({ color: 0xF2C14E, metalness: 0.85, roughness: 0.28, emissive: 0x3a2600 });
-function buildShots() {
-  // WALLS: glowing wall bars over 3D candles, seen from a low angle
-  const sw = new THREE.Scene(); sw.fog = new THREE.Fog(0x02050b, 2000, 6000); const box = new THREE.BoxGeometry(1, 1, 1);
-  const cm = new THREE.InstancedMesh(box, new THREE.MeshBasicMaterial(), 120); const M = new THREE.Matrix4(), C = new THREE.Color();
-  for (let i = 0; i < 60; i++) { const b = BARS[50 + i], up = b.c >= b.o, top = (Math.max(b.o, b.c) - 7752) * 40, bot = (Math.min(b.o, b.c) - 7752) * 40; C.set(up ? 0x2FB67C : 0xE2575F);
-    M.makeScale(26, Math.max(6, top - bot), 26); M.setPosition((i - 30) * 50, (top + bot) / 2, 0); cm.setMatrixAt(i * 2, M); cm.setColorAt(i * 2, C);
-    M.makeScale(5, (b.h - b.l) * 40, 5); M.setPosition((i - 30) * 50, ((b.h + b.l) / 2 - 7752) * 40, 0); cm.setMatrixAt(i * 2 + 1, M); cm.setColorAt(i * 2 + 1, C); }
-  sw.add(cm); [[7768.25, 0x5BE39A], [7752.75, 0xC88BE8], [7743.5, 0xE86A6A], [7777.5, 0x5FD3E6]].forEach(([p, c]) => { const m = new THREE.Mesh(new THREE.BoxGeometry(6000, 8, 8), new THREE.MeshBasicMaterial({ color: c })); m.position.y = (p - 7752) * 40; sw.add(m);
-    const gl2 = new THREE.Mesh(new THREE.PlaneGeometry(6000, 140), glowMat(new THREE.Color(c).toArray())); gl2.position.y = m.position.y; sw.add(gl2); });
-  SH.WALLS = sw;
-  // MAPS: field of exposure columns, blue and amber
-  const sm = new THREE.Scene(); sm.fog = new THREE.Fog(0x02050b, 2200, 6500); const mm = new THREE.InstancedMesh(box, new THREE.MeshStandardMaterial({ metalness: 0.3, roughness: 0.45 }), 26 * 16); lights(sm); let k = 0;
-  for (let x = 0; x < 26; x++) for (let z = 0; z < 16; z++) { const v = Math.sin(x * 0.35 + z * 0.5) - (z - 8) * 0.12, h = 40 + Math.abs(v) * 420; C.set(v > 0 ? 0x2F6BFF : 0xD9771A).multiplyScalar(0.35 + 0.45 * Math.min(1, Math.abs(v)));
-    M.makeScale(80, h, 80); M.setPosition((x - 13) * 92, h / 2 - 300, (z - 8) * 92); mm.setMatrixAt(k, M); mm.setColorAt(k, C); k++; }
-  sm.add(mm); SH.MAPS = sm;
-  // BLOCK PRINTS: gold diamonds stacking on one price level
-  const sb = new THREE.Scene(); sb.fog = new THREE.Fog(0x02050b, 1800, 5200); const oct = new THREE.OctahedronGeometry(30); const om = new THREE.InstancedMesh(oct, GOLD(), 60); lights(sb, true); k = 0;
-  [[-500, 12], [0, 18], [520, 14]].forEach(([x, n]) => { for (let j = 0; j < n; j++) { M.makeRotationY(j * 0.6); M.setPosition(x + (j % 3 - 1) * 46, 20 + Math.floor(j / 3) * 52, ((j * 7) % 3 - 1) * 40); om.setMatrixAt(k++, M); } });
-  om.count = k; sb.add(om); const lvl = new THREE.Mesh(new THREE.BoxGeometry(6000, 6, 6), new THREE.MeshBasicMaterial({ color: 0xF2C14E })); lvl.position.y = -20; sb.add(lvl);
-  const lg = new THREE.Mesh(new THREE.PlaneGeometry(6000, 220), glowMat([0.95, 0.76, 0.31])); lg.position.y = -20; sb.add(lg); SH['BLOCK PRINTS'] = sb; SH._oct = om;
-  // CVD: the cumulative line as a glowing tube
-  const sc = new THREE.Scene(); sc.fog = new THREE.Fog(0x02050b, 1800, 6000); const mn = Math.min(...CVD), mx = Math.max(...CVD);
-  const pts = CVD.map((v, i) => new THREE.Vector3((i - 60) * 40, ((v - mn) / (mx - mn) - 0.5) * 900, Math.sin(i * 0.08) * 160));
-  const tube = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 400, 9, 8, false), new THREE.MeshBasicMaterial({ color: 0xDCE6FF })); sc.add(tube);
-  const tube2 = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 400, 26, 8, false), new THREE.MeshBasicMaterial({ color: 0x5A8CFF, transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false })); sc.add(tube2);
-  SH.CVD = sc; SH._cvdPts = pts;
-  // CDI: bars, one giant minute
-  const sd = new THREE.Scene(); sd.fog = new THREE.Fog(0x02050b, 2000, 6000); const dm = new THREE.InstancedMesh(box, new THREE.MeshBasicMaterial(), 60); const r = VW.rng(5);
-  for (let i = 0; i < 60; i++) { const v = (r() - 0.45) * 160 + (i === 40 ? 900 : 0); C.set(v > 0 ? 0x2FB67C : 0xE2575F); M.makeScale(34, Math.abs(v), 34); M.setPosition((i - 30) * 52, v / 2, 0); dm.setMatrixAt(i, M); dm.setColorAt(i, C); }
-  sd.add(dm); SH.CDI = sd;
-  // FLOW: three ribbons, C, P and NET
-  const sf = new THREE.Scene(); sf.fog = new THREE.Fog(0x02050b, 2000, 6500); const r2 = VW.rng(9);
-  [[0x2FB67C, 0.3], [0xE2575F, -0.22], [0xDCE6FF, 0.06]].forEach(([c, d], j) => { let v = 0; const p = []; for (let i = 0; i <= 70; i++) { v += (r2() - 0.5 + d) * 26; p.push(new THREE.Vector3((i - 35) * 60, v, (j - 1) * 160)); }
-    sf.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(p), 300, 8, 8, false), new THREE.MeshBasicMaterial({ color: c }))); });
-  SH.FLOW = sf;
+// ---------- after the logo: the real terminal only (Power 18:38). The 3D is in the camera, the depth and the cuts. ----------
+// Session for V0012 (simulated, fixed seed, tick 0.25): drifts down onto a short γ put wall, breaks it, lands on a Block Prints level, turns.
+const W12 = [ { p: 7777.50, fam: 'callS', net: '−$11.6M' }, { p: 7768.25, fam: 'callL', net: '+$22.4M', star: true }, { p: 7745.25, fam: 'putS', net: '−$13.8M' }, { p: 7733.50, fam: 'putL', net: '+$9.7M' } ];
+const BPL = 7738.50, PUTS = 7745.25;
+const P12 = [ { i: 34, p: 7750.25, q: '386' }, { i: 47, p: 7748.0, q: '512' }, { i: 78, p: BPL, q: '740', gold: true, dy: 36 }, { i: 82, p: BPL, q: '620', gold: true, dy: 76 }, { i: 86, p: BPL, q: '640', gold: true, dy: 116 } ];
+function genBars12() { BARS = []; CVD = []; const A = [[0, 7756], [15, 7752.5], [30, 7749.5], [45, 7747.75], [55, 7746.5], [62, 7745.75], [66, 7744.25], [72, 7741], [78, 7739.0], [82, 7739.5], [86, 7739.0], [90, 7741.25], [100, 7744.25], [110, 7747.0], [119, 7748.75]];
+  const r = VW.rng(31102026), q = x => Math.round(x * 4) / 4; let prev = 7756.25, cv = 0;
+  for (let i = 0; i < N; i++) { let k = 0; while (A[k + 1][0] < i) k++; const [i0, p0] = A[k], [i1, p1] = A[k + 1];
+    const c = q(mix(p0, p1, (i - i0) / (i1 - i0)) + (r() - 0.5) * (i > 65 && i < 78 ? 0.8 : 1.6)), o = prev, h = q(Math.max(o, c) + r() * 1.2), l = q(Math.min(o, c) - r() * 1.2), v = 0.25 + r() * 0.75 + (i > 64 && i < 90 ? 0.5 : 0);
+    BARS.push({ o, h, l, c, v }); prev = c; cv += (c - o) * v * 1.6 + (r() - 0.5) * 0.8; CVD.push(cv); }
+  for (let i = 0; i < 66; i++) BARS[i].l = Math.max(BARS[i].l, PUTS + 0.25); [78, 82, 86].forEach(i => BARS[i].l = BPL); for (let i = 78; i < N; i++) BARS[i].l = Math.max(BARS[i].l, BPL);
+  P12.forEach(pr => { const b = BARS[pr.i]; b.l = Math.min(b.l, pr.p); b.h = Math.max(b.h, pr.p); }); }
+// the terminal as on the PC: same header, grid, wall lines and labels, Block Prints, CVD pane, Exposure Map columns, tooltip
+const HDR12 = []; const KEYS = { 'WALLS Top 5': 'W', 'METRIC GEX': 'W', 'EXPIRY 0DTE': 'W', 'MAPS': 'M', 'BLOCK PRINTS': 'B', 'CVD': 'C' };
+function layoutHeader12(g) { const F = '600 26px VWMono', L = '600 20px VWMono';
+  const row = (y, label, chips) => { let x = 110; g.font = L; HDR12.push({ kind: 'label', s: label, x, y }); x += g.measureText(label).width + 16;
+    chips.forEach(s => { g.font = F; const w = g.measureText(s).width + 26; HDR12.push({ kind: 'chip', s, key: KEYS[s], x, y, w }); x += w + 10; }); };
+  HDR12.push({ kind: 'wm', x: 110, y: 296 }); row(358, 'DEALER', ['WALLS Top 5', 'METRIC GEX', 'EXPIRY 0DTE', 'MAPS']); row(414, 'ACTIVITY', ['BLOCK PRINTS', 'CVD', 'CDI', 'FLOW']); }
+function term12(g, s) {
+  g.setTransform(K, 0, 0, K, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H); g.fillStyle = 'rgba(2,5,11,0.93)'; g.fillRect(0, 0, W, H);
+  HDR12.forEach(h => { g.save();
+    if (h.kind === 'wm') { const wmI = VW.assets.wm, hh = 44, ww = hh * wmI.width / wmI.height; g.globalCompositeOperation = 'lighter'; g.drawImage(wmI, h.x, h.y - hh / 2, ww, hh); g.globalCompositeOperation = 'source-over'; txt(g, '·  ES  ·  1m', h.x + ww + 18, h.y + 1, '600 28px VWMono', '#97A3B3'); }
+    else if (h.kind === 'label') txt(g, h.s, h.x, h.y, '600 20px VWMono', '#5E6B80');
+    else { const k = h.key ? (s.on[h.key] || 0) : 0, pu = h.key ? (s.pulse[h.key] || 0) : 0, gd = h.key === 'B'; rr(g, h.x, h.y - 22, h.w, 44, 10);
+      g.fillStyle = gd ? `rgba(242,193,78,${0.08 + 0.28 * k})` : `rgba(47,107,255,${0.05 + 0.3 * k})`; g.fill(); if (k > 0) { g.shadowColor = gd ? 'rgba(242,193,78,0.9)' : 'rgba(90,140,255,0.9)'; g.shadowBlur = 10 + 30 * pu; }
+      g.strokeStyle = gd ? `rgba(242,193,78,${0.55 + 0.45 * k})` : `rgba(${mix(150, 120, k)},${mix(170, 165, k)},${mix(210, 255, k)},${0.22 + 0.7 * k})`; g.lineWidth = 1.5 + 1.5 * pu; g.stroke(); g.shadowBlur = 0;
+      txt(g, h.s, h.x + 13, h.y + 1, '600 26px VWMono', gd ? (k > 0.5 ? '#FFE7A6' : '#F2C14E') : (k > 0.5 ? '#ECEFF4' : '#97A3B3')); }
+    g.restore(); });
+  g.fillStyle = 'rgba(140,170,230,0.18)'; g.fillRect(0, 452, W, 1.5);
+  for (let x = 18; x < W; x += 36) { g.fillStyle = 'rgba(120,150,200,0.07)'; g.fillRect(x, 455, 1, 1080); }
+  for (let p = 7732; p <= 7780; p += 4) { g.fillStyle = 'rgba(120,150,200,0.05)'; g.fillRect(0, PY(p), W, 1); }
+  const nb = Math.min(N, s.bars);
+  // Exposure Map (gamma): 5-minute columns behind the candles, blue and amber, white step where the sign flips
+  if (s.maps > 0) { g.save(); g.globalAlpha = s.maps; for (let c = 0; c < Math.ceil(nb / 5); c++) { const x0 = BX(c * 5) - 3, flip = 7749.5 + Math.sin(c * 0.9) * 1.6 - c * 0.1, amp = 0.7 + 0.3 * Math.sin(c * 1.7);
+      for (let p = 7731; p < 7781; p += 1) { const d = (p - flip) / 12, a = Math.min(0.42, Math.abs(d) * 0.4 + 0.05) * amp; g.fillStyle = d > 0 ? `rgba(47,107,255,${a})` : `rgba(245,146,40,${a})`; g.fillRect(x0, PY(p + 1), 5 * SP - 1, PY(p) - PY(p + 1) - 0.5); }
+      g.fillStyle = '#F4F6FA'; g.fillRect(x0, PY(flip) - 1.5, 5 * SP - 1, 3); }
+    g.globalAlpha = s.maps; rr(g, 560, 470, 372, 40, 8); g.fillStyle = 'rgba(2,5,11,0.85)'; g.fill(); txt(g, 'MAP · GAMMA ≤−117.3 … ≥+117.3 M$ per point', 920, 491, '600 17px VWMono', '#C9D3E3', 'right'); g.restore(); }
+  W12.forEach((w, j) => { const k = s.walls[j] || 0; if (k <= 0) return; const y = PY(w.p), c = FAMC[w.fam], x0 = W - W * eo(k), hl = w.p === PUTS ? (s.putHi || 0) : 0;
+    g.save(); const lg = g.createLinearGradient(0, 0, W, 0); lg.addColorStop(0, VW.rgba(c, 0.05)); lg.addColorStop(0.6, VW.rgba(c, 0.45)); lg.addColorStop(1, VW.rgba(c, 0.95));
+    g.strokeStyle = lg; g.lineWidth = (w.star ? 4 : 2.5) + 3 * hl; g.shadowColor = VW.rgba(c, 0.9); g.shadowBlur = (w.star ? 22 : 12) + 30 * hl; g.beginPath(); g.moveTo(x0, y); g.lineTo(W, y); g.stroke(); g.restore();
+    const kl = eo(lin(k, 0.55, 1)); if (kl > 0) { g.save(); g.globalAlpha = kl; const lab = `${w.star ? '★ ' : ''}${money(w.p)} · ${w.net}`;
+      g.font = '700 26px VWMono'; const tw = g.measureText(lab).width; rr(g, 924 - tw - 30, y - 36, tw + 40, 34, 7); g.fillStyle = 'rgba(2,5,11,0.85)'; g.fill();
+      g.fillStyle = c; g.beginPath(); g.arc(924 - tw - 16, y - 19, 5, 0, 7); g.fill(); txt(g, lab, 932, y - 18, '700 26px VWMono', c, 'right'); g.restore(); } });
+  if (s.star > 0) { const y = PY(BPL); g.save(); g.globalAlpha = eo(Math.min(1, s.star)); g.setLineDash([7, 6]); g.strokeStyle = 'rgba(242,193,78,0.9)'; g.lineWidth = 2 + 2 * (s.starHi || 0); g.shadowColor = '#F2C14E'; g.shadowBlur = 20 * (s.starHi || 0);
+    g.beginPath(); g.moveTo(0, y); g.lineTo(W * eo(Math.min(1, s.star)), y); g.stroke(); g.setLineDash([]); g.shadowBlur = 0; const st = s.starTxt;
+    g.font = '700 23px VWMono'; const tw = g.measureText(st).width; g.beginPath(); g.moveTo(110, y - 20); g.lineTo(110 + tw + 26, y - 20); g.lineTo(110 + tw + 40, y); g.lineTo(110 + tw + 26, y + 20); g.lineTo(110, y + 20); g.closePath();
+    g.fillStyle = 'rgba(8,12,22,0.95)'; g.fill(); g.strokeStyle = 'rgba(242,193,78,0.9)'; g.lineWidth = 1.5; g.stroke(); txt(g, st, 122, y + 1, '700 23px VWMono', '#FFE7A6'); g.restore(); }
+  const cvk = s.cvd || 0;
+  for (let i = 0; i < Math.ceil(nb); i++) { const b = BARS[i], a = clamp(nb - i, 0, 1), x = BX(i), c = b.c >= b.o ? '#2FB67C' : '#E2575F';
+    g.globalAlpha = a; g.fillStyle = c; g.fillRect(x - 0.6, PY(b.h), 1.6, PY(b.l) - PY(b.h)); const y0 = PY(Math.max(b.o, b.c)), hh = Math.max(2, PY(Math.min(b.o, b.c)) - y0); g.fillRect(x - 2.4, y0, 5, hh);
+    g.globalAlpha = a * 0.5 * (1 - cvk); const vh = b.v * 50; g.fillRect(x - 2.4, 1525 - vh, 5, vh); }
+  g.globalAlpha = 1;
+  if (cvk > 0) { const y0 = 1380, y1 = 1525, mn = Math.min(...CVD), mx = Math.max(...CVD), Y = v => y1 - 8 - (v - mn) / (mx - mn) * (y1 - y0 - 16);
+    g.save(); g.globalAlpha = eo(cvk); g.fillStyle = 'rgba(140,170,230,0.12)'; g.fillRect(0, y0 - 6, W, 1.5); txt(g, 'CVD', 110, y0 + 14, '700 22px VWMono', '#DCE6FF');
+    g.strokeStyle = '#DCE6FF'; g.lineWidth = 3; g.shadowColor = 'rgba(200,215,255,0.8)'; g.shadowBlur = 12; g.beginPath(); for (let i = 0; i < Math.ceil(nb); i++) g[i ? 'lineTo' : 'moveTo'](BX(i), Y(CVD[i])); g.stroke(); g.restore(); }
+  P12.forEach(pr => { const k = clamp((nb - pr.i) * 0.5, 0, 1) * (s.prints || 0); if (k <= 0) return; const x = BX(pr.i), y = PY(pr.p), pop = 1 + 0.8 * (1 - eo(k));
+    g.save(); g.globalAlpha = k; g.fillStyle = '#F4F6FA'; g.shadowColor = 'rgba(255,255,255,0.6)'; g.shadowBlur = 8; g.fillRect(x - 22 * pop, y - 2.5, 44 * pop, 5); g.shadowBlur = 0;
+    diamond(g, x, y, 6 * pop, pr.gold ? '#F2C14E' : '#F4F6FA'); if (pr.dy) { g.fillStyle = 'rgba(242,193,78,0.6)'; g.fillRect(x - 1, y + 8, 2, pr.dy - 20); } badge(g, x - 30, y + (pr.dy || -26), pr.q, pr.gold); g.restore(); });
+  if (s.tip > 0) { const k = eo(s.tip), x1 = 930, y = PY(PUTS) + 60, L = ['SPX 7,707 → ES 7,745.25', 'Put wall · short γ', 'Accelerative, breakdowns below can run fast', 'Net −$13.8M'];
+    g.save(); g.globalAlpha = k; g.translate(0, (1 - k) * 12); rr(g, x1 - 560, y, 560, 176, 12); g.fillStyle = 'rgba(10,8,22,0.96)'; g.fill(); g.strokeStyle = 'rgba(177,111,208,0.9)'; g.lineWidth = 2; g.stroke();
+    txt(g, L[0], x1 - 536, y + 32, '600 22px VWMono', '#97A3B3'); txt(g, L[1], x1 - 536, y + 68, '700 26px VWMono', '#D6A6F0'); txt(g, L[2], x1 - 536, y + 104, '600 20px VWMono', '#C9D3E3'); txt(g, L[3], x1 - 536, y + 145, '700 30px VWMono', '#ECEFF4'); g.restore(); }
+  txt(g, 'Simulated ES session. Dealer Walls: modeled positioning.', 540, 1540, '500 19px VWMono', '#7F8AA0', 'center');
 }
-function shotCam(name, u) {   // u = 0..1 inside the beat; every shot has its own move
-  if (name === 'WALLS') setCam(CAM, mix(-1200, -500, u), mix(-350, -150, u), mix(1300, 1000, u), mix(200, 700, u), 0, -400, 0.12);
-  if (name === 'MAPS') { const a = mix(-0.9, -0.3, u); setCam(CAM, Math.sin(a) * 3400, mix(1900, 1400, u), Math.cos(a) * 3400, 0, -150, 0); }
-  if (name === 'BLOCK PRINTS') setCam(CAM, mix(600, -200, u), mix(140, 220, u), mix(1100, 900, u), mix(200, -100, u), 120, 0, -0.06);
-  if (name === 'CVD') { const p = SH._cvdPts[Math.round(mix(30, 80, u))]; setCam(CAM, p.x - 900, p.y + 250, 900, p.x + 400, p.y, 0, 0.08); }
-  if (name === 'CDI') setCam(CAM, mix(-300, 400, u), mix(1300, 900, u), mix(1700, 1500, u), mix(-200, 400, u), 200, 0, -0.1);
-  if (name === 'FLOW') setCam(CAM, mix(-1600, -900, u), mix(300, 120, u), mix(900, 1300, u), mix(0, 600, u), 0, 0, 0.05);
+let S_T12, t12, t12Tex;
+function buildTerm12() { S_T12 = new THREE.Scene(); t12Tex = mkTex(W, H); layoutHeader12(t12Tex.g); t12 = new THREE.Mesh(new THREE.PlaneGeometry(W, H), new THREE.MeshBasicMaterial({ map: t12Tex.tex, transparent: true })); S_T12.add(t12); }
+// what is on the terminal at time t
+const COUNT = [[0, '★ 7738.50  740 · 1 block'], [1, '★ 7738.50  1,360 · 2 blocks'], [2, '★ 7738.50  2,000 · 3 blocks']];
+function bars12(t) { return t < T.c3 ? mix(22, 55, lin(t, T.drop, T.c3)) : t < T.down ? mix(55, 66, eio(lin(t, T.c3, T.down))) : t < T.gold ? mix(66, 78, eo(lin(t, T.down, T.gold))) : t < T.steps[1] ? mix(78, 82, lin(t, T.gold, T.steps[1])) : t < T.steps[2] ? mix(82, 86, lin(t, T.steps[1], T.steps[2])) : mix(86, N, eio(lin(t, T.steps[2], T.end))); }
+function state12(t) {
+  const on = a => eo(lin(t, a, a + 0.12)), pul = a => Math.exp(-Math.pow((t - a - 0.12) / 0.1, 2)), c = T.cuts;
+  const ci = T.steps.reduce((a, s, j) => t >= s - 0.02 ? j : a, -1);
+  return { on: { W: on(c[0]), M: on(c[2]) * (1 - on(c[3])), B: on(c[3]), C: on(c[4]) }, pulse: { W: pul(c[0]) + pul(c[1]), M: pul(c[2]), B: pul(c[3]), C: pul(c[4]) },
+    walls: W12.map((w, j) => lin(t, c[0] + j * 0.08, c[0] + j * 0.08 + 0.3)), maps: eo(lin(t, c[2], c[2] + 0.2)) * (1 - lin(t, c[3], c[3] + 0.2)), prints: on(c[3]), cvd: lin(t, c[4], c[4] + 0.35),
+    bars: bars12(t), putHi: Math.exp(-Math.pow((t - T.down) / 0.12, 2)), tip: lin(t, T.down + 0.05, T.down + 0.25) * (1 - lin(t, T.gold - 0.2, T.gold)),
+    star: t >= T.gold - 0.05 ? lin(t, T.gold - 0.05, T.gold + 0.3) : 0, starHi: Math.exp(-Math.pow((t - T.gold) / 0.1, 2)) + VW.punch(T.steps, t, 0.08), starTxt: ci >= 0 ? COUNT[ci][1] : '★ 7738.50  740 · 1 block' };
 }
-function secCuts(g, t) {
-  const k = Math.min(SHOTS.length - 1, Math.floor((t - T.drop) / B)), u = (t - T.cuts[k]) / B, name = SHOTS[k];
-  space(g, t, 0.1); shotCam(name, eo(clamp(u, 0, 1))); starsCam(t, 0.1, 1.6); draw3D([[S_STARS, CAMS], [SH[name], CAM]]);
-  g.save(); g.beginPath(); g.rect(0, 452, W, H - 452); g.clip(); blit(g, 1, name === 'MAPS' || name === 'BLOCK PRINTS' ? 0.3 : 0.7); g.restore();
-  const fl = Math.exp(-u * 9); if (fl > 0.02) { g.fillStyle = `rgba(210,225,255,${0.22 * fl})`; g.fillRect(0, 452, W, H); }
-  const dk = g.createLinearGradient(0, 0, 0, 520); dk.addColorStop(0, 'rgba(2,5,11,1)'); dk.addColorStop(0.85, 'rgba(2,5,11,0.95)'); dk.addColorStop(1, 'rgba(2,5,11,0)'); g.fillStyle = dk; g.fillRect(0, 0, W, 520);
-  layerRow(g, t, name, eo(lin(t, T.drop, T.drop + 0.12)));
-  txt(g, 'Simulated ES session.', 540, 1540, '500 19px VWMono', '#7F8AA0', 'center');
-}
-// ---------- S3: the world tints with the market ----------
-const RX3 = i => (i - 30) * 58, RY3 = p => (p - 7745) * 62, N3 = 60, PUTS = 7745.25, BPL = 7738.50;
-let TB3 = [], S_MKT, mk3, putS3, putG3, bpl3, bplG3, bpOct;
-function gen3() { const A = [[0, 7752], [8, 7750], [16, 7747.5], [22, 7746.25], [27, 7745.75], [30, 7744.0], [33, 7741.25], [36, 7738.75], [38, 7739.5], [40, 7739.0], [44, 7741.5], [50, 7744.75], [55, 7747.0], [59, 7748.0]];
-  const r = VW.rng(1212), q = x => Math.round(x * 4) / 4; let prev = 7752.25;
-  for (let i = 0; i < N3; i++) { let k = 0; while (A[k + 1][0] < i) k++; const [i0, p0] = A[k], [i1, p1] = A[k + 1];
-    const c = q(mix(p0, p1, (i - i0) / (i1 - i0)) + (r() - 0.5) * (i > 29 && i < 37 ? 0.6 : 1.1)), o = prev; TB3.push({ o, c, h: q(Math.max(o, c) + r() * 0.8), l: q(Math.min(o, c) - r() * 0.8) }); prev = c; }
-  for (let i = 0; i < 30; i++) TB3[i].l = Math.max(TB3[i].l, 7745.5); [36, 38, 40].forEach(i => TB3[i].l = BPL); for (let i = 36; i < N3; i++) TB3[i].l = Math.max(TB3[i].l, BPL); }
-function cur3(t) { return t < T.down ? mix(14, 30, eio(lin(t, T.c3, T.down))) : t < T.gold ? mix(30, 36, eo(lin(t, T.down, T.gold))) : t < T.flip ? mix(36, 40, lin(t, T.gold, T.flip)) : mix(40, 59, eio(lin(t, T.flip, T.c4))); }
-function build3() { S_MKT = new THREE.Scene(); S_MKT.fog = new THREE.Fog(0x03060f, 1800, 6000); mk3 = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial(), N3 * 2); mk3.instanceMatrix.setUsage(THREE.DynamicDrawUsage); S_MKT.add(mk3);
-  putS3 = new THREE.Mesh(new THREE.BoxGeometry(5000, 8, 8), new THREE.MeshBasicMaterial({ color: 0xC88BE8 })); putS3.position.y = RY3(PUTS); S_MKT.add(putS3);
-  putG3 = new THREE.Mesh(new THREE.PlaneGeometry(5000, 170), glowMat([0.69, 0.44, 0.82])); putG3.position.y = RY3(PUTS); S_MKT.add(putG3);
-  bpl3 = new THREE.Mesh(new THREE.BoxGeometry(5000, 7, 7), new THREE.MeshBasicMaterial({ color: 0xF2C14E })); bpl3.position.y = RY3(BPL); S_MKT.add(bpl3);
-  bplG3 = new THREE.Mesh(new THREE.PlaneGeometry(5000, 170), glowMat([0.95, 0.76, 0.31])); bplG3.position.y = RY3(BPL); S_MKT.add(bplG3);
-  bpOct = []; [36, 38, 40].forEach(i => { const d = new THREE.Mesh(new THREE.OctahedronGeometry(22), GOLD()); d.position.set(RX3(i), RY3(BPL), 30); S_MKT.add(d); bpOct.push(d); });
-  const grid = new THREE.GridHelper(6000, 60, 0x1d3a7a, 0x10224a); grid.position.y = -900; S_MKT.add(grid); lights(S_MKT, true); }
-function tint(t) {   // colour of the world: blue → magenta (break below the short γ put wall) → gold (Block Prints) → green (turn)
-  const cs = [[0.18, 0.42, 1.0], [0.82, 0.26, 0.55], [0.95, 0.70, 0.22], [0.22, 0.85, 0.50]];
+// camera: one framing per beat on the cuts, a low flight along the chart for the break, an orbit on the Block Prints label for the count
+const SHOT = [ { fx: 540, fy: 900, z: 1.0, rx: 0.16, ry: -0.32 }, { fx: 760, fy: PY(7768), z: 2.0, rx: 0.06, ry: 0.28 }, { fx: 300, fy: 820, z: 1.2, rx: -0.2, ry: -0.12 },
+  { fx: 300, fy: PY(7750), z: 2.1, rx: 0.1, ry: 0.22 }, { fx: 400, fy: 1440, z: 1.75, rx: 0.32, ry: -0.18 }, { fx: 540, fy: 960, z: 0.98, rx: 0.0, ry: 0.0 } ];
+function frame12(t) { // returns {fx, fy, z, rx, ry, rz}
+  if (t < T.c3) { const k = Math.min(5, Math.floor((t - T.drop) / B)), u = eo(clamp((t - T.cuts[k]) / B, 0, 1)), S = SHOT[k]; return { fx: S.fx, fy: S.fy, z: S.z * (1 + 0.06 * u), rx: S.rx, ry: S.ry * (1 - 0.3 * u), rz: 0 }; }
+  if (t < T.c4) { const nb = bars12(t), px = BX(Math.min(N - 1, nb)), py = PY(BARS[Math.min(N - 1, Math.floor(nb))].c), k = eio(lin(t, T.c3, T.c3 + 0.4)), sw = eio(lin(t, T.gold, T.c4));
+    return { fx: mix(540, px - 120, k), fy: mix(960, py, k), z: mix(1.0, 1.7, k), rx: mix(0, -0.95, k) * (1 - sw) + 0.05 * sw, ry: mix(0, 0.25, k) * (1 - sw) - 0.25 * sw, rz: 0.05 * k * (1 - sw) }; }
+  if (t < T.hero) { const u = lin(t, T.c4, T.hero); return { fx: 410, fy: PY(BPL) + 40, z: mix(1.85, 1.65, u), rx: 0.12, ry: mix(-0.45, 0.4, eio(u)), rz: 0 }; }
+  const u = eio(lin(t, T.hero, T.hero + 0.5)), p = eio(lin(t, T.end - 0.5, T.end)); return { fx: mix(410, 540, u), fy: mix(PY(BPL) + 40, 960, u), z: mix(1.65, 0.95, u) * (1 + 1.6 * p), rx: mix(0.12, 0.08, u), ry: mix(0.45, -0.1, u), rz: 0 }; }
+function tintCol(t) { const cs = [[0.18, 0.42, 1.0], [0.69, 0.44, 0.82], [0.95, 0.76, 0.31], [0.22, 0.85, 0.50]];
   const a = eio(lin(t, T.down - 0.05, T.down + 0.25)), b = eio(lin(t, T.gold - 0.05, T.gold + 0.15)), c = eio(lin(t, T.flip, T.flip + 0.3));
-  let col = cs[0].map((v, i) => mix(v, cs[1][i], a)); col = col.map((v, i) => mix(v, cs[2][i], b)); col = col.map((v, i) => mix(v, cs[3][i], c)); return col; }
-function secMarket(g, t) {
-  const col = tint(t), [r, gg, bb] = col.map(v => Math.round(v * 255)), cb = cur3(t), nb = cb + 1, M = new THREE.Matrix4(), C = new THREE.Color();
-  const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, `rgba(${r * 0.05 | 0},${gg * 0.05 | 0},${bb * 0.08 | 0},1)`); bg.addColorStop(1, '#01030A'); g.fillStyle = bg; g.fillRect(0, 0, W, H);
-  const hz = g.createRadialGradient(540, 980, 40, 540, 980, 1200); hz.addColorStop(0, `rgba(${r},${gg},${bb},0.22)`); hz.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = hz; g.fillRect(0, 0, W, H);
-  for (let i = 0; i < N3; i++) { const b = TB3[i], g0 = clamp(nb - i, 0, 1), up = b.c >= b.o; C.set(up ? 0x2FB67C : 0xE2575F);
-    const top = RY3(Math.max(b.o, b.c)), bot = RY3(Math.min(b.o, b.c)), hb = Math.max(6, top - bot) * g0;
-    const z0 = g0 > 0.001 ? 1 : 0; M.makeScale(34 * z0, hb, 34 * z0); M.setPosition(RX3(i), bot + hb / 2, 0); mk3.setMatrixAt(i * 2, M); mk3.setColorAt(i * 2, C);
-    const hw = (RY3(b.h) - RY3(b.l)) * g0; M.makeScale(7 * z0, Math.max(1, hw) * z0, 7 * z0); M.setPosition(RX3(i), RY3(b.l) + hw / 2, 0); mk3.setMatrixAt(i * 2 + 1, M); mk3.setColorAt(i * 2 + 1, C); }
-  mk3.instanceMatrix.needsUpdate = true; mk3.instanceColor.needsUpdate = true; S_MKT.fog.color.setRGB(col[0] * 0.06, col[1] * 0.06, col[2] * 0.08);
-  const hp = Math.exp(-Math.pow((t - T.down) / 0.08, 2)), hg = Math.exp(-Math.pow((t - T.gold) / 0.08, 2));
-  putG3.material.uniforms.k.value = 0.7 + 2.5 * hp; bplG3.material.uniforms.k.value = 0.6 + 3 * hg; bpOct.forEach((d, j) => { d.visible = cb >= [36, 38, 40][j] - 0.4; d.rotation.y = t * 3 + j; d.scale.setScalar(1 + 0.8 * hg); });
-  // camera: from above looking down the fall, then swings to the side for the turn
-  const px = RX3(cb), py = RY3(TB3[Math.min(N3 - 1, Math.floor(cb))].c), sw = eio(lin(t, T.gold, T.c4));
-  setCam(CAM, px + mix(-500, -900, sw), py + mix(900, 220, sw), mix(1300, 1700, sw), px + mix(150, 350, sw), py + mix(-150, 120, sw), -200, mix(-0.12, 0.05, sw));
-  starsCam(t, -0.1, 1.2); stars.material.color.setRGB(mix(1, col[0] * 1.4, 0.5), mix(1, col[1] * 1.4, 0.5), mix(1, col[2] * 1.4, 0.5));
-  draw3D([[S_STARS, CAMS], [S_MKT, CAM]]); stars.material.color.setRGB(1, 1, 1); blit(g, 1, 0.75);
-  const P = (i, p) => proj(new THREE.Vector3(RX3(i), RY3(p), 0)), la = eo(lin(t, T.c3 + 0.1, T.c3 + 0.4)) * (1 - lin(t, T.c4 - 0.3, T.c4 - 0.1));
-  const l1 = P(cb - 9, PUTS); g.save(); g.globalAlpha = la; g.letterSpacing = '3px'; g.shadowColor = '#C88BE8'; g.shadowBlur = 16; txt(g, 'PUT WALL · SHORT γ', 110, clamp(l1[1] - 34, 480, 1480), '700 30px VWMono', '#E0B2FF'); g.restore();
-  if (t > T.gold - 0.1) { const l2 = P(cb - 9, BPL); g.save(); g.globalAlpha = la * eo(lin(t, T.gold - 0.1, T.gold + 0.1)); g.letterSpacing = '3px'; g.shadowColor = '#F2C14E'; g.shadowBlur = 16; txt(g, 'BLOCK PRINTS', 110, clamp(l2[1] + 44, 480, 1480), '700 30px VWMono', '#FFD978'); g.restore(); }
-  const ov = (hp * 0.22 + hg * 0.25); if (ov > 0.02) { g.fillStyle = `rgba(${r},${gg},${bb},${ov})`; g.fillRect(0, 0, W, H); }
-  txt(g, 'Simulated ES session.', 540, 1540, '500 19px VWMono', '#7F8AA0', 'center');
-}
-// ---------- S4: the contracts at that level, counted on the beat, as a 3D gold pile ----------
-let S_PILE, pile;
-function buildPile() { S_PILE = new THREE.Scene(); S_PILE.fog = new THREE.Fog(0x070503, 1600, 5000); pile = new THREE.InstancedMesh(new THREE.OctahedronGeometry(26), GOLD(), 220); lights(S_PILE, true); pile.instanceMatrix.setUsage(THREE.DynamicDrawUsage); S_PILE.add(pile);
-  const lv = new THREE.Mesh(new THREE.BoxGeometry(5000, 7, 7), new THREE.MeshBasicMaterial({ color: 0xF2C14E })); lv.position.y = -10; S_PILE.add(lv); const lg = new THREE.Mesh(new THREE.PlaneGeometry(5000, 240), glowMat([0.95, 0.76, 0.31])); lg.position.y = -10; S_PILE.add(lg);
-  const grid = new THREE.GridHelper(6000, 60, 0x5a4410, 0x2a2008); grid.position.y = -12; S_PILE.add(grid); }
-const COUNTS = [0, 380, 760, 1140, 1520, 2000];
-function count(t) { let c = 0; T.steps.forEach((s, j) => { c = mix(c, COUNTS[j + 1], eo(lin(t, s - 0.05, s + 0.12))); }); return Math.round(c); }
-function secPile(g, t) {
-  const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#0C0904'); bg.addColorStop(1, '#020203'); g.fillStyle = bg; g.fillRect(0, 0, W, H);
-  const hz = g.createRadialGradient(540, 1100, 40, 540, 1100, 1100); hz.addColorStop(0, 'rgba(242,193,78,0.22)'); hz.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = hz; g.fillRect(0, 0, W, H);
-  const c = count(t), nOct = Math.round(c / 2000 * 200), M = new THREE.Matrix4(), Q = new THREE.Quaternion(), S = new THREE.Vector3(1, 1, 1), r = VW.rng(77), toEnd = eio(lin(t, T.end - 0.35, T.end));
-  for (let i = 0; i < 200; i++) { const ring = Math.floor(Math.sqrt(i)), a = i * 2.4, rad = 40 + ring * 22 * (1 - ring / 26), y = 30 + i * 1.8, drop = clamp((t - T.c4) * 6 - i / 40, 0, 1);
-    const fx = Math.cos(a) * rad, fz = Math.sin(a) * rad, fy = y + (1 - eo(drop)) * 900;
-    M.compose(new THREE.Vector3(fx * (1 - toEnd), fy * (1 - toEnd) + 260 * toEnd, fz * (1 - toEnd)), Q.setFromEuler(new THREE.Euler(t * 2 + i, t * 3 + i * 0.3, 0)), S.setScalar(i < nOct ? 1 - 0.6 * toEnd : 0)); pile.setMatrixAt(i, M); }
-  pile.instanceMatrix.needsUpdate = true; const a = mix(-0.6, 0.9, eio(lin(t, T.c4, T.end)));
-  setCam(CAM, Math.sin(a) * 1500, mix(500, 380, lin(t, T.c4, T.end)), Math.cos(a) * 1500, 0, 260, 0); starsCam(t, 0.1, 0.8); stars.material.color.setRGB(1, 0.85, 0.55);
-  draw3D([[S_STARS, CAMS], [S_PILE, CAM]]); stars.material.color.setRGB(1, 1, 1); blit(g, 1, 0.8);
-  const hit = VW.punch(T.steps, t, 0.06), s = c.toLocaleString('en-US'), ka = eo(lin(t, T.c4, T.c4 + 0.2)) * (1 - lin(t, T.end - 0.2, T.end));
-  g.save(); g.globalAlpha = ka; g.translate(540, 470); g.scale(1 + 0.08 * hit, 1 + 0.08 * hit);
-  for (let d = 14; d > 0; d--) txt(g, s, d * 1.2, d * 1.8, '700 210px VWSans', `rgba(90,62,10,${0.9 - d * 0.05})`, 'center');
-  g.shadowColor = 'rgba(242,193,78,0.95)'; g.shadowBlur = 40 + 50 * hit; txt(g, s, 0, 0, '700 210px VWSans', '#FFD978', 'center'); g.restore();
-  g.save(); g.globalAlpha = ka; g.letterSpacing = '4px'; txt(g, 'CONTRACTS · 7,738.50 · 3 BLOCKS', 540, 612, '700 30px VWMono', '#F2C14E', 'center'); g.restore();
-  txt(g, 'Simulated ES session.', 540, 1540, '500 19px VWMono', '#7F8AA0', 'center');
+  let col = cs[0].map((v, i) => mix(v, cs[1][i], a)); col = col.map((v, i) => mix(v, cs[2][i], b)); return col.map((v, i) => mix(v, cs[3][i], c)); }
+function secTerm12(g, t) {
+  const st = state12(t), F = frame12(t); term12(t12Tex.g, st); t12Tex.tex.needsUpdate = true;
+  const col = t >= T.c3 && t < T.hero ? tintCol(t) : [0.18, 0.42, 1.0], [r, gg, bb] = col.map(v => Math.round(v * 255)), ta = t >= T.c3 && t < T.hero ? 0.2 : 0.08;
+  const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#040818'); bg.addColorStop(1, '#01030A'); g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  const hz = g.createRadialGradient(540, 960, 40, 540, 960, 1200); hz.addColorStop(0, `rgba(${r},${gg},${bb},${ta})`); hz.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = hz; g.fillRect(0, 0, W, H);
+  t12.scale.set(F.z, F.z, 1); t12.rotation.set(F.rx, F.ry, F.rz); t12.position.set(0, 0, 0); t12.updateMatrixWorld();
+  const fp = new THREE.Vector3((F.fx - 540) * F.z, (960 - F.fy) * F.z, 0).applyEuler(t12.rotation); t12.position.set(-fp.x, -fp.y, -fp.z);
+  setCam(CAM, 0, 0, D, 0, 0, 0); starsCam(t, 0.05, 1.2); draw3D([[S_STARS, CAMS], [S_T12, CAM]]); blit(g, 1, 0.45);
+  const hits = [T.down, T.gold, ...T.steps].reduce((a, s) => a + Math.exp(-Math.pow((t - s) / 0.07, 2)), 0); if (hits > 0.03) { g.fillStyle = `rgba(${r},${gg},${bb},${0.18 * Math.min(1, hits)})`; g.fillRect(0, 0, W, H); }
 }
 // ---------- S5: approved ending (same elements, texts and layout as VX.end), the V forms from a swarm of particles ----------
 let S_SWARM, swarm, swarmPos, swarmFrom, swarmTo;
@@ -419,11 +382,11 @@ function build3D() {
   stars = new THREE.Points(sg, new THREE.PointsMaterial({ size: 26, map: dotTex(), vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, sizeAttenuation: true })); S_STARS.add(stars);
   S_LOGO = new THREE.Scene(); mono = new THREE.Mesh(new THREE.PlaneGeometry(640, 640), logoMat(VW.assets.mono)); S_LOGO.add(mono);
   const wa = VW.assets.wm; wm = new THREE.Mesh(new THREE.PlaneGeometry(860, 860 * wa.height / wa.width), logoMat(wa)); S_LOGO.add(wm); wmRef = new THREE.Mesh(wm.geometry, logoMat(wa)); wmRef.scale.y = -1; S_LOGO.add(wmRef);
-  buildStack(); buildShots(); build3(); buildPile(); buildSwarm(); }
+  buildStack(); buildTerm12(); buildSwarm(); }
 const BEATS = []; for (let k = -7; k <= 25; k++) { const b = G(k); if (b >= 0 && b < 19.5) BEATS.push(+b.toFixed(3)); }
 let TMP = null;
 function post(g, t) {
-  const cuts = [T.drop, T.c3, T.c4, T.end], zb = cuts.reduce((a, c) => a + Math.exp(-Math.pow((t - c) / 0.09, 2)), 0), bp = VW.punch(BEATS, t, 0.05) * (t < T.end ? 1 : 0.4);
+  const cuts = [T.drop, T.c3, T.c4, T.end, ...T.cuts.slice(1)], zb = cuts.reduce((a, c) => a + Math.exp(-Math.pow((t - c) / 0.09, 2)), 0), bp = VW.punch(BEATS, t, 0.05) * (t < T.end ? 1 : 0.4);
   const amt = 0.16 * zb + 0.014 * bp; if (amt < 0.003) return;
   if (!TMP) { TMP = document.createElement('canvas'); TMP.width = VW.cv.width; TMP.height = VW.cv.height; }
   const tg = TMP.getContext('2d'), w = VW.cv.width, h = VW.cv.height; tg.setTransform(1, 0, 0, 1, 0, 0); tg.globalAlpha = 1; tg.clearRect(0, 0, w, h); tg.drawImage(VW.cv, 0, 0);
@@ -432,11 +395,11 @@ function post(g, t) {
   g.restore(); }
 function render(t) {
   const g = VW.g; g.setTransform(K, 0, 0, K, 0, 0); g.globalAlpha = 1; g.filter = 'none'; g.globalCompositeOperation = 'source-over';
-  if (t < T.brk) secStack(g, t); else if (t < T.drop) secBreak(g, t); else if (t < T.c3) secCuts(g, t); else if (t < T.c4) secMarket(g, t); else if (t < T.end) secPile(g, t); else secEnd(g, t);
+  if (t < T.brk) secStack(g, t); else if (t < T.drop) secBreak(g, t); else if (t < T.end) secTerm12(g, t); else secEnd(g, t);
   VW.vignette(); post(g, t);
 }
 window.READY = (async () => {
-  await VW.loadFonts(); await VW.loadBrand(); genBars(); gen3(); CONT = await (await fetch('mono_contours.json')).json();
+  await VW.loadFonts(); await VW.loadBrand(); genBars(); genBars12(); CONT = await (await fetch('mono_contours.json')).json();
   build3D(); window.render = render; render(0);
   return { total: T.total, events: { T, beats: BEATS } };
 })();

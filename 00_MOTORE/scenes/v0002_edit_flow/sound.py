@@ -43,7 +43,11 @@ if os.environ.get('HOOK_WAV'):
     hw, hsr = sf.read(os.environ['HOOK_WAV']); hw = hw if hw.ndim == 2 else np.stack([hw, hw], 1)
     if hsr != SR: hw = ss.resample(hw, int(len(hw) * SR / hsr))
     m = min(len(hw), int(bt(4) * SR)); fade = np.clip((m - np.arange(m)) / (0.05 * SR), 0, 1); add(S, hw[:m, 0] * fade, 0, pan=-0.3, g=0.9); add(S, hw[:m, 1] * fade, 0, pan=0.3, g=0.9)
-add(S, whoosh(bt(3), up=False), bt(0.5), g=0.22); add(S, thump(90, 30, 1.0), 0, g=0.35)
+    add(S, whoosh(bt(3), up=False), bt(0.5), g=0.22); add(S, thump(90, 30, 1.0), 0, g=0.35)
+else:   # no hook (Power 31 Oct: edits have no hook clip): original CREATIVE 05 logo ignition sounds
+    for j, at in enumerate([0, 0.12, 0.24, 0.36]): add(S, buzz(0.11), at, pan=0.2 * (-1) ** j, g=0.22)
+    add(S, thump(90, 30, 1.4), 0, g=0.55); add(S, whoosh(0.5), 0.0, pan=-0.3, g=0.35)
+    add(S, slam(), bt(2), g=0.55); add(S, chime(1318.5, 1.2), bt(2), pan=0.2, g=0.05)
 add(S, riser(bt(0.5)), bt(3.5), g=0.18); add(S, whoosh(bt(0.5), up=False), bt(3.5), g=0.25)
 # header chips: one UI tick per chip, panned by position
 chips = [4, 4, 4.25, 4.5, 5, 5, 5.25, 5.5, 5.75, 6, 6, 6, 6.25, 6.375, 6.5, 6.625, 6.75, 6.875]

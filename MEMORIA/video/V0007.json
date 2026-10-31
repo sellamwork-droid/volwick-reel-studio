@@ -5,17 +5,33 @@
   "formato": "T1",
   "scena": "00_MOTORE/scenes/v0007_floor_gives",
   "hook": {
-    "clip": "Construction Fall.mp4"
+    "clip": ""
   },
-  "evento": "edit a 125 BPM: il piano cede (hook), discesa veloce sul pavimento dei Block Prints, muri, mappa gamma, CVD, key level 2,000",
-  "layer": [],
-  "titoli": [],
-  "durata_s": null,
-  "render": "",
-  "stato": "in-lavorazione",
+  "evento": "edit a 125 BPM senza hook (regola 03:04): logo che si accende, discesa veloce sul pavimento dei Block Prints, muri, mappa gamma, CVD, key level 2,000",
+  "layer": [
+    "WALLS Top 5",
+    "MAPS Gamma",
+    "CVD",
+    "BLOCK PRINTS",
+    "CDI",
+    "FLOW"
+  ],
+  "titoli": [
+    "ONE TERMINAL.",
+    "TRADE WITH INSTITUTIONAL CONTEXT."
+  ],
+  "durata_s": 19.5,
+  "render": "Drive: 01_VIDEO/01_EDIT/02 Il pavimento dei Block Prints a tempo di musica (31-10-2026).mp4",
+  "stato": "da-rivedere",
   "creato": "2026-10-31 03:06",
   "sessione": "vm",
   "feedback": [],
   "lezioni": [],
-  "pubblicazioni": []
+  "pubblicazioni": [],
+  "aggiornato": "2026-10-31 03:13",
+  "titolo": "Il pavimento dei Block Prints a tempo di musica",
+  "numero": 2,
+  "data_uscita": "31-10-2026",
+  "caption": "Where did the drop stop?\n\nDealer Walls, Exposure Maps, CVD and Block Prints in one terminal: 2,000 contracts on one price, right on a long gamma put wall.\n\nCut on a 125 BPM grid: pick a trending sound in the app and start it on the first beat.\n\n$0.99 your first month, then $89/month. Cancel anytime. Offer ends November 27.\n\nSimulated session. Illustrative data. Dealer Walls represent modeled options-derived positioning. For ES/MES, SPX-derived levels use estimated basis mapping. Not investment advice.\n\n#ES #futures #daytrading #trading #orderflow #gamma #volwick",
+  "versioni": "Drive: 04_ARCHIVIO_VIDEO/V0007_THE_FLOOR_GIVES/ (1 file)"
 }

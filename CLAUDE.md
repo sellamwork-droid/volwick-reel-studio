@@ -78,9 +78,17 @@ Lavorano insieme account Claude diversi, chat diverse dello stesso account e il 
 - **Memoria sempre aggiornata:** `git pull --rebase` (o `studio.py sync`) prima di ogni passo e prima di rispondere a Power su stato, coda o giudizi; `studio.py sync "messaggio"` subito dopo ogni cosa nuova (giudizio, lezione, regola, hook, scheda). Il brief fa il pull da solo.
 - A fine lavoro `studio.py fine`. Una sessione senza segnale da più di 45 minuti risulta ferma: la sua scheda in lavorazione si riprende solo dopo averlo chiesto a Power.
 
+### Cantieri: un lavoro condiviso alla volta (regola fissa di Power, 31 ottobre)
+Due Claude non lavorano mai sulla stessa cosa. Ogni lavoro è un **cantiere** e ha un solo padrone:
+- **i video**: ogni ID (V0012) è un cantiere. `studio.py nuovo` lo prende da solo e si ferma con `STESSO LAVORO?` se un'altra sessione attiva ha già quel video, lo stesso hook, un evento di mercato quasi uguale o lo stesso nome (si va avanti solo se Power lo dice, con `--forza`). `consegna` lo lascia libero.
+- **i lavori comuni**: `drive` (01_VIDEO, archivio, riordino, pulizia), `hook` (archivio, catalogo, studio degli hook), `caricamenti` (00_CARICA_QUI), `motore` (engine, vx, tools), `regole` (REGOLE, CLAUDE.md, LEGGIMI, guide), `audio`, `riferimenti`.
+- Prima di toccarne uno: `python3 00_MOTORE/tools/studio.py prendi <cantiere> "cosa faccio"`. Se risponde **OCCUPATO** (con chi e cosa sta facendo), non lo tocchi: lo dici a chi ti usa e scegli un altro lavoro. Finito: `studio.py lascia <cantiere>`. `consegna`, `riordina` e `arrivi` prendono e lasciano `drive` e `caricamenti` da soli.
+- `studio.py chi` mostra sessioni attive e cantieri occupati; `studio.py cantieri` solo i cantieri. Ogni `presenza` tiene vivi i tuoi cantieri; dopo 45 minuti senza segnale un cantiere risulta fermo e si riprende solo dopo averlo chiesto a Power. `fine` li lascia tutti.
+- Se Power dà lo stesso lavoro a due chat, la seconda lo scopre al `prendi` e glielo dice subito invece di farlo una seconda volta.
+
 ### Inizio di ogni sessione (sempre, senza eccezioni)
 1. `git pull --rebase`, poi `python3 00_MOTORE/tools/studio.py presenza "inizio sessione" --chi "<nome di sessione>"`
-2. `python3 00_MOTORE/tools/studio.py brief`: regole più recenti, storico dei video con il feedback di Power, lezioni da applicare, hook freschi e già usati, ultime modifiche al motore, coda dei lavori, materiale caricato dal team (lo prende in carico da solo: poi fai commit e push).
+2. `python3 00_MOTORE/tools/studio.py chi` (chi lavora e quali cantieri sono occupati), poi `python3 00_MOTORE/tools/studio.py brief`: regole più recenti, storico dei video con il feedback di Power, lezioni da applicare, hook freschi e già usati, ultime modifiche al motore, coda dei lavori, materiale caricato dal team (lo prende in carico da solo: poi fai commit e push).
 3. Leggi `REGOLE/PREFERENZE_E_FORMATI.md` per intero (la regola più recente vince) e la scheda JSON del video modello (`MEMORIA/video/CREATIVE06B.json`).
 4. Scrivi a chi ti sta usando un riassunto in italiano di poche righe: chi altro sta lavorando adesso e su cosa, video in coda, ultimi giudizi di Power, materiale nuovo arrivato, cosa proponi di fare. Poi aspetta o prendi la scheda più vecchia se ti chiede di procedere.
 

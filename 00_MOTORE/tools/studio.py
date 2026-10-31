@@ -11,7 +11,9 @@ Dalla cartella principale del repository:
 Lavoro in contemporanea (più account, più chat, più computer):
   python3 00_MOTORE/tools/studio.py presenza "cosa sto facendo" [--video V0012] [--chi "account B · chat 2 · cloud"]
                                                                  dice a tutti chi sei e cosa stai facendo; pull, commit e push da solo. --chi si dà la prima volta
-  python3 00_MOTORE/tools/studio.py chi                         chi sta lavorando adesso e su cosa (attivo = segnale negli ultimi 45 minuti)
+  python3 00_MOTORE/tools/studio.py chi                         chi sta lavorando adesso e su cosa (attivo = segnale negli ultimi 45 minuti) e i cantieri occupati
+  python3 00_MOTORE/tools/studio.py prendi hook "studio hook"   prende un lavoro condiviso (drive, hook, caricamenti, motore, regole, audio, riferimenti o un video V0012); se è di un altro si ferma
+  python3 00_MOTORE/tools/studio.py lascia hook                 lo libera (fine li libera tutti)
   python3 00_MOTORE/tools/studio.py sync ["messaggio"]          git pull --rebase, commit di MEMORIA, REGOLE, 01_HOOK, 02_AUDIO, 06_DOCS, 07_RIFERIMENTI e push
   python3 00_MOTORE/tools/studio.py fine                        chiude la tua sessione (la vedono tutti come chiusa)
 Google Drive (cartella condivisa "VOLWICK REEL STUDIO", sincronizzata da Google Drive per desktop):
@@ -90,6 +92,8 @@ def brief():
     if st and 'behind' in st[0]: print('\n!! Il tuo repository è indietro: fai `git pull --rebase` prima di lavorare.  ', st[0])
     print('\n0. CHI STA LAVORANDO ADESSO (MEMORIA/sessioni, segnale negli ultimi %d minuti)' % ATTIVA_MIN)
     chi(rientro='  ')
+    print('\n0b. CANTIERI (lavori condivisi: uno alla volta; prima di toccarne uno: studio.py prendi <cantiere>)')
+    cantieri(rientro='  ')
     # 1. regole recenti
     print('\n1. REGOLE PIÙ RECENTI (la più recente vince; il file completo va letto comunque)')
     try:
@@ -155,11 +159,34 @@ def nuovo(a):
         if '--' + k in a: o[k] = a[a.index('--' + k) + 1]
     if os.path.exists(path(i)): sys.exit(f'{i} esiste già: usa `aggiorna`.')
     if o['formato'] and o['formato'].upper() not in [t for t, _, _ in TIPI]: sys.exit('--formato deve essere T1 (edit), T2 (spiegazione voce), T3 (registrazione schermo) o T4 (hook + grafico vs Volwick)')
+    me = io().get('chi'); forza = '--forza' in a
+    git_pull()   # vedere i video appena presi dagli altri
+    altri = {}   # video in mano ad altre sessioni: dai cantieri (sempre aggiornati) e dalle memorie in lavorazione
+    for n in (os.listdir(CANT) if os.path.isdir(CANT) else []):
+        k = cant_leggi(os.path.splitext(n)[0])
+        if k and re.fullmatch(r'V\d{4}', k.get('cantiere', '')) and cant_attivo(k): altri[k['cantiere']] = {'id': k['cantiere'], 'chi': k['chi'], **k.get('video', {})}
+    for x in carica():
+        if x.get('stato') == 'in-lavorazione' and x['id'] not in altri:
+            altri[x['id']] = {'id': x['id'], 'fermo': True, 'chi': x.get('sessione'), 'nome': x.get('nome'), 'hook': hook_di(x), 'evento': x.get('evento')}
+    for x in altri.values():
+        if x.get('chi') == me: continue
+        if x['id'] == i and not x.get('fermo'): sys.exit(f"{i} è già di {x['chi']}: scegli un'altra scheda.")
+        motivi = []
+        if o['hook'] and x.get('hook') == o['hook']: motivi.append(f"stesso hook ({o['hook']})")
+        pa = set(re.findall(r'\w{4,}', (o['evento'] or '').lower())); pb = set(re.findall(r'\w{4,}', (x.get('evento') or '').lower()))
+        if pa and pb and len(pa & pb) / len(pa | pb) >= 0.4: motivi.append(f"evento di mercato quasi uguale («{x.get('evento')}»)")
+        if o['nome'] and slug(o['nome']) == slug(x.get('nome') or ''): motivi.append('stesso nome')
+        if motivi and x.get('fermo'):   # video lasciato a metà da una sessione ferma o chiusa: avviso, non blocco
+            print(f"AVVISO: {x['id']} «{x.get('nome')}» ({x.get('chi')}) è rimasto in lavorazione senza nessuno sopra: {', '.join(motivi)}. Dillo a Power."); continue
+        if motivi and not forza:
+            sys.exit(f"STESSO LAVORO? {x['id']} «{x.get('nome')}» di {x['chi']} è in lavorazione: {', '.join(motivi)}. Scegli un altro evento o hook, oppure chiedi a Power e rilancia con --forza.")
     v = {'id': i, 'issue': int(o['issue']) if o['issue'] else None, 'nome': o['nome'] or i, 'formato': o['formato'] or '',
          'scena': o['scena'] or '', 'hook': {'clip': o['hook']} if o['hook'] else None, 'evento': o['evento'] or '',
          'layer': [], 'titoli': [], 'durata_s': None, 'render': '', 'stato': 'in-lavorazione', 'creato': now(),
-         'sessione': os.environ.get('VW_SESSIONE') or socket.gethostname(), 'feedback': [], 'lezioni': [], 'pubblicazioni': []}
+         'sessione': me or os.environ.get('VW_SESSIONE') or socket.gethostname(), 'feedback': [], 'lezioni': [], 'pubblicazioni': []}
     salva(v); print('creato', os.path.relpath(path(i), ROOT))
+    if me and not prendi([i, f"video {v['nome']} ({v['formato']})"], quiet=True, video={'nome': v['nome'], 'formato': v['formato'], 'hook': o['hook'] or '', 'evento': v['evento']}, percorsi=[os.path.relpath(path(i), ROOT)]):
+        os.remove(path(i)); sys.exit(2)
     if io().get('chi'): presenza([f"preso {i} {v['nome']} ({v['formato']})", '--video', i])
 
 
@@ -338,6 +365,8 @@ def postino(d):
 def arrivi():
     d = drive_root()
     if not d: return
+    k = cant_leggi('caricamenti')
+    if k and k.get('chi') != io().get('chi') and cant_attivo(k): print(f"caricamenti: li sta prendendo in carico {k['chi']} ({k.get('cosa','')}), non li tocco"); return
     postino(d)
     oggi = dt.date.today().isoformat(); arch = os.path.join(d, '03_ARCHIVIO_CARICAMENTI', oggi); fatti = 0
     def archivia(src, sotto):
@@ -422,6 +451,7 @@ def consegna(a):
     if len(a) < 2: sys.exit('uso: studio.py consegna V0012 <cartella con i file finiti> [--video file.mp4]')
     i, src = a[0], os.path.abspath(os.path.expanduser(a[1]))
     if not os.path.exists(path(i)): sys.exit(f'{i} non esiste: usa prima `nuovo`.')
+    era_mio = serve('drive', f'consegna {i}')
     v = json.load(open(path(i), encoding='utf-8'))
     files = [f for f in sorted(os.listdir(src)) if not f.startswith('.')]
     main = a[a.index('--video') + 1] if '--video' in a else principale(files)
@@ -451,6 +481,8 @@ def consegna(a):
         sh('gh', 'api', '-X', 'DELETE', f'repos/{{owner}}/{{repo}}/issues/{n}/labels/in-lavorazione')
         sh('gh', 'api', f'repos/{{owner}}/{{repo}}/issues/{n}/labels', '-f', 'labels[]=da-rivedere')
     print('consegnato', os.path.join(base, finale), '| altre versioni in archivio:', len(altri))
+    if io().get('chi') and not era_mio: lascia(['drive'], quiet=True)
+    if (cant_leggi(i) or {}).get('chi') == io().get('chi'): lascia([i], quiet=True)   # consegnato: il video torna libero per il giudizio
     if io().get('chi'): presenza([f"consegnato {i} su Drive, da rivedere", '--video', i])
     sync([f'consegna {i}'])
 
@@ -502,13 +534,20 @@ def presenza(a):
     if video: s['video'] = video
     s['computer'] = socket.gethostname()
     with open(p, 'w', encoding='utf-8') as f: json.dump(s, f, ensure_ascii=False, indent=2); f.write('\n')
-    git_sync(f"presenza · {m['chi']} · {cosa or 'attiva'}", [os.path.relpath(p, ROOT)])
+    tocca = [os.path.relpath(p, ROOT)]
+    for k in miei():
+        k['ultimo'] = utc().isoformat(timespec='minutes'); cp = cant_path(k['cantiere'])
+        with open(cp, 'w', encoding='utf-8') as f: json.dump(k, f, ensure_ascii=False, indent=2); f.write('\n')
+        tocca.append(os.path.relpath(cp, ROOT))
+    git_sync(f"presenza · {m['chi']} · {cosa or 'attiva'}", tocca)
 def fine(a=None):
     m = io(); p = sess_path(m) if m.get('chi') else None
     if not p or not os.path.exists(p): print('nessuna sessione aperta da questo computer'); return
     git_pull(); s = json.load(open(p, encoding='utf-8')); s['stato'] = 'chiusa'; s['ultimo'] = utc().isoformat(timespec='minutes')
     with open(p, 'w', encoding='utf-8') as f: json.dump(s, f, ensure_ascii=False, indent=2); f.write('\n')
-    git_sync(f"presenza · {m['chi']} · chiusa", [os.path.relpath(p, ROOT)])
+    for k in miei(): os.remove(cant_path(k['cantiere']))
+    git('add', '-A', '--', os.path.relpath(CANT, ROOT))
+    git_sync(f"presenza · {m['chi']} · chiusa (cantieri lasciati)", [os.path.relpath(p, ROOT), os.path.relpath(CANT, ROOT)])
 def chi(rientro=''):
     S = []
     for n in sorted(glob.glob(os.path.join(SESS, '*.json'))):
@@ -523,6 +562,79 @@ def chi(rientro=''):
         st = 'ATTIVA ' if s.get('stato') == 'attiva' and età <= ATTIVA_MIN else 'ferma  '
         tu = ' (tu)' if s.get('chi') == me else ''
         print(f"{rientro}{st} {s.get('chi','?')}{tu} · {s.get('video') or '-'} · {s.get('cosa','')[:90]} · ultimo segnale {ora_it(t) if t else '?'} ({età} min fa)")
+# ---------- cantieri: un lavoro condiviso alla volta (regola di Power, 31 ottobre 03:37) ----------
+CANT = os.path.join(ROOT, 'MEMORIA', 'cantieri')
+CANTIERI = {
+    'drive':       'cartella Drive: 01_VIDEO, 04_ARCHIVIO_VIDEO, riordino, pulizia, indice (consegna e riordina lo prendono da soli)',
+    'hook':        'archivio e catalogo degli hook: 01_HOOK, studio o scrematura degli hook, clip caricati in 00_CARICA_QUI/01_VIDEO_HOOK',
+    'caricamenti': 'presa in carico di 00_CARICA_QUI (arrivi lo prende da solo)',
+    'motore':      'motore comune: engine, scenes/vx_common, vx/*.py, tools (studio.py compreso)',
+    'regole':      'REGOLE, CLAUDE.md, LEGGIMI, guide PDF, skill e prompt di avvio',
+    'audio':       '02_AUDIO: audio della settimana e catalogo audio',
+    'riferimenti': '07_RIFERIMENTI e studio dei video consigliati',
+}
+def cant_path(c): return os.path.join(CANT, c + '.json')
+def cant_leggi(c):
+    try: return json.load(open(cant_path(c), encoding='utf-8'))
+    except Exception: return None
+def cant_attivo(k):
+    try: return (utc() - dt.datetime.fromisoformat(k['ultimo'])).total_seconds() <= ATTIVA_MIN * 60
+    except Exception: return False
+def cant_valido(c):
+    if c in CANTIERI or re.fullmatch(r'V\d{4}', c): return c
+    sys.exit(f"cantiere sconosciuto: {c}. Cantieri: {', '.join(CANTIERI)} oppure l'ID di un video (V0012)")
+def prendi(a, quiet=False, video=None, percorsi=()):
+    """prende un cantiere per questa sessione. Se lo ha un'altra sessione attiva si ferma e dice chi e cosa sta facendo."""
+    if not a: sys.exit('uso: studio.py prendi <cantiere> "cosa fai"   (studio.py cantieri per la lista)')
+    c = cant_valido(a[0]); cosa = a[1] if len(a) > 1 else ''
+    me = io().get('chi')
+    if not me: sys.exit('prima registra la sessione: studio.py presenza "inizio sessione" --chi "<account> · <chat o computer> · <cloud o Terminale>"')
+    git_pull(); k = cant_leggi(c)
+    if k and k.get('chi') != me and cant_attivo(k):
+        print(f"OCCUPATO: «{c}» è di {k['chi']} dalle {k.get('dal_it','?')}: {k.get('cosa','')}")
+        print('Non toccarlo. Dillo a Power e scegli un altro lavoro, oppure aspetta che lo lasci (studio.py lascia).'); return False
+    if k and k.get('chi') != me: print(f"(«{c}» era di {k['chi']}, fermo da più di {ATTIVA_MIN} minuti: lo prendo io)")
+    os.makedirs(CANT, exist_ok=True)
+    k = {'cantiere': c, 'chi': me, 'cosa': cosa or (k or {}).get('cosa', ''), 'dal': utc().isoformat(timespec='minutes'), 'dal_it': ora_it(), 'ultimo': utc().isoformat(timespec='minutes')}
+    if video: k['video'] = video
+    elif (cant_leggi(c) or {}).get('video'): k['video'] = cant_leggi(c)['video']
+    with open(cant_path(c), 'w', encoding='utf-8') as f: json.dump(k, f, ensure_ascii=False, indent=2); f.write('\n')
+    git_sync(f'cantiere · {c} preso da {me} · {cosa}', [os.path.relpath(cant_path(c), ROOT), *percorsi])
+    git_pull(); k2 = cant_leggi(c)
+    if not k2 or k2.get('chi') != me:
+        print(f"OCCUPATO: un'altra sessione ha preso «{c}» nello stesso momento ({(k2 or {}).get('chi')}). Lascialo a lei."); return False
+    if not quiet: print(f'«{c}» è tuo. Quando hai finito: studio.py lascia {c}')
+    return True
+def lascia(a, quiet=False):
+    if not a: sys.exit('uso: studio.py lascia <cantiere>')
+    c = a[0]; me = io().get('chi'); git_pull(); k = cant_leggi(c)
+    if not k: print(f'«{c}» è già libero'); return
+    if k.get('chi') != me and cant_attivo(k): sys.exit(f"«{c}» è di {k['chi']}: non lo puoi lasciare tu")
+    os.remove(cant_path(c)); git('add', '-A', '--', os.path.relpath(CANT, ROOT))
+    git_sync(f'cantiere · {c} lasciato da {me}', [os.path.relpath(CANT, ROOT)])
+    if not quiet: print(f'«{c}» è libero')
+def miei():
+    me = io().get('chi'); return [k for k in (cant_leggi(os.path.splitext(n)[0]) for n in (os.listdir(CANT) if os.path.isdir(CANT) else [])) if k and k.get('chi') == me]
+def cantieri(rientro=''):
+    occ = {}
+    for n in sorted(os.listdir(CANT)) if os.path.isdir(CANT) else []:
+        k = cant_leggi(os.path.splitext(n)[0])
+        if k: occ[k['cantiere']] = k
+    me = io().get('chi')
+    for c in list(CANTIERI) + sorted(x for x in occ if x not in CANTIERI):
+        k = occ.get(c)
+        if k and cant_attivo(k): st = f"OCCUPATO da {k['chi']}{' (tu)' if k['chi'] == me else ''} dalle {k.get('dal_it','?')}: {k.get('cosa','')[:70]}"
+        elif k: st = f"libero (era di {k['chi']}, fermo)"
+        else: st = 'libero'
+        print(f"{rientro}{c:<12} {st}" + ('' if k else f"   · {CANTIERI.get(c, '')[:60]}"))
+def serve(c, cosa):
+    """i comandi che toccano un cantiere condiviso lo prendono da soli e si fermano se è di un altro"""
+    k = cant_leggi(c); me = io().get('chi')
+    if k and k.get('chi') != me and cant_attivo(k):
+        sys.exit(f"OCCUPATO: «{c}» è di {k['chi']}: {k.get('cosa','')}. Non lo tocco: dillo a Power o aspetta.")
+    mio = bool(k and k.get('chi') == me)
+    if not mio and me: prendi([c, cosa], quiet=True)
+    return mio
 SYNC = ['MEMORIA', 'REGOLE', '01_HOOK/CATALOGO_HOOK.csv', '01_HOOK/_schede', '02_AUDIO', '06_DOCS', '07_RIFERIMENTI', '05_PUBBLICATI']
 def sync(a):
     git_sync(a[0] if a else f"memoria · {io().get('chi') or socket.gethostname()}", SYNC)
@@ -547,6 +659,7 @@ def riordina(a=None):
     i documenti si cancellano, le cartelle vuote spariscono. Da lanciare sul Mac (Drive per desktop), mai da una copia montata."""
     d = drive_root()
     if not d: return
+    era_mio = serve('drive', 'riordino di 01_VIDEO')
     V, A = os.path.join(d, '01_VIDEO'), os.path.join(d, '04_ARCHIVIO_VIDEO'); fatti = []
     tutti = [os.path.join(r, f) for r, _, fs in os.walk(V) for f in fs]
     def vecchi(v):  # nomi con cui il video può trovarsi ancora in 01_VIDEO
@@ -572,6 +685,7 @@ def riordina(a=None):
             else: os.remove(p); fatti.append(f'tolto: {f}')
         if r != V and os.path.relpath(r, V) not in [c for _, c, _ in TIPI] and not os.listdir(r): os.rmdir(r)
     indice(); print('\n'.join(fatti) or 'già in ordine'); print('01_VIDEO:'); [print('  ' + os.path.relpath(x, V)) for x in sorted(attesi)]
+    if io().get('chi') and not era_mio: lascia(['drive'], quiet=True)
 
 
 if __name__ == '__main__':
@@ -579,4 +693,4 @@ if __name__ == '__main__':
     {'brief': lambda: brief(), 'nuovo': lambda: nuovo(sys.argv[2:]), 'aggiorna': lambda: aggiorna(sys.argv[2:]),
      'controlla': lambda: controlla(), 'drive': lambda: drive(sys.argv[2:]), 'arrivi': lambda: arrivi(),
      'consegna': lambda: consegna(sys.argv[2:]), 'indice': lambda: indice(), 'riordina': lambda: riordina(sys.argv[2:]),
-     'presenza': lambda: presenza(sys.argv[2:]), 'chi': lambda: chi(), 'fine': lambda: fine(), 'sync': lambda: sync(sys.argv[2:])}.get(c, lambda: print(__doc__))()
+     'presenza': lambda: presenza(sys.argv[2:]), 'chi': lambda: (git_pull(), chi(), print(), cantieri()), 'prendi': lambda: prendi(sys.argv[2:]) or sys.exit(2), 'lascia': lambda: lascia(sys.argv[2:]), 'cantieri': lambda: (git_pull(), cantieri()), 'fine': lambda: fine(), 'sync': lambda: sync(sys.argv[2:])}.get(c, lambda: print(__doc__))()

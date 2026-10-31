@@ -2,6 +2,7 @@
   "chi": "tudorswork · chat 02:31 · cloud",
   "inizio": "2026-10-31T01:44+00:00",
   "storia": [
+    "31/10 17:14 V0006: nuove prove pressa e cascata, sfondo e griglia Volwick",
     "31/10 17:04 V0006: prove mandate a Power, attendo la scelta",
     "31/10 16:58 V0006: prove effetto volume dall'alto, finale come V0010, bordi",
     "31/10 16:53 V0006 consegnato (frontale, assorbimento sul call wall, swipe), attendo il giudizio di Power",
@@ -15,12 +16,11 @@
     "31/10 16:11 V0006: studio dello stile 3D di V0010 per rifare l'animazione",
     "31/10 16:03 V0006 con barra 2 e zoom della scala consegnato, attendo giudizio (logo, impaginazione, licenza brano)",
     "31/10 16:02 consegnato V0006 su Drive, da rivedere",
-    "31/10 15:59 V0006: barra 2 scelta; zoom vero della scala del grafico al posto dello zoom immagine",
-    "31/10 15:41 V0006: due prove della barra del terminale inviate, attendo la scelta"
+    "31/10 15:59 V0006: barra 2 scelta; zoom vero della scala del grafico al posto dello zoom immagine"
   ],
-  "ultimo": "2026-10-31T16:04+00:00",
+  "ultimo": "2026-10-31T16:14+00:00",
   "stato": "attiva",
-  "cosa": "V0006: prove mandate a Power, attendo la scelta",
+  "cosa": "V0006: nuove prove pressa e cascata, sfondo e griglia Volwick",
   "computer": "vm",
   "video": "V0006"
 }

@@ -39,6 +39,10 @@
     {
       "data": "2026-10-31 16:34",
       "testo": "Power 16:32 su v3: molto molto bene. Togliere la linea che si forma dietro le carte (il retro della giostra), togliere la scritta VOLWICK sopra le carte, i titoli (DEALER, ACTIVITY) in 3D blu che si aggiornano a ogni cambio di carta, tabella METRIC fatta meglio."
+    },
+    {
+      "data": "2026-10-31 16:42",
+      "testo": "Power 16:42: sopra le carte non DEALER/ACTIVITY ma un nome tecnico diverso per ogni carta."
     }
   ],
   "lezioni": [
@@ -48,7 +52,7 @@
   ],
   "pubblicazioni": [],
   "audio": "brano del video di riferimento allungato di due battute (primo test, da decidere se in app)",
-  "aggiornato": "2026-10-31 16:40",
+  "aggiornato": "2026-10-31 16:48",
   "titolo": "Edit 3D il terminale Volwick che si forma",
   "numero": 3,
   "data_uscita": "31-10-2026",

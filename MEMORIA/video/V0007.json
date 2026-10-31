@@ -26,9 +26,11 @@
   "creato": "2026-10-31 03:06",
   "sessione": "vm",
   "feedback": [],
-  "lezioni": [],
+  "lezioni": [
+    "Dopo mix_c05.sh il picco vero può superare −1,5 dBTP con l'AAC: controllare con ebur128=peak=true e, se serve, limitatore sovracampionato (aresample=192000, alimiter 0.70)."
+  ],
   "pubblicazioni": [],
-  "aggiornato": "2026-10-31 03:13",
+  "aggiornato": "2026-10-31 03:14",
   "titolo": "Il pavimento dei Block Prints a tempo di musica",
   "numero": 2,
   "data_uscita": "31-10-2026",

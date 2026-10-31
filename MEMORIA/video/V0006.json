@@ -13,11 +13,13 @@
     "BLOCK PRINTS"
   ],
   "titoli": [
+    "BREAKOUT?",
     "PLAIN CHART: UP, THEN DOWN.",
     "VOLUME ABSORBED AT THE WALL.",
-    "PRICE TURNS BACK DOWN."
+    "PRICE TURNS BACK DOWN.",
+    "TRADE WITH INSTITUTIONAL CONTEXT."
   ],
-  "durata_s": 19.98,
+  "durata_s": 21.75,
   "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/06 Falsa rottura sotto il call wall (31-10-2026).mp4",
   "stato": "da-rivedere",
   "creato": "2026-10-31 03:01",
@@ -102,6 +104,10 @@
     {
       "data": "2026-10-31 18:37",
       "testo": "Power 18:30: video troppo corto e veloce, deve durare 16-25 s; la parte del tocco (secondi 4-6) molto più lunga; hook 3 (BMX) scelto; più versioni con musiche diverse; la discesa del volume non a mitragliatrice ma sfumata e meno impattante. Fatte 3 versioni da 20 s con tre beat diversi."
+    },
+    {
+      "data": "2026-10-31 18:52",
+      "testo": "Power 18:45: tiene Musica 2; vuole salvato lo stile audio delle tre versioni per i prossimi edit; prima del logo il grafico sparisce e si anima TRADE WITH INSTITUTIONAL CONTEXT con LONG γ, dealers hedge against the move, not a signal, da vicino; sul logo la musica si abbassa e sparisce quando il logo compare, solo effetto sonoro."
     }
   ],
   "lezioni": [
@@ -118,10 +124,11 @@
     "Mai disegnare elementi nuovi sopra quelli del grafico che esistono già (es. barre del volume): si amplificano quelli veri. Nei momenti chiave (tocco del livello) livello illuminato + rallenty prima dell'effetto.",
     "Per evidenziare un livello si illumina la sua linea, nel suo colore; mai linee nuove sopra. Il rallenty copre tutto il momento chiave e torna a velocità normale con una curva.",
     "Momento chiave = il tocco: si rallenta piano mentre il prezzo arriva al livello, ci si ferma 0,5-1 s con la candela ancora del colore della salita, il livello si illumina, zoom minimo; solo dopo parte l'effetto e la discesa a velocità normale.",
-    "T4 di 16-25 s; il momento chiave dura diversi secondi; effetti sfumati, mai a raffica; proporre più musiche diverse."
+    "T4 di 16-25 s; il momento chiave dura diversi secondi; effetti sfumati, mai a raffica; proporre più musiche diverse.",
+    "Stile audio degli edit: beat a spezzoni, cambio sul battito allo swipe, musica attutita sul livello, musica che sparisce sul logo con solo effetto sonoro (vedi REGOLE 31/10 18:45)."
   ],
   "pubblicazioni": [],
-  "aggiornato": "2026-10-31 18:37",
+  "aggiornato": "2026-10-31 18:53",
   "titolo": "Falsa rottura sotto il call wall",
   "numero": 6,
   "data_uscita": "31-10-2026",

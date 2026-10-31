@@ -75,6 +75,11 @@ function layoutHeader() {
   row(HDR1 + 85, [ { id: 'gAct', parts: [['ACTIVITY', L]], pad: 2, gap: 10 },
     { id: 'bp', parts: [['BLOCK PRINTS', B], ['  ▾', L]], pad: 60, gap: 6 }, { id: 'cvd', parts: [['CVD', B]], pad: 54, gap: 6 }, { id: 'cdi', parts: [['CDI', B]], pad: 54, gap: 6 }, { id: 'flow', parts: [['FLOW', B]], pad: 54 } ], WIN.x0 + 12);
   { const r = R.flow, over = r.x + r.w - (WIN.x1 - 10); if (over > 0) console.log('row3 overflow', over); }
+  const spread = ids => { const last = R[ids[ids.length - 1]], extra = (WIN.x1 - 12) - (last.x + last.w); if (extra <= 0) return; const per = extra / ids.length; ids.forEach((id, j) => { R[id].x += per * j; R[id].w += per; }); };
+  if (HDRV === 2) { spread(['walls', 'metric', 'expiry', 'maps']); spread(['bp', 'cvd', 'cdi', 'flow']); R.tf.x = WIN.x1 - 12 - R.tf.w; }
+  if (HDRV === 1) { const x0 = WIN.x0 + 12, x1 = WIN.x1 - 12, gap = 12, w = (x1 - x0 - gap) / 2;
+    R.tf.x = x1 - R.tf.w; R.tick.x = R.logo.x + R.logo.w + 26 + ((R.tf.x - 12) - (R.logo.x + R.logo.w + 26) - R.tick.w) / 2;
+    R.walls = { ...R.walls, x: x0, y: HDR1 + 54, w, h: 50 }; R.bp = { ...R.bp, x: x0 + w + gap, y: HDR1 + 54, w, h: 50 }; }
   // right side of row 1
   g.restore();
 }
@@ -217,7 +222,23 @@ function cvdPane(S, a, y0, y1) {
   box(CX1 + 4, yy(cum) - 11, WIN.x1 - CX1 - 10, 22, '#2FB67C', null, 3); txt((v >= 0 ? '+' : '') + v.toFixed(2) + 'K', (CX1 + WIN.x1) / 2, yy(cum) + 1, '700 13px VWMono', '#00140A', 'center');
   g.restore();
 }
-function darkHeader(t, S, cur) {
+function darkHeader(t, S, cur) { if (HDRV === 1) return darkHeader1(t, S, cur); return darkHeader0(t, S, cur); }
+function darkHeader1(t, S, cur) {
+  const g = VW.g; g.fillStyle = DK.panel; g.fillRect(WIN.x0, HDR1, WIN.x1 - WIN.x0, HDR - HDR1); g.fillStyle = '#1A1D24'; g.fillRect(WIN.x0, HDR - 1, WIN.x1 - WIN.x0, 1);
+  const L = '500 15px VWMono', B = '700 19px VWMono', lp = lastPrice(S), ch = (lp - PREV_CLOSE) / PREV_CLOSE * 100;
+  const wm = VW.assets.wm, wh = 22, ww = wh * wm.width / wm.height; g.save(); g.globalCompositeOperation = 'lighter'; g.drawImage(wm, R.logo.x, R.logo.y + 15 - wh / 2, ww, wh); g.restore();
+  g.fillStyle = DK.sep; g.fillRect(R.sep1.x, R.sep1.y + 4, 2, 22);
+  box(R.tick.x, R.tick.y, R.tick.w, 30, DK.chip, DK.chipB, 6); let x = R.tick.x + 12; const y = R.tick.y + 15; g.fillStyle = '#2FB67C'; g.beginPath(); g.arc(x + 4, y, 4, 0, 7); g.fill(); x += 16;
+  x += txt('ES ', x, y + 1, '700 17px VWMono', '#6E9BFF'); x += txt(fmt(lp), x, y + 1, '700 17px VWMono', DK.val) + 8;
+  const cs = (ch >= 0 ? '+' : '') + ch.toFixed(2) + '%'; g.font = '500 13px VWMono'; const cw = g.measureText(cs).width + 12; box(x, y - 10, cw, 20, ch >= 0 ? 'rgba(47,182,124,0.18)' : 'rgba(226,87,95,0.18)', null, 4); txt(cs, x + 6, y + 1, '500 13px VWMono', ch >= 0 ? '#2FB67C' : '#E2575F');
+  box(R.tf.x, R.tf.y, R.tf.w, 30, DK.chip, DK.chipB, 6); txt('1m', R.tf.x + R.tf.w / 2, R.tf.y + 16, '700 17px VWMono', DK.val, 'center');
+  const wallsOn = t >= E.walls, bpOn = t >= E.prints, w = R.walls, b = R.bp, my = w.y + w.h / 2;
+  box(w.x, w.y, w.w, w.h, wallsOn ? 'rgba(38,192,138,0.10)' : DK.chip, wallsOn ? 'rgba(38,192,138,0.7)' : DK.chipB, 8, 1.4); toggle(w.x + 14, my, wallsOn, '#26C08A');
+  let xx = w.x + 56 + txt('DEALER WALLS ', w.x + 56, my + 1, B, DK.val); txt('Top 5 ▾', xx, my + 1, L, '#8A93A3');
+  box(b.x, b.y, b.w, b.h, bpOn ? 'rgba(242,193,78,0.12)' : 'rgba(242,193,78,0.04)', 'rgba(242,193,78,0.75)', 8, 1.4); toggle(b.x + 14, my, bpOn, '#F2C14E');
+  txt('BLOCK PRINTS', b.x + 56, my + 1, B, '#F5E6B8'); txt('▾', b.x + b.w - 20, my + 1, L, '#F2C14E');
+}
+function darkHeader0(t, S, cur) {
   const g = VW.g; g.fillStyle = DK.panel; g.fillRect(WIN.x0, HDR1, WIN.x1 - WIN.x0, HDR - HDR1); g.fillStyle = '#1A1D24'; g.fillRect(WIN.x0, HDR - 1, WIN.x1 - WIN.x0, 1);
   const L = '500 13px VWMono', F = '600 16px VWMono', B = '700 17px VWMono', lp = lastPrice(S), ch = (lp - PREV_CLOSE) / PREV_CLOSE * 100;
   const chip = (id, hl) => { const r = R[id]; box(r.x, r.y, r.w, r.h, hl ? '#1B1F28' : DK.chip, hl ? '#3A4252' : DK.chipB, 6); };
@@ -233,13 +254,16 @@ function darkHeader(t, S, cur) {
   txt('DEALER', R.gDealer.x, R.gDealer.y + 16, L, DK.lab);
   const mapsOn = false, ddOpen = false;
   for (const [id, lab, val] of [['walls', 'WALLS ', 'Top 5'], ['metric', 'METRIC ', 'GEX'], ['expiry', 'EXPIRY ', 'All'], ['maps', 'MAPS ', mapsOn ? 'Gamma' : 'None']]) {
-    chip(id, hov(id) || (id === 'maps' && ddOpen)); let xx = R[id].x + 11; const yy = R[id].y + 16; xx += txt(lab, xx, yy, L, id === 'walls' ? '#6E8BFF' : DK.lab); xx += txt(val, xx, yy, F, DK.val); txt(' ▾', xx, yy, L, DK.lab); }
+    g.globalAlpha = HDRV === 2 && id !== 'walls' ? 0.45 : 1; chip(id, hov(id) || (id === 'maps' && ddOpen)); let xx = R[id].x + 11; const yy = R[id].y + 16; xx += txt(lab, xx, yy, L, id === 'walls' ? '#6E8BFF' : DK.lab); xx += txt(val, xx, yy, F, DK.val); txt(' ▾', xx, yy, L, DK.lab); }
+  g.globalAlpha = 1;
   // row 3: ES LEVELS, ACTIVITY group
   txt('ACTIVITY', R.gAct.x, R.gAct.y + 16, L, DK.lab);
   const bpOn = t >= E.prints, cvdOn = false;
   { const r = R.bp; box(r.x, r.y, r.w, r.h, bpOn ? 'rgba(242,193,78,0.12)' : 'rgba(242,193,78,0.04)', 'rgba(242,193,78,0.75)', 6, 1.4); toggle(r.x + 10, r.y + 15, bpOn, '#F2C14E');
     txt('BLOCK PRINTS', r.x + 48, r.y + 16, B, '#F5E6B8'); g.fillStyle = 'rgba(242,193,78,0.6)'; g.fillRect(r.x + r.w - 26, r.y + 7, 1, 16); txt('▾', r.x + r.w - 16, r.y + 16, L, '#F2C14E'); }
+  if (HDRV === 2) g.globalAlpha = 0.45;
   for (const [id, lab, on] of [['cvd', 'CVD', cvdOn], ['cdi', 'CDI', false], ['flow', 'FLOW', false]]) { const r = R[id]; box(r.x, r.y, r.w, r.h, on ? '#121A33' : DK.chip, on ? '#2F4FA8' : DK.chipB, 6); toggle(r.x + 10, r.y + 15, on, '#2F6BFF'); txt(lab, r.x + 46, r.y + 16, B, DK.val); }
+  g.globalAlpha = 1;
   // MAPS dropdown
   if (ddOpen) { const r = R.maps, items = ['None', 'Gamma', 'Charm', 'Vega', 'Volga', 'Delta'], k = eo(lin(t, E.maps, E.maps + 0.12)); g.save(); g.globalAlpha = k;
     const dx = r.x, dy = r.y + r.h + 4, w = 150; box(dx, dy, w, items.length * 34 + 8, '#14161B', '#2A2F38', 6); g.shadowBlur = 0;
@@ -382,6 +406,8 @@ function divider(t) {
 }
 // time warp (Power 31 Oct 15:28, his track "Never stop trading", 80 BPM): ?k=0.78125 maps the 125 BPM beat (0.48 s) onto the track's half beat (0.375 s)
 const K = +(new URLSearchParams(location.search).get('k') || 1);
+// terminal bar (Power 31 Oct 15:36: crowded, empty on the right, half the controls unused): ?hdr=1 only the controls the video uses, big · ?hdr=2 the full layer row spread over the whole width, unused ones dimmed
+const HDRV = +(new URLSearchParams(location.search).get('hdr') || 0);
 function render(t) { renderAt(t < T_END * K ? t / K : T_END + (t - T_END * K)); }
 function renderAt(t) {
   const g = VW.g, S = state(t); g.save(); g.fillStyle = '#040913'; g.fillRect(0, 0, 1080, 1920);

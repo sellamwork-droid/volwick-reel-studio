@@ -58,6 +58,10 @@
     {
       "data": "2026-10-31 15:33",
       "testo": "Power: usare come base il brano Never stop trading (caricato in chat) e metterlo nelle cartelle audio di Drive."
+    },
+    {
+      "data": "2026-10-31 15:41",
+      "testo": "Power: la barra in alto del terminale non mi piace: tasti ammucchiati a caso, a destra spazio vuoto inutile, e metà delle impostazioni non si usano. Gestire meglio quello spazio."
     }
   ],
   "lezioni": [
@@ -68,7 +72,7 @@
     "Con un brano di Power a tempo diverso dal motore si piega il video, non il brano: ?k= in scenes/v0006_dyn (k = battito del brano / 0,48; Never stop trading 79 BPM → k 0,78125, metà battito 0,375) e bed_track.py aggancia un battito al taglio (PHASE, PERIOD, loop su una battuta)."
   ],
   "pubblicazioni": [],
-  "aggiornato": "2026-10-31 15:33",
+  "aggiornato": "2026-10-31 15:41",
   "titolo": "Falsa rottura sotto il call wall",
   "numero": 6,
   "data_uscita": "31-10-2026",

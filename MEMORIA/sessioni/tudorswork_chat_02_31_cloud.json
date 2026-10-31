@@ -2,6 +2,7 @@
   "chi": "tudorswork · chat 02:31 · cloud",
   "inizio": "2026-10-31T01:44+00:00",
   "storia": [
+    "31/10 15:59 V0006: barra 2 scelta; zoom vero della scala del grafico al posto dello zoom immagine",
     "31/10 15:41 V0006: due prove della barra del terminale inviate, attendo la scelta",
     "31/10 15:37 V0006: riordino della barra del terminale (due prove)",
     "31/10 15:33 V0006 con base Never stop trading consegnato, attendo giudizio (licenza del brano, logo, impaginazione)",
@@ -15,12 +16,11 @@
     "31/10 03:58 V0006: tre prove logo inviate a Power, attendo la scelta",
     "31/10 03:49 V0006: prove posizione logo (sotto, sopra centrato, senza)",
     "31/10 03:47 V0006 v2 consegnato (audio A, scia + curva di velocità), attendo giudizio",
-    "31/10 03:46 consegnato V0006 su Drive, da rivedere",
-    "31/10 03:42 V0006: transizione scelta (scia) con curva di velocità, rifaccio il video"
+    "31/10 03:46 consegnato V0006 su Drive, da rivedere"
   ],
-  "ultimo": "2026-10-31T14:41+00:00",
+  "ultimo": "2026-10-31T14:59+00:00",
   "stato": "attiva",
-  "cosa": "V0006: due prove della barra del terminale inviate, attendo la scelta",
+  "cosa": "V0006: barra 2 scelta; zoom vero della scala del grafico al posto dello zoom immagine",
   "computer": "vm",
   "video": "V0006"
 }

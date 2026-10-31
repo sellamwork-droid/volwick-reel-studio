@@ -2,6 +2,7 @@
   "chi": "sellamwork · chat principale · cloud",
   "inizio": "2026-10-31T02:08+00:00",
   "storia": [
+    "31/10 16:40 consegnato V0010 su Drive, da rivedere",
     "31/10 16:34 V0010 v4: render in corso (ritocchi di Power 16:32)",
     "31/10 05:42 V0010 v3 consegnato su Drive (01_EDIT/03, v2 in archivio), attendo il giudizio di Power",
     "31/10 05:41 consegnato V0010 su Drive, da rivedere",
@@ -15,12 +16,11 @@
     "31/10 04:30 consegnato V0010 su Drive, da rivedere",
     "31/10 04:13 V0010: render del primo test (edit 3D)",
     "31/10 04:08 preso V0010 Edit 3D Volwick (T1)",
-    "31/10 03:54 cantieri attivi su main (PR #9 unita); libero, in attesa di lavoro",
-    "31/10 03:49 cantieri pronti (PR #9, aspetta il via di Power per il merge); V0002 lo lascio alla chat 03:37"
+    "31/10 03:54 cantieri attivi su main (PR #9 unita); libero, in attesa di lavoro"
   ],
-  "ultimo": "2026-10-31T15:34+00:00",
+  "ultimo": "2026-10-31T15:40+00:00",
   "stato": "attiva",
-  "cosa": "V0010 v4: render in corso (ritocchi di Power 16:32)",
+  "cosa": "consegnato V0010 su Drive, da rivedere",
   "computer": "vm",
   "video": "V0010"
 }

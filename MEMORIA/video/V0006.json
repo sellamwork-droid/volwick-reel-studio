@@ -84,10 +84,11 @@
     "Con un brano di Power a tempo diverso dal motore si piega il video, non il brano: ?k= in scenes/v0006_dyn (k = battito del brano / 0,48; Never stop trading 79 BPM → k 0,78125, metà battito 0,375) e bed_track.py aggancia un battito al taglio (PHASE, PERIOD, loop su una battuta).",
     "Zoom nei video: scala del grafico (PX, SP, PTOP per fotogramma con setView), non trasformazione del canvas. Le etichette dell'asse si ricalcolano con levels(). Il punto d'aggancio dell'hook va ricalcolato sul primo fotogramma zoomato (V0006: 806, 1004).",
     "T4 in stile 3D (V0006 v6, scenes/v0006_3d): grafico normale = pannello bianco nello spazio che si ripiega in una linea, la linea disegna la riga dei layer (secBar di V0010), terminale a tutta pagina con zoom della scala (ZF/ZX/PF, non dell'immagine), BLOCKED. sul tocco, candele 3D nel muro luminoso, finale 3D. Il punto d'aggancio dell'hook lo restituisce READY (events.hook).",
-    "Ispirarsi a un altro video vuol dire prenderne lo stile (profondità, luce, ritmo, camera), non i pezzi: niente sezioni riusate uguali (riga dei layer disegnata dalla linea, nomi che volano nelle caselle, blocco candele 3D con contatore, logo a fili). Ogni passaggio nasce dalla storia del video stesso."
+    "Ispirarsi a un altro video vuol dire prenderne lo stile (profondità, luce, ritmo, camera), non i pezzi: niente sezioni riusate uguali (riga dei layer disegnata dalla linea, nomi che volano nelle caselle, blocco candele 3D con contatore, logo a fili). Ogni passaggio nasce dalla storia del video stesso.",
+    "Grafico sempre frontale, 3D solo negli effetti. Il T4 mostra la differenza: grafico normale = sale e scende; Volwick = volume assorbito sul call wall (Block Prints, contatore) e prezzo che riprende a scendere; swipe destra-sinistra accentuato. Durante l'effetto il grafico scorre a sinistra per lasciare spazio a destra del prezzo."
   ],
   "pubblicazioni": [],
-  "aggiornato": "2026-10-31 16:52",
+  "aggiornato": "2026-10-31 16:53",
   "titolo": "Falsa rottura sotto il call wall",
   "numero": 6,
   "data_uscita": "31-10-2026",

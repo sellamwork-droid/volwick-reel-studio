@@ -20,13 +20,13 @@ const HDR1 = WIN.y0, HDR = WIN.y0 + 120, LB = WIN.y1 - 98, DB = WIN.y1 - 34, DBS
 const CX0L = 140, CX0D = 96, CX1 = 858;
 const PTOP0 = 7745.0, PX0 = LAY ? (DBS - HDR) / 37.3 : 24.0; let PTOP = PTOP0, PX = PX0;   // PTOP/PX/SP change with the chart zoom (setView)   // tighter scale: the walls fill the window
 const Y = p => HDR + (PTOP - p) * PX;
-const SP0 = 12, XR = 790; let SP = SP0;
+const SP0 = 12, XR0 = 790; let SP = SP0, XR = XR0;   // XR moves left during the absorption so the wall point has room on its right (chart scroll, like a trading platform)
 const T_END = 9.6;
 // V0006 v3 (Power 31 Oct 04:42, voice): faster and more impactful, cut on a 125 BPM grid (beat 0.48 s). Chart time 0 = video 0.96 s (hook = 2 beats).
 // rip up through the line → rejection → fall (light chart) · fast divider · rewind · walls slam in on 8ths · same rip into the call wall, zoom and impact · fall · prints · tooltip · outro.
 const VAR = 3, BT = 0.48;
 const SPAIRS = [[0, 52.0], [0.96, 56.2], [1.92, 57.7], [2.88, 58.1], [3.36, 51.6], [3.84, 51.9], [4.80, 56.2], [5.76, 57.7], [T_END, 59.8]];   // s = 56.2: bar 57 forming, at its high
-const E = { sel: -0.3, top1: 0.96, contact: 1.12, handle: 2.0, grab: 2.4, drop: 2.88, rew: 2.88, walls: 3.36, top2: 4.80, prints: 5.28, tip: 6.24, out: 6.72, end: T_END };
+const E = { sel: -0.3, top1: 0.96, contact: 1.12, handle: 2.0, grab: 2.4, drop: 2.88, rew: 2.88, walls: 3.36, top2: 4.80, prints: 3.84, tip: 6.24, out: 6.72, end: T_END };
 const WALLS = [ { p: 7741.5, fam: 'callS', usd: '−$6.4M' }, { p: 7733.5, fam: 'callL', usd: '+$12.6M' }, { p: 7727.5, fam: 'callL', usd: '+$3.9M' },
   { p: 7722.5, fam: 'putL', usd: '+$9.7M' }, { p: 7712.5, fam: 'putS', usd: '−$8.8M' } ];
 const TIPW = 1;   // the wall the tooltip opens on
@@ -91,6 +91,53 @@ function txt(s, x, y, font, col, align = 'left', base = 'middle') { const g = VW
 function toggle(x, y, on, col) { const g = VW.g; box(x, y - 8, 30, 16, on ? col : '#1E2229', on ? null : '#2A2F38', 8); g.fillStyle = on ? '#FFFFFF' : '#5B6270'; g.beginPath(); g.arc(on ? x + 22 : x + 8, y, 5.5, 0, 7); g.fill(); }
 
 // ---------- LIGHT (generic charting software) ----------
+// Power 31 Oct 16:43: chart frontal, only the effects in 3D; show the volume absorbed at the call wall and the price turning back down
+const hr = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+function ring3d(x, y, r, tilt, rot, col, a, lw, dash) { const g = VW.g; if (a <= 0 || r <= 0) return; g.save(); g.globalAlpha = a; g.translate(x, y); g.rotate(rot);
+  g.strokeStyle = col; g.lineWidth = lw; g.shadowColor = col; g.shadowBlur = 14; if (dash) { g.setLineDash(dash); g.lineDashOffset = -r * 3; }
+  g.beginPath(); g.ellipse(0, 0, r, r * tilt, 0, 0, Math.PI * 2); g.stroke(); g.restore(); }
+function absorbFx(t, S) {
+  const T0 = 4.35, T1 = 5.25, HIT = E.top2; if (t < T0 || t > 6.4) return; const g = VW.g, wx = X(57, S), wy = Y(7733.25), gold = VX.GOLD, cyan = '#7FD8FF';
+  g.save(); g.globalCompositeOperation = 'lighter';
+  // 1 · volume flies from the rip's volume bars into the wall: streaks with depth (near = big and fast, far = small and dim)
+  for (let n = 0; n < 90; n++) { const r1 = hr(n), r2 = hr(n + 101), r3 = hr(n + 203), z = hr(n + 307), i = 53 + (n % 5);
+    const t0 = T0 + r1 * (T1 - T0 - 0.3), dur = 0.28 + 0.25 * z, u = (t - t0) / dur; if (u <= 0 || u > 1.15) continue;
+    const sx = X(i, S) + (r2 - 0.5) * 8, sy = DB - 4 - r3 * 34, cx = mix(sx, wx, 0.35) + (r2 < 0.5 ? -1 : 1) * (120 + 260 * hr(n + 409)) * (1 + 0.6 * z), cy = mix(sy, wy, 0.55) - 80 * r3;
+    const P = q => { q = clamp(q, 0, 1); const a = (1 - q) * (1 - q), b = 2 * (1 - q) * q, c = q * q; return [a * sx + b * cx + c * wx, a * sy + b * cy + c * wy]; };
+    const sz = 1.2 + 4.8 * (1 - z), al = (0.35 + 0.65 * (1 - z)) * (u > 1 ? 1 - (u - 1) / 0.15 : 1), q1 = eio(Math.min(u, 1)), q0 = Math.max(0, q1 - 0.16 - 0.1 * (1 - z));
+    const [x0, y0] = P(q0), [x1, y1] = P(q1), col = q1 > 0.7 ? gold : cyan, gr = g.createLinearGradient(x0, y0, x1, y1); gr.addColorStop(0, VW.rgba(col, 0)); gr.addColorStop(1, VW.rgba(col, al));
+    g.strokeStyle = gr; g.lineWidth = sz; g.lineCap = 'round'; g.beginPath(); g.moveTo(x0, y0); g.quadraticCurveTo(mix(x0, x1, 0.5), mix(y0, y1, 0.5), x1, y1); g.stroke();
+    g.fillStyle = VW.rgba('#FFFFFF', al); g.beginPath(); g.arc(x1, y1, sz * 0.7, 0, 7); g.fill(); }
+  // volume bars of the rip light up while they drain
+  const vk = seg(t, T0, T0 + 0.15) * (1 - seg(t, 5.3, 5.6));
+  if (vk > 0) for (let i = 53; i <= 57; i++) { const b = barAt(i, S); if (!b) continue; const x = X(i, S), w = Math.round(8 * SP / SP0) + 6, vh = Math.min(40, b.v / 3600 * 40) + 6;
+    const gr = g.createLinearGradient(0, DB - vh - 40, 0, DB); gr.addColorStop(0, VW.rgba(cyan, 0)); gr.addColorStop(1, VW.rgba(cyan, 0.55 * vk)); g.fillStyle = gr; g.fillRect(x - w / 2, DB - vh - 40, w, vh + 40); }
+  // 2 · the wall swallows it: a core that fills up and two tilted rings spinning around it (3D)
+  const fill = eo(lin(t, T0 + 0.1, T1)), fade = 1 - seg(t, 5.6, 6.1), core = (16 + 30 * fill) * (1 + 0.25 * Math.exp(-Math.max(0, t - HIT) * 9) * (t > HIT ? 1 : 0));
+  if (fade > 0) { const rg = g.createRadialGradient(wx, wy, 0, wx, wy, core * 2.6); rg.addColorStop(0, VW.rgba('#FFFFFF', 0.95 * fade)); rg.addColorStop(0.25, VW.rgba(gold, 0.75 * fade)); rg.addColorStop(1, VW.rgba(gold, 0));
+    g.fillStyle = rg; g.beginPath(); g.arc(wx, wy, core * 2.6, 0, 7); g.fill();
+    ring3d(wx, wy, core * 1.9, 0.28, 0.18 + t * 0.6, gold, 0.85 * fade, 3, [18, 10]); ring3d(wx, wy, core * 1.35, 0.42, -0.5 - t * 0.9, cyan, 0.7 * fade, 2.5, [10, 8]); }
+  // 3 · impact shockwaves flat along the wall line (a ring lying on the level, seen in perspective)
+  [[HIT, 1], [5.0, 0.7]].forEach(([th, m]) => { const d = t - th; if (d < 0 || d > 0.7) return; const e = eo(d / 0.7);
+    ring3d(wx, wy, 30 + 520 * e, 0.16, 0, gold, m * (1 - e), 5 * (1 - e) + 1); ring3d(wx, wy, 20 + 300 * e, 0.22, 0, '#FFFFFF', 0.7 * m * (1 - e), 2); });
+  g.globalCompositeOperation = 'source-over';
+  // 4 · the absorption meter on the wall line, counting the Block Prints
+  const mk = seg(t, HIT, HIT + 0.12) * (1 - seg(t, 5.9, 6.15)); if (mk > 0) { const n = Math.round(2500 * eo(lin(t, HIT, 5.15)) / 50) * 50, mx = CX0D + 18, my = Y(SUP) + 16, mw = 330;
+    g.globalAlpha = mk; box(mx, my, mw, 58, 'rgba(10,8,0,0.9)', gold, 7, 2); txt('ABSORBED AT THE WALL', mx + 14, my + 17, '700 14px VWMono', '#C9B27A');
+    txt(n.toLocaleString('en-US'), mx + mw - 14, my + 17, '800 20px VWMono', gold, 'right'); box(mx + 14, my + 36, mw - 28, 10, '#2A2410', null, 5); box(mx + 14, my + 36, (mw - 28) * n / 2500, 10, gold, null, 5);
+    g.globalAlpha = 1; }
+  // 5 · price turns back down: an extruded red arrow riding the price head
+  const dk = seg(t, 5.0, 5.15) * (1 - seg(t, 6.0, 6.3)); if (dk > 0) { const lp = lastPrice(S), ax = X(S.k, S) + 46, ay = Y(lp) + 10, bob = Math.sin(t * 14) * 3;
+    g.save(); g.globalAlpha = dk; g.translate(ax, ay + bob); const sc = 1 + 0.3 * Math.exp(-Math.max(0, t - 5.0) * 8); g.scale(sc, sc);
+    const arrow = () => { g.beginPath(); g.moveTo(-11, -46); g.lineTo(11, -46); g.lineTo(11, -8); g.lineTo(26, -8); g.lineTo(0, 22); g.lineTo(-26, -8); g.lineTo(-11, -8); g.closePath(); };
+    for (let k = 7; k >= 1; k--) { g.save(); g.translate(k * 1.6, -k * 1.2); arrow(); g.fillStyle = k === 7 ? '#3A0A0E' : '#7A1A20'; g.fill(); g.restore(); }
+    arrow(); const gr = g.createLinearGradient(0, -46, 0, 22); gr.addColorStop(0, '#FF8A8F'); gr.addColorStop(1, '#E2575F'); g.fillStyle = gr; g.shadowColor = '#E2575F'; g.shadowBlur = 22; g.fill(); g.restore(); }
+  g.restore();
+}
+// TradingView side: the move is there, the reason is not
+function plainNote(t, S) { const a = seg(t, 1.92, 2.1) * (1 - seg(t, E.grab + 0.1, E.grab + 0.3)); if (a <= 0) return; const g = VW.g, x0 = X(53, S) - 14, x1 = X(58, S) + 14, y0 = Y(7734.5), y1 = Y(7725.5);
+  g.save(); g.globalAlpha = a; g.setLineDash([8, 6]); g.strokeStyle = '#9598A1'; g.lineWidth = 2; g.strokeRect(x0, y0, x1 - x0, y1 - y0); g.setLineDash([]);
+  box((x0 + x1) / 2 - 80, y0 - 42, 160, 32, '#F0F3FA', '#B2B5BE', 6); txt('WHY HERE?', (x0 + x1) / 2, y0 - 26, '700 17px VWMono', '#787B86', 'center'); g.restore(); }
 const LT = { bg: '#FFFFFF', grid: '#F0F3FA', up: '#089981', dn: '#F23645', axis: '#131722', sub: '#787B86', line: '#2962FF', border: '#E0E3EB', chip: '#F0F3FA', on: '#E3EFFD' };
 function lightToolbar(t, cur) {
   const g = VW.g, x = WIN.x0, icons = 7; g.fillStyle = LT.bg; g.fillRect(x, HDR, CX0L - x, (LB + 28) - HDR); g.fillStyle = LT.border; g.fillRect(CX0L - 1, HDR, 1, (LB + 28) - HDR);
@@ -288,7 +335,7 @@ function drawDark(t, S, cur) {
   // the trader's own levels stay on screen
   for (const [p, lab] of [[SUP, 'YOUR LEVEL']]) { hline(p, '#7FA2FF', 2, [8, 6], CX0D, CX1, 0.9); const y = Y(p); box(CX0D + 290, y - 22, 98, 18, 'rgba(41,98,255,0.9)', null, 3); txt(lab, CX0D + 339, y - 12, '700 12px VWMono', '#FFFFFF', 'center'); }
   WALLS.forEach((w, j) => { const t0 = E.walls + j * BT / 2 * 0.5; wallLine(w, seg(t, t0, t0 + 0.06), eo(lin(t, t0, t0 + 0.12))); });
-  wallHit(t);
+  wallHit(t); absorbFx(t, S);
   const bpk = eo(lin(t, E.prints, E.prints + 0.35)); PRINTS.forEach(pr => printMark(pr, S, bpk));
   crosshair(cur, 'dark', CX0D, HDR, ybot, t > E.tip - 0.1 ? 0 : 1);
   g.restore();
@@ -303,10 +350,10 @@ function drawDark(t, S, cur) {
 }
 
 // ---------- frame ----------
-const OVER = [ [0.0, '', 'BREAKOUT', '?'], [E.top1, 'YOUR ', 'BREAKOUT', ' JUST FAILED.'], [1.92, 'WHAT WAS ', 'ABOVE', ' THE LINE?'], [E.walls, 'SEE THE ', 'POSITIONING.'],
-  [E.top2, 'BLOCKED BY A ', 'CALL WALL.'], [E.out, 'TRADE WITH ', 'INSTITUTIONAL', ' CONTEXT.'] ];
-const SUBS = [ [0.0, 'ES 1m · price rips through the line you drew'], [E.top1, '...and drops straight back under it'], [1.92, 'A line shows where. Not how dealers hedge above it.'],
-  [E.rew, 'Rewind. Same move, Dealer Walls on.'], [E.top2, 'Call wall · long γ · +$12.6M'], [E.prints, 'Block Prints: 1,250 ×2 traded at the high'],
+const OVER = [ [0.0, '', 'BREAKOUT', '?'], [E.top1, 'YOUR ', 'BREAKOUT', ' JUST FAILED.'], [1.92, 'PLAIN CHART: ', 'UP', ', THEN DOWN.'], [E.walls, 'SEE THE ', 'POSITIONING.'],
+  [E.top2, 'VOLUME ', 'ABSORBED', ' AT THE WALL.'], [5.3, 'PRICE ', 'TURNS BACK', ' DOWN.'], [E.out, 'TRADE WITH ', 'INSTITUTIONAL', ' CONTEXT.'] ];
+const SUBS = [ [0.0, 'ES 1m · price rips through the line you drew'], [E.top1, '...and drops straight back under it'], [1.92, 'A line shows where. Not what happened there.'],
+  [E.rew, 'Rewind. Same move, Dealer Walls on.'], [E.prints, 'Same rip. Block Prints on.'], [E.top2, 'Block Prints 1,250 ×2 into the call wall'], [5.3, 'Call wall · long γ · +$12.6M'],
   [E.out, 'Long γ: dealers hedge against the move. Not a signal.'] ];
 function overlay(t) {
   const g = VW.g; let j = -1; OVER.forEach((o, q) => { if (t >= o[0]) j = q; }); if (j < 0 || t > T_END) return;
@@ -362,6 +409,7 @@ function setView(t, S) {
   let q = 0; while (q < CAMK.length - 1 && t > CAMK[q + 1][0]) q++;
   const A = CAMK[q], B = CAMK[Math.min(q + 1, CAMK.length - 1)], u = B === A ? 1 : eio(clamp((t - A[0]) / (B[0] - A[0]), 0, 1));
   const z = mix(A[1], B[1], u), pf = mix(fprice(A[2], S), fprice(B[2], S), u);
+  XR = XR0 - 210 * eio(seg(t, 4.15, 4.55)) * (1 - eio(seg(t, 5.75, 6.15)));
   PX = PX0 * z; SP = SP0 * (1 + (z - 1) * 0.8); PTOP = pf + (MIDY() - HDR) / PX;
 }
 let CAM = { x: 0, y: 0, s: 1, fx: 540, fy: 960 };
@@ -369,7 +417,7 @@ function flashA(t) { let a = 0; [[E.top1, 0.22], [E.top2, 0.26]].forEach(([th, m
 function crashFx(t, S) {
   const g = VW.g, dark = t >= E.drop, x0 = dark ? CX0D : CX0L, y1 = dark ? DB : LB;
   const fa = flashA(t); if (fa > 0.01) { g.save(); g.globalAlpha = fa; g.fillStyle = t >= E.top2 ? '#BFFFE6' : '#FFFFFF'; g.fillRect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0); g.restore(); }
-  const moving = (t < 1.92) || (t > 3.84 && t < 5.9); if (!moving) return;
+  const moving = (t < 1.92) || (t > 3.84 && t < 6.2); if (!moving) return;
   g.save(); g.beginPath(); g.rect(x0, HDR, CX1 - x0, y1 - HDR); g.clip();
   const p0 = lastPrice(state(Math.max(0, t - 0.22))), p1 = lastPrice(S), up = p1 > p0, col = up ? (dark ? '#2FB67C' : '#089981') : (dark ? '#E2575F' : '#F23645');
   for (let q = 1; q <= 8; q++) { const Sq = state(Math.max(0, t - q * 0.03)), pq = lastPrice(Sq), x = X(Sq.k, S); g.globalAlpha = 0.55 * (1 - q / 9); g.fillStyle = col; g.fillRect(x - 5, Y(pq) - 3, 10, 6); }
@@ -402,14 +450,24 @@ function logoAt(a) {
   g.save(); g.globalAlpha = a; g.globalCompositeOperation = 'lighter'; g.drawImage(wm, x, y, w, h); g.globalAlpha = 0.45 * a; g.drawImage(wm, x, y, w, h); g.restore();
 }
 function divX(t) { return t < E.grab ? WIN.x1 : mix(WIN.x1, WIN.x0 - 2, eio(lin(t, E.grab, E.drop))); }
-function divider(t) {
-  const a = seg(t, E.handle, E.handle + 0.25) * (1 - seg(t, E.drop, E.drop + 0.25)); if (a <= 0) return; const g = VW.g, x = Math.min(divX(t), WIN.x1 - 3), cy = 1060; g.save(); g.globalAlpha = a;
-  g.fillStyle = '#FFFFFF'; g.shadowColor = 'rgba(0,0,0,0.6)'; g.shadowBlur = 10; g.fillRect(x - 1.5, WIN.y0, 3, WIN.y1 - WIN.y0);
-  g.beginPath(); g.arc(x, cy, 22, 0, 7); g.fill(); g.shadowBlur = 0; g.fillStyle = '#131722';
-  g.beginPath(); g.moveTo(x - 13, cy); g.lineTo(x - 5, cy - 7); g.lineTo(x - 5, cy + 7); g.closePath(); g.fill(); g.beginPath(); g.moveTo(x + 13, cy); g.lineTo(x + 5, cy - 7); g.lineTo(x + 5, cy + 7); g.closePath(); g.fill();
-  const k = seg(t, E.grab, E.grab + 0.3); if (k > 0) { g.globalAlpha = a * k;
-    if (x - WIN.x0 > 200) { box(x - 186, 1112, 170, 34, 'rgba(19,23,34,0.92)', '#2A2E39', 6); txt('LINES ONLY', x - 101, 1130, '700 15px VWMono', '#D1D4DC', 'center'); }
-    if (WIN.x1 - x > 200) { box(x + 16, 1112, 190, 34, 'rgba(4,9,19,0.92)', '#2F6BFF', 6); txt('WITH VOLWICK', x + 111, 1130, '700 15px VWMono', '#8AB6FF', 'center'); } }
+function divider(t) {   // Power 31 Oct 16:43: the swipe right to left, accentuated (beam, sparks, light sweep, flash on arrival)
+  const a = seg(t, E.handle, E.handle + 0.25) * (1 - seg(t, E.drop, E.drop + 0.25)); const g = VW.g, x = Math.min(divX(t), WIN.x1 - 3), cy = 1060;
+  const mv = seg(t, E.grab, E.grab + 0.05) * (1 - seg(t, E.drop - 0.04, E.drop)), H = WIN.y1 - WIN.y0;
+  if (mv > 0) { g.save(); g.beginPath(); g.rect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, H); g.clip(); g.globalCompositeOperation = 'lighter';
+    const sw = g.createLinearGradient(x, 0, x + 260, 0); sw.addColorStop(0, `rgba(47,107,255,${0.45 * mv})`); sw.addColorStop(1, 'rgba(47,107,255,0)'); g.fillStyle = sw; g.fillRect(x, WIN.y0, 260, H);
+    const bm = g.createLinearGradient(x - 40, 0, x + 40, 0); bm.addColorStop(0, 'rgba(110,155,255,0)'); bm.addColorStop(0.5, `rgba(170,200,255,${0.9 * mv})`); bm.addColorStop(1, 'rgba(110,155,255,0)'); g.fillStyle = bm; g.fillRect(x - 40, WIN.y0, 80, H);
+    for (let n = 0; n < 60; n++) { const z = hr(n + 11), y = WIN.y0 + hr(n + 23) * H, life = 0.22 + 0.2 * z, t0 = E.grab + hr(n + 37) * (E.drop - E.grab - 0.05), u = (t - t0) / life; if (u < 0 || u > 1) continue;
+      const x0 = divX(t0), px = x0 + (60 + 260 * (1 - z)) * eo(u), py = y + (hr(n + 51) - 0.5) * 60 * u, sz = 1 + 3.5 * (1 - z);
+      g.fillStyle = `rgba(200,220,255,${(1 - u) * (0.4 + 0.6 * (1 - z))})`; g.fillRect(px - sz * 4, py - sz / 2, sz * 8, sz); }
+    g.restore(); }
+  const fl = t >= E.drop ? Math.exp(-(t - E.drop) * 9) : 0; if (fl > 0.02) { g.save(); g.globalAlpha = 0.35 * fl; g.fillStyle = '#6E9BFF'; g.fillRect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, H); g.restore(); }
+  if (a <= 0) return; g.save(); g.globalAlpha = a;
+  g.fillStyle = '#FFFFFF'; g.shadowColor = mv > 0 ? 'rgba(120,165,255,1)' : 'rgba(0,0,0,0.6)'; g.shadowBlur = mv > 0 ? 26 : 10; g.fillRect(x - 2, WIN.y0, 4, H);
+  g.beginPath(); g.arc(x, cy, 26, 0, 7); g.fill(); g.shadowBlur = 0; g.fillStyle = '#131722';
+  g.beginPath(); g.moveTo(x - 15, cy); g.lineTo(x - 6, cy - 8); g.lineTo(x - 6, cy + 8); g.closePath(); g.fill(); g.beginPath(); g.moveTo(x + 15, cy); g.lineTo(x + 6, cy - 8); g.lineTo(x + 6, cy + 8); g.closePath(); g.fill();
+  const k = seg(t, E.grab, E.grab + 0.2); if (k > 0) { g.globalAlpha = a * k; const pop = 1 + 0.2 * Math.exp(-(t - E.grab) * 10);
+    if (x - WIN.x0 > 250) { g.save(); g.translate(x - 130, 1150); g.scale(pop, pop); box(-112, -24, 224, 48, 'rgba(240,243,250,0.96)', '#B2B5BE', 8); txt('PLAIN CHART', 0, 1, '800 22px VWMono', '#131722', 'center'); g.restore(); }
+    if (WIN.x1 - x > 250) { g.save(); g.translate(x + 130, 1150); g.scale(pop, pop); box(-112, -24, 224, 48, 'rgba(4,9,19,0.94)', '#2F6BFF', 8, 2); txt('VOLWICK', 0, 1, '800 22px VWMono', '#8AB6FF', 'center'); g.restore(); } }
   g.restore();
 }
 // time warp (Power 31 Oct 15:28, his track "Never stop trading", 80 BPM): ?k=0.78125 maps the 125 BPM beat (0.48 s) onto the track's half beat (0.375 s)
@@ -427,7 +485,7 @@ function renderAt(t) {
   const dx = divX(t), dragging = t >= E.grab - 0.1 && t < E.drop + 0.1;
   NOCROSS = dragging || (t >= E.handle && Math.abs(c.x - dx) < 40);
   g.save(); VW.roundRect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0, 12); g.clip();
-  if (dx > WIN.x0) { g.save(); g.beginPath(); g.rect(WIN.x0, WIN.y0, dx - WIN.x0, WIN.y1 - WIN.y0); g.clip(); drawLight(t, S, c); g.restore(); }
+  if (dx > WIN.x0) { g.save(); g.beginPath(); g.rect(WIN.x0, WIN.y0, dx - WIN.x0, WIN.y1 - WIN.y0); g.clip(); drawLight(t, S, c); plainNote(t, S); g.restore(); }
   if (t >= E.grab && dx < WIN.x1) { g.save(); g.beginPath(); g.rect(dx, WIN.y0, WIN.x1 - dx, WIN.y1 - WIN.y0); g.clip(); drawDark(t, S, c); g.restore(); }
   g.restore();
   box(WIN.x0 + 0.5, WIN.y0 + 0.5, WIN.x1 - WIN.x0 - 1, WIN.y1 - WIN.y0 - 1, null, 'rgba(255,255,255,0.12)', 12);
@@ -449,7 +507,7 @@ window.READY = (async () => {
   const S0 = state(0), Sc = state(E.contact), bp = { x: R.bp.x + 26, y: R.bp.y + 15 }, hy = 1060, wallPt = { x: 640, y: Y(WALLS[TIPW].p) };
   const lineX = X(57, Sc) - 70;                                    // just left of where price meets the line
   KF = [ [0, lineX, Y(SUP)], [1.7, lineX + 3, Y(SUP)], [2.15, WIN.x1 - 4, hy, 0.12], [E.grab, WIN.x1 - 3, hy], [E.drop, WIN.x0 + 20, hy + 6, 0.02], [3.2, WIN.x0 + 24, hy + 8],
-    [4.9, bp.x - 60, bp.y + 140, 0.1], [5.2, bp.x, bp.y, -0.06], [5.4, bp.x + 1, bp.y], [6.0, wallPt.x - 40, wallPt.y + 30, 0.1], [E.tip, wallPt.x, wallPt.y], [T_END, wallPt.x + 4, wallPt.y - 1] ];
+    [3.55, bp.x - 60, bp.y + 140, 0.1], [E.prints, bp.x, bp.y, -0.06], [3.98, bp.x + 1, bp.y], [4.6, wallPt.x - 150, wallPt.y + 120, 0.1], [5.6, wallPt.x - 130, wallPt.y + 110], [6.0, wallPt.x - 40, wallPt.y + 30, 0.1], [E.tip, wallPt.x, wallPt.y], [T_END, wallPt.x + 4, wallPt.y - 1] ];
   window.render = render; render(0);
   const sc = v => typeof v === 'number' ? v * K : v, ev = {}; for (const [k, v] of Object.entries(E)) ev[k] = sc(v);
   return { total: T_END * K + (TOTAL - T_END), events: { ...ev, clicks: CLICKS.map(sc), end: T_END * K, logo0: T_END * K, k: K } };

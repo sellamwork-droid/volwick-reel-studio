@@ -82,6 +82,10 @@
     {
       "data": "2026-10-31 17:18",
       "testo": "Power 17:14: del volume tiene Pressa (2) e Cascata (3). Cascata: più particelle arrivano alla zona del volume in basso, più si illumina. Pressa: mentre scende zoom leggero e scritta tipo ABSORPTION. Sfondo più scuro come il terminale Volwick e la sua griglia su tutto il reel. Lavorare a segmenti: solo i 2-3 secondi in prova finché non approva."
+    },
+    {
+      "data": "2026-10-31 17:32",
+      "testo": "Power 17:21: griglia di sfondo sfumata ai lati (si capisce dov'è il video e dov'è lo sfondo); al tocco il livello si illumina e si rallenta, poi il prezzo scende; animazione di discesa più pulita; niente barre nuove sopra quelle del volume: amplificare quelle che esistono."
     }
   ],
   "lezioni": [
@@ -94,10 +98,11 @@
     "T4 in stile 3D (V0006 v6, scenes/v0006_3d): grafico normale = pannello bianco nello spazio che si ripiega in una linea, la linea disegna la riga dei layer (secBar di V0010), terminale a tutta pagina con zoom della scala (ZF/ZX/PF, non dell'immagine), BLOCKED. sul tocco, candele 3D nel muro luminoso, finale 3D. Il punto d'aggancio dell'hook lo restituisce READY (events.hook).",
     "Ispirarsi a un altro video vuol dire prenderne lo stile (profondità, luce, ritmo, camera), non i pezzi: niente sezioni riusate uguali (riga dei layer disegnata dalla linea, nomi che volano nelle caselle, blocco candele 3D con contatore, logo a fili). Ogni passaggio nasce dalla storia del video stesso.",
     "Grafico sempre frontale, 3D solo negli effetti. Il T4 mostra la differenza: grafico normale = sale e scende; Volwick = volume assorbito sul call wall (Block Prints, contatore) e prezzo che riprende a scendere; swipe destra-sinistra accentuato. Durante l'effetto il grafico scorre a sinistra per lasciare spazio a destra del prezzo.",
-    "Le modifiche si provano a segmenti (solo i secondi interessati, render_seg.py) finché Power non approva; poi si mettono nel video intero. Sfondo del reel nero come il terminale con la sua griglia quadrata #14171B, così la finestra del grafico non ha bordi."
+    "Le modifiche si provano a segmenti (solo i secondi interessati, render_seg.py) finché Power non approva; poi si mettono nel video intero. Sfondo del reel nero come il terminale con la sua griglia quadrata #14171B, così la finestra del grafico non ha bordi.",
+    "Mai disegnare elementi nuovi sopra quelli del grafico che esistono già (es. barre del volume): si amplificano quelli veri. Nei momenti chiave (tocco del livello) livello illuminato + rallenty prima dell'effetto."
   ],
   "pubblicazioni": [],
-  "aggiornato": "2026-10-31 17:18",
+  "aggiornato": "2026-10-31 17:32",
   "titolo": "Falsa rottura sotto il call wall",
   "numero": 6,
   "data_uscita": "31-10-2026",

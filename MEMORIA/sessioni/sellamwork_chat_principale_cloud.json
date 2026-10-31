@@ -2,6 +2,7 @@
   "chi": "sellamwork · chat principale · cloud",
   "inizio": "2026-10-31T02:08+00:00",
   "storia": [
+    "31/10 18:43 V0012 v2: render 4K in corso",
     "31/10 18:33 V0012 consegnato su Drive (01_EDIT/04), attendo il giudizio di Power",
     "31/10 18:33 consegnato V0012 su Drive, da rivedere",
     "31/10 17:46 V0012: render 4K in corso",
@@ -15,12 +16,11 @@
     "31/10 16:40 V0010 v4 consegnato su Drive (01_EDIT/03, v3 in archivio), attendo il giudizio di Power",
     "31/10 16:40 consegnato V0010 su Drive, da rivedere",
     "31/10 16:34 V0010 v4: render in corso (ritocchi di Power 16:32)",
-    "31/10 05:42 V0010 v3 consegnato su Drive (01_EDIT/03, v2 in archivio), attendo il giudizio di Power",
-    "31/10 05:41 consegnato V0010 su Drive, da rivedere"
+    "31/10 05:42 V0010 v3 consegnato su Drive (01_EDIT/03, v2 in archivio), attendo il giudizio di Power"
   ],
-  "ultimo": "2026-10-31T17:33+00:00",
+  "ultimo": "2026-10-31T17:43+00:00",
   "stato": "attiva",
-  "cosa": "V0012 consegnato su Drive (01_EDIT/04), attendo il giudizio di Power",
+  "cosa": "V0012 v2: render 4K in corso",
   "computer": "vm",
   "video": "V0012"
 }

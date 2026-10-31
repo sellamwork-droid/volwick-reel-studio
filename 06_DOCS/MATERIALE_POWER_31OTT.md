@@ -18,7 +18,7 @@ Indicazione di Power: effetti sonori, speech motivazionali, musiche e sottofondi
 - `Background/` e `Speach motivazionali/`: sul Drive risultano vuote (forse ancora in caricamento). Da ricontrollare.
 Come si studiano: durata, BPM dove serve, tono, a cosa serve (click sulle scritte, whoosh sui tagli, apertura e chiusura), licenza. Registrare in `02_AUDIO/CATALOGO_AUDIO.csv`. Regola che resta: si mixa solo con la licenza confermata; i brani famosi non si mixano mai.
 
-## 3. Video grezzi nostri · `03_VIDEO_CONSIGLIATI/07_ALTRO/Video personali row/`
+## 3. Video grezzi nostri · `03_VIDEO_CONSIGLIATI/07_ALTRO/Video personali row/` · STUDIATI: `06_DOCS/RIFERIMENTI/VIDEO_GREZZI_NOSTRI.md`
 Indicazione di Power: tanti video grezzi registrati da noi, da studiare perché possono sempre servire.
 - 5 MOV iPhone grandi del 28 ottobre: IMG_2191 (48 MB), IMG_2192 (39 MB), IMG_2194 (55 MB), IMG_2196 (115 MB), IMG_2197 (46 MB).
 - 5 MOV corti del 21 ottobre: IMG_3028, IMG_3065, IMG_3079, IMG_3085, IMG_3091 (0,5–1,8 MB).

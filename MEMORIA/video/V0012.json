@@ -6,14 +6,33 @@
   "scena": "00_MOTORE/scenes/v0012_edit3d_b",
   "hook": null,
   "evento": "edit 3D: parole impilate, tagli sotto la riga dei layer, rottura del put wall short gamma con colore che segue il mercato, contatore dei Block Prints",
-  "layer": [],
-  "titoli": [],
-  "durata_s": null,
-  "render": "",
+  "layer": [
+    "WALLS",
+    "MAPS",
+    "BLOCK PRINTS",
+    "CVD",
+    "CDI",
+    "FLOW"
+  ],
+  "titoli": [
+    "SEE",
+    "WHERE",
+    "DEALERS",
+    "HEDGE.",
+    "PUT WALL · SHORT γ",
+    "BLOCK PRINTS",
+    "2,000 CONTRACTS · 7,738.50 · 3 BLOCKS"
+  ],
+  "durata_s": 19.45,
+  "render": "4K 2160x3840 60 fps HEVC",
   "stato": "in-lavorazione",
   "creato": "2026-10-31 17:41",
   "sessione": "sellamwork · chat principale · cloud",
   "feedback": [],
-  "lezioni": [],
-  "pubblicazioni": []
+  "lezioni": [
+    "Nelle candele 3D (InstancedMesh) una candela non ancora arrivata si scala a zero su tutti gli assi: una scatola alta zero si vede lo stesso come un trattino piatto."
+  ],
+  "pubblicazioni": [],
+  "audio": "Tyga - LAST KING MIX 37:17.06 +19.5 s + effetti (sound.py)",
+  "aggiornato": "2026-10-31 18:10"
 }

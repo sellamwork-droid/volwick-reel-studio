@@ -9,7 +9,9 @@ const { seg, lin, eo, eio, mix, clamp } = VW;
 const TOTAL = 20.4;
 let D, BARS, SUP;
 // ---------- geometry ----------
-const WIN = { x0: 96, x1: 940, y0: 498, y1: 1548 };   // fills the safe zone (rule 30 Oct 15:44)
+// logo position test (Power 31 Oct 03:49): ?logo=tl (old, top left) · top (centered above) · bottom (centered under the chart) · none
+const LOGO = new URLSearchParams(location.search).get('logo') || 'tl';
+const WIN = { x0: 96, x1: 940, y0: 498, y1: LOGO === 'bottom' ? 1474 : 1548 };   // fills the safe zone (rule 30 Oct 15:44)
 const HDR1 = 498, HDR = 618, LB = WIN.y1 - 98, DB = WIN.y1 - 34;   // light chart bottom (replay bar under it), dark chart bottom
 const CX0L = 140, CX0D = 96, CX1 = 858;
 const PTOP = 7745.0, PX = 24.0;   // tighter scale: the walls fill the window
@@ -336,6 +338,11 @@ function crashFx(t, S) {
       g.globalAlpha = k; g.fillStyle = gr; g.fillRect(x, Y(p0), 7, Y(p1) - Y(p0)); g.beginPath(); g.moveTo(x - 10, Y(p1) - 10); g.lineTo(x + 17, Y(p1) - 10); g.lineTo(x + 3.5, Y(p1) + 10); g.closePath(); g.fill(); }
     g.restore(); }
 }
+function logoAt(a) {
+  if (LOGO === 'none' || a <= 0) return; if (LOGO === 'tl') return VW.logoTL(a, '', 46, 24, true);
+  const g = VW.g, wm = VW.assets.wm, h = 46, w = h * wm.width / wm.height, x = 540 - w / 2, y = LOGO === 'top' ? 264 : 1496;
+  g.save(); g.globalAlpha = a; g.globalCompositeOperation = 'lighter'; g.drawImage(wm, x, y, w, h); g.globalAlpha = 0.45 * a; g.drawImage(wm, x, y, w, h); g.restore();
+}
 function divX(t) { return t < E.grab ? WIN.x1 : mix(WIN.x1, WIN.x0 - 2, eio(lin(t, E.grab, E.drop))); }
 function divider(t) {
   const a = seg(t, E.handle, E.handle + 0.25) * (1 - seg(t, E.drop, E.drop + 0.25)); if (a <= 0) return; const g = VW.g, x = Math.min(divX(t), WIN.x1 - 3), cy = 1060; g.save(); g.globalAlpha = a;
@@ -367,7 +374,7 @@ function render(t) {
       g.beginPath(); g.moveTo(c.x - 14, c.y); g.lineTo(c.x + 14, c.y); g.moveTo(c.x, c.y - 14); g.lineTo(c.x, c.y + 14); g.stroke(); g.restore(); }
     else VX.cursor(c.x, c.y, 1, lightHere, pr); }
   crashFx(t, S); g.restore();
-  VW.logoTL(1 - seg(t, T_END, T_END + 0.25), '', 46, 24, true);
+  logoAt(1 - seg(t, T_END, T_END + 0.25));
   overlay(t); disclosure(t); endCard(t);
   g.restore();
 }

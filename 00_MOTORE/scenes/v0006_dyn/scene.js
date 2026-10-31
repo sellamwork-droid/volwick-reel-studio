@@ -115,7 +115,29 @@ function cube(x, y, s, a, lab) { const g = VW.g, d = s * 0.45; g.save(); g.globa
   g.fillStyle = '#9C7A1E'; g.beginPath(); g.moveTo(x + s / 2, y - s); g.lineTo(x + s / 2 + d, y - s - d * 0.7); g.lineTo(x + s / 2 + d, y - d * 0.7); g.lineTo(x + s / 2, y); g.closePath(); g.fill();
   const gr = g.createLinearGradient(0, y - s, 0, y); gr.addColorStop(0, '#E9BE45'); gr.addColorStop(1, '#C39222'); g.fillStyle = gr; g.shadowColor = VX.GOLD; g.shadowBlur = 20; g.fillRect(x - s / 2, y - s, s, s); g.shadowBlur = 0;
   if (lab) txt(lab, x, y - s / 2, '800 15px VWMono', '#1A1300', 'center'); g.restore(); }
+// the drops land on the real volume bars of the touch: each landed drop makes that bar taller and brighter (no extra bars drawn)
+const DROPB = [55, 56, 57, 58], DN = 16, DDUR = 0.4, dropT0 = (bi, n) => 4.95 + bi * 0.1 + n * 0.045;
+let TNOW = 0;
+const VAMP = i => { if (ABS !== 11 && ABS !== 12) return 0; const bi = DROPB.indexOf(i); if (bi < 0) return 0; let got = 0; for (let n = 0; n < DN; n++) if (TNOW >= dropT0(bi, n) + DDUR) got++; return (got / DN) * (1 - seg(TNOW, 5.95, 6.35)); };
+function levelLight(t, wx, wy) { const g = VW.g, k = seg(t, 4.70, 4.76) * (1 - seg(t, 5.6, 5.95)), pulse = 0.6 + 0.4 * Math.sin((t - 4.7) * 22) * Math.exp(-Math.max(0, t - 4.76) * 3); if (k <= 0) return; const col = VX.WALL.callL, y = Math.round(wy) + 0.5;
+  g.save(); g.globalCompositeOperation = 'lighter'; const band = g.createLinearGradient(0, y - 26, 0, y + 26); band.addColorStop(0, VW.rgba(col, 0)); band.addColorStop(0.5, VW.rgba(col, 0.45 * k * pulse)); band.addColorStop(1, VW.rgba(col, 0)); g.fillStyle = band; g.fillRect(CX0D, y - 26, CX1 - CX0D, 52);
+  g.strokeStyle = VW.rgba('#E9FFF4', k); g.lineWidth = 3 + 2 * pulse; g.shadowColor = col; g.shadowBlur = 30; g.beginPath(); g.moveTo(CX0D, y); g.lineTo(CX1, y); g.stroke();
+  const sw = eo(seg(t, 4.70, 4.95)); if (sw < 1) { const xs = mix(wx, CX0D, sw), xe = mix(wx, CX1, sw); g.fillStyle = VW.rgba('#FFFFFF', (1 - sw) * k); g.fillRect(xs, y - 2, 30, 4); g.fillRect(xe - 30, y - 2, 30, 4); }
+  g.restore(); }
 function absorbFx(t, S) {
+  if (ABS === 11 || ABS === 12) {   // clean: level lights up on the touch, then the volume drops into the existing volume bars, which grow and light up
+    if (t < 4.6 || t > 6.4) return; const g = VW.g, wx = X(57, S), wy = Y(7733.25), gold = VX.GOLD; levelLight(t, wx, wy);
+    const out = 1 - seg(t, 5.95, 6.35); g.save(); g.globalCompositeOperation = 'lighter';
+    DROPB.forEach((i, bi) => { const b = barAt(i, S); if (!b) return; const x = X(i, S), vtop = DB - Math.min(40, b.v / 3600 * 40) * (1 + 2.6 * VAMP(i));
+      for (let n = 0; n < DN; n++) { const t0 = dropT0(bi, n), u = (t - t0) / DDUR; if (u <= 0 || u >= 1) continue;
+        const sx = ABS === 12 ? wx + (n % 3 - 1) * 6 : x + (n % 3 - 1) * 2, sy = ABS === 12 ? wy + 6 : Y(Math.min(b.o, b.c)) + 4, q = u * u, px = mix(sx, x + (n % 3 - 1) * 2, ABS === 12 ? eio(Math.min(1, u * 1.6)) : 1), py = mix(sy, vtop - 2, q), len = 30 + 60 * q;
+        const gr = g.createLinearGradient(0, py - len, 0, py); gr.addColorStop(0, VW.rgba(gold, 0)); gr.addColorStop(1, VW.rgba('#FFF2C4', out)); g.fillStyle = gr; g.fillRect(px - 2, py - len, 4, len);
+        g.fillStyle = VW.rgba('#FFFFFF', out); g.shadowColor = gold; g.shadowBlur = 12; g.beginPath(); g.arc(px, py, 3, 0, 7); g.fill(); g.shadowBlur = 0; } });
+    g.globalCompositeOperation = 'source-over';
+    const mk = seg(t, 4.95, 5.05) * (1 - seg(t, 5.9, 6.15)); if (mk > 0) { const n = Math.round(2500 * eo(lin(t, 4.95, 5.5)) / 50) * 50, mx = CX0D + 18, my = Y(SUP) + 16, mw = 330;
+      g.globalAlpha = mk; box(mx, my, mw, 58, 'rgba(10,8,0,0.9)', gold, 7, 2); txt('ABSORBED AT THE WALL', mx + 14, my + 17, '700 14px VWMono', '#C9B27A');
+      txt(n.toLocaleString('en-US'), mx + mw - 14, my + 17, '800 20px VWMono', gold, 'right'); box(mx + 14, my + 36, mw - 28, 10, '#2A2410', null, 5); box(mx + 14, my + 36, (mw - 28) * n / 2500, 10, gold, null, 5); g.globalAlpha = 1; }
+    g.restore(); return; }
   const T0 = 4.3, T1 = 4.85, HIT = E.top2; if (t < T0 || t > 6.4) return; const g = VW.g, wx = X(57, S), wy = Y(7733.25), gold = VX.GOLD;
   const hx = X(S.k, S), hy = Y(lastPrice(S)), down = seg(t, 4.95, 5.1) * (1 - seg(t, 5.8, 6.2));
   g.save(); g.globalCompositeOperation = 'lighter';
@@ -241,7 +263,7 @@ function candles(S, th, x0, yb) {
     const col = b.c >= b.o ? up : dn; g.fillStyle = col; g.fillRect(x - 0.75, Y(b.h), 1.5, Y(b.l) - Y(b.h));
     const y0 = Y(Math.max(b.o, b.c)), y1 = Y(Math.min(b.o, b.c)); g.fillRect(x - w / 2, y0, w, Math.max(1.5, y1 - y0));
     // volume
-    const vmax = th === 'light' ? 56 : 40, vh = Math.min(vmax, b.v / 3600 * vmax); g.globalAlpha = th === 'light' ? 0.4 : 0.4; g.fillRect(x - w / 2, yb - vh, w, vh); g.globalAlpha = 1; }
+    const vmax = th === 'light' ? 56 : 40, am = th === 'dark' ? VAMP(i) : 0, vh = Math.min(vmax, b.v / 3600 * vmax) * (1 + 2.2 * am); g.globalAlpha = th === 'light' ? 0.4 : 0.4 + 0.6 * am; if (am > 0) { g.fillStyle = VW.mixColor ? col : col; g.shadowColor = VX.GOLD; g.shadowBlur = 24 * am; g.fillStyle = am > 0.02 ? VX.GOLD : col; } g.fillRect(x - w / 2, yb - vh, w, vh); g.shadowBlur = 0; g.globalAlpha = 1; }
 }
 function timeAxis(S, x0, y, th) {
   const g = VW.g; for (let i = 0; i <= 92; i++) { const m = 10 * 60 + 2 + i; if (m % 15) continue; const x = X(i, S); if (x < x0 + 20 || x > CX1 - 20) continue;
@@ -469,7 +491,7 @@ let CAM = { x: 0, y: 0, s: 1, fx: 540, fy: 960 };
 function flashA(t) { let a = 0; [[E.top1, 0.22], [E.top2, 0.26]].forEach(([th, m]) => { const d = t - th; if (d >= 0) a = Math.max(a, m * Math.exp(-d * 14)); }); return a; }
 function crashFx(t, S) {
   const g = VW.g, dark = t >= E.drop, x0 = dark ? CX0D : CX0L, y1 = dark ? DB : LB;
-  const fa = flashA(t); if (fa > 0.01) { g.save(); g.globalAlpha = fa; g.fillStyle = t >= E.top2 ? '#BFFFE6' : '#FFFFFF'; g.fillRect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0); g.restore(); }
+  const fa = FR === 4 ? 0 : flashA(t); if (fa > 0.01) { g.save(); g.globalAlpha = fa; g.fillStyle = t >= E.top2 ? '#BFFFE6' : '#FFFFFF'; g.fillRect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0); g.restore(); }
   const moving = (t < 1.92) || (t > 3.84 && t < 6.2); if (!moving) return;
   g.save(); g.beginPath(); g.rect(x0, HDR, CX1 - x0, y1 - HDR); g.clip();
   const p0 = lastPrice(state(Math.max(0, t - 0.22))), p1 = lastPrice(S), up = p1 > p0, col = up ? (dark ? '#2FB67C' : '#089981') : (dark ? '#E2575F' : '#F23645');
@@ -537,12 +559,18 @@ function divider(t) {   // Power 31 Oct 16:43: the swipe right to left, accentua
 const K = +(new URLSearchParams(location.search).get('k') || 1);
 // terminal bar (Power 31 Oct 15:36: crowded, empty on the right, half the controls unused): ?hdr=1 only the controls the video uses, big · ?hdr=2 the full layer row spread over the whole width, unused ones dimmed
 const HDRV = +(new URLSearchParams(location.search).get('hdr') || 2);   // Power 31 Oct 15:58: bar 2 chosen
-function render(t) { renderAt(t < T_END * K ? t / K : T_END + (t - T_END * K)); }
+// Power 31 Oct 17:21: on the touch the level lights up and the replay slows down (?slow=1), then the price drops
+const SLOW = +(new URLSearchParams(location.search).get('slow') || 0), SA = 4.70, SB = 5.02, SR = 0.28, SD = (SB - SA) / SR;
+const slowMap = u => !SLOW || u <= SA ? u : u <= SA + SD ? SA + (u - SA) * SR : u - SD + (SB - SA);
+function render(t) { renderAt(slowMap(t < T_END * K ? t / K : T_END + (t - T_END * K))); }
 function renderAt(t) {
+  TNOW = t;
   const g = VW.g, S = state(t); g.save(); g.fillStyle = '#040913'; g.fillRect(0, 0, 1080, 1920);
   setView(t, S);
   const bg = g.createLinearGradient(0, 0, 0, 1920); bg.addColorStop(0, FR ? '#000' : '#060C1A'); bg.addColorStop(1, FR ? '#000' : '#03060D'); g.fillStyle = bg; g.fillRect(0, 0, 1080, 1920);
-  CUR_S = S; if (FR === 4) { const c0 = camera(t, S); vwGrid(0, 1080, 0, 1920, c0.x, c0.y); }
+  CUR_S = S; if (FR === 4) { const c0 = camera(t, S); g.save(); g.filter = 'blur(1.6px)'; vwGrid(0, 1080, 0, 1920, c0.x, c0.y); g.restore();
+    const fade = (ax, ay, bx, by, rx, ry, rw, rh) => { const gr = g.createLinearGradient(ax, ay, bx, by); gr.addColorStop(0, 'rgba(0,0,0,0.92)'); gr.addColorStop(1, 'rgba(0,0,0,0.25)'); g.fillStyle = gr; g.fillRect(rx, ry, rw, rh); };
+    fade(0, 0, 0, WIN.y0, 0, 0, 1080, WIN.y0); fade(0, 1920, 0, WIN.y1, 0, WIN.y1, 1080, 1920 - WIN.y1); fade(0, 0, WIN.x0, 0, 0, WIN.y0, WIN.x0, WIN.y1 - WIN.y0); fade(1080, 0, WIN.x1, 0, WIN.x1, WIN.y0, 1080 - WIN.x1, WIN.y1 - WIN.y0); }
   let c = cursorAt(t); const jt = jitter(t); c = { x: c.x + jt.x, y: c.y + jt.y };
   const cam = camera(t, S); CAM = cam; g.save(); { VW.roundRect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0, 12); g.clip(); } g.translate(cam.x, cam.y); if (cam.s !== 1) { g.translate(cam.fx, cam.fy); g.scale(cam.s, cam.s); g.translate(-cam.fx, -cam.fy); }
   if (!FR) { g.save(); g.shadowColor = 'rgba(0,0,0,0.6)'; g.shadowBlur = 40; box(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0, '#000', null, 12); g.restore(); }

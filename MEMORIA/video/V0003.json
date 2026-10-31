@@ -1,13 +1,18 @@
 {
   "id": "V0003",
   "issue": 3,
-  "nome": "Spiegazione con voce",
+  "nome": "The Pin",
   "formato": "T2",
   "scena": "00_MOTORE/scenes/v0003_voce",
   "hook": null,
-  "evento": "da definire nel brief",
-  "layer": [],
-  "titoli": [],
+  "evento": "ES fermo in 2,5 punti su un call wall long γ (+$21.6M): la copertura dei dealer vende i rialzi e compra i ribassi; lontano dal muro il range si riapre",
+  "layer": [
+    "WALLS (call wall long γ)"
+  ],
+  "titoli": [
+    "PRICE IS STUCK.",
+    "IT'S NOT AN ACCIDENT."
+  ],
   "durata_s": null,
   "render": "",
   "stato": "in-lavorazione",
@@ -15,5 +20,7 @@
   "sessione": "chat principale (cloud)",
   "feedback": [],
   "lezioni": [],
-  "pubblicazioni": []
+  "pubblicazioni": [],
+  "voce": "HeyGen Matthew, elevenlabs eleven_multilingual_v2, corpo 26,8 s + chiusura 3,8 s a 0,92",
+  "aggiornato": "2026-10-31 02:38"
 }

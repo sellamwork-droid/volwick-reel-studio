@@ -332,8 +332,8 @@ function secMarket(g, t) {
   const hz = g.createRadialGradient(540, 980, 40, 540, 980, 1200); hz.addColorStop(0, `rgba(${r},${gg},${bb},0.22)`); hz.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = hz; g.fillRect(0, 0, W, H);
   for (let i = 0; i < N3; i++) { const b = TB3[i], g0 = clamp(nb - i, 0, 1), up = b.c >= b.o; C.set(up ? 0x2FB67C : 0xE2575F);
     const top = RY3(Math.max(b.o, b.c)), bot = RY3(Math.min(b.o, b.c)), hb = Math.max(6, top - bot) * g0;
-    M.makeScale(34, hb, 34); M.setPosition(RX3(i), bot + hb / 2, 0); mk3.setMatrixAt(i * 2, M); mk3.setColorAt(i * 2, C);
-    const hw = (RY3(b.h) - RY3(b.l)) * g0; M.makeScale(7, Math.max(1, hw), 7); M.setPosition(RX3(i), RY3(b.l) + hw / 2, 0); mk3.setMatrixAt(i * 2 + 1, M); mk3.setColorAt(i * 2 + 1, C); }
+    const z0 = g0 > 0.001 ? 1 : 0; M.makeScale(34 * z0, hb, 34 * z0); M.setPosition(RX3(i), bot + hb / 2, 0); mk3.setMatrixAt(i * 2, M); mk3.setColorAt(i * 2, C);
+    const hw = (RY3(b.h) - RY3(b.l)) * g0; M.makeScale(7 * z0, Math.max(1, hw) * z0, 7 * z0); M.setPosition(RX3(i), RY3(b.l) + hw / 2, 0); mk3.setMatrixAt(i * 2 + 1, M); mk3.setColorAt(i * 2 + 1, C); }
   mk3.instanceMatrix.needsUpdate = true; mk3.instanceColor.needsUpdate = true; S_MKT.fog.color.setRGB(col[0] * 0.06, col[1] * 0.06, col[2] * 0.08);
   const hp = Math.exp(-Math.pow((t - T.down) / 0.08, 2)), hg = Math.exp(-Math.pow((t - T.gold) / 0.08, 2));
   putG3.material.uniforms.k.value = 0.7 + 2.5 * hp; bplG3.material.uniforms.k.value = 0.6 + 3 * hg; bpOct.forEach((d, j) => { d.visible = cb >= [36, 38, 40][j] - 0.4; d.rotation.y = t * 3 + j; d.scale.setScalar(1 + 0.8 * hg); });
@@ -342,9 +342,9 @@ function secMarket(g, t) {
   setCam(CAM, px + mix(-500, -900, sw), py + mix(900, 220, sw), mix(1300, 1700, sw), px + mix(150, 350, sw), py + mix(-150, 120, sw), -200, mix(-0.12, 0.05, sw));
   starsCam(t, -0.1, 1.2); stars.material.color.setRGB(mix(1, col[0] * 1.4, 0.5), mix(1, col[1] * 1.4, 0.5), mix(1, col[2] * 1.4, 0.5));
   draw3D([[S_STARS, CAMS], [S_MKT, CAM]]); stars.material.color.setRGB(1, 1, 1); blit(g, 1, 0.75);
-  const P = (i, p) => proj(new THREE.Vector3(RX3(i), RY3(p), 0)), la = eo(lin(t, T.c3 + 0.1, T.c3 + 0.4));
+  const P = (i, p) => proj(new THREE.Vector3(RX3(i), RY3(p), 0)), la = eo(lin(t, T.c3 + 0.1, T.c3 + 0.4)) * (1 - lin(t, T.c4 - 0.3, T.c4 - 0.1));
   const l1 = P(cb - 9, PUTS); g.save(); g.globalAlpha = la; g.letterSpacing = '3px'; g.shadowColor = '#C88BE8'; g.shadowBlur = 16; txt(g, 'PUT WALL · SHORT γ', 110, clamp(l1[1] - 34, 480, 1480), '700 30px VWMono', '#E0B2FF'); g.restore();
-  if (t > T.gold - 0.1) { const l2 = P(cb - 9, BPL); g.save(); g.globalAlpha = eo(lin(t, T.gold - 0.1, T.gold + 0.1)); g.letterSpacing = '3px'; g.shadowColor = '#F2C14E'; g.shadowBlur = 16; txt(g, 'BLOCK PRINTS', 110, clamp(l2[1] + 44, 480, 1480), '700 30px VWMono', '#FFD978'); g.restore(); }
+  if (t > T.gold - 0.1) { const l2 = P(cb - 9, BPL); g.save(); g.globalAlpha = la * eo(lin(t, T.gold - 0.1, T.gold + 0.1)); g.letterSpacing = '3px'; g.shadowColor = '#F2C14E'; g.shadowBlur = 16; txt(g, 'BLOCK PRINTS', 110, clamp(l2[1] + 44, 480, 1480), '700 30px VWMono', '#FFD978'); g.restore(); }
   const ov = (hp * 0.22 + hg * 0.25); if (ov > 0.02) { g.fillStyle = `rgba(${r},${gg},${bb},${ov})`; g.fillRect(0, 0, W, H); }
   txt(g, 'Simulated ES session.', 540, 1540, '500 19px VWMono', '#7F8AA0', 'center');
 }

@@ -12,12 +12,16 @@
   ],
   "durata_s": 19.5,
   "render": "Drive: 01_VIDEO/01_EDIT/CREATIVE05_EDIT_125_BPM",
-  "stato": "da-rifare",
+  "stato": "superato",
   "creato": "2026-10-30 14:00",
   "feedback": [
     {
       "data": "2026-10-30 22:30",
       "testo": "Da allineare: riga dei layer nuova e finale approvato"
+    },
+    {
+      "data": "2026-10-31 02:34",
+      "testo": "Superato da V0002 (stesso edit con hook, riga dei layer nuova e finale approvato)"
     }
   ],
   "lezioni": [
@@ -26,5 +30,6 @@
   "issue": null,
   "titoli": [],
   "pubblicazioni": [],
-  "sessione": "chat principale (cloud)"
+  "sessione": "chat principale (cloud)",
+  "aggiornato": "2026-10-31 02:34"
 }

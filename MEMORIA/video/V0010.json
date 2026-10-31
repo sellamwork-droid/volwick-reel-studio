@@ -61,7 +61,8 @@
     "Negli edit niente slogan generici o scritte che non dicono niente (es. 'See the walls'): ogni scritta e ogni carta deve mostrare una funzione vera del terminale con la sua logica (cosa si attiva, cosa si vede sul grafico). Niente transizioni astratte scollegate dal prodotto (onde blu): ogni passaggio nasce da un elemento di Volwick (linea del prezzo, riga dei layer, muri).",
     "Il tasto e la casella di BLOCK PRINTS sono dorati (oro #F2C14E), ovunque: riga dei layer, carte, titoli.",
     "Sopra le carte dei layer non si scrive il gruppo (DEALER, ACTIVITY) ma un nome tecnico diverso per ogni carta: GAMMA LEVELS, LARGE TRADES, ORDER FLOW, EXPIRATIONS, GREEKS, HEATMAP, 0DTE PREMIUM, ASK VS BID (scene/v0010_edit3d, campo h di PANELS).",
-    "Negli edit la parte del trade resta pulita: due muri, il prezzo che sale e il P&L che sale sulla destra. Niente etichette di stop, long, quantità o livelli in più: se serve spiegare, l'edit non è pulito."
+    "Negli edit la parte del trade resta pulita: due muri, il prezzo che sale e il P&L che sale sulla destra. Niente etichette di stop, long, quantità o livelli in più: se serve spiegare, l'edit non è pulito.",
+    "4K: la scena v0010_edit3d si apre con index.html?k4=1 e si renderizza con scenes/v0010_edit3d/render4k.py (DSF=2): 2160x3840 60 fps in circa 25 minuti. Per stare sotto i 30 MB del passaggio verso Drive si codifica in HEVC a 12 Mbit/s in due passate (-tag:v hvc1). Gli effetti sonori a tempo stanno in scenes/v0010_edit3d/sound.py, mixati sotto il brano."
   ],
   "pubblicazioni": [],
   "audio": "brano del riferimento allungato + effetti sonori a tempo (sound.py della scena)",

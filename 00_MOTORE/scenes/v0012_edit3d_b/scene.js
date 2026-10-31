@@ -372,7 +372,7 @@ function secPile(g, t) {
   g.save(); g.globalAlpha = ka; g.letterSpacing = '4px'; txt(g, 'CONTRACTS · 7,738.50 · 3 BLOCKS', 540, 612, '700 30px VWMono', '#F2C14E', 'center'); g.restore();
   txt(g, 'Simulated ES session.', 540, 1540, '500 19px VWMono', '#7F8AA0', 'center');
 }
-// ---------- S5: approved ending, the V forms from a swarm of particles ----------
+// ---------- S5: approved ending (same elements, texts and layout as VX.end), the V forms from a swarm of particles ----------
 let S_SWARM, swarm, swarmPos, swarmFrom, swarmTo;
 function buildSwarm() { S_SWARM = new THREE.Scene(); const n = 2400; swarmPos = new Float32Array(n * 3); swarmFrom = new Float32Array(n * 3); swarmTo = new Float32Array(n * 3); const col = new Float32Array(n * 3), r = VW.rng(55);
   const all = CONT.flatMap(c => c), sz = 640 * 0.94, cy = 260;

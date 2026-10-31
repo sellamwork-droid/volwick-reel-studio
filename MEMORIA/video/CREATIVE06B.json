@@ -21,7 +21,7 @@
     "TRADE WITH INSTITUTIONAL CONTEXT."
   ],
   "durata_s": 21.6,
-  "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/CREATIVE06B_THE_DROP_HOOK.mp4",
+  "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/04 Caduta sul supporto e rimbalzo sul put wall (30-10-2026).mp4",
   "stato": "approvato",
   "creato": "2026-10-30 16:30",
   "feedback": [
@@ -37,5 +37,9 @@
   ],
   "issue": null,
   "pubblicazioni": [],
-  "sessione": "chat principale (cloud)"
+  "sessione": "chat principale (cloud)",
+  "titolo": "Caduta sul supporto e rimbalzo sul put wall",
+  "video_principale": "CREATIVE06B_THE_DROP_HOOK.mp4",
+  "data_uscita": "30-10-2026",
+  "numero": 4
 }

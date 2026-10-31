@@ -228,7 +228,7 @@ LEGGIMI_DRIVE = """VOLWICK REEL STUDIO · cartella condivisa
                 03_VIDEO_CONSIGLIATI  video di altri da studiare, nella cartella del tipo che ispirano (o hook, competitor, altro):
 """ + "".join(f"                      {c:<28}{t}\n" for c, t in CATEGORIE) + """                Il primo Claude che parte li cataloga e li sposta in 02_LIBRERIA o nel motore. Non serve dire niente.
 01_VIDEO        i video finiti, divisi nei 4 tipi:
-""" + "".join(f"                      {c:<28}{t}\n" for _, c, t in TIPI) + """                dentro ogni tipo SOLO i video finiti e completi, un file per video: <ID>_<NOME>.mp4. Nient'altro.
+""" + "".join(f"                      {c:<28}{t}\n" for _, c, t in TIPI) + """                dentro ogni tipo SOLO i video finiti e completi, un file per video: '01 Titolo (data di uscita).mp4', numerati dal 1. Nient'altro.
 02_LIBRERIA     musica e video consigliati già catalogati, con le stesse categorie.
 03_ARCHIVIO_CARICAMENTI   gli originali caricati, per data.
 04_ARCHIVIO_VIDEO         tutti i video generati prima del Reel Studio e le versioni secondarie dei nuovi (MUSIC READY, senza hook), con INDICE_ARCHIVIO.csv.
@@ -326,7 +326,7 @@ def postino(d):
         i = nome.split('_')[0]; v = json.load(open(path(i), encoding='utf-8')) if os.path.exists(path(i)) else {}
         fs = [f for f in os.listdir(a) if not f.startswith('.')]; main = principale(fs)
         if not main: print('!! in', nome, 'non trovo un solo video finito: lo lascio in _DA_CARICARE'); continue
-        b = os.path.join(d, '01_VIDEO', cartella_tipo(v)); os.makedirs(b, exist_ok=True); shutil.move(os.path.join(a, main), os.path.join(b, nome + os.path.splitext(main)[1].lower()))
+        b = os.path.join(d, '01_VIDEO', cartella_tipo(v)); os.makedirs(b, exist_ok=True); shutil.move(os.path.join(a, main), os.path.join(b, file_finale(v) if v.get('numero') else nome + '.mp4'))
         for f in fs:
             if f != main and f.lower().endswith(VIDEO_EXT): os.makedirs(os.path.join(d, '04_ARCHIVIO_VIDEO', nome), exist_ok=True); shutil.move(os.path.join(a, f), os.path.join(d, '04_ARCHIVIO_VIDEO', nome, f))
         shutil.rmtree(a, ignore_errors=True); n += 1; print('portato su Drive:', nome)
@@ -393,6 +393,20 @@ def scheda_txt(v):
 SECONDARI = re.compile(r'(MUSIC[_ ]?READY|NO[_ ]?HOOK|SENZA[_ ]?HOOK|SILENT|_PRE|_MIX|BOZZA)', re.I)
 
 
+def file_finale(v):
+    """nome del video per Power (31 ott 2026): numero dal 1 dentro il suo tipo, l'argomento in italiano, la data di uscita. Es. '01 Prezzo bloccato sul call wall (31-10-2026).mp4'"""
+    t = re.sub(r'[\\/:*?"<>|]+', ' ', v.get('titolo') or v.get('nome') or v['id']).strip()
+    return f"{int(v.get('numero') or 0):02d} {t} ({v.get('data_uscita') or dt.date.today().strftime('%d-%m-%Y')}).mp4"
+
+
+def numera(v):
+    """assegna numero (progressivo dal 1 dentro il tipo) e data di uscita una volta sola"""
+    if not v.get('numero'):
+        v['numero'] = max([int(x.get('numero') or 0) for x in carica() if cartella_tipo(x) == cartella_tipo(v) and x['id'] != v['id']] + [0]) + 1
+    v.setdefault('data_uscita', dt.date.today().strftime('%d-%m-%Y'))
+    return v
+
+
 def principale(files):
     """the one finished video for Power: the mp4 that is not a MUSIC READY / no-hook / silent variant"""
     vids = [f for f in files if f.lower().endswith(VIDEO_EXT)]
@@ -411,18 +425,21 @@ def consegna(a):
     files = [f for f in sorted(os.listdir(src)) if not f.startswith('.')]
     main = a[a.index('--video') + 1] if '--video' in a else principale(files)
     if not main or main not in files: sys.exit('non capisco qual è il video finito: indicalo con --video <file.mp4> (le varianti MUSIC_READY, NOHOOK, SILENT non si consegnano a Power)')
+    if '--titolo' in a: v['titolo'] = a[a.index('--titolo') + 1]
+    if not v.get('titolo'): sys.exit('manca il titolo del video (l\'argomento in italiano, es. "Prezzo bloccato sul call wall"): --titolo "..." oppure aggiorna V0012 titolo="..."')
+    numera(v)
     cap = next((f for f in files if f.lower().startswith('caption')), None)
     if cap: v['caption'] = open(os.path.join(src, cap), encoding='utf-8').read().strip()
     else: print('ATTENZIONE: manca CAPTION.txt (resta nella memoria del video, serve per pubblicare)')
-    d = drive_root(quiet=True); nome = f"{i}_{slug(v.get('nome'))}"; ext = os.path.splitext(main)[1].lower()
+    d = drive_root(quiet=True); nome = f"{i}_{slug(v.get('nome'))}"; finale = file_finale(v)
     base = os.path.join(d, '01_VIDEO', cartella_tipo(v)) if d else os.path.join(ROOT, '04_RENDER')
     if not d: print('Drive non trovato: consegno in locale in 04_RENDER (poi rilancia `consegna` quando Drive è configurato).')
-    os.makedirs(base, exist_ok=True); shutil.copy2(os.path.join(src, main), os.path.join(base, nome + ext))
+    os.makedirs(base, exist_ok=True); shutil.copy2(os.path.join(src, main), os.path.join(base, finale))
     altri = [f for f in files if f != main and f.lower().endswith(VIDEO_EXT)]
     if altri and d:
         arch = os.path.join(d, '04_ARCHIVIO_VIDEO', nome); os.makedirs(arch, exist_ok=True)
         for f in altri: shutil.copy2(os.path.join(src, f), os.path.join(arch, f if f.upper().startswith(i) else f'{i}_{f}'))
-    v['render'] = (f'Drive: 01_VIDEO/{cartella_tipo(v)}/' if d else '04_RENDER/') + nome + ext
+    v['render'] = (f'Drive: 01_VIDEO/{cartella_tipo(v)}/' if d else '04_RENDER/') + finale
     if altri: v['versioni'] = f'Drive: 04_ARCHIVIO_VIDEO/{nome}/ ({len(altri)} file)'
     if v.get('stato') in ('in-lavorazione', 'da-rifare'): v['stato'] = 'da-rivedere'
     v['aggiornato'] = now(); salva(v)
@@ -432,7 +449,7 @@ def consegna(a):
         sh('gh', 'api', f'repos/{{owner}}/{{repo}}/issues/{n}/comments', '-f', f"body=Consegnato: **{v['render']}**. Da rivedere.")
         sh('gh', 'api', '-X', 'DELETE', f'repos/{{owner}}/{{repo}}/issues/{n}/labels/in-lavorazione')
         sh('gh', 'api', f'repos/{{owner}}/{{repo}}/issues/{n}/labels', '-f', 'labels[]=da-rivedere')
-    print('consegnato', os.path.join(base, nome + ext), '| altre versioni in archivio:', len(altri))
+    print('consegnato', os.path.join(base, finale), '| altre versioni in archivio:', len(altri))
     if io().get('chi'): presenza([f"consegnato {i} su Drive, da rivedere", '--video', i])
     sync([f'consegna {i}'])
 
@@ -522,9 +539,43 @@ def indice():
                         'issue': v.get('issue') or '', 'ultimo_giudizio': (v.get('feedback') or [{}])[-1].get('testo', '')})
 
 
+
+def riordina(a=None):
+    """Rimette 01_VIDEO come vuole Power: in ogni tipo SOLO i video finiti, '01 Titolo (data).mp4'. Funziona da qualsiasi stato:
+    trova il video anche se è ancora in una cartella o con il nome vecchio; le altre versioni e i superati vanno in 04_ARCHIVIO_VIDEO,
+    i documenti si cancellano, le cartelle vuote spariscono. Da lanciare sul Mac (Drive per desktop), mai da una copia montata."""
+    d = drive_root()
+    if not d: return
+    V, A = os.path.join(d, '01_VIDEO'), os.path.join(d, '04_ARCHIVIO_VIDEO'); fatti = []
+    tutti = [os.path.join(r, f) for r, _, fs in os.walk(V) for f in fs]
+    def vecchi(v):  # nomi con cui il video può trovarsi ancora in 01_VIDEO
+        r = (v.get('render') or '').replace('Drive: 01_VIDEO/', ''); base = os.path.basename(r.rstrip('/')); stem = os.path.splitext(base)[0]
+        return {stem, f"{v['id']}_{slug(v.get('nome'))}", (v.get('cartella_drive') or '')} - {''}
+    attesi = set()
+    for v in carica():
+        if v.get('stato') == 'superato' or not v.get('titolo'): continue
+        numera(v); dest = os.path.join(V, cartella_tipo(v), file_finale(v)); attesi.add(dest)
+        if not os.path.exists(dest):
+            nomi = vecchi(v); cand = [p for p in tutti if p.lower().endswith(VIDEO_EXT) and (os.path.splitext(os.path.basename(p))[0] in nomi or os.path.basename(os.path.dirname(p)) in nomi)]
+            main = [p for p in cand if not SECONDARI.search(os.path.basename(p))]
+            if v.get('video_principale'): main = [p for p in cand if os.path.basename(p) == v['video_principale']] or main
+            if main: os.makedirs(os.path.dirname(dest), exist_ok=True); shutil.move(main[0], dest); fatti.append(f'{v["id"]} -> {os.path.relpath(dest, d)}')
+        v['render'] = 'Drive: ' + os.path.relpath(dest, d); salva(v)
+    for r, ds, fs in os.walk(V, topdown=False):
+        for f in fs:
+            p = os.path.join(r, f)
+            if p in attesi: continue
+            if f.lower().endswith(VIDEO_EXT):
+                sotto = os.path.basename(r) if r != V and os.path.dirname(r) != V else os.path.splitext(f)[0]
+                os.makedirs(os.path.join(A, sotto), exist_ok=True); shutil.move(p, libero(os.path.join(A, sotto, f))); fatti.append(f'archivio: {f}')
+            else: os.remove(p); fatti.append(f'tolto: {f}')
+        if r != V and os.path.relpath(r, V) not in [c for _, c, _ in TIPI] and not os.listdir(r): os.rmdir(r)
+    indice(); print('\n'.join(fatti) or 'già in ordine'); print('01_VIDEO:'); [print('  ' + os.path.relpath(x, V)) for x in sorted(attesi)]
+
+
 if __name__ == '__main__':
     c = sys.argv[1] if len(sys.argv) > 1 else 'brief'
     {'brief': lambda: brief(), 'nuovo': lambda: nuovo(sys.argv[2:]), 'aggiorna': lambda: aggiorna(sys.argv[2:]),
      'controlla': lambda: controlla(), 'drive': lambda: drive(sys.argv[2:]), 'arrivi': lambda: arrivi(),
-     'consegna': lambda: consegna(sys.argv[2:]), 'indice': lambda: indice(),
+     'consegna': lambda: consegna(sys.argv[2:]), 'indice': lambda: indice(), 'riordina': lambda: riordina(sys.argv[2:]),
      'presenza': lambda: presenza(sys.argv[2:]), 'chi': lambda: chi(), 'fine': lambda: fine(), 'sync': lambda: sync(sys.argv[2:])}.get(c, lambda: print(__doc__))()

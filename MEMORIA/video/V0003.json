@@ -14,7 +14,7 @@
     "IT'S NOT AN ACCIDENT."
   ],
   "durata_s": 32.95,
-  "render": "Drive: 01_VIDEO/02_SPIEGAZIONE_VOCE/V0003_THE_PIN.mp4",
+  "render": "Drive: 01_VIDEO/02_SPIEGAZIONE_VOCE/01 Prezzo bloccato sul call wall (31-10-2026).mp4",
   "stato": "da-rivedere",
   "creato": "2026-10-31 02:18",
   "sessione": "chat principale (cloud)",
@@ -26,5 +26,9 @@
   "pubblicazioni": [],
   "voce": "HeyGen Matthew, elevenlabs eleven_multilingual_v2, corpo 26,8 s + chiusura 3,8 s a 0,92",
   "aggiornato": "2026-10-31 02:49",
-  "caption": "Price is stuck. It's not an accident.\n\nES sits in a 2.5-point range, right on a call wall where dealers are long gamma (+$21.6M). Long gamma hedging sells rallies and buys dips, and that can pin price near the wall. When price moves away from it, the range can open up again. Volwick shows the dealer positioning behind the price, read from the options book.\n\n$0.99 your first month, then $89/month. Cancel anytime. Offer ends November 27.\n\nSimulated session. Illustrative data. Dealer Walls represent modeled options-derived positioning. For ES/MES, SPX-derived levels use estimated basis mapping. Not investment advice.\n\n#ES #futures #daytrading #trading #gamma #optionsflow #volwick"
+  "caption": "Price is stuck. It's not an accident.\n\nES sits in a 2.5-point range, right on a call wall where dealers are long gamma (+$21.6M). Long gamma hedging sells rallies and buys dips, and that can pin price near the wall. When price moves away from it, the range can open up again. Volwick shows the dealer positioning behind the price, read from the options book.\n\n$0.99 your first month, then $89/month. Cancel anytime. Offer ends November 27.\n\nSimulated session. Illustrative data. Dealer Walls represent modeled options-derived positioning. For ES/MES, SPX-derived levels use estimated basis mapping. Not investment advice.\n\n#ES #futures #daytrading #trading #gamma #optionsflow #volwick",
+  "titolo": "Prezzo bloccato sul call wall",
+  "video_principale": "V0003_VOLWICK_THE_PIN.mp4",
+  "data_uscita": "31-10-2026",
+  "numero": 1
 }

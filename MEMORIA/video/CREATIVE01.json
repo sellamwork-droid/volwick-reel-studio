@@ -15,7 +15,7 @@
     "CVD"
   ],
   "durata_s": 25.0,
-  "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/CREATIVE01_REPLAY_REALISTICO.mp4",
+  "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/01 Resistenza rotta fino al call wall (30-10-2026).mp4",
   "stato": "da-rivedere",
   "creato": "2026-10-30 12:00",
   "feedback": [
@@ -39,5 +39,9 @@
   "issue": null,
   "titoli": [],
   "pubblicazioni": [],
-  "sessione": "chat principale (cloud)"
+  "sessione": "chat principale (cloud)",
+  "titolo": "Resistenza rotta fino al call wall",
+  "video_principale": "CREATIVE01_REPLAY_HOOK.mp4",
+  "data_uscita": "30-10-2026",
+  "numero": 1
 }

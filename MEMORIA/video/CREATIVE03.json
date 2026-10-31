@@ -13,7 +13,7 @@
     "WALLS"
   ],
   "durata_s": 14.6,
-  "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/CREATIVE03_ONE_RULE.mp4",
+  "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/03 Il rally si ferma sul muro (30-10-2026).mp4",
   "stato": "da-rifare",
   "creato": "2026-10-30 13:30",
   "feedback": [
@@ -32,5 +32,9 @@
   "issue": null,
   "titoli": [],
   "pubblicazioni": [],
-  "sessione": "chat principale (cloud)"
+  "sessione": "chat principale (cloud)",
+  "titolo": "Il rally si ferma sul muro",
+  "video_principale": "CREATIVE03_ONE_RULE_HOOK.mp4",
+  "data_uscita": "30-10-2026",
+  "numero": 3
 }

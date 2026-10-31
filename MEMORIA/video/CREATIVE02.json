@@ -13,7 +13,7 @@
     "WALLS"
   ],
   "durata_s": 28.0,
-  "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/CREATIVE02_ONE_LAYER.mp4",
+  "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/02 Un solo layer al posto degli indicatori (30-10-2026).mp4",
   "stato": "da-rivedere",
   "creato": "2026-10-30 13:30",
   "feedback": [
@@ -29,5 +29,9 @@
   "issue": null,
   "titoli": [],
   "pubblicazioni": [],
-  "sessione": "chat principale (cloud)"
+  "sessione": "chat principale (cloud)",
+  "titolo": "Un solo layer al posto degli indicatori",
+  "video_principale": "CREATIVE02_ONE_LAYER_HOOK.mp4",
+  "data_uscita": "30-10-2026",
+  "numero": 2
 }

@@ -2,6 +2,7 @@
   "chi": "tudorswork · chat 02:31 · cloud",
   "inizio": "2026-10-31T01:44+00:00",
   "storia": [
+    "31/10 15:37 V0006: riordino della barra del terminale (due prove)",
     "31/10 15:33 V0006 con base Never stop trading consegnato, attendo giudizio (licenza del brano, logo, impaginazione)",
     "31/10 15:33 consegnato V0006 su Drive, da rivedere",
     "31/10 15:28 ripresa: base musicale di Power (Never stop trading) su V0006",
@@ -15,12 +16,11 @@
     "31/10 03:47 V0006 v2 consegnato (audio A, scia + curva di velocità), attendo giudizio",
     "31/10 03:46 consegnato V0006 su Drive, da rivedere",
     "31/10 03:42 V0006: transizione scelta (scia) con curva di velocità, rifaccio il video",
-    "31/10 03:37 V0006: tre prove di transizione inviate a Power, attendo la scelta",
-    "31/10 03:29 V0006: tre prove di transizione hook → grafico (crollo accentuato)"
+    "31/10 03:37 V0006: tre prove di transizione inviate a Power, attendo la scelta"
   ],
-  "ultimo": "2026-10-31T14:33+00:00",
+  "ultimo": "2026-10-31T14:37+00:00",
   "stato": "attiva",
-  "cosa": "V0006 con base Never stop trading consegnato, attendo giudizio (licenza del brano, logo, impaginazione)",
+  "cosa": "V0006: riordino della barra del terminale (due prove)",
   "computer": "vm",
   "video": "V0006"
 }

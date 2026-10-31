@@ -1,0 +1,21 @@
+{
+  "id": "V0007",
+  "issue": 7,
+  "nome": "The Floor Gives",
+  "formato": "T1",
+  "scena": "00_MOTORE/scenes/v0007_floor_gives",
+  "hook": {
+    "clip": "Construction Fall.mp4"
+  },
+  "evento": "edit a 125 BPM: il piano cede (hook), discesa veloce sul pavimento dei Block Prints, muri, mappa gamma, CVD, key level 2,000",
+  "layer": [],
+  "titoli": [],
+  "durata_s": null,
+  "render": "",
+  "stato": "in-lavorazione",
+  "creato": "2026-10-31 03:06",
+  "sessione": "vm",
+  "feedback": [],
+  "lezioni": [],
+  "pubblicazioni": []
+}

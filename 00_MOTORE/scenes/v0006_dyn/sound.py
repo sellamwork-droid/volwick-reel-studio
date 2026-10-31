@@ -3,7 +3,7 @@ import json, sys, numpy as np, scipy.signal as ss, soundfile as sf
 import os
 ev = json.load(open(sys.argv[1])); E = ev["events"]; OFF = float(os.environ.get("OFFSET", 0.96)); DUR = ev["total"] + OFF + 0.2
 SR = 48000; n = int(SR * DUR); rng = np.random.default_rng(55)
-BEAT = 60 / 125; bt = lambda k: k * BEAT
+BEAT = 60 / float(os.environ.get('BPM', 125)); bt = lambda k: k * BEAT
 def bp(x, lo, hi, o=2): return ss.sosfilt(ss.butter(o, [lo, hi], 'band', fs=SR, output='sos'), x)
 def lp(x, f, o=4): return ss.sosfilt(ss.butter(o, f, 'low', fs=SR, output='sos'), x)
 def hp(x, f, o=2): return ss.sosfilt(ss.butter(o, f, 'high', fs=SR, output='sos'), x)

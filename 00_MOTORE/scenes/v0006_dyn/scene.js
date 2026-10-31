@@ -380,7 +380,10 @@ function divider(t) {
     if (WIN.x1 - x > 200) { box(x + 16, 1112, 190, 34, 'rgba(4,9,19,0.92)', '#2F6BFF', 6); txt('WITH VOLWICK', x + 111, 1130, '700 15px VWMono', '#8AB6FF', 'center'); } }
   g.restore();
 }
-function render(t) {
+// time warp (Power 31 Oct 15:28, his track "Never stop trading", 80 BPM): ?k=0.78125 maps the 125 BPM beat (0.48 s) onto the track's half beat (0.375 s)
+const K = +(new URLSearchParams(location.search).get('k') || 1);
+function render(t) { renderAt(t < T_END * K ? t / K : T_END + (t - T_END * K)); }
+function renderAt(t) {
   const g = VW.g, S = state(t); g.save(); g.fillStyle = '#040913'; g.fillRect(0, 0, 1080, 1920);
   const bg = g.createLinearGradient(0, 0, 0, 1920); bg.addColorStop(0, '#060C1A'); bg.addColorStop(1, '#03060D'); g.fillStyle = bg; g.fillRect(0, 0, 1080, 1920);
   let c = cursorAt(t); const jt = jitter(t); c = { x: c.x + jt.x, y: c.y + jt.y };
@@ -413,5 +416,6 @@ window.READY = (async () => {
   KF = [ [0, lineX, Y(SUP)], [1.7, lineX + 3, Y(SUP)], [2.15, WIN.x1 - 4, hy, 0.12], [E.grab, WIN.x1 - 3, hy], [E.drop, WIN.x0 + 20, hy + 6, 0.02], [3.2, WIN.x0 + 24, hy + 8],
     [4.9, bp.x - 60, bp.y + 140, 0.1], [5.2, bp.x, bp.y, -0.06], [5.4, bp.x + 1, bp.y], [6.0, wallPt.x - 40, wallPt.y + 30, 0.1], [E.tip, wallPt.x, wallPt.y], [T_END, wallPt.x + 4, wallPt.y - 1] ];
   window.render = render; render(0);
-  return { total: TOTAL, events: { ...E, clicks: CLICKS, end: T_END, logo0: T_END } };
+  const sc = v => typeof v === 'number' ? v * K : v, ev = {}; for (const [k, v] of Object.entries(E)) ev[k] = sc(v);
+  return { total: T_END * K + (TOTAL - T_END), events: { ...ev, clicks: CLICKS.map(sc), end: T_END * K, logo0: T_END * K, k: K } };
 })();

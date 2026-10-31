@@ -213,7 +213,7 @@ LEGGIMI_DRIVE = """VOLWICK REEL STUDIO · cartella condivisa
                 01_VIDEO_HOOK         clip da usare come hook (verticali, senza marchi, scritte, @nomi o persone famose)
                 02_MUSICA             brani o effetti CON LICENZA da mixare nei video (i brani famosi non si caricano: si scelgono in app)
                 03_VIDEO_CONSIGLIATI  video di altri da studiare, nella cartella del tipo che ispirano (o hook, competitor, altro):
-""" + "".join(f"                      {c:<24}{t}\n" for c, t in CATEGORIE) + """                Il primo Claude che parte li cataloga e li sposta in 02_LIBRERIA o nel motore. Non serve dire niente.
+""" + "".join(f"                      {c:<28}{t}\n" for c, t in CATEGORIE) + """                Il primo Claude che parte li cataloga e li sposta in 02_LIBRERIA o nel motore. Non serve dire niente.
 01_VIDEO        i video finiti, divisi nei 4 tipi:
 """ + "".join(f"                      {c:<28}{t}\n" for _, c, t in TIPI) + """                dentro ogni tipo una cartella per video: <ID>_<NOME>/ con i video, CAPTION.txt e SCHEDA.txt. La crea Claude.
 02_LIBRERIA     musica e video consigliati già catalogati, con le stesse categorie.
@@ -251,6 +251,15 @@ def drive(a):
         return
     for x in DRIVE_DIRS: os.makedirs(os.path.join(d, x), exist_ok=True)
     open(os.path.join(d, 'LEGGIMI.txt'), 'w', encoding='utf-8').write(LEGGIMI_DRIVE)
+    note = {IN_HOOK: 'Trascina qui le clip da usare come hook. Verticali, senza marchi, scritte, @nomi o persone famose. Il primo Claude che parte le cataloga e le sposta.',
+            IN_MUS: 'Trascina qui brani o effetti CON LICENZA da mixare nei video. I brani famosi non si caricano: si scelgono in app.',
+            IN_CONS: 'Video di altri da studiare. Mettili nella cartella del tipo che ispirano (01 edit, 02 spiegazione voce, 03 registrazione schermo, 04 hook + grafico vs Volwick), oppure 05 hook, 06 competitor; se non sai quale, in 07_ALTRO.',
+            '01_VIDEO': 'I video finiti, divisi nei 4 tipi. Ogni video ha la sua cartella <ID>_<NOME> con le versioni, CAPTION.txt e SCHEDA.txt. Le crea Claude.'}
+    for c, t in CATEGORIE:
+        note[f'{IN_CONS}/{c}'] = t + '. Trascina qui i video consigliati di questo tipo.'
+        note[f'{LIB_CONS}/{c}'] = t + '. Già catalogati (gestito da Claude).'
+    for _, c, t in TIPI: note[f'01_VIDEO/{c}'] = t + '. Video finiti di questo tipo, uno per cartella (gestito da Claude).'
+    for k, t in note.items(): open(os.path.join(d, k, 'LEGGIMI.txt'), 'w', encoding='utf-8').write(t + '\n')
     indice(); print('Drive pronto:', d)
 
 

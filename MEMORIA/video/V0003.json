@@ -1,0 +1,19 @@
+{
+  "id": "V0003",
+  "issue": 3,
+  "nome": "Spiegazione con voce",
+  "formato": "T2",
+  "scena": "00_MOTORE/scenes/v0003_voce",
+  "hook": null,
+  "evento": "da definire nel brief",
+  "layer": [],
+  "titoli": [],
+  "durata_s": null,
+  "render": "",
+  "stato": "in-lavorazione",
+  "creato": "2026-10-31 02:18",
+  "sessione": "chat principale (cloud)",
+  "feedback": [],
+  "lezioni": [],
+  "pubblicazioni": []
+}

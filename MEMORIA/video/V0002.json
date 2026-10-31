@@ -1,0 +1,19 @@
+{
+  "id": "V0002",
+  "issue": 2,
+  "nome": "Edit Order Flow",
+  "formato": "T1",
+  "scena": "00_MOTORE/scenes/v0002_edit_flow",
+  "hook": null,
+  "evento": "montaggio a tempo dei layer del terminale",
+  "layer": [],
+  "titoli": [],
+  "durata_s": null,
+  "render": "",
+  "stato": "in-lavorazione",
+  "creato": "2026-10-31 02:18",
+  "sessione": "chat principale (cloud)",
+  "feedback": [],
+  "lezioni": [],
+  "pubblicazioni": []
+}

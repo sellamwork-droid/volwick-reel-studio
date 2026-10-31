@@ -1,0 +1,21 @@
+{
+  "id": "V0001",
+  "issue": 1,
+  "nome": "The Wall Breaks",
+  "formato": "T4",
+  "scena": "00_MOTORE/scenes/v0001_wall_breaks",
+  "hook": {
+    "clip": "BMX Rider Leaps Over Concrete Wall.mp4"
+  },
+  "evento": "rottura di un supporto verso il basso, discesa fino al muro put successivo",
+  "layer": [],
+  "titoli": [],
+  "durata_s": null,
+  "render": "",
+  "stato": "in-lavorazione",
+  "creato": "2026-10-31 02:18",
+  "sessione": "chat principale (cloud)",
+  "feedback": [],
+  "lezioni": [],
+  "pubblicazioni": []
+}

@@ -48,7 +48,8 @@
   "lezioni": [
     "Edit T1 sul modello del riferimento 3D (06_DOCS/RIFERIMENTI/EDIT_3D_SNAPGRAM_vumgpryxic1y.md): a tutto schermo, ogni passaggio su un colpo del brano, 3D vero con three.js dentro la tela del motore (scena v0010_edit3d come modello). Nel cercare un processo con pgrep -f non usare parole che compaiono nel proprio comando: il ciclo di attesa trova se stesso e non finisce mai.",
     "Negli edit niente slogan generici o scritte che non dicono niente (es. 'See the walls'): ogni scritta e ogni carta deve mostrare una funzione vera del terminale con la sua logica (cosa si attiva, cosa si vede sul grafico). Niente transizioni astratte scollegate dal prodotto (onde blu): ogni passaggio nasce da un elemento di Volwick (linea del prezzo, riga dei layer, muri).",
-    "Il tasto e la casella di BLOCK PRINTS sono dorati (oro #F2C14E), ovunque: riga dei layer, carte, titoli."
+    "Il tasto e la casella di BLOCK PRINTS sono dorati (oro #F2C14E), ovunque: riga dei layer, carte, titoli.",
+    "Sopra le carte dei layer non si scrive il gruppo (DEALER, ACTIVITY) ma un nome tecnico diverso per ogni carta: GAMMA LEVELS, LARGE TRADES, ORDER FLOW, EXPIRATIONS, GREEKS, HEATMAP, 0DTE PREMIUM, ASK VS BID (scene/v0010_edit3d, campo h di PANELS)."
   ],
   "pubblicazioni": [],
   "audio": "brano del video di riferimento allungato di due battute (primo test, da decidere se in app)",

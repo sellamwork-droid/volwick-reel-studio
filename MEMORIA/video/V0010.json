@@ -23,7 +23,9 @@
   "creato": "2026-10-31 04:08",
   "sessione": "sellamwork · chat principale · cloud",
   "feedback": [],
-  "lezioni": [],
+  "lezioni": [
+    "Edit T1 sul modello del riferimento 3D (06_DOCS/RIFERIMENTI/EDIT_3D_SNAPGRAM_vumgpryxic1y.md): a tutto schermo, ogni passaggio su un colpo del brano, 3D vero con three.js dentro la tela del motore (scena v0010_edit3d come modello). Nel cercare un processo con pgrep -f non usare parole che compaiono nel proprio comando: il ciclo di attesa trova se stesso e non finisce mai."
+  ],
   "pubblicazioni": [],
   "audio": "brano del video di riferimento (primo test, da scegliere in app per la pubblicazione)",
   "aggiornato": "2026-10-31 04:30",

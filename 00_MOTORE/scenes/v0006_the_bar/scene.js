@@ -19,9 +19,14 @@ const T_END = 16.3;
 // transition test (Power 31 Oct 03:29): right after the cut the chart must visibly crash, same direction as the falling subject.
 // ?var=1 fast crash + flash and shake on the break · ?var=2 the camera keeps the hook's 1.4 zoom and falls with the price · ?var=3 fast crash with a speed trail
 const VAR = +(new URLSearchParams(location.search).get('var') || 0);
-const SPAIRS = VAR ? [[0, 56.2], [0.3, 57.0], [0.75, 58.0], [1.25, 59.0], [1.8, 59.6], [3.2, 60.0], [T_END, 60 + (T_END - 3.2) / 0.55]]   // the crash in the first 0.75 s
+// Power 31 Oct 03:42 (variant 3 chosen): speed curve on the replay, not a hyper-fast replay. 1 = the calm replay speed (0.55 bars/s).
+// first second at 2×, then 2 → 1.7 → 1.5 → 1 in shorter and shorter steps (0.4 s, 0.25 s, 0.15 s).
+const BASE = 0.55, RAMP = [[0, 2], [1.0, 2], [1.4, 1.7], [1.65, 1.5], [1.8, 1]];
+function speedAt(t) { for (let q = 0; q < RAMP.length - 1; q++) { const [a, va] = RAMP[q], [b, vb] = RAMP[q + 1]; if (t <= b) return va + (vb - va) * clamp((t - a) / (b - a), 0, 1); } return 1; }
+function rampPairs(s0) { const out = [[0, s0]]; let s = s0; for (let t = 0.02; t <= 1.8001; t += 0.02) { s += speedAt(t - 0.01) * BASE * 0.02; out.push([+t.toFixed(2), s]); } out.push([T_END, s + (T_END - 1.8) * BASE]); return out; }
+const SPAIRS = VAR === 3 ? rampPairs(56.2) : VAR ? [[0, 56.2], [0.3, 57.0], [0.75, 58.0], [1.25, 59.0], [1.8, 59.6], [3.2, 60.0], [T_END, 60 + (T_END - 3.2) / 0.55]]   // the crash in the first 0.75 s
   : [[0, 56.2], [0.7, 56.95], [1.5, 58.0], [2.6, 59.4], [3.2, 60.0], [T_END, 60 + (T_END - 3.2) / 0.55]];
-const E = { sel: -0.3, contact: VAR ? 0.14 : 0.35, handle: 2.65, grab: 3.35, drop: 5.0, prints: 6.85, tip: 9.8, end: T_END };
+const E = { sel: -0.3, contact: VAR === 3 ? 0.32 : VAR ? 0.14 : 0.35, handle: 2.65, grab: 3.35, drop: 5.0, prints: 6.85, tip: 9.8, end: T_END };
 const WALLS = [ { p: 7741.5, fam: 'callS', usd: '−$6.4M' }, { p: 7733.5, fam: 'callL', usd: '+$12.6M' }, { p: 7727.5, fam: 'callL', usd: '+$3.9M' },
   { p: 7722.5, fam: 'putL', usd: '+$9.7M' }, { p: 7712.5, fam: 'putS', usd: '−$8.8M' } ];
 const TIPW = 1;   // the wall the tooltip opens on
@@ -324,7 +329,7 @@ function camera(t, S) {
 function crashFx(t, S) {
   const g = VW.g;
   if (VAR === 1) { const a = 0.35 * Math.exp(-Math.max(0, t - E.contact) * 7) * (t >= E.contact - 0.02 ? 1 : 0); if (a > 0.01) { g.save(); g.fillStyle = `rgba(242,54,69,${a})`; g.fillRect(WIN.x0, Y(SUP) - 3, CX1 - CX0L + 44, 6); g.globalAlpha = a * 0.35; g.fillRect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0); g.restore(); } }
-  if (VAR === 3 && t < 1.6) { const k = 1 - seg(t, 0.9, 1.6); g.save(); g.beginPath(); g.rect(CX0L, HDR, CX1 - CX0L, LB - HDR); g.clip();
+  if (VAR === 3 && t < 2.2) { const k = 1 - seg(t, 1.5, 2.2); g.save(); g.beginPath(); g.rect(CX0L, HDR, CX1 - CX0L, LB - HDR); g.clip();
     for (let q = 1; q <= 8; q++) { const tq = Math.max(0, t - q * 0.035), Sq = state(tq), pq = lastPrice(Sq), x = X(Sq.k, S);   // trail of where the price was a moment ago
       g.globalAlpha = k * 0.55 * (1 - q / 9); g.fillStyle = '#F23645'; g.fillRect(x - 5, Y(pq) - 3, 10, 6); }
     const p0 = lastPrice(state(Math.max(0, t - 0.25))), p1 = lastPrice(S); if (p0 - p1 > 0.5) { const x = X(S.k, S) + 16, gr = g.createLinearGradient(0, Y(p0), 0, Y(p1)); gr.addColorStop(0, 'rgba(242,54,69,0)'); gr.addColorStop(1, 'rgba(242,54,69,0.9)');

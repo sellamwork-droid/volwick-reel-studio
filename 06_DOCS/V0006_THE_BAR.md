@@ -35,3 +35,8 @@ cd $O && OFFSET=0.966667 HOOK_WAV=hook_a.wav python3 ../replay_sound.py ev.json 
 ffmpeg -i hook_v.mp4 -i silent_chart.mp4 -filter_complex "[0:v]settb=1/60,setpts=PTS-STARTPTS[a];[1:v]settb=1/60,setpts=PTS-STARTPTS[b];[a][b]concat=n=2:v=1:a=0,format=yuv420p[v]" -map "[v]" -c:v libx264 -crf 15 -r 60 silent.mp4
 VID=silent.mp4 SFX=sfx.wav BG=bed.wav bash ../mix_replay.sh VOLWICK_THE_BAR.mp4 VOLWICK_THE_BAR_MUSIC_READY.mp4
 ```
+
+## Versione 2 (31 ottobre, dopo i giudizi di Power)
+- Audio = prova A: niente audio del clip, una base dal primo fotogramma, fruscio sotto l'hook, colpo sul taglio (`AUDIO_MODE=base python3 ../../scenes/v0006_the_bar/sound.py`, senza HOOK_WAV).
+- Transizione = variante 3 con curva di velocità: `SCENE="scenes/v0006_the_bar/index.html?var=3"`. Contatto a 0,32 s, scia e freccia rosse fino a 2,2 s.
+- La prima versione (audio del clip spezzato, replay senza curva) è in archivio come `V0006_V1.mp4`; le prove audio (A, B, C) e di transizione (1, 2, 3) sono nella stessa cartella.

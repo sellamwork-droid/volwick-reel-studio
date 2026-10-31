@@ -11,15 +11,18 @@
     "METRIC GEX",
     "EXPIRY 0DTE",
     "BLOCK PRINTS",
-    "carte: CVD CDI FLOW MAPS"
+    "CVD",
+    "pannelli: EXPIRY METRIC MAPS CDI FLOW"
   ],
   "titoli": [
-    "See the walls.",
-    "CALL WALL · LONG γ · +$22.4M"
+    "DEALER WALLS",
+    "BLOCK PRINTS",
+    "CVD",
+    "SPX 7,730 → ES 7,768.25 · Call wall · long γ · Net +$22.4M"
   ],
   "durata_s": 12.45,
   "render": "Drive: 01_VIDEO/01_EDIT/03 Edit 3D il terminale Volwick che si forma (31-10-2026).mp4",
-  "stato": "da-rifare",
+  "stato": "da-rivedere",
   "creato": "2026-10-31 04:08",
   "sessione": "sellamwork · chat principale · cloud",
   "feedback": [
@@ -34,9 +37,10 @@
   ],
   "pubblicazioni": [],
   "audio": "brano del video di riferimento (primo test, da scegliere in app per la pubblicazione)",
-  "aggiornato": "2026-10-31 04:37",
+  "aggiornato": "2026-10-31 04:49",
   "titolo": "Edit 3D il terminale Volwick che si forma",
   "numero": 3,
   "data_uscita": "31-10-2026",
-  "caption": "Your chart shows price. Volwick shows the dealer walls behind it.\nDealer Walls, Block Prints, CVD, CDI, Options Flow and Exposure Maps in one terminal.\nDiscover Volwick, link in bio.\nSimulated data. Not investment advice.\n#ES #futures #daytrading #gamma #orderflow #volwick"
+  "caption": "Dealer Walls, Block Prints and CVD switching on one by one on the same ES session.\nPrice runs into the call wall: SPX 7,730 → ES 7,768.25, call wall, long gamma, Net +$22.4M.\nDiscover Volwick, link in bio.\nSimulated data. Not investment advice.\n#ES #futures #daytrading #gamma #orderflow #volwick",
+  "versioni": "Drive: 04_ARCHIVIO_VIDEO/V0010_EDIT_3D_VOLWICK/ (1 file)"
 }

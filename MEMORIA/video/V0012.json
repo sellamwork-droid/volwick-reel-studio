@@ -25,16 +25,22 @@
   ],
   "durata_s": 19.45,
   "render": "Drive: 01_VIDEO/01_EDIT/04 Edit 3D dove si coprono i dealer (31-10-2026).mp4",
-  "stato": "da-rivedere",
+  "stato": "da-rifare",
   "creato": "2026-10-31 17:41",
   "sessione": "sellamwork · chat principale · cloud",
-  "feedback": [],
+  "feedback": [
+    {
+      "data": "2026-10-31 18:38",
+      "testo": "Power 18:38: la parte iniziale fino al logo va bene. Dal logo in poi sembra tutto finto: oggetti 3D inventati, non presi dal grafico o dal software reale. Va rifatto basandosi sul grafico reale o su rappresentazioni identiche del terminale (candele che si formano, interfaccia che si forma con le linee), in 3D e di qualità, ma realistico. Nei brani evitare testi espliciti (my dick, fuck, fucking)."
+    }
+  ],
   "lezioni": [
-    "Nelle candele 3D (InstancedMesh) una candela non ancora arrivata si scala a zero su tutti gli assi: una scatola alta zero si vede lo stesso come un trattino piatto."
+    "Nelle candele 3D (InstancedMesh) una candela non ancora arrivata si scala a zero su tutti gli assi: una scatola alta zero si vede lo stesso come un trattino piatto.",
+    "Negli edit 3D ogni elemento dopo l'apertura è il terminale com'è davvero (riga dei layer, candele, muri con etichette Net, Block Prints con badge e livello con stella, CVD, tooltip): il 3D sta nella camera, nella profondità e nelle transizioni, non in oggetti inventati (colonne, tubi, pile di diamanti). Brani: si scartano gli spezzoni con parolacce o testi espliciti (si controlla la trascrizione)."
   ],
   "pubblicazioni": [],
   "audio": "Tyga - LAST KING MIX 37:17.06 +19.5 s + effetti (sound.py)",
-  "aggiornato": "2026-10-31 18:33",
+  "aggiornato": "2026-10-31 18:38",
   "titolo": "Edit 3D dove si coprono i dealer",
   "numero": 4,
   "data_uscita": "31-10-2026",

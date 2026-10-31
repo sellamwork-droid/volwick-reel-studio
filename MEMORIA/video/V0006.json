@@ -3,25 +3,21 @@
   "issue": 6,
   "nome": "The Bar",
   "formato": "T4",
-  "scena": "00_MOTORE/scenes/v0006_3d",
+  "scena": "00_MOTORE/scenes/v0006_dyn",
   "hook": {
     "clip": "Pole Vaulter Falls During Attempt.mp4"
   },
   "evento": "rottura della resistenza disegnata che fallisce: sopra c'è un call wall long γ, il prezzo lo tocca e rientra",
   "layer": [
     "WALLS Top 5",
-    "BLOCK PRINTS",
-    "tooltip Call wall long γ"
+    "BLOCK PRINTS"
   ],
   "titoli": [
-    "BREAKOUT?",
-    "YOUR BREAKOUT JUST FAILED.",
-    "WHAT WAS ABOVE THE LINE?",
-    "DEALER WALLS.",
-    "BLOCKED BY A CALL WALL.",
-    "TRADE WITH INSTITUTIONAL CONTEXT."
+    "PLAIN CHART: UP, THEN DOWN.",
+    "VOLUME ABSORBED AT THE WALL.",
+    "PRICE TURNS BACK DOWN."
   ],
-  "durata_s": 15.1,
+  "durata_s": 12.35,
   "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/06 Falsa rottura sotto il call wall (31-10-2026).mp4",
   "stato": "da-rivedere",
   "creato": "2026-10-31 03:01",
@@ -74,6 +70,10 @@
     {
       "data": "2026-10-31 16:30",
       "testo": "Power 16:29: hai copiato parti identiche di V0010, non va bene. Prendere solo lo stile e ricreare tutto secondo la storia e la spiegazione di questo video."
+    },
+    {
+      "data": "2026-10-31 16:44",
+      "testo": "Power 16:43: non mettere il grafico in obliquo, deve restare frontale perché si capisca guardando. In 3D solo gli effetti. Obiettivo: far capire la differenza tra TradingView (vedi solo che il prezzo sale e scende) e Volwick (in quella zona c'è stato assorbimento del volume perché c'era un livello importante). Accentuare il volume assorbito e il prezzo che riprende a scendere, e il passaggio da TradingView a Volwick con lo swipe da destra a sinistra come prima."
     }
   ],
   "lezioni": [
@@ -87,7 +87,7 @@
     "Ispirarsi a un altro video vuol dire prenderne lo stile (profondità, luce, ritmo, camera), non i pezzi: niente sezioni riusate uguali (riga dei layer disegnata dalla linea, nomi che volano nelle caselle, blocco candele 3D con contatore, logo a fili). Ogni passaggio nasce dalla storia del video stesso."
   ],
   "pubblicazioni": [],
-  "aggiornato": "2026-10-31 16:40",
+  "aggiornato": "2026-10-31 16:52",
   "titolo": "Falsa rottura sotto il call wall",
   "numero": 6,
   "data_uscita": "31-10-2026",

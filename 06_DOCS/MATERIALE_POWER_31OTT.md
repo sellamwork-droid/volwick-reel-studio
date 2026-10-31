@@ -2,7 +2,7 @@
 
 Caricato in `00_CARICA_QUI` sul Drive condiviso tra le 03:02 e le 03:04 (UTC). Inventario fatto da `tudorswork · chat 03:37 · cloud` leggendo il Drive; i file non sono ancora stati scaricati né studiati. Scheda di lavoro su GitHub: #11 "STUDIO · materiale di Power del 31 ottobre".
 
-## 1. Spunti di montaggio · `03_VIDEO_CONSIGLIATI/01_EDIT/video da cui prendere spunto per montaggio e idee/`
+## 1. Spunti di montaggio · `03_VIDEO_CONSIGLIATI/01_EDIT/video da cui prendere spunto per montaggio e idee/` · STUDIATI: `06_DOCS/RIFERIMENTI/SPUNTI_MONTAGGIO_POWER.md`
 Indicazione di Power: video da cui prendere idee di montaggio, transizioni e ritmo (soprattutto per i T1 edit).
 25 video mp4 corti (0,1–2,3 MB, uno da 11,3 MB), nomi `Video-<numero>.mp4`:
 27053, 7731, 19936, 42579, 94071, 51594, 10824, 37237, 11937, 32693, 37438, 26980, 69236, 85999, 3865, 14531, 32240, 64245, 95646 (11,3 MB), 53553, 30568, 35825, 98997, 79700, 18688.

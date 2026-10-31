@@ -2,6 +2,7 @@
   "chi": "tudorswork · chat 02:31 · cloud",
   "inizio": "2026-10-31T01:44+00:00",
   "storia": [
+    "31/10 16:03 V0006 con barra 2 e zoom della scala consegnato, attendo giudizio (logo, impaginazione, licenza brano)",
     "31/10 16:02 consegnato V0006 su Drive, da rivedere",
     "31/10 15:59 V0006: barra 2 scelta; zoom vero della scala del grafico al posto dello zoom immagine",
     "31/10 15:41 V0006: due prove della barra del terminale inviate, attendo la scelta",
@@ -15,12 +16,11 @@
     "31/10 04:36 V0006: tre impaginazioni inviate a Power, attendo logo e impaginazione",
     "31/10 04:27 V0006: tre impaginazioni per usare meglio lo spazio",
     "31/10 03:58 V0006: tre prove logo inviate a Power, attendo la scelta",
-    "31/10 03:49 V0006: prove posizione logo (sotto, sopra centrato, senza)",
-    "31/10 03:47 V0006 v2 consegnato (audio A, scia + curva di velocità), attendo giudizio"
+    "31/10 03:49 V0006: prove posizione logo (sotto, sopra centrato, senza)"
   ],
-  "ultimo": "2026-10-31T15:02+00:00",
+  "ultimo": "2026-10-31T15:03+00:00",
   "stato": "attiva",
-  "cosa": "consegnato V0006 su Drive, da rivedere",
+  "cosa": "V0006 con barra 2 e zoom della scala consegnato, attendo giudizio (logo, impaginazione, licenza brano)",
   "computer": "vm",
   "video": "V0006"
 }

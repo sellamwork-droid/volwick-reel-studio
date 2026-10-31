@@ -34,20 +34,17 @@ def chime(f, d=1.6): x = tt(d); return (np.sin(2 * np.pi * f * x) + .25 * np.sin
 def blip(f): d = 0.07; return np.sign(sine(f, d)) * env(d, 0.0005, 60) * 0.35
 V = lambda c: c + OFF
 S = buf()
-add(S, riser(OFF), 0, g=0.18)
-add(S, whoosh(0.5, up=True), V(0) - 0.1, g=0.22)                      # cut into the chart
-add(S, slam(), V(E['top1']), g=0.5); add(S, whoosh(0.5, up=False), V(E['top1']) + 0.05, g=0.25)   # rejected on the line
-add(S, whoosh(0.6, up=False), V(E['fold']) + 0.15, pan=0.2, g=0.3)    # the panel folds
-add(S, riser(E['barEnd'] - E['bar']), V(E['bar']), g=0.18)            # the line draws the layer bar
-add(S, slam(), V(E['term']), g=0.35)                                   # terminal on
-for j in range(5): add(S, thump(140, 50, 0.4), V(E['aW']) + 0.57 + j * 0.755 / 8, pan=0.15 * (-1) ** j, g=0.28)   # walls slam in
-add(S, tick(1800, 0.06), V(E['aW']) + 0.57, g=0.15)
-add(S, riser(E['hit'] - E['push']), V(E['push']), g=0.3)
-add(S, slam(big=True), V(E['hit']), g=0.75); add(S, chime(659.25, 1.2), V(E['hit']) + 0.02, g=0.05)   # BLOCKED
-add(S, tick(1700, 0.08), V(E['aB']) + 0.57, g=0.2); add(S, chime(987.77, 1.0), V(E['aB']) + 0.57, pan=0.2, g=0.05)
+add(S, riser(OFF), 0, g=0.18); add(S, whoosh(0.5, up=True), V(0) - 0.1, g=0.22)                     # cut into the chart
+add(S, slam(), V(E['top1']), g=0.5); add(S, whoosh(0.5, up=False), V(E['top1']) + 0.05, g=0.25)      # thrown back off the line
+add(S, whoosh(0.75, up=False), V(E['tilt']) + 0.1, pan=0.2, g=0.32)                                   # the chart tips back into a floor
+add(S, sweep(900, 60, 0.5) * np.linspace(1, 0, int(SR * 0.5)) * 0.4, V(E['dark']), g=0.3)            # lights out
+for j in range(5): add(S, thump(150, 46, 0.45), V(E['fins']) + j * 0.755 / 4, pan=0.15 * (-1) ** j, g=0.3); add(S, tick(1500 + 180 * j, 0.06), V(E['fins']) + j * 0.755 / 4, g=0.12)   # fins rise
+add(S, sweep(1400, 90, 0.755) * np.linspace(1, 0.2, int(SR * 0.755)) * 0.5, V(E['rip'] - 0.755), g=0.22)   # rewind
+add(S, riser(E['hit'] - E['rip']), V(E['rip']), g=0.3)
+add(S, slam(big=True), V(E['hit']), g=0.8); add(S, chime(659.25, 1.2), V(E['hit']) + 0.02, g=0.05)   # the fin takes the hit
+add(S, whoosh(0.5, up=False), V(E['hit']) + 0.1, g=0.25); add(S, whoosh(0.6, up=True), V(E['back']) + 0.1, pan=-0.2, g=0.28)   # the chart stands up
+add(S, tick(1700, 0.08), V(E['prints']), g=0.2); add(S, chime(987.77, 1.0), V(E['prints']), pan=0.2, g=0.05)
 add(S, tick(1300, 0.08), V(E['tip']), g=0.12)
-add(S, whoosh(0.5), V(E['rise']) - 0.25, g=0.3)
-add(S, riser(E['hit2'] - E['rise']), V(E['rise']), g=0.25); add(S, slam(big=True), V(E['hit2']), g=0.6)
-la = V(E['end']) + 1.0; add(S, sine(55, 1.8) * np.clip(tt(1.8) / 0.25, 0, 1) * np.exp(-tt(1.8) * 2.2), la - 0.05, g=.30)
+la = V(E['end']) + 1.5 / 1.7; add(S, sine(55, 1.8) * np.clip(tt(1.8) / 0.25, 0, 1) * np.exp(-tt(1.8) * 2.2), la - 0.05, g=.30)
 for j, (f, pn) in enumerate([(659.25, -.25), (987.77, .0), (1318.5, .25)]): add(S, chime(f), la + j * 0.11, pan=pn, g=.09)
 st_ = np.stack(S, 1); st_ = st_ / (np.max(np.abs(st_)) + 1e-9) * 0.85; sf.write(sys.argv[2], st_.astype(np.float32), SR, subtype='FLOAT'); print('ok', round(DUR, 2))

@@ -74,6 +74,10 @@
     {
       "data": "2026-10-31 16:44",
       "testo": "Power 16:43: non mettere il grafico in obliquo, deve restare frontale perché si capisca guardando. In 3D solo gli effetti. Obiettivo: far capire la differenza tra TradingView (vedi solo che il prezzo sale e scende) e Volwick (in quella zona c'è stato assorbimento del volume perché c'era un livello importante). Accentuare il volume assorbito e il prezzo che riprende a scendere, e il passaggio da TradingView a Volwick con lo swipe da destra a sinistra come prima."
+    },
+    {
+      "data": "2026-10-31 17:04",
+      "testo": "Power 16:57: volume dall'alto verso il basso (non dal basso), niente frecce rosse; finale identico a quello 3D di V0010; bordi della finestra il meno visibili possibile. Mandate 5 prove volume, 3 prove bordi, 1 prova finale."
     }
   ],
   "lezioni": [
@@ -88,7 +92,7 @@
     "Grafico sempre frontale, 3D solo negli effetti. Il T4 mostra la differenza: grafico normale = sale e scende; Volwick = volume assorbito sul call wall (Block Prints, contatore) e prezzo che riprende a scendere; swipe destra-sinistra accentuato. Durante l'effetto il grafico scorre a sinistra per lasciare spazio a destra del prezzo."
   ],
   "pubblicazioni": [],
-  "aggiornato": "2026-10-31 16:53",
+  "aggiornato": "2026-10-31 17:04",
   "titolo": "Falsa rottura sotto il call wall",
   "numero": 6,
   "data_uscita": "31-10-2026",

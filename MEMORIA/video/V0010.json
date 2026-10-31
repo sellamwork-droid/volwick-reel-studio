@@ -6,14 +6,29 @@
   "scena": "00_MOTORE/scenes/v0010_edit3d",
   "hook": null,
   "evento": "edit 3D a tutto schermo: logo che si trasforma, terminale che si forma, muri, carte dei layer",
-  "layer": [],
-  "titoli": [],
-  "durata_s": null,
-  "render": "",
-  "stato": "in-lavorazione",
+  "layer": [
+    "WALLS Top 5",
+    "METRIC GEX",
+    "EXPIRY 0DTE",
+    "BLOCK PRINTS",
+    "carte: CVD CDI FLOW MAPS"
+  ],
+  "titoli": [
+    "See the walls.",
+    "CALL WALL · LONG γ · +$22.4M"
+  ],
+  "durata_s": 12.45,
+  "render": "Drive: 01_VIDEO/01_EDIT/03 Edit 3D il terminale Volwick che si forma (31-10-2026).mp4",
+  "stato": "da-rivedere",
   "creato": "2026-10-31 04:08",
   "sessione": "sellamwork · chat principale · cloud",
   "feedback": [],
   "lezioni": [],
-  "pubblicazioni": []
+  "pubblicazioni": [],
+  "audio": "brano del video di riferimento (primo test, da scegliere in app per la pubblicazione)",
+  "aggiornato": "2026-10-31 04:30",
+  "titolo": "Edit 3D il terminale Volwick che si forma",
+  "numero": 3,
+  "data_uscita": "31-10-2026",
+  "caption": "Your chart shows price. Volwick shows the dealer walls behind it.\nDealer Walls, Block Prints, CVD, CDI, Options Flow and Exposure Maps in one terminal.\nDiscover Volwick, link in bio.\nSimulated data. Not investment advice.\n#ES #futures #daytrading #gamma #orderflow #volwick"
 }

@@ -88,7 +88,11 @@ add(S, whoosh(0.5, up=False), (V(E['release']) - 0.1) if 'release' in E else imp
 for c in E['clicks']: add(S, tick(2600, 0.04), V(c), g=0.15)
 add(S, tick(1700, 0.08), V(E['prints']), g=0.2); add(S, chime(987.77, 1.0), V(E['prints']), pan=0.2, g=0.05)
 add(S, tick(1300, 0.08), V(E['tip']), g=0.12)
-la = t_end + 1.5 / 1.7; add(S, sine(55, 1.8) * np.clip(tt(1.8) / 0.25, 0, 1) * np.exp(-tt(1.8) * 2.2), la - 0.05, g=.30)
+if 'o_title' in E:   # outro (Power 31 Oct 18:45): chart away, the words land, then the logo with no music under it
+    add(S, whoosh(0.6, up=True), V(E['out']), g=0.28); add(S, slam(), V(E['o_title']), g=0.4)
+    for kk in ('o_l1', 'o_l2', 'o_l3'): add(S, tick(1500, 0.07), V(E[kk]), g=0.16); add(S, thump(120, 50, 0.3), V(E[kk]), g=0.22)
+    add(S, riser(0.9), t_end, g=0.3); add(S, slam(big=True), t_end + 0.95, g=0.6)
+la = (t_end + 0.95) if 'o_title' in E else t_end + 1.5 / 1.7; add(S, sine(55, 1.8) * np.clip(tt(1.8) / 0.25, 0, 1) * np.exp(-tt(1.8) * 2.2), la - 0.05, g=.30)
 for j, (f, pn) in enumerate([(659.25, -.25), (987.77, .0), (1318.5, .25)]): add(S, chime(f), la + j * 0.11, pan=pn, g=.09)
 def wr(path, Bf, peak):
     st = np.stack(Bf, 1); st = st / (np.max(np.abs(st)) + 1e-9) * peak; sf.write(path, st.astype(np.float32), SR, subtype='FLOAT')

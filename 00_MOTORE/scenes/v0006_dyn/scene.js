@@ -7,7 +7,8 @@
 // Simulated ES session (gen_data.py), no real market data. Every frame is a pure function of time.
 const { seg, lin, eo, eio, mix, clamp } = VW;
 const TOTAL = 13.7;
-const SLOW = +(new URLSearchParams(location.search).get('slow') || 0);   // Power 31 Oct 17:50: pause on the touch
+const SLOW = +(new URLSearchParams(location.search).get('slow') || 0);
+const OUTRO = +(new URLSearchParams(location.search).get('outro') || 0);   // Power 31 Oct 18:45: chart away, TRADE WITH INSTITUTIONAL CONTEXT explained, then the logo   // Power 31 Oct 17:50: pause on the touch
 let D, BARS, SUP;
 // ---------- geometry ----------
 // logo position test (Power 31 Oct 03:49): ?logo=tl (old, top left) · top (centered above) · bottom (centered under the chart) · none
@@ -445,6 +446,7 @@ const SUBS = [ [0.0, 'ES 1m · price rips through the line you drew'], [E.top1, 
   [E.rew, 'Rewind. Same move, Dealer Walls on.'], [E.prints, 'Same rip. Block Prints on.'], [SLOW ? 4.58 : E.top2, 'Block Prints 1,250 ×2 into the call wall'], [5.3, 'Call wall · long γ · +$12.6M'],
   [E.out, 'Long γ: dealers hedge against the move. Not a signal.'] ];
 function overlay(t) {
+  if (OUTRO && t > E.out) return;
   const g = VW.g; let j = -1; OVER.forEach((o, q) => { if (t >= o[0]) j = q; }); if (j < 0 || t > T_END) return;
   const o = OVER[j], k = j === 0 ? 1 : eo(lin(t, o[0], o[0] + 0.22)), parts = o.slice(1); g.save(); g.globalAlpha = k * (1 - seg(t, T_END - 0.2, T_END)); g.font = `700 ${LT_.ts}px VWSans`; g.letterSpacing = '1px';
   // wrap into max two lines inside the safe width
@@ -463,7 +465,7 @@ function overlay(t) {
     txt(SUBS[js][1], VW.SAFE.cx, LT_.sub, `600 ${fs}px VWMono`, '#9FB3D9', 'center'); }
   g.restore();
 }
-function disclosure(t) { const g = VW.g, a = 1 - seg(t, T_END - 0.2, T_END); if (a <= 0) return; g.save(); g.globalAlpha = a;
+function disclosure(t) { const g = VW.g, a = (1 - seg(t, T_END - 0.2, T_END)) * (OUTRO ? 1 - seg(t, E.out, E.out + 0.3) : 1); if (a <= 0) return; g.save(); g.globalAlpha = a;
   const d2 = seg(t, E.grab, E.grab + 0.4), y = HDR + 28, x = (t >= E.grab ? CX0D : CX0L) + 12;
   txt('Illustrative replay. Simulated data.', x, y, '500 14px VWMono', '#8A93A3');
   if (d2 > 0) { g.globalAlpha = a * d2; txt('Dealer Walls: modeled options-derived positioning.', x, y + 18, '500 14px VWMono', '#8A93A3'); } g.restore(); }
@@ -551,6 +553,33 @@ let CUR_S = null;
 function feather([top, right, bot, left]) { const g = VW.g, { x0, x1, y0, y1 } = WIN, f = (ax, ay, bx, by, rx, ry, rw, rh) => { const gr = g.createLinearGradient(ax, ay, bx, by); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(rx, ry, rw, rh); };
   if (top) f(0, y0 - 1, 0, y0 + top, x0 - 2, y0 - 2, x1 - x0 + 4, top + 2); if (bot) f(0, y1 + 1, 0, y1 - bot, x0 - 2, y1 - bot, x1 - x0 + 4, bot + 2);
   if (left) f(x0 - 1, 0, x0 + left, 0, x0 - 2, y0 - 2, left + 2, y1 - y0 + 4); if (right) f(x1 + 1, 0, x1 - right, 0, x1 - right, y0 - 2, right + 2, y1 - y0 + 4); }
+// ---------- outro (Power 31 Oct 18:45): why the move was readable: trade with institutional context, closer and animated ----------
+function word3d(s, x, y, font, col, k, glow, depth = 0) { if (k <= 0) return; const g = VW.g; g.save(); g.globalAlpha = Math.min(1, k * 1.4); g.translate(x, y); const z = mix(1.9, 1, eo(k)); g.scale(z, z * (0.4 + 0.6 * eo(k)));
+  g.font = font; g.textAlign = 'center'; g.textBaseline = 'middle'; g.letterSpacing = '3px';
+  for (let q = depth; q >= 1; q--) { g.fillStyle = `rgba(10,20,45,${0.9 - q * 0.08})`; g.fillText(s, q * 1.3, q * 1.6); }
+  g.fillStyle = col; if (glow) { g.shadowColor = glow; g.shadowBlur = 26; } g.fillText(s, 0, 0); g.restore(); }
+function outroFx(t) {
+  const t0 = E.out, u = t - t0; if (u < 0.15 || t > T_END + 0.05) return; const g = VW.g, fin = 1 - eio(seg(t, T_END - 0.3, T_END)), C = VW.COL;
+  const k = (a, d = 0.35) => eo(LN(u, a, a + d)) * fin;
+  // camera: closes in on the line being read
+  const foc = [[0.3, 620, 1.0], [0.75, 620, 1.08], [1.05, 900, 1.12], [1.6, 1130, 1.12], [2.1, 1420, 1.1], [2.6, 960, 1.0]];
+  let q = 0; while (q < foc.length - 1 && u > foc[q + 1][0]) q++; const A = foc[q], B = foc[Math.min(q + 1, foc.length - 1)], w = B === A ? 1 : eio(LN(u, A[0], B[0])), fy = mix(A[1], B[1], w), z = mix(A[2], B[2], w) * (1 + 0.15 * (1 - fin));
+  g.save(); g.translate(540, fy); g.scale(z, z); g.translate(-540, -fy);
+  word3d('TRADE WITH', 540, 470, '700 50px VWSans', C.ink, k(0.25), null);
+  word3d('INSTITUTIONAL', 540, 580, '900 108px VWSans', C.blue, k(0.4, 0.4), 'rgba(90,140,255,0.85)', 8);
+  word3d('CONTEXT.', 540, 692, '800 78px VWSans', C.ink, k(0.6), null, 5);
+  const l1 = k(0.95); if (l1 > 0) { const col = VX.WALL.callL; g.save(); g.globalAlpha = l1; g.strokeStyle = VW.rgba(col, 0.9); g.lineWidth = 3; g.shadowColor = col; g.shadowBlur = 18; const lw = 640 * eo(LN(u, 0.95, 1.4)); g.beginPath(); g.moveTo(540 - lw / 2, 952); g.lineTo(540 + lw / 2, 952); g.stroke(); g.restore();
+    word3d('LONG γ', 540, 895, '800 84px VWMono', col, l1, VW.rgba(col, 0.8), 6); g.save(); g.globalAlpha = k(1.15); txt('CALL WALL · +$12.6M', 540, 995, '700 32px VWMono', '#9FE3C5', 'center'); g.restore(); }
+  const l2 = k(1.5); if (l2 > 0) { word3d('DEALERS HEDGE', 540, 1105, '800 66px VWSans', C.ink, l2, null, 4); word3d('AGAINST THE MOVE', 540, 1180, '800 66px VWSans', C.ink, k(1.62), null, 4);
+    // the move drawn small: price rises into the green line, is held and turns back down
+    const d = eo(LN(u, 1.7, 2.15)), px = [[0, 70], [40, 55], [80, 30], [110, 8], [130, 0], [150, 3], [175, 22], [205, 45], [240, 58]], X0 = 300, Y0 = 1250; g.save(); g.translate(X0, Y0); g.scale(2, 2); g.translate(-X0, -Y0); g.globalAlpha = l2;
+    g.strokeStyle = VW.rgba(VX.WALL.callL, 0.8); g.lineWidth = 2; g.beginPath(); g.moveTo(X0 - 20, Y0 - 2); g.lineTo(X0 + 260, Y0 - 2); g.stroke();
+    g.strokeStyle = '#E9EDF3'; g.lineWidth = 3.5; g.lineJoin = 'round'; g.beginPath(); const n = Math.max(1, Math.floor(d * (px.length - 1) * 10) / 10); for (let i = 0; i <= Math.ceil(n); i++) { const f = Math.min(1, n - i + 1), a0 = px[Math.max(0, i - 1)], a1 = px[Math.min(i, px.length - 1)], x = mix(a0[0], a1[0], i ? f : 1), y = mix(a0[1], a1[1], i ? f : 1); i ? g.lineTo(X0 + x, Y0 + y) : g.moveTo(X0 + x, Y0 + y); } g.stroke();
+    if (d > 0.45) { g.globalCompositeOperation = 'lighter'; const gl = g.createRadialGradient(X0 + 130, Y0, 0, X0 + 130, Y0, 40); gl.addColorStop(0, VW.rgba(VX.GOLD, 0.7 * (1 - Math.abs(d - 0.6) * 1.5))); gl.addColorStop(1, VW.rgba(VX.GOLD, 0)); g.fillStyle = gl; g.fillRect(X0 + 90, Y0 - 40, 80, 80); } g.restore(); }
+  const l3 = k(2.05); if (l3 > 0) word3d('NOT A SIGNAL.', 540, 1462, '700 46px VWMono', C.ink2 || '#9DAAC0', l3, null);
+  g.restore();
+  const kd = k(0.3) ; if (kd > 0) { g.save(); g.globalAlpha = kd * 0.9; txt('Illustrative replay. Simulated data.', 540, 1536, '500 22px VWMono', '#6B7280', 'center'); g.restore(); }
+}
 function divider(t) {   // Power 31 Oct 16:43: the swipe right to left, accentuated (beam, sparks, light sweep, flash on arrival)
   const a = seg(t, E.handle, E.handle + 0.25) * (1 - seg(t, E.drop, E.drop + 0.25)); const g = VW.g, x = Math.min(divX(t), WIN.x1 - 3), cy = 1060;
   const mv = seg(t, E.grab, E.grab + 0.05) * (1 - seg(t, E.drop - 0.04, E.drop)), H = WIN.y1 - WIN.y0;
@@ -581,7 +610,7 @@ const SPD_R = 0.3;
 // Power 31 Oct 17:50: slow down gently into the touch (candle still green), stay almost still ~0.8 s on the level, then let it drop at normal speed
 const TOUCH = 4.80, LN = (s, a, b) => clamp((s - a) / (b - a), 0, 1), spd1 = s => s < 4.55 ? 1 : s < 4.78 ? mix(1, 0.15, LN(s, 4.55, 4.78)) : s < TOUCH ? mix(0.15, 0.03, LN(s, 4.78, TOUCH)) : s < 4.824 ? 0.03 : s < 4.98 ? mix(0.03, 1, LN(s, 4.824, 4.98) ** 0.6) : 1;
 // Power 31 Oct 18:30 (?slow=2): the whole rip-touch-drop much longer: the rip slows, ~1.5 s still on the level, the drop at half speed
-const spd2 = s => s < 3.84 ? 1 : s < 4.5 ? mix(1, 0.55, eio(LN(s, 3.84, 4.5))) : s < TOUCH ? mix(0.55, 0.03, LN(s, 4.5, TOUCH)) : s < 4.84 ? 0.03 : s < 5.0 ? mix(0.03, 0.45, LN(s, 4.84, 5.0) ** 0.6) : s < 5.9 ? 0.45 : s < 6.3 ? mix(0.45, 1, eio(LN(s, 5.9, 6.3))) : 1;
+const spd2 = s => s < 3.84 ? 1 : s < 4.5 ? mix(1, 0.55, eio(LN(s, 3.84, 4.5))) : s < TOUCH ? mix(0.55, 0.03, LN(s, 4.5, TOUCH)) : s < 4.84 ? 0.03 : s < 5.0 ? mix(0.03, 0.45, LN(s, 4.84, 5.0) ** 0.6) : s < 5.9 ? 0.45 : s < 6.3 ? mix(0.45, 1, eio(LN(s, 5.9, 6.3))) : s < 6.6 || !OUTRO ? 1 : 0.65;
 const spd = s => SLOW === 2 ? spd2(s) : spd1(s), HOLD_END = SLOW === 2 ? 4.84 : 4.824;
 const SLT = (() => { const sc = [0], ck = [0], h = 0.002; let s = 0, c = 0; while (s < 20) { c += h / spd(s + h / 2); s += h; sc.push(s); ck.push(c); } return { sc, ck }; })();
 const ckAt = s => { const { sc, ck } = SLT, i = Math.min(sc.length - 1, Math.max(0, Math.round(s / 0.002))); return ck[i]; };
@@ -597,6 +626,8 @@ function renderAt(t) {
     const fade = (ax, ay, bx, by, rx, ry, rw, rh) => { const gr = g.createLinearGradient(ax, ay, bx, by); gr.addColorStop(0, 'rgba(0,0,0,0.92)'); gr.addColorStop(1, 'rgba(0,0,0,0.25)'); g.fillStyle = gr; g.fillRect(rx, ry, rw, rh); };
     fade(0, 0, 0, WIN.y0, 0, 0, 1080, WIN.y0); fade(0, 1920, 0, WIN.y1, 0, WIN.y1, 1080, 1920 - WIN.y1); fade(0, 0, WIN.x0, 0, 0, WIN.y0, WIN.x0, WIN.y1 - WIN.y0); fade(1080, 0, WIN.x1, 0, WIN.x1, WIN.y0, 1080 - WIN.x1, WIN.y1 - WIN.y0); }
   let c = cursorAt(t); const jt = jitter(t); c = { x: c.x + jt.x, y: c.y + jt.y };
+  const OA = OUTRO ? 1 - eio(seg(t, E.out, E.out + 0.4)) : 1; g.save(); if (OA < 1) { const sc = 0.88 + 0.12 * OA; g.globalAlpha = OA; g.translate(540, 960); g.scale(sc, sc); g.translate(-540, -960); }
+  if (OA > 0) {
   const cam = camera(t, S); CAM = cam; g.save(); { VW.roundRect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0, 12); g.clip(); } g.translate(cam.x, cam.y); if (cam.s !== 1) { g.translate(cam.fx, cam.fy); g.scale(cam.s, cam.s); g.translate(-cam.fx, -cam.fy); }
   if (!FR) { g.save(); g.shadowColor = 'rgba(0,0,0,0.6)'; g.shadowBlur = 40; box(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0, '#000', null, 12); g.restore(); }
   const dx = divX(t), dragging = t >= E.grab - 0.1 && t < E.drop + 0.1;
@@ -614,6 +645,8 @@ function renderAt(t) {
       g.beginPath(); g.moveTo(c.x - 14, c.y); g.lineTo(c.x + 14, c.y); g.moveTo(c.x, c.y - 14); g.lineTo(c.x, c.y + 14); g.stroke(); g.restore(); }
     else VX.cursor(c.x, c.y, 1, lightHere, pr); }
   crashFx(t, S); rewindFx(t); g.restore(); wallCallout(t);
+  }
+  g.restore(); if (OUTRO) outroFx(t);
   logoAt(1 - seg(t, T_END, T_END + 0.25));
   overlay(t); disclosure(t); endCard(t);
   g.restore();

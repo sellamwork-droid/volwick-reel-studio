@@ -22,5 +22,9 @@ fade = np.linspace(0, 1, xf)[:, None]; outb[i0:i0 + xf] = outb[i0:i0 + xf] * (1 
 t_on, t_off = OFF + E['touch_in'], OFF + E['release']; sos = butter(2, 700, 'low', fs=SR, output='sos'); lp = np.stack([sosfilt(sos, outb[:, c]) for c in range(2)], 1)
 x = np.arange(n) / SR; w = np.clip((x - t_on) / 0.25, 0, 1) * np.clip((t_off + 0.05 - x) / 0.08, 0, 1); w = w[:, None]
 outb = outb * (1 - w) + lp * w * 0.8
-outb *= (np.clip(x / 0.05, 0, 1) * np.clip((total - 0.1 - x) / 1.2, 0, 1))[:, None]
+if os.environ.get('LOGO_AT'):   # Power 31 Oct 18:45: music down when the logo section starts, gone once the logo shows (only the sound effects stay)
+    L = float(os.environ['LOGO_AT']); gl = np.interp(x, [L - 0.05, L + 0.3, L + 0.85], [1.0, 0.4, 0.0]); outb *= gl[:, None]
+else:
+    outb *= np.clip((total - 0.1 - x) / 1.2, 0, 1)[:, None]
+outb *= np.clip(x / 0.05, 0, 1)[:, None]
 outb /= np.max(np.abs(outb)) + 1e-9; sf.write(out, (outb * 0.8).astype(np.float32), SR, subtype='FLOAT'); print('ok', total)

@@ -11,10 +11,14 @@ let D, BARS, SUP;
 // ---------- geometry ----------
 // logo position test (Power 31 Oct 03:49): ?logo=tl (old, top left) · top (centered above) · bottom (centered under the chart) · none
 const LOGO = new URLSearchParams(location.search).get('logo') || 'tl';
-const WIN = { x0: 96, x1: 940, y0: 498, y1: LOGO === 'bottom' ? 1474 : 1548 };   // fills the safe zone (rule 30 Oct 15:44)
-const HDR1 = 498, HDR = 618, LB = WIN.y1 - 98, DB = WIN.y1 - 34;   // light chart bottom (replay bar under it), dark chart bottom
+// layout test (Power 31 Oct, voice: spaces not well managed): ?lay=A compact one-line title, bigger chart · B two-line title closer, bigger chart · C like A, window runs past the safe zone (only grid, volume, time axis down there)
+const LAY = new URLSearchParams(location.search).get('lay') || '';
+const LT_ = { '': { ts: 58, lh: 62, y2: 347, y1: 382, sub: 457, w0: 498, w1: 1548, one: false }, A: { ts: 44, lh: 50, y2: 300, y1: 300, sub: 344, w0: 372, w1: 1550, one: true },
+  B: { ts: 54, lh: 58, y2: 294, y1: 323, sub: 398, w0: 426, w1: 1550, one: false }, C: { ts: 44, lh: 50, y2: 300, y1: 300, sub: 344, w0: 372, w1: 1700, one: true } }[LAY];
+const WIN = { x0: 96, x1: 940, y0: LT_.w0, y1: LOGO === 'bottom' ? LT_.w1 - 74 : LT_.w1 };   // fills the safe zone (rule 30 Oct 15:44)
+const HDR1 = WIN.y0, HDR = WIN.y0 + 120, LB = WIN.y1 - 98, DB = WIN.y1 - 34, DBS = Math.min(DB, 1516);   // light chart bottom (replay bar under it), dark chart bottom
 const CX0L = 140, CX0D = 96, CX1 = 858;
-const PTOP = 7745.0, PX = 24.0;   // tighter scale: the walls fill the window
+const PTOP = 7745.0, PX = LAY ? (DBS - HDR) / 37.3 : 24.0;   // tighter scale: the walls fill the window
 const Y = p => HDR + (PTOP - p) * PX;
 const SP = 12, XR = 790;
 const T_END = 16.3;
@@ -285,21 +289,21 @@ const SUBS = [ [0.0, 'ES 1m · price pokes over the line you drew, then drops ba
   [10.8, 'Long γ: dealers hedge against the move. Context, not a signal.'] ];
 function overlay(t) {
   const g = VW.g; let j = -1; OVER.forEach((o, q) => { if (t >= o[0]) j = q; }); if (j < 0 || t > T_END) return;
-  const o = OVER[j], k = j === 0 ? 1 : eo(lin(t, o[0], o[0] + 0.22)), parts = o.slice(1); g.save(); g.globalAlpha = k * (1 - seg(t, T_END - 0.2, T_END)); g.font = '700 58px VWSans'; g.letterSpacing = '1px';
+  const o = OVER[j], k = j === 0 ? 1 : eo(lin(t, o[0], o[0] + 0.22)), parts = o.slice(1); g.save(); g.globalAlpha = k * (1 - seg(t, T_END - 0.2, T_END)); g.font = `700 ${LT_.ts}px VWSans`; g.letterSpacing = '1px';
   // wrap into max two lines inside the safe width
   const words = []; parts.forEach((p, q) => p.split(/(?<= )/).forEach(w => w && words.push([w, q === 1])));
-  const lines = [[]]; let lw = 0; words.forEach(w => { const ww = g.measureText(w[0]).width; if (lw + ww > 830 && lines[lines.length - 1].length) { lines.push([]); lw = 0; } lines[lines.length - 1].push(w); lw += ww; });
+  const lines = [[]]; let lw = 0; words.forEach(w => { const ww = g.measureText(w[0]).width; if (!LT_.one && lw + ww > 830 && lines[lines.length - 1].length) { lines.push([]); lw = 0; } lines[lines.length - 1].push(w); lw += ww; });
   if (lines.length === 2) { const all = lines.flat(), wd = w => g.measureText(w[0]).width; let best = null;
     for (let q = 1; q < all.length; q++) { const a = all.slice(0, q).reduce((p, w) => p + wd(w), 0), b = all.slice(q).reduce((p, w) => p + wd(w), 0), m = Math.max(a, b); if (a <= 830 && b <= 830 && (!best || m < best[0])) best = [m, q]; }
     if (best) { lines[0] = all.slice(0, best[1]); lines[1] = all.slice(best[1]); } }
-  const lh = 62, y0 = (lines.length > 1 ? 347 : 382) + (1 - k) * 10; g.textBaseline = 'middle';
+  const lh = LT_.lh, y0 = (lines.length > 1 ? LT_.y2 : LT_.y1) + (1 - k) * 10; g.textBaseline = 'middle';
   lines.forEach((ln, li) => { const tw = ln.reduce((s, w) => s + g.measureText(w[0].trimEnd()).width + (w[0].endsWith(' ') ? g.measureText(' ').width : 0), 0) - (ln[ln.length - 1][0].endsWith(' ') ? g.measureText(' ').width : 0);
     let x = VW.SAFE.cx - tw / 2; ln.forEach(w => { g.fillStyle = w[1] ? '#6E9BFF' : '#F2F5FA'; g.textAlign = 'left'; g.fillText(w[0], x, y0 + li * lh); x += g.measureText(w[0]).width; }); });
   // technical line under the title
   let js = -1; SUBS.forEach((o, q) => { if (t >= o[0]) js = q; });
   if (js >= 0) { const ks = js === 0 ? 1 : eo(lin(t, SUBS[js][0], SUBS[js][0] + 0.25)); g.globalAlpha = ks * (1 - seg(t, T_END - 0.2, T_END)); g.letterSpacing = '0px';
     let fs = 25; g.font = `600 ${fs}px VWMono`; while (g.measureText(SUBS[js][1]).width > 820 && fs > 18) { fs--; g.font = `600 ${fs}px VWMono`; }
-    txt(SUBS[js][1], VW.SAFE.cx, 457, `600 ${fs}px VWMono`, '#9FB3D9', 'center'); }
+    txt(SUBS[js][1], VW.SAFE.cx, LT_.sub, `600 ${fs}px VWMono`, '#9FB3D9', 'center'); }
   g.restore();
 }
 function disclosure(t) { const g = VW.g, a = 1 - seg(t, T_END - 0.2, T_END); if (a <= 0) return; g.save(); g.globalAlpha = a;

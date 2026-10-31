@@ -44,6 +44,10 @@
     {
       "data": "2026-10-31 03:58",
       "testo": "Power: il logo VOLWICK in alto a sinistra non mi piace. Chieste tre prove: sotto il grafico centrato, sopra il grafico centrato, senza logo."
+    },
+    {
+      "data": "2026-10-31 04:36",
+      "testo": "Power (vocale): gli spazi non sembrano gestiti bene, troppa aria sopra e sotto; chieste prove di impaginazione."
     }
   ],
   "lezioni": [
@@ -52,7 +56,7 @@
     "Transizione hook → grafico: scena con ?var=3 (scia e freccia sul prezzo), RAMP 2× per 1 s poi 1,7 / 1,5 / 1 in 0,4 / 0,25 / 0,15 s sul replay calmo 0,55 candele/s. Contatto sulla linea a ~0,3 s."
   ],
   "pubblicazioni": [],
-  "aggiornato": "2026-10-31 03:58",
+  "aggiornato": "2026-10-31 04:36",
   "titolo": "Falsa rottura sotto il call wall",
   "numero": 6,
   "data_uscita": "31-10-2026",

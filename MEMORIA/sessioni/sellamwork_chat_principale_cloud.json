@@ -2,6 +2,7 @@
   "chi": "sellamwork · chat principale · cloud",
   "inizio": "2026-10-31T02:08+00:00",
   "storia": [
+    "31/10 05:23 V0010 v3: intro più pulita, Block Prints oro, carosello più lungo, trade 3D con guadagno",
     "31/10 04:49 V0010 v2 consegnato su Drive (01_EDIT/03, v1 in archivio), attendo il giudizio di Power",
     "31/10 04:49 consegnato V0010 su Drive, da rivedere",
     "31/10 04:45 V0010 v2: render in corso (intro con linee 3D, riga dei layer, carosello dei layer, salita 3D, finale 3D)",
@@ -15,9 +16,9 @@
     "31/10 03:34 studio hook finito (06_DOCS/HOOK_STUDIO_31OTT.md), catalogo aggiornato; 01_VIDEO in ordine con i nomi nuovi",
     "31/10 03:08 studio di tutti gli hook caricati (circa 250): scarico, catalogo e valuto; il catalogo lo aggiorno io"
   ],
-  "ultimo": "2026-10-31T03:49+00:00",
+  "ultimo": "2026-10-31T04:23+00:00",
   "stato": "attiva",
-  "cosa": "V0010 v2 consegnato su Drive (01_EDIT/03, v1 in archivio), attendo il giudizio di Power",
+  "cosa": "V0010 v3: intro più pulita, Block Prints oro, carosello più lungo, trade 3D con guadagno",
   "computer": "vm",
   "video": "V0010"
 }

@@ -120,8 +120,8 @@ const DROPB = [55, 56, 57, 58], DN = 16, DDUR = 0.4, dropT0 = (bi, n) => 4.95 + 
 let TNOW = 0;
 const VAMP = i => { if (ABS !== 11 && ABS !== 12) return 0; const bi = DROPB.indexOf(i); if (bi < 0) return 0; let got = 0; for (let n = 0; n < DN; n++) if (TNOW >= dropT0(bi, n) + DDUR) got++; return (got / DN) * (1 - seg(TNOW, 5.95, 6.35)); };
 function levelLight(t, wx, wy) {   // the call wall line that is already there lights up in its own green (no new line)
-  const k = seg(t, 4.70, 4.78) * (1 - seg(t, 5.7, 6.0)); if (k <= 0) return; const g = VW.g, w = WALLS[1], col = VX.WALL[w.fam], y = Math.round(Y(w.p)) + 0.5, xr = CX1 - 178, xl = CX0D;
-  const pulse = 0.65 + 0.35 * Math.sin((t - 4.7) * 9), grow = eo(seg(t, 4.70, 4.95));
+  const cA = SLOW ? ckAt(TOUCH) : TOUCH, c = SLOW ? CLOCK : t, k = seg(c, cA - 0.06, cA + 0.1) * (1 - seg(t, 5.7, 6.0)); if (k <= 0) return; const g = VW.g, w = WALLS[1], col = VX.WALL[w.fam], y = Math.round(Y(w.p)) + 0.5, xr = CX1 - 178, xl = CX0D;
+  const pulse = 0.6 + 0.4 * Math.sin((c - cA) * 7 - 1.2), grow = eo(seg(c, cA - 0.05, cA + 0.45));
   g.save(); g.globalCompositeOperation = 'lighter'; const band = g.createLinearGradient(0, y - 22, 0, y + 22); band.addColorStop(0, VW.rgba(col, 0)); band.addColorStop(0.5, VW.rgba(col, 0.35 * k * pulse)); band.addColorStop(1, VW.rgba(col, 0));
   g.fillStyle = band; g.fillRect(mix(wx, xl, grow), y - 22, mix(0, xr - xl, grow) + (wx - mix(wx, xl, grow) > 0 ? 0 : 0), 44);
   const gr = g.createLinearGradient(xl, 0, xr, 0); gr.addColorStop(0, VW.rgba(col, 0.25 * k)); gr.addColorStop(1, VW.rgba(col, k)); g.strokeStyle = gr; g.lineWidth = 3 + 2.5 * pulse; g.shadowColor = col; g.shadowBlur = 26 * pulse;
@@ -486,6 +486,7 @@ function setView(t, S) {
   const A = CAMK[q], B = CAMK[Math.min(q + 1, CAMK.length - 1)], u = B === A ? 1 : eio(clamp((t - A[0]) / (B[0] - A[0]), 0, 1));
   let z = mix(A[1], B[1], u); const pf = mix(fprice(A[2], S), fprice(B[2], S), u);
   XR = XR0 - 210 * eio(seg(t, 4.15, 4.55)) * (1 - eio(seg(t, 5.75, 6.15)));
+  if (SLOW && (ABS === 11 || ABS === 12)) { const cA = ckAt(TOUCH), cB = ckAt(4.824); z *= 1 + 0.14 * eio(seg(CLOCK, cA - 0.35, cA + 0.3)) * (1 - eio(seg(CLOCK, cB, cB + 0.6))); }
   if (ABS === 8 || ABS === 10) z *= 1 + 0.32 * eio(seg(t, 4.9, 5.25)) * (1 - eio(seg(t, 5.85, 6.2)));
   PX = PX0 * z; SP = SP0 * (1 + (z - 1) * 0.8); PTOP = pf + (MIDY() - HDR) / PX;
 }
@@ -564,10 +565,13 @@ const HDRV = +(new URLSearchParams(location.search).get('hdr') || 2);   // Power
 // Power 31 Oct 17:21: on the touch the level lights up and the replay slows down (?slow=1), then the price drops
 // Power 31 Oct 17:35: stay slow through the absorption and the first part of the drop, then ease back to normal speed (speed curve, no jump)
 const SLOW = +(new URLSearchParams(location.search).get('slow') || 0), SPD_R = 0.3;
-const spd = s => s < 4.6 ? 1 : s < 4.74 ? mix(1, SPD_R, eio((s - 4.6) / 0.14)) : s < 5.45 ? SPD_R : s < 5.9 ? mix(SPD_R, 1, eio((s - 5.45) / 0.45)) : 1;
+// Power 31 Oct 17:50: slow down gently into the touch (candle still green), stay almost still ~0.8 s on the level, then let it drop at normal speed
+const TOUCH = 4.80, LN = (s, a, b) => clamp((s - a) / (b - a), 0, 1), spd = s => s < 4.55 ? 1 : s < 4.78 ? mix(1, 0.15, LN(s, 4.55, 4.78)) : s < TOUCH ? mix(0.15, 0.03, LN(s, 4.78, TOUCH)) : s < 4.824 ? 0.03 : s < 4.98 ? mix(0.03, 1, LN(s, 4.824, 4.98) ** 0.6) : 1;
 const SLT = (() => { const sc = [0], ck = [0], h = 0.002; let s = 0, c = 0; while (s < 20) { c += h / spd(s + h / 2); s += h; sc.push(s); ck.push(c); } return { sc, ck }; })();
+const ckAt = s => { const { sc, ck } = SLT, i = Math.min(sc.length - 1, Math.max(0, Math.round(s / 0.002))); return ck[i]; };
+let CLOCK = 0;
 const slowMap = u => { if (!SLOW || u <= 4.6) return u; const { sc, ck } = SLT; let lo = 0, hi = ck.length - 1; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (ck[m] < u) lo = m; else hi = m; } return mix(sc[lo], sc[hi], (u - ck[lo]) / (ck[hi] - ck[lo] || 1)); };
-function render(t) { renderAt(slowMap(t < T_END * K ? t / K : T_END + (t - T_END * K))); }
+function render(t) { const u = t < T_END * K ? t / K : T_END + (t - T_END * K); CLOCK = u; renderAt(slowMap(u)); }
 function renderAt(t) {
   TNOW = t;
   const g = VW.g, S = state(t); g.save(); g.fillStyle = '#040913'; g.fillRect(0, 0, 1080, 1920);

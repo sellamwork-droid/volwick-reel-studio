@@ -23,7 +23,7 @@
     "TRADE WITH INSTITUTIONAL CONTEXT."
   ],
   "durata_s": 19.5,
-  "render": "Drive: 01_VIDEO/01_EDIT/V0002_EDIT_ORDER_FLOW",
+  "render": "Drive: 01_VIDEO/01_EDIT/V0002_EDIT_ORDER_FLOW.mp4",
   "stato": "da-rivedere",
   "creato": "2026-10-31 02:18",
   "sessione": "chat principale (cloud)",
@@ -32,5 +32,7 @@
     "VX.end senza voce: passare sempre loop0 (per esempio TOTAL − 0,45), altrimenti il finale resta invisibile."
   ],
   "pubblicazioni": [],
-  "aggiornato": "2026-10-31 02:34"
+  "aggiornato": "2026-10-31 02:34",
+  "versioni": "Drive: 04_ARCHIVIO_VIDEO/V0002_EDIT_ORDER_FLOW/ (1 file)",
+  "caption": "Where's the floor?\n\nDealer Walls, Exposure Maps, CVD, Block Prints, CDI and Options Flow. One terminal, read from the options book and the tape.\n\n$0.99 your first month, then $89/month. Cancel anytime. Offer ends November 27.\n\nSimulated session. Illustrative data. Dealer Walls represent modeled options-derived positioning. For ES/MES, SPX-derived levels use estimated basis mapping. Not investment advice.\n\n#ES #futures #daytrading #trading #orderflow #gamma #volwick"
 }

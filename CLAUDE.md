@@ -34,7 +34,7 @@ Questa cartella è il sistema completo per generare i reel Volwick (TikTok, Inst
 4. Fogli di controllo (stills) prima del render: zone sicure, logo, scritte, riga dei layer.
 5. Render a 60 fps, audio, mix in due versioni (con base e MUSIC READY).
 6. Controllo finale: loudness circa −14,5/−15 LUFS, picco sotto −1,5 dBTP, durata, fotogrammi chiave.
-7. Consegna con `studio.py consegna` (vedi Consegna): video su Drive in `01_VIDEO/<TIPO>/<ID>_<NOME>/` con caption (offerta solo in caption). Scheda del video in `06_DOCS/`. Se usi un hook, aggiorna `CATALOGO_HOOK.csv` (stato "usato <video>").
+7. Consegna con `studio.py consegna` (vedi Consegna): su Drive arriva solo il video finito e completo, `01_VIDEO/<TIPO>/<ID>_<NOME>.mp4` (la caption con l'offerta resta nella memoria del video). Scheda del video in `06_DOCS/`. Se usi un hook, aggiorna `CATALOGO_HOOK.csv` (stato "usato <video>").
 
 ## Comandi (dal Terminale)
 ```
@@ -62,7 +62,7 @@ Hook + grafico: `ffmpeg -i hook.mp4 -i silent.mp4 -filter_complex "[0:v][1:v]con
 Il repository (e la sua copia su ogni computer) è la fonte. Ogni cosa nuova si salva qui subito, senza aspettare che Power lo chieda:
 - regola o correzione nuova → registro di `REGOLE/PREFERENZE_E_FORMATI.md` (e nel progetto VOLWICK su claude.ai se la sessione lo vede);
 - modifica al motore → `00_MOTORE` (mai solo in una copia di lavoro);
-- video finito → Drive `01_VIDEO/<TIPO>/<ID>_<NOME>/` con `studio.py consegna` + memoria in `MEMORIA/video/` + scheda in `06_DOCS/`;
+- video finito → Drive `01_VIDEO/<TIPO>/<ID>_<NOME>.mp4` con `studio.py consegna` + memoria in `MEMORIA/video/` + scheda in `06_DOCS/`;
 - hook nuovo o usato → `01_HOOK/clip` + `CATALOGO_HOOK.csv`;
 - audio della settimana → `02_AUDIO/AUDIO_TREND.md`.
 Prima di salvare un file che altri possono aver cambiato, rileggilo e aggiungi solo la parte nuova.
@@ -87,7 +87,7 @@ Lavorano insieme account Claude diversi, chat diverse dello stesso account e il 
 ### Google Drive: cartella condivisa "VOLWICK REEL STUDIO"
 Su ogni computer gira Google Drive per desktop con la cartella condivisa aggiunta a "Il mio Drive". Prima volta su un computer: `python3 00_MOTORE/tools/studio.py drive` (la trova da solo, crea la struttura; se non la trova, passale il percorso). Struttura, gestita solo dagli script:
 - `00_CARICA_QUI/`: il team carica lì il materiale nuovo (anche dal telefono), in tre cartelle: `01_VIDEO_HOOK` (clip per gli hook), `02_MUSICA` (solo brani con licenza), `03_VIDEO_CONSIGLIATI/<categoria>` con le categorie numerate 01_EDIT (T1), 02_SPIEGAZIONE_VOCE (T2), 03_REGISTRAZIONE_SCHERMO (T3), 04_HOOK_GRAFICO_VS_VOLWICK (T4), 05_HOOK_E_APERTURE, 06_COMPETITOR, 07_ALTRO. `studio.py arrivi` (lanciato anche dal brief) porta gli hook nel repository e nel catalogo, sposta musica e video consigliati in `02_LIBRERIA` con le stesse categorie e li registra in `02_AUDIO/CATALOGO_AUDIO.csv` e `07_RIFERIMENTI/RIFERIMENTI.csv` (colonna categoria); gli originali degli hook vanno in `03_ARCHIVIO_CARICAMENTI/<data>`. Un video consigliato in `07_ALTRO` o senza categoria lo classifichi tu quando lo studi.
-- `01_VIDEO/<TIPO>/<ID>_<NOME>/`: i video finiti divisi nei 4 tipi (01_EDIT, 02_SPIEGAZIONE_VOCE, 03_REGISTRAZIONE_SCHERMO, 04_HOOK_GRAFICO_VS_VOLWICK; la cartella la sceglie lo script dal campo formato T1–T4), `CAPTION.txt`, `SCHEDA.txt`. Li crea solo `studio.py consegna`.
+- `01_VIDEO/<TIPO>/<ID>_<NOME>.mp4`: **solo il video finito e completo**, un file per video, diviso nei 4 tipi (01_EDIT, 02_SPIEGAZIONE_VOCE, 03_REGISTRAZIONE_SCHERMO, 04_HOOK_GRAFICO_VS_VOLWICK; il tipo lo sceglie lo script dal campo formato T1–T4). Niente caption, schede, copertine, spezzoni o altre versioni (regola di Power, 31 ottobre 2026). Lo crea solo `studio.py consegna`.
 - `INDICE_VIDEO.csv`: tutti i video con stato e ultimo giudizio, rifatto a ogni consegna.
 - `04_ARCHIVIO_VIDEO/`: tutti i video generati prima del Reel Studio, ogni versione, con `INDICE_ARCHIVIO.csv`. Regola di Power: su Drive c'è **ogni video mai generato**; nessun video finito resta solo su un computer.
 Nessun file a mano in Drive, nessun rinomina: l'ordine lo tiene lo script.
@@ -101,8 +101,8 @@ Nessun file a mano in Drive, nessun rinomina: l'ordine lo tiene lo script.
 Una chat dell'app Claude (progetto VOLWICK) può lavorare come le sessioni del Terminale. Lavora nel cloud, quindi tre cose cambiano.
 1. **Avvio:** collega il repository (`add_repo` sellamwork-droid/volwick-reel-studio, accesso push), clonalo, registra la cartella, `pip install -r 00_MOTORE/requirements.txt` se manca qualcosa, `git config user.name "Claude (Volwick Reel Studio)"` e `user.email noreply@anthropic.com`. Poi tutto come "Inizio di ogni sessione". Il render (Playwright, ffmpeg) gira nel cloud senza installazioni.
 2. **Drive:** la chat arriva a Drive solo attraverso il computer collegato (strumenti remote-devices). Il materiale caricato in `00_CARICA_QUI` lo prende in carico la prossima sessione del Terminale: la chat lo segnala e basta.
-3. **Consegna:** `mkdir -p /tmp/vw_drive && VW_DRIVE=/tmp/vw_drive python3 00_MOTORE/tools/studio.py consegna V0012 <cartella>` prepara `01_VIDEO/<TIPO>/V0012_<NOME>/` e `INDICE_VIDEO.csv` in `/tmp/vw_drive`. Poi copiali in `/mnt/user-data/outputs/` e mandali al computer con `device_commit_files`:
-   - se tra le cartelle collegate (get_device_info) c'è **VOLWICK REEL STUDIO** di Google Drive: direttamente in `<quella cartella>/01_VIDEO/<TIPO>/V0012_<NOME>/` e `<quella cartella>/INDICE_VIDEO.csv`;
+3. **Consegna:** `mkdir -p /tmp/vw_drive && VW_DRIVE=/tmp/vw_drive python3 00_MOTORE/tools/studio.py consegna V0012 <cartella>` prepara in `/tmp/vw_drive` il solo video finito `01_VIDEO/<TIPO>/V0012_<NOME>.mp4`, le versioni secondarie in `04_ARCHIVIO_VIDEO/V0012_<NOME>/` e `INDICE_VIDEO.csv`. Poi copiali in `/mnt/user-data/outputs/` e mandali al computer con `device_commit_files`:
+   - se tra le cartelle collegate (get_device_info) c'è **VOLWICK REEL STUDIO** di Google Drive: con gli stessi percorsi dentro quella cartella (solo quei file, niente caption né schede);
    - altrimenti in `~/Desktop/VOLWICK/13_REEL_STUDIO/04_RENDER/_DA_CARICARE/V0012_<NOME>/`: la prossima sessione del Terminale li porta su Drive da sola (`studio.py arrivi`, lanciato dal brief);
    - nessun computer collegato o file oltre 30 MB: mandali in chat e dillo a Power.
    Poi commit e push della memoria come sempre. Nella cartella 13_REEL_STUDIO del Mac non si scrive mai a mano: si aggiorna con `git pull`.
@@ -121,9 +121,9 @@ Una chat dell'app Claude (progetto VOLWICK) può lavorare come le sessioni del T
 - Fai `git pull --rebase` anche prima del render finale: le regole possono essere cambiate mentre lavoravi.
 
 ### Consegna
-1. Metti in una cartella di lavoro (es. `00_MOTORE/vx/out_v0012/consegna`) i video finiti (con hook, senza hook, MUSIC READY) e `CAPTION.txt` (caption con offerta e hashtag), più eventuale copertina png.
+1. Metti in una cartella di lavoro (es. `00_MOTORE/vx/out_v0012/consegna`) il video finito (con hook) ed eventuali versioni secondarie (MUSIC_READY, NOHOOK) e `CAPTION.txt` (caption con offerta e hashtag).
 2. `python3 00_MOTORE/tools/studio.py aggiorna V0012 durata_s=21.4 titoli="RIGA 1|RIGA 2" layer="WALLS Top 5|BLOCK PRINTS"`
-   poi `python3 00_MOTORE/tools/studio.py consegna V0012 00_MOTORE/vx/out_v0012/consegna`: copia tutto su Drive in `01_VIDEO/<TIPO>/V0012_<NOME>/` con nomi standard e `SCHEDA.txt`, aggiorna stato e indice, commenta la scheda GitHub e la mette `da-rivedere`. Mai mp4 o wav nel repository.
+   poi `python3 00_MOTORE/tools/studio.py consegna V0012 00_MOTORE/vx/out_v0012/consegna [--video file.mp4]`: mette su Drive **solo il video finito** in `01_VIDEO/<TIPO>/V0012_<NOME>.mp4`, le versioni secondarie in `04_ARCHIVIO_VIDEO/V0012_<NOME>/` (fuori dalla vista di Power), salva la caption nella memoria del video, aggiorna stato e indice, commenta la scheda GitHub e la mette `da-rivedere`. Mai mp4 o wav nel repository.
 3. Se hai usato un hook, aggiorna `01_HOOK/CATALOGO_HOOK.csv` (stato "usato V0012").
 4. `python3 00_MOTORE/tools/studio.py controlla` deve dare 0 errori (GitHub lo ripete a ogni push).
 5. Commit piccoli e chiari, `git pull --rebase`, `git push`.

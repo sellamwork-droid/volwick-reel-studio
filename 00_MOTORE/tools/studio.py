@@ -228,10 +228,10 @@ LEGGIMI_DRIVE = """VOLWICK REEL STUDIO · cartella condivisa
                 03_VIDEO_CONSIGLIATI  video di altri da studiare, nella cartella del tipo che ispirano (o hook, competitor, altro):
 """ + "".join(f"                      {c:<28}{t}\n" for c, t in CATEGORIE) + """                Il primo Claude che parte li cataloga e li sposta in 02_LIBRERIA o nel motore. Non serve dire niente.
 01_VIDEO        i video finiti, divisi nei 4 tipi:
-""" + "".join(f"                      {c:<28}{t}\n" for _, c, t in TIPI) + """                dentro ogni tipo una cartella per video: <ID>_<NOME>/ con i video, CAPTION.txt e SCHEDA.txt. La crea Claude.
+""" + "".join(f"                      {c:<28}{t}\n" for _, c, t in TIPI) + """                dentro ogni tipo SOLO i video finiti e completi, un file per video: <ID>_<NOME>.mp4. Nient'altro.
 02_LIBRERIA     musica e video consigliati già catalogati, con le stesse categorie.
 03_ARCHIVIO_CARICAMENTI   gli originali caricati, per data.
-04_ARCHIVIO_VIDEO         tutti i video generati prima del Reel Studio, ogni versione, con INDICE_ARCHIVIO.csv.
+04_ARCHIVIO_VIDEO         tutti i video generati prima del Reel Studio e le versioni secondarie dei nuovi (MUSIC READY, senza hook), con INDICE_ARCHIVIO.csv.
 INDICE_VIDEO.csv          tutti i video con stato, formato, hook e ultimo giudizio. Si apre con Fogli Google.
 
 Le cartelle e i nomi dei file li gestisce Claude: non rinominare e non spostare a mano.
@@ -267,11 +267,10 @@ def drive(a):
     note = {IN_HOOK: 'Trascina qui le clip da usare come hook. Verticali, senza marchi, scritte, @nomi o persone famose. Il primo Claude che parte le cataloga e le sposta.',
             IN_MUS: 'Trascina qui brani o effetti CON LICENZA da mixare nei video. I brani famosi non si caricano: si scelgono in app.',
             IN_CONS: 'Video di altri da studiare. Mettili nella cartella del tipo che ispirano (01 edit, 02 spiegazione voce, 03 registrazione schermo, 04 hook + grafico vs Volwick), oppure 05 hook, 06 competitor; se non sai quale, in 07_ALTRO.',
-            '01_VIDEO': 'I video finiti, divisi nei 4 tipi. Ogni video ha la sua cartella <ID>_<NOME> con le versioni, CAPTION.txt e SCHEDA.txt. Le crea Claude.'}
+            }
     for c, t in CATEGORIE:
         note[f'{IN_CONS}/{c}'] = t + '. Trascina qui i video consigliati di questo tipo.'
         note[f'{LIB_CONS}/{c}'] = t + '. Già catalogati (gestito da Claude).'
-    for _, c, t in TIPI: note[f'01_VIDEO/{c}'] = t + '. Video finiti di questo tipo, uno per cartella (gestito da Claude).'
     for k, t in note.items(): open(os.path.join(d, k, 'LEGGIMI.txt'), 'w', encoding='utf-8').write(t + '\n')
     indice(); print('Drive pronto:', d)
 
@@ -318,15 +317,19 @@ def in_attesa(d):
 
 
 def postino(d):
-    """Video consegnati dalle chat dell'app Claude quando Drive non era collegato: stanno in 04_RENDER/_DA_CARICARE sul Mac, qui vanno su Drive."""
+    """Video consegnati dalle chat dell'app Claude quando Drive non era collegato: stanno in 04_RENDER/_DA_CARICARE sul Mac.
+    Qui il video finito va in 01_VIDEO/<tipo>/<ID>_<NOME>.mp4 e le altre versioni in 04_ARCHIVIO_VIDEO/<ID>_<NOME>/."""
     src = os.path.join(ROOT, '04_RENDER', '_DA_CARICARE'); n = 0
     for nome in sorted(os.listdir(src)) if os.path.isdir(src) else []:
         a = os.path.join(src, nome)
         if not os.path.isdir(a): continue
         i = nome.split('_')[0]; v = json.load(open(path(i), encoding='utf-8')) if os.path.exists(path(i)) else {}
-        b = os.path.join(d, '01_VIDEO', cartella_tipo(v), nome); os.makedirs(b, exist_ok=True)
-        for f in os.listdir(a): shutil.move(os.path.join(a, f), os.path.join(b, f))
-        os.rmdir(a); n += 1; print('portato su Drive:', nome)
+        fs = [f for f in os.listdir(a) if not f.startswith('.')]; main = principale(fs)
+        if not main: print('!! in', nome, 'non trovo un solo video finito: lo lascio in _DA_CARICARE'); continue
+        b = os.path.join(d, '01_VIDEO', cartella_tipo(v)); os.makedirs(b, exist_ok=True); shutil.move(os.path.join(a, main), os.path.join(b, nome + os.path.splitext(main)[1].lower()))
+        for f in fs:
+            if f != main and f.lower().endswith(VIDEO_EXT): os.makedirs(os.path.join(d, '04_ARCHIVIO_VIDEO', nome), exist_ok=True); shutil.move(os.path.join(a, f), os.path.join(d, '04_ARCHIVIO_VIDEO', nome, f))
+        shutil.rmtree(a, ignore_errors=True); n += 1; print('portato su Drive:', nome)
     if n: indice()
     return n
 
@@ -387,32 +390,49 @@ def scheda_txt(v):
     return '\n'.join(righe).strip() + '\n'
 
 
+SECONDARI = re.compile(r'(MUSIC[_ ]?READY|NO[_ ]?HOOK|SENZA[_ ]?HOOK|SILENT|_PRE|_MIX|BOZZA)', re.I)
+
+
+def principale(files):
+    """the one finished video for Power: the mp4 that is not a MUSIC READY / no-hook / silent variant"""
+    vids = [f for f in files if f.lower().endswith(VIDEO_EXT)]
+    main = [f for f in vids if not SECONDARI.search(f)]
+    return main[0] if len(main) == 1 else None
+
+
 def consegna(a):
-    if len(a) < 2: sys.exit('uso: studio.py consegna V0012 <cartella con i file finiti>')
+    """Regola di Power (31 ott 2026): in 01_VIDEO arriva SOLO il video finito e completo, un file per video,
+    01_VIDEO/<tipo>/<ID>_<NOME>.mp4. Le altre versioni vanno in 04_ARCHIVIO_VIDEO/<ID>_<NOME>/ (su Drive c'è ogni video mai generato,
+    ma fuori dalla consegna); caption e scheda restano nel repository (MEMORIA), mai su Drive."""
+    if len(a) < 2: sys.exit('uso: studio.py consegna V0012 <cartella con i file finiti> [--video file.mp4]')
     i, src = a[0], os.path.abspath(os.path.expanduser(a[1]))
     if not os.path.exists(path(i)): sys.exit(f'{i} non esiste: usa prima `nuovo`.')
     v = json.load(open(path(i), encoding='utf-8'))
-    files = [f for f in sorted(os.listdir(src)) if f.lower().endswith(VIDEO_EXT + ('.txt', '.png', '.jpg'))]
-    if not any(f.lower().endswith(VIDEO_EXT) for f in files): sys.exit('nella cartella non c\'è nessun video')
-    if not any(f.lower().startswith('caption') for f in files): print('ATTENZIONE: manca CAPTION.txt (la caption con l\'offerta va consegnata con il video)')
-    d = drive_root(quiet=True); nome = f"{i}_{slug(v.get('nome'))}"
+    files = [f for f in sorted(os.listdir(src)) if not f.startswith('.')]
+    main = a[a.index('--video') + 1] if '--video' in a else principale(files)
+    if not main or main not in files: sys.exit('non capisco qual è il video finito: indicalo con --video <file.mp4> (le varianti MUSIC_READY, NOHOOK, SILENT non si consegnano a Power)')
+    cap = next((f for f in files if f.lower().startswith('caption')), None)
+    if cap: v['caption'] = open(os.path.join(src, cap), encoding='utf-8').read().strip()
+    else: print('ATTENZIONE: manca CAPTION.txt (resta nella memoria del video, serve per pubblicare)')
+    d = drive_root(quiet=True); nome = f"{i}_{slug(v.get('nome'))}"; ext = os.path.splitext(main)[1].lower()
     base = os.path.join(d, '01_VIDEO', cartella_tipo(v)) if d else os.path.join(ROOT, '04_RENDER')
     if not d: print('Drive non trovato: consegno in locale in 04_RENDER (poi rilancia `consegna` quando Drive è configurato).')
-    out = os.path.join(base, nome); os.makedirs(out, exist_ok=True)
-    for f in files:
-        nf = f if f.upper().startswith(i) or f.lower().startswith('caption') else f'{i}_{f}'
-        shutil.copy2(os.path.join(src, f), os.path.join(out, nf))
-    v['render'] = (f'Drive: 01_VIDEO/{cartella_tipo(v)}/' if d else '04_RENDER/') + nome
+    os.makedirs(base, exist_ok=True); shutil.copy2(os.path.join(src, main), os.path.join(base, nome + ext))
+    altri = [f for f in files if f != main and f.lower().endswith(VIDEO_EXT)]
+    if altri and d:
+        arch = os.path.join(d, '04_ARCHIVIO_VIDEO', nome); os.makedirs(arch, exist_ok=True)
+        for f in altri: shutil.copy2(os.path.join(src, f), os.path.join(arch, f if f.upper().startswith(i) else f'{i}_{f}'))
+    v['render'] = (f'Drive: 01_VIDEO/{cartella_tipo(v)}/' if d else '04_RENDER/') + nome + ext
+    if altri: v['versioni'] = f'Drive: 04_ARCHIVIO_VIDEO/{nome}/ ({len(altri)} file)'
     if v.get('stato') in ('in-lavorazione', 'da-rifare'): v['stato'] = 'da-rivedere'
     v['aggiornato'] = now(); salva(v)
-    open(os.path.join(out, 'SCHEDA.txt'), 'w', encoding='utf-8').write(scheda_txt(v))
     if d: indice()
     if v.get('issue'):
         n = str(v['issue'])
-        sh('gh', 'api', f'repos/{{owner}}/{{repo}}/issues/{n}/comments', '-f', f"body=Consegnato: **{v['render']}** ({len(files)} file). Da rivedere.")
+        sh('gh', 'api', f'repos/{{owner}}/{{repo}}/issues/{n}/comments', '-f', f"body=Consegnato: **{v['render']}**. Da rivedere.")
         sh('gh', 'api', '-X', 'DELETE', f'repos/{{owner}}/{{repo}}/issues/{n}/labels/in-lavorazione')
         sh('gh', 'api', f'repos/{{owner}}/{{repo}}/issues/{n}/labels', '-f', 'labels[]=da-rivedere')
-    print('consegnato in', out)
+    print('consegnato', os.path.join(base, nome + ext), '| altre versioni in archivio:', len(altri))
     if io().get('chi'): presenza([f"consegnato {i} su Drive, da rivedere", '--video', i])
     sync([f'consegna {i}'])
 

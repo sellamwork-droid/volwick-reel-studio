@@ -2,6 +2,7 @@
   "chi": "tudorswork · chat 02:31 · cloud",
   "inizio": "2026-10-31T01:44+00:00",
   "storia": [
+    "31/10 04:54 V0006 v3 dinamico consegnato, attendo giudizio (logo e impaginazione ancora da scegliere)",
     "31/10 04:53 consegnato V0006 su Drive, da rivedere",
     "31/10 04:43 V0006 v3: versione più dinamica (spike sul muro, zoom, base a 125 BPM)",
     "31/10 04:36 V0006: tre impaginazioni inviate a Power, attendo logo e impaginazione",
@@ -15,12 +16,11 @@
     "31/10 03:29 V0006: tre prove di transizione hook → grafico (crollo accentuato)",
     "31/10 03:27 V0006 tre prove audio inviate a Power (A base unica, B solo hook, C dissolvenza), attendo la scelta",
     "31/10 03:24 giudizio di Power sull'audio dell'hook: prove audio V0006",
-    "31/10 03:14 V0006 e V0007 consegnati in chat (PC scollegato, Drive da caricare), in attesa del giudizio di Power",
-    "31/10 03:13 consegnato V0007 su Drive, da rivedere"
+    "31/10 03:14 V0006 e V0007 consegnati in chat (PC scollegato, Drive da caricare), in attesa del giudizio di Power"
   ],
-  "ultimo": "2026-10-31T03:53+00:00",
+  "ultimo": "2026-10-31T03:54+00:00",
   "stato": "attiva",
-  "cosa": "consegnato V0006 su Drive, da rivedere",
+  "cosa": "V0006 v3 dinamico consegnato, attendo giudizio (logo e impaginazione ancora da scegliere)",
   "computer": "vm",
   "video": "V0006"
 }

@@ -3,7 +3,7 @@
   "issue": 6,
   "nome": "The Bar",
   "formato": "T4",
-  "scena": "00_MOTORE/scenes/v0006_the_bar",
+  "scena": "00_MOTORE/scenes/v0006_dyn",
   "hook": {
     "clip": "Pole Vaulter Falls During Attempt.mp4"
   },
@@ -14,12 +14,14 @@
     "tooltip Call wall long γ"
   ],
   "titoli": [
+    "BREAKOUT?",
     "YOUR BREAKOUT JUST FAILED.",
     "WHAT WAS ABOVE THE LINE?",
     "SEE THE POSITIONING.",
+    "BLOCKED BY A CALL WALL.",
     "TRADE WITH INSTITUTIONAL CONTEXT."
   ],
-  "durata_s": 21.37,
+  "durata_s": 14.7,
   "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/06 Falsa rottura sotto il call wall (31-10-2026).mp4",
   "stato": "da-rivedere",
   "creato": "2026-10-31 03:01",
@@ -48,15 +50,20 @@
     {
       "data": "2026-10-31 04:36",
       "testo": "Power (vocale): gli spazi non sembrano gestiti bene, troppa aria sopra e sotto; chieste prove di impaginazione."
+    },
+    {
+      "data": "2026-10-31 04:53",
+      "testo": "Power (vocale): troppo lento, serve più impatto: il prezzo schizza, il dealer wall lo blocca e torna giù; effetti visivi, zoom su parti precise, musica più a ritmo che dia velocità al montaggio."
     }
   ],
   "lezioni": [
     "Mai l'audio del clip hook tagliato secco al match cut seguito da una base diversa: o una sola base dall'inizio (senza audio del clip), o l'audio del clip che sfuma oltre il taglio. replay_sound.py mette HOOK_WAV con stop a 0,08 s: non usarlo così.",
     "Audio con hook: AUDIO_MODE=base di scenes/v0006_the_bar/sound.py (niente HOOK_WAV, base unica dal primo fotogramma, fruscio sotto l'hook, colpo sul taglio).",
-    "Transizione hook → grafico: scena con ?var=3 (scia e freccia sul prezzo), RAMP 2× per 1 s poi 1,7 / 1,5 / 1 in 0,4 / 0,25 / 0,15 s sul replay calmo 0,55 candele/s. Contatto sulla linea a ~0,3 s."
+    "Transizione hook → grafico: scena con ?var=3 (scia e freccia sul prezzo), RAMP 2× per 1 s poi 1,7 / 1,5 / 1 in 0,4 / 0,25 / 0,15 s sul replay calmo 0,55 candele/s. Contatto sulla linea a ~0,3 s.",
+    "Versione dinamica T4 (V0006 v3): replay su griglia 125 BPM, hook di 2 battute con slow motion interpolato (minterpolate 120 fps), spike → impatto sul battere, divisore di 1 battuta, riavvolgimento di 1 battuta, muri a ottavi, zoom 1,6–1,8 sul muro con etichetta grande, scossa e flash agli impatti, scia su e giù; una base 125 BPM dall'inizio alla fine con riser e colpi agli impatti. Limitare con alimiter 0.6 su wav e poi rimuxare (il limitatore direttamente prima dell'AAC può superare 0 dBFS)."
   ],
   "pubblicazioni": [],
-  "aggiornato": "2026-10-31 04:36",
+  "aggiornato": "2026-10-31 04:53",
   "titolo": "Falsa rottura sotto il call wall",
   "numero": 6,
   "data_uscita": "31-10-2026",

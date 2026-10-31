@@ -13,14 +13,17 @@
     "PRICE IS STUCK.",
     "IT'S NOT AN ACCIDENT."
   ],
-  "durata_s": null,
-  "render": "",
-  "stato": "in-lavorazione",
+  "durata_s": 32.95,
+  "render": "Drive: 01_VIDEO/02_SPIEGAZIONE_VOCE/V0003_THE_PIN",
+  "stato": "da-rivedere",
   "creato": "2026-10-31 02:18",
   "sessione": "chat principale (cloud)",
   "feedback": [],
-  "lezioni": [],
+  "lezioni": [
+    "Voce HeyGen dal connettore: il cloud e la shell del Mac non scaricano da resource2.heygen.ai (403); si scarica sul Mac vero con uno script .command dal Finder in 04_RENDER/_voce_<id>, poi device_stage_files.",
+    "mix_voice_hq.sh su questa voce dà circa −15,6 LUFS e picco −1,4: rifinire dal _mix.wav con volume +2,4 dB e alimiter 0,70 (risultato −15,1 LUFS, picco −2,1)."
+  ],
   "pubblicazioni": [],
   "voce": "HeyGen Matthew, elevenlabs eleven_multilingual_v2, corpo 26,8 s + chiusura 3,8 s a 0,92",
-  "aggiornato": "2026-10-31 02:38"
+  "aggiornato": "2026-10-31 02:49"
 }

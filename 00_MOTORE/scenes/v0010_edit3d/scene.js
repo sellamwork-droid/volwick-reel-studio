@@ -6,9 +6,17 @@
 // the real wall tooltip; 3D carousel of layer panels drawn like the terminal; 3D rise with the price counting up to the
 // wall; approved ending (same elements and layout) with the logo forming in 3D. No hook (T1). Simulated ES session.
 import * as THREE from './lib/three.module.min.js';
+// 4K: index.html?k4=1 draws everything at 2x (2160 x 3840); glow, blur and letter spacing follow the factor
+const K = new URLSearchParams(location.search).get('k4') ? 2 : 1;
+{ const P = CanvasRenderingContext2D.prototype, sb = Object.getOwnPropertyDescriptor(P, 'shadowBlur'), fl = Object.getOwnPropertyDescriptor(P, 'filter'), ls = Object.getOwnPropertyDescriptor(P, 'letterSpacing');
+  Object.defineProperty(P, 'shadowBlur', { set(v) { sb.set.call(this, v * (this.__k || 1)); }, get() { return sb.get.call(this) / (this.__k || 1); } });
+  Object.defineProperty(P, 'filter', { set(v) { fl.set.call(this, String(v).replace(/([\d.]+)px/g, (m, n) => (parseFloat(n) * (this.__k || 1)) + 'px')); }, get() { return fl.get.call(this); } });
+  if (ls) Object.defineProperty(P, 'letterSpacing', { set(v) { ls.set.call(this, String(v).replace(/([\d.]+)px/g, (m, n) => (parseFloat(n) * (this.__k || 1)) + 'px')); }, get() { return ls.get.call(this); } }); }
+if (K > 1) { VW.cv.width = 1080 * K; VW.cv.height = 1920 * K; VW.cv.style.width = '1080px'; VW.cv.style.height = '1920px'; VW.g = VW.cv.getContext('2d'); }
+VW.g.__k = K;
 const { lin, eo, eio, mix, clamp } = VW;
 const T = { form: 1.22, mono: 1.37, wm: 1.45, wmOut: 1.80, unfold: 1.98, bar: 2.12, barEnd: 2.79, term: 2.79, aW: 2.79, aB: 3.48, aC: 4.18,
-  push: 4.95, box: 5.25, tip: 5.62, wide: 5.95, cards: 6.27, steps: [6.97, 7.66, 8.36, 9.06, 9.75, 10.45], rise: 10.78, entry: 11.82, wall: 14.40, end: 14.63, loop0: 17.45, total: 17.90 };
+  push: 4.95, box: 5.25, tip: 5.62, wide: 5.95, cards: 6.27, steps: [6.97, 7.66, 8.36, 9.06, 9.75, 10.45], rise: 10.78, entry: 11.82, wall: 14.28, end: 14.63, loop0: 17.45, total: 17.90 };
 const W = 1080, H = 1920;
 // ---------- simulated session (fixed seed, tick 0.25) ----------
 const P0 = 7731, PPX = 17, CY0 = 1300, PY = p => CY0 - (p - P0) * PPX;
@@ -35,7 +43,7 @@ function genBars() {
 // ---------- 2D helpers ----------
 function txt(g, s, x, y, font, col, al = 'left', bl = 'middle') { g.font = font; g.fillStyle = col; g.textAlign = al; g.textBaseline = bl; g.fillText(s, x, y); }
 function rr(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
-function mkTex(w, h) { const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const g = cv.getContext('2d');
+function mkTex(w, h) { const cv = document.createElement('canvas'); cv.width = w * K; cv.height = h * K; const g = cv.getContext('2d'); g.__k = K; g.setTransform(K, 0, 0, K, 0, 0);
   const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8; tex.minFilter = THREE.LinearMipmapLinearFilter; return { cv, g, tex }; }
 function money(p) { return p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 function diamond(g, x, y, s, col) { g.save(); g.translate(x, y); g.rotate(Math.PI / 4); g.fillStyle = col; g.fillRect(-s, -s, 2 * s, 2 * s); g.restore(); }
@@ -52,7 +60,7 @@ function layoutHeader(g) {
 }
 function chipPos(key) { const c = HDR.find(h => h.key === key); return [c.x + c.w / 2, c.y]; }
 function drawTerminal(g, s) {   // s: {on:{W,B,C}, pulse:{W,B,C}, walls[], star, bars, prints, cvd, box, boxK, tip, disc, bgA}
-  g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H);
+  g.setTransform(K, 0, 0, K, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; g.clearRect(0, 0, W, H);
   g.fillStyle = `rgba(2,5,11,${s.bgA ?? 0.9})`; g.fillRect(0, 0, W, H);
   // header
   HDR.forEach(h => { g.save();
@@ -119,7 +127,7 @@ function layoutBar(g) { let x = 50; const add = (kind, s, f, gap = 22) => { g.fo
   add('lab', 'DEALER', '600 30px VWMono'); ['WALLS Top 5', 'METRIC GEX', 'EXPIRY 0DTE', 'MAPS'].forEach(s => add('chip', s, '600 38px VWMono', 16)); x += 24; add('sep', '', '', 40);
   add('lab', 'ACTIVITY', '600 30px VWMono'); ['BLOCK PRINTS', 'CVD', 'CDI', 'FLOW'].forEach(s => add('chip', s, '600 38px VWMono', 16)); BARP.end = x; }
 function drawBar(g, u) {   // u = how far the drawing line has gone (0..1)
-  g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, BW, BH); const hx = u * BW;
+  g.setTransform(K, 0, 0, K, 0, 0); g.clearRect(0, 0, BW, BH); const hx = u * BW;
   g.save(); g.beginPath(); g.rect(0, 0, hx, BH); g.clip(); rr(g, 6, 6, BW - 12, BH - 12, 28); g.fillStyle = 'rgba(8,14,30,0.92)'; g.fill(); g.restore();
   // outline drawn by the line
   g.save(); g.beginPath(); g.rect(0, 0, hx, BH); g.clip(); rr(g, 6, 6, BW - 12, BH - 12, 28); g.strokeStyle = 'rgba(138,182,255,0.95)'; g.lineWidth = 4; g.shadowColor = '#5A8CFF'; g.shadowBlur = 18; g.stroke(); g.restore();
@@ -155,7 +163,7 @@ const PANELS = [
       ['0DTE', 'WEEK', 'MONTH', 'ALL'].forEach((m, j) => { const x = 40 + j * 205; rr(g, x, 140, 190, 84, 16); g.fillStyle = j ? 'rgba(255,255,255,0.05)' : 'rgba(47,107,255,0.45)'; g.fill(); g.strokeStyle = j ? 'rgba(150,170,210,0.35)' : '#8AB6FF'; g.lineWidth = 2.5; if (!j) { g.shadowColor = '#5A8CFF'; g.shadowBlur = 20; } g.stroke(); g.shadowBlur = 0; txt(g, m, x + 95, 183, '700 32px VWMono', j ? '#97A3B3' : '#FFFFFF', 'center'); });
       txt(g, '0DTE · 38 strikes', 40, 268, '700 28px VWMono', '#C9D3E3');
       WALLS.slice(0, 4).forEach((w, j) => { const y = 320 + j * 44, c = FAMC[w.fam]; g.save(); g.strokeStyle = c; g.lineWidth = 3; g.shadowColor = c; g.shadowBlur = 12; g.beginPath(); g.moveTo(40, y); g.lineTo(560, y); g.stroke(); g.restore(); txt(g, `${money(w.p)} · ${w.net}`, 860, y, '700 24px VWMono', c, 'right'); }); } },
-  { t: 'METRIC', h: 'GREEKS', grp: 'DEALER', c: '#5A8CFF', one: 'Dealer P&L exposure per 1-point move', draw(g) {
+  { t: 'METRIC', h: 'METRIC', grp: 'DEALER', c: '#5A8CFF', one: 'Dealer P&L exposure per 1-point move', draw(g) {
       rr(g, 40, 118, 820, 62, 14); g.fillStyle = 'rgba(255,255,255,0.04)'; g.fill(); g.strokeStyle = 'rgba(150,170,210,0.25)'; g.lineWidth = 2; g.stroke();
       ['GEX', 'CEX', 'DEX', 'ALL'].forEach((m, j) => { const x = 46 + j * 203.5; if (!j) { rr(g, x, 124, 197, 50, 11); g.fillStyle = 'rgba(47,107,255,0.55)'; g.fill(); g.shadowColor = '#5A8CFF'; g.shadowBlur = 18; g.strokeStyle = '#8AB6FF'; g.stroke(); g.shadowBlur = 0; }
         txt(g, m, x + 98, 150, '700 30px VWMono', j ? '#7F8AA0' : '#FFFFFF', 'center'); });
@@ -192,9 +200,9 @@ function logoMat(img) { const t = new THREE.Texture(img); t.colorSpace = THREE.S
     fragmentShader: 'uniform sampler2D map; uniform float op, rev, sweep; varying vec2 vUv; void main(){ if (vUv.x > rev) discard; vec3 c = texture2D(map, vUv).rgb; float l = max(c.r, max(c.g, c.b)); float s = exp(-pow((vUv.x + vUv.y*0.35 - sweep)/0.06, 2.0)); vec3 o = (c + vec3(0.75,0.85,1.0)*s*l*1.6)*op; float a = clamp(max(o.r, max(o.g, o.b)), 0.0, 1.0); gl_FragColor = vec4(o, a); }' }); }
 function dotTex() { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(255,255,255,0.8)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); const t = new THREE.CanvasTexture(c); return t; }
 function build3D() {
-  gl = document.createElement('canvas'); gl.width = W; gl.height = H;
+  gl = document.createElement('canvas'); gl.width = W * K; gl.height = H * K;
   R = new THREE.WebGLRenderer({ canvas: gl, antialias: true, alpha: true, preserveDrawingBuffer: true });
-  R.setPixelRatio(1); R.setSize(W, H, false); R.outputColorSpace = THREE.SRGBColorSpace; R.setClearColor(0x000000, 0); R.autoClear = false;
+  R.setPixelRatio(1); R.setSize(W * K, H * K, false); R.outputColorSpace = THREE.SRGBColorSpace; R.setClearColor(0x000000, 0); R.autoClear = false;
   CAM = new THREE.PerspectiveCamera(35, W / H, 10, 40000); CAMS = new THREE.PerspectiveCamera(50, W / H, 10, 60000);
   // starfield
   S_STARS = new THREE.Scene(); const n = 6000, pos = new Float32Array(n * 3), col = new Float32Array(n * 3), r = VW.rng(4242);
@@ -233,7 +241,7 @@ function setCam(c, x, y, z, lx, ly, lz, roll = 0) { c.position.set(x, y, z); c.u
 function proj(v, c = CAM) { const p = v.clone().project(c); return [(p.x + 1) * W / 2, (1 - p.y) * H / 2, p.z]; }
 function draw3D(list) { R.clear(); list.forEach(([s, c]) => { R.render(s, c); R.clearDepth(); }); }
 function starsCam(t, roll = 0, sp = 1) { setCam(CAMS, Math.sin(t * 0.3) * 150, Math.cos(t * 0.25) * 120, 2000 - t * 1100 * sp, Math.sin(t * 0.3) * 150 + roll * 800, 0, -20000, roll * 0.3); }
-function blit(g, a = 1, bloom = 0.55) { g.save(); g.globalAlpha = a; g.drawImage(gl, 0, 0); if (bloom > 0) { g.globalCompositeOperation = 'lighter'; g.globalAlpha = a * bloom; g.filter = 'blur(14px)'; g.drawImage(gl, 0, 0); } g.restore(); }
+function blit(g, a = 1, bloom = 0.55) { g.save(); g.globalAlpha = a; g.drawImage(gl, 0, 0, W, H); if (bloom > 0) { g.globalCompositeOperation = 'lighter'; g.globalAlpha = a * bloom; g.filter = 'blur(14px)'; g.drawImage(gl, 0, 0, W, H); } g.restore(); }
 function space(g, t, glowA = 0.14) { const bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#040818'); bg.addColorStop(1, '#01030A'); g.fillStyle = bg; g.fillRect(0, 0, W, H);
   const hz = g.createRadialGradient(540, 900, 40, 540, 900, 1200); hz.addColorStop(0, `rgba(47,107,255,${glowA})`); hz.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = hz; g.fillRect(0, 0, W, H); }
 // blue light strands that draw the monogram outline in 3D (logo centre in world coords, size s)
@@ -319,7 +327,7 @@ function secCards(g, t) {   // 6.27 → 8.0: carousel of layer panels, each draw
   updTitle(t);
   ring.position.set(0, 60, mix(-2600, 0, ent)); ring.rotation.set(mix(0.5, 0.1, ent), mix(-1.4, 0, ent), mix(0.12, 0, ent));
   setCam(CAM, 0, 200, D * 0.9, 0, 40, 0); starsCam(t, 0.2, 1.3); draw3D([[S_STARS, CAMS], [S_CARDS, CAM]]);
-  const bl = 1 - lin(t, T.cards, T.cards + 0.22); g.save(); if (bl > 0.02) g.filter = `blur(${(16 * bl).toFixed(1)}px)`; g.drawImage(gl, 0, 0); g.restore(); blit(g, 0, 0); g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.35; g.filter = 'blur(16px)'; g.drawImage(gl, 0, 0); g.restore();
+  const bl = 1 - lin(t, T.cards, T.cards + 0.22); g.save(); if (bl > 0.02) g.filter = `blur(${(16 * bl).toFixed(1)}px)`; g.drawImage(gl, 0, 0, W, H); g.restore(); blit(g, 0, 0); g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.35; g.filter = 'blur(16px)'; g.drawImage(gl, 0, 0, W, H); g.restore();
 }
 // group title of the panel in front (DEALER / ACTIVITY), 3D extruded blue type that flips over at every change of panel
 let TITLE, titleTex, titleTxt = '';
@@ -346,52 +354,42 @@ function genTrade() { const A = [[0, 7762], [6, 7764.5], [12, 7760.5], [16, 7758
   TB[47].h = 7768.25; TB[ENTRY.i].c = Math.max(TB[ENTRY.i].c, 7757.25); }   // 1 ES = $50 per point, P&L in $ on the tick ($25 for 2 contracts)
 function curBar(t) { return t < T.entry ? mix(8, ENTRY.i, eio(lin(t, T.rise, T.entry))) : mix(ENTRY.i, 47, eio(lin(t, T.entry + 0.3, T.wall))); }
 function tradeCam(t) { const k = eio(lin(t, T.rise, T.end)), cb = curBar(t);
-  setCam(CAM, RX(cb) - mix(950, 560, k), RY(7763) + mix(-60, 160, k), mix(2050, 1850, k), RX(cb) + 220, RY(7763.2), -500, mix(0.06, -0.03, k)); }
-let goldGlow, stopLine, goldDia = [];
-function buildTrade() {
-  goldGlow = new THREE.Mesh(new THREE.PlaneGeometry(4200, 140), new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, uniforms: { k: { value: 1 } },
-    vertexShader: 'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
-    fragmentShader: 'uniform float k; varying vec2 vUv; void main(){ float d=abs(vUv.y-0.5)*2.0; float a=exp(-d*d*9.0)*0.55*k; gl_FragColor=vec4(vec3(0.95,0.76,0.31)*a, a); }' })); S_RISE.add(goldGlow);
-  const gl2 = new THREE.Mesh(new THREE.BoxGeometry(4200, 5, 5), new THREE.MeshBasicMaterial({ color: 0xF2C14E })); gl2.position.y = RY(7756.25); S_RISE.add(gl2); goldGlow.position.y = RY(7756.25);
-  stopLine = new THREE.Mesh(new THREE.BoxGeometry(4200, 4, 4), new THREE.MeshBasicMaterial({ color: 0xE2575F, transparent: true })); stopLine.position.y = RY(ENTRY.stop); S_RISE.add(stopLine);
-  [19, 22, 26].forEach(i => { const d = new THREE.Mesh(new THREE.BoxGeometry(22, 22, 22), new THREE.MeshBasicMaterial({ color: 0xF2C14E })); d.rotation.set(0.6, 0.6, Math.PI / 4); d.position.set(RX(i), RY(7756.25), 30); S_RISE.add(d); goldDia.push(d);
-    const bar = new THREE.Mesh(new THREE.BoxGeometry(80, 6, 6), new THREE.MeshBasicMaterial({ color: 0xF4F6FA })); bar.position.set(RX(i), RY(7756.25), 20); S_RISE.add(bar); goldDia.push(bar); });
+  setCam(CAM, RX(cb) - mix(950, 560, k), RY(7763) + mix(-60, 160, k), mix(2050, 1850, k), RX(cb) + 360, RY(7763.2), -500, mix(0.06, -0.03, k)); }
+let putMesh, putGlow;
+function glowMat(rgb) { return new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, uniforms: { k: { value: 1 }, c: { value: new THREE.Color(...rgb) } },
+  vertexShader: 'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+  fragmentShader: 'uniform float k; uniform vec3 c; varying vec2 vUv; void main(){ float d=abs(vUv.y-0.5)*2.0; float a=exp(-d*d*9.0)*0.55*k; gl_FragColor=vec4(c*a, a); }' }); }
+function buildTrade() {   // the put wall under the price (long γ, red) mirrors the call wall above it
+  putGlow = new THREE.Mesh(new THREE.PlaneGeometry(4200, 160), glowMat([0.81, 0.36, 0.36])); putGlow.position.y = RY(ENTRY.p); S_RISE.add(putGlow);
+  putMesh = new THREE.Mesh(new THREE.BoxGeometry(4200, 7, 7), new THREE.MeshBasicMaterial({ color: 0xE86A6A })); putMesh.position.y = RY(ENTRY.p); S_RISE.add(putMesh);
 }
 function usd(v) { return (v < 0 ? '−' : '+') + '$' + Math.abs(v).toLocaleString('en-US'); }
 function secRise(g, t) {
   space(g, t, 0.16); const cb = curBar(t), nb = cb + 1, M = new THREE.Matrix4(), C = new THREE.Color();
   for (let i = 0; i < N; i++) { const b = TB[Math.min(i, TN - 1)], g0 = i >= TN ? 0 : clamp(nb - i, 0, 1), up = b.c >= b.o; C.set(up ? 0x2FB67C : 0xE2575F);
     const top = RY(Math.max(b.o, b.c)), bot = RY(Math.min(b.o, b.c)), hb = Math.max(6, top - bot) * g0;
-    M.makeScale(28, hb, 28); M.setPosition(RX(i), bot + hb / 2, 0); candleMesh.setMatrixAt(i * 2, M); candleMesh.setColorAt(i * 2, C);
+    M.makeScale(30, hb, 30); M.setPosition(RX(i), bot + hb / 2, 0); candleMesh.setMatrixAt(i * 2, M); candleMesh.setColorAt(i * 2, C);
     const hw = (RY(b.h) - RY(b.l)) * g0; M.makeScale(6, Math.max(1, hw), 6); M.setPosition(RX(i), RY(b.l) + hw / 2, 0); candleMesh.setMatrixAt(i * 2 + 1, M); candleMesh.setColorAt(i * 2 + 1, C); }
   candleMesh.instanceMatrix.needsUpdate = true; candleMesh.instanceColor.needsUpdate = true;
   const hit = Math.exp(-Math.pow((t - T.wall) / 0.08, 2)), ent = Math.exp(-Math.pow((t - T.entry) / 0.08, 2));
   wallMesh.position.set(0, RY(7768.25), 0); wallGlow.position.copy(wallMesh.position); wallGlow.material.uniforms.k.value = 0.7 + 2.5 * hit; wallMesh.scale.set(1, 1 + 2 * hit, 1 + 2 * hit);
-  goldGlow.material.uniforms.k.value = 0.8 + 2.5 * ent; goldDia.forEach((d, j) => { d.visible = cb >= [19, 19, 22, 22, 26, 26][j] - 0.5; });
-  stopLine.visible = t > T.entry; stopLine.material.opacity = eo(lin(t, T.entry, T.entry + 0.2));
+  putGlow.material.uniforms.k.value = 0.7 + 2.5 * ent; putMesh.scale.set(1, 1 + 2 * ent, 1 + 2 * ent);
   tradeCam(t); starsCam(t, -0.1); draw3D([[S_STARS, CAMS], [S_RISE, CAM]]); blit(g, 1, 0.65);
-  const P = (i, p) => proj(new THREE.Vector3(RX(i), RY(p), 0)), pill = (x, y, s, col, bg, al = 'left', f = '700 27px VWMono') => { g.font = f; const w = g.measureText(s).width + 28, x0 = al === 'right' ? x - w : x; rr(g, x0, y - 22, w, 44, 10); g.fillStyle = bg; g.fill(); g.strokeStyle = col; g.lineWidth = 2; g.stroke(); txt(g, s, x0 + 14, y + 1, f, col); };
-  // levels in 3D space
-  const lw = P(cb + 8, 7768.25), lgp = P(Math.max(2, cb - 14), 7756.25); g.save(); g.globalAlpha = eo(lin(t, T.rise + 0.1, T.rise + 0.4));
-  pill(Math.min(930, lw[0]), lw[1] - 34, '★ 7,768.25 · CALL WALL · +$22.4M', '#5BE39A', 'rgba(4,14,10,0.85)', 'right');
-  pill(Math.max(110, lgp[0]), lgp[1] - 34, '★ 7756.25 · 1,042 · 3 blocks', '#F2C14E', 'rgba(20,14,2,0.85)'); g.restore();
-  // contracts go in on the Block Prints level
-  if (t > T.entry - 0.35) { const e = P(ENTRY.i, ENTRY.p), k = eo(lin(t, T.entry - 0.35, T.entry));
-    [0, 1].forEach(j => { const f = eio(lin(t, T.entry - 0.35 + j * 0.08, T.entry + j * 0.08)), x = mix(380 + j * 320, e[0], f), y = mix(1500, e[1], f); if (f < 1) { g.save(); g.globalAlpha = 1 - lin(f, 0.85, 1); pill(x - 70, y, '+1 ES', '#5BE39A', 'rgba(4,14,10,0.9)'); g.restore(); } });
-    if (t > T.entry) { const a = eo(lin(t, T.entry, T.entry + 0.2)); g.save(); g.globalAlpha = a; g.fillStyle = '#5BE39A'; g.shadowColor = '#5BE39A'; g.shadowBlur = 20; g.beginPath(); g.moveTo(e[0], e[1] + 18); g.lineTo(e[0] - 16, e[1] + 46); g.lineTo(e[0] + 16, e[1] + 46); g.closePath(); g.fill(); g.shadowBlur = 0;
-      pill(e[0] - 30, e[1] + 82, 'LONG 2 ES @ 7,756.25', '#5BE39A', 'rgba(4,14,10,0.9)');
-      const sp = P(ENTRY.i - 6, ENTRY.stop); pill(930, Math.min(1490, sp[1] - 34), 'STOP 7,752.50 · RISK −$375', '#FF7A80', 'rgba(24,6,8,0.9)', 'right'); g.restore(); } }
-  // the counter: the gain on 2 contracts, in big 3D type, price under it
+  const P = (i, p) => proj(new THREE.Vector3(RX(i), RY(p), 0)), la = eo(lin(t, T.rise + 0.1, T.rise + 0.4));
+  // the two walls, one word each
+  const lab = (p, s, col) => { const q = P(Math.max(0, cb - 16), p); g.save(); g.globalAlpha = la; g.font = '700 30px VWMono'; g.letterSpacing = '3px'; g.shadowColor = col; g.shadowBlur = 16; txt(g, s, 110, q[1] - 30, '700 30px VWMono', col); g.restore(); };
+  lab(7768.25, 'CALL WALL', '#5BE39A'); lab(ENTRY.p, 'PUT WALL', '#FF8A8A');
+  // live tag on the right: the P&L rides with the price
   const ci = Math.min(TN - 1, Math.floor(cb)), px = Math.round((t >= T.wall ? 7768.25 : t >= T.entry && ci <= ENTRY.i ? Math.max(TB[ci].c, ENTRY.p) : TB[ci].c) * 4) / 4;
-  txt(g, `ES  ${money(px)}`, 540, 320, '700 34px VWMono', '#8AB6FF', 'center');
-  if (t > T.entry) { const pnl = Math.round((px - ENTRY.p) * ENTRY.qty * 50 / 25) * 25, s = usd(pnl), a = eo(lin(t, T.entry, T.entry + 0.25)), pos = pnl >= 0, col = pos ? '#5BE39A' : '#FF7A80';
-    g.save(); g.globalAlpha = a; g.translate(540, 425); g.transform(1, -0.05, 0, 1, 0, 0); g.scale(mix(0.7, 1, a) * (1 + 0.08 * hit), mix(0.7, 1, a) * (1 + 0.08 * hit));
-    for (let d = 14; d > 0; d--) txt(g, s, d * 1.2, d * 1.8, '700 160px VWSans', `rgba(${pos ? '15,80,48' : '90,20,26'},${0.9 - d * 0.04})`, 'center');
-    g.shadowColor = pos ? 'rgba(57,200,120,0.9)' : 'rgba(230,80,90,0.8)'; g.shadowBlur = 36 + 50 * hit; txt(g, s, 0, 0, '700 160px VWSans', col, 'center'); g.restore();
-    g.save(); g.globalAlpha = a; txt(g, 'P&L · 2 ES', 540, 528, '600 28px VWMono', '#97A3B3', 'center'); g.restore(); }
-  const lk = eo(lin(t, T.wall, T.wall + 0.15)); if (lk > 0) { g.save(); g.globalAlpha = lk; txt(g, 'CALL WALL · LONG γ', 540, 568, '700 28px VWMono', '#5BE39A', 'center'); g.restore(); }
-  if (hit > 0.05) { g.fillStyle = `rgba(200,255,225,${0.16 * hit})`; g.fillRect(0, 0, W, H); }
-  txt(g, 'Simulated ES session. Hypothetical results. 1 ES = $50 per point.', 540, 1540, '500 19px VWMono', '#7F8AA0', 'center');
+  const q = P(cb, px), y = clamp(q[1] + 40, 420, 1420), tk = eo(lin(t, T.rise + 0.15, T.rise + 0.45));
+  g.save(); g.globalAlpha = tk; g.strokeStyle = 'rgba(200,215,255,0.35)'; g.lineWidth = 2; g.setLineDash([6, 6]); g.beginPath(); g.moveTo(q[0] + 30, q[1]); g.lineTo(560, y); g.stroke(); g.setLineDash([]); g.restore();
+  if (t > T.entry) { const pnl = Math.round((px - ENTRY.p) * ENTRY.qty * 50 / 25) * 25, sv = usd(pnl), a = eo(lin(t, T.entry, T.entry + 0.25)), pos = pnl >= 0, col = pos ? '#5BE39A' : '#FF7A80', sc = mix(0.7, 1, a) * (1 + 0.1 * hit);
+    g.save(); g.globalAlpha = a; g.translate(930, y - 10); g.transform(1, -0.05, 0, 1, 0, 0); g.scale(sc, sc);
+    for (let d = 12; d > 0; d--) txt(g, sv, d * 1.1, d * 1.6, '700 120px VWSans', `rgba(${pos ? '15,80,48' : '90,20,26'},${0.9 - d * 0.05})`, 'right');
+    g.shadowColor = pos ? 'rgba(57,200,120,0.9)' : 'rgba(230,80,90,0.8)'; g.shadowBlur = 30 + 50 * hit; txt(g, sv, 0, 0, '700 120px VWSans', col, 'right'); g.restore(); }
+  g.save(); g.globalAlpha = tk; txt(g, `ES ${money(px)}`, 930, y + (t > T.entry ? 80 : 0), '700 34px VWMono', '#C9D3E3', 'right'); g.restore();
+  if (hit > 0.05) { g.fillStyle = `rgba(200,255,225,${0.14 * hit})`; g.fillRect(0, 0, W, H); }
+  txt(g, 'Simulated. Hypothetical results.', 540, 1540, '500 19px VWMono', '#7F8AA0', 'center');
 }
 // price line of the 3D trade in screen space at the cut: it becomes the logo
 function riseLine() { tradeCam(T.end); const out = []; for (let k = 0; k < 60; k++) { const i = Math.round(k * 47 / 59); out.push(proj(new THREE.Vector3(RX(i), RY(TB[i].c), 0))); } return out; }
@@ -420,12 +418,23 @@ function secEnd(g, t) {   // approved ending, same elements and layout, the logo
   if (k > 0) { g.save(); g.globalAlpha = k; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '700 44px VWMono'; g.letterSpacing = '5px'; g.fillStyle = C.blue; g.shadowColor = 'rgba(90,140,255,0.8)'; g.shadowBlur = 20; g.fillText('DISCOVER VOLWICK →', 543, 1410 + (1 - k) * 10); g.restore(); }
   const kd = eo(lin(t, dv + 0.3, dv + 0.7)) * outA; if (kd > 0) { g.save(); g.globalAlpha = kd; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '600 29px VWMono'; g.fillStyle = C.ink2; g.fillText('Simulated data. Not investment advice.', 540, 1496); g.restore(); }
 }
+// ---------- post: zoom blur through the cuts, a small push on every beat ----------
+const BEATS = [1.37, 2.09, 2.79, 3.48, 4.18, 4.88, 5.6, 6.27, 6.97, 7.66, 8.36, 9.06, 9.75, 10.45, 11.15, 11.82, 12.52, 13.21, 13.93, 14.63, 15.33];
+let TMP = null;
+function post(g, t) {
+  const cuts = [T.term, T.cards, T.rise, T.end], zb = cuts.reduce((a, c) => a + Math.exp(-Math.pow((t - c) / 0.09, 2)), 0), bp = VW.punch(BEATS, t, 0.05) * (t < T.end ? 1 : 0.4);
+  const amt = 0.16 * zb + 0.012 * bp; if (amt < 0.003) return;
+  if (!TMP) { TMP = document.createElement('canvas'); TMP.width = VW.cv.width; TMP.height = VW.cv.height; }
+  const tg = TMP.getContext('2d'), w = VW.cv.width, h = VW.cv.height; tg.setTransform(1, 0, 0, 1, 0, 0); tg.globalAlpha = 1; tg.clearRect(0, 0, w, h); tg.drawImage(VW.cv, 0, 0);
+  g.save(); g.setTransform(1, 0, 0, 1, 0, 0); const n = zb > 0.05 ? 7 : 1;
+  for (let k = 1; k <= n; k++) { const s = 1 + amt * k / n; g.globalAlpha = n > 1 ? 0.22 : 1; g.drawImage(TMP, (w - w * s) / 2, (h - h * s) / 2, w * s, h * s); }
+  g.restore(); }
 // ---------- render ----------
 function render(t) {
-  const g = VW.g; g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.filter = 'none'; g.globalCompositeOperation = 'source-over';
+  const g = VW.g; g.setTransform(K, 0, 0, K, 0, 0); g.globalAlpha = 1; g.filter = 'none'; g.globalCompositeOperation = 'source-over';
   if (t < T.bar) secLogo(g, t); else if (t < T.term) secBar(g, t); else if (t < T.cards) secTerm(g, t); else if (t < T.rise) secCards(g, t); else if (t < T.end) secRise(g, t); else secEnd(g, t);
   const fl = VW.punch([T.mono, T.cards, T.rise, T.entry, T.end], t, 0.04); if (fl > 0.02) { g.fillStyle = `rgba(210,225,255,${0.1 * fl})`; g.fillRect(0, 0, W, H); }
-  VW.vignette();
+  VW.vignette(); post(g, t);
 }
 window.READY = (async () => {
   await VW.loadFonts(); await VW.loadBrand(); genBars(); CONT = await (await fetch('mono_contours.json')).json();

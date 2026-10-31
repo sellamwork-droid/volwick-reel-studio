@@ -31,7 +31,7 @@
   ],
   "durata_s": 17.9,
   "render": "Drive: 01_VIDEO/01_EDIT/03 Edit 3D il terminale Volwick che si forma (31-10-2026).mp4",
-  "stato": "da-rivedere",
+  "stato": "approvato",
   "creato": "2026-10-31 04:08",
   "sessione": "sellamwork · chat principale · cloud",
   "feedback": [
@@ -54,6 +54,10 @@
     {
       "data": "2026-10-31 16:55",
       "testo": "Power 16:54: lasciare METRIC come titolo. Musica a tempo con gli effetti, ancora più 3D, 4K, transizioni. Nella parte del guadagno troppe scritte: solo i due dealer wall e il prezzo che sale, con il P&L che sale sulla destra; via stop, long e il resto. L'edit deve essere sempre pulito."
+    },
+    {
+      "data": "2026-10-31 17:39",
+      "testo": "Power 17:34: edit confermato (v6 4K). Ora un altro edit in modo diverso."
     }
   ],
   "lezioni": [
@@ -66,7 +70,7 @@
   ],
   "pubblicazioni": [],
   "audio": "brano del riferimento allungato + effetti sonori a tempo (sound.py della scena)",
-  "aggiornato": "2026-10-31 17:25",
+  "aggiornato": "2026-10-31 17:39",
   "titolo": "Edit 3D il terminale Volwick che si forma",
   "numero": 3,
   "data_uscita": "31-10-2026",

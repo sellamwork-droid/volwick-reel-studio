@@ -155,9 +155,16 @@ const PANELS = [
       ['0DTE', 'WEEK', 'MONTH', 'ALL'].forEach((m, j) => { const x = 40 + j * 205; rr(g, x, 140, 190, 84, 16); g.fillStyle = j ? 'rgba(255,255,255,0.05)' : 'rgba(47,107,255,0.45)'; g.fill(); g.strokeStyle = j ? 'rgba(150,170,210,0.35)' : '#8AB6FF'; g.lineWidth = 2.5; if (!j) { g.shadowColor = '#5A8CFF'; g.shadowBlur = 20; } g.stroke(); g.shadowBlur = 0; txt(g, m, x + 95, 183, '700 32px VWMono', j ? '#97A3B3' : '#FFFFFF', 'center'); });
       txt(g, '0DTE · 38 strikes', 40, 268, '700 28px VWMono', '#C9D3E3');
       WALLS.slice(0, 4).forEach((w, j) => { const y = 320 + j * 44, c = FAMC[w.fam]; g.save(); g.strokeStyle = c; g.lineWidth = 3; g.shadowColor = c; g.shadowBlur = 12; g.beginPath(); g.moveTo(40, y); g.lineTo(560, y); g.stroke(); g.restore(); txt(g, `${money(w.p)} · ${w.net}`, 860, y, '700 24px VWMono', c, 'right'); }); } },
-  { t: 'METRIC', grp: 'DEALER', c: '#5A8CFF', one: 'GEX · CEX (charm) · DEX', draw(g) {
-      ['GEX', 'CEX', 'DEX', 'ALL'].forEach((m, j) => { const x = 40 + j * 205; rr(g, x, 160, 190, 96, 16); g.fillStyle = j ? 'rgba(255,255,255,0.05)' : 'rgba(47,107,255,0.45)'; g.fill(); g.strokeStyle = j ? 'rgba(150,170,210,0.35)' : '#8AB6FF'; g.lineWidth = 2.5; g.stroke(); txt(g, m, x + 95, 209, '700 38px VWMono', j ? '#97A3B3' : '#FFFFFF', 'center'); });
-      txt(g, 'dealer P&L exposure per 1-point move', 40, 330, '600 26px VWMono', '#C9D3E3'); } },
+  { t: 'METRIC', grp: 'DEALER', c: '#5A8CFF', one: 'Dealer P&L exposure per 1-point move', draw(g) {
+      rr(g, 40, 118, 820, 62, 14); g.fillStyle = 'rgba(255,255,255,0.04)'; g.fill(); g.strokeStyle = 'rgba(150,170,210,0.25)'; g.lineWidth = 2; g.stroke();
+      ['GEX', 'CEX', 'DEX', 'ALL'].forEach((m, j) => { const x = 46 + j * 203.5; if (!j) { rr(g, x, 124, 197, 50, 11); g.fillStyle = 'rgba(47,107,255,0.55)'; g.fill(); g.shadowColor = '#5A8CFF'; g.shadowBlur = 18; g.strokeStyle = '#8AB6FF'; g.stroke(); g.shadowBlur = 0; }
+        txt(g, m, x + 98, 150, '700 30px VWMono', j ? '#7F8AA0' : '#FFFFFF', 'center'); });
+      txt(g, 'WALL', 40, 212, '600 20px VWMono', '#5E6B80'); txt(g, 'FAMILY', 300, 212, '600 20px VWMono', '#5E6B80'); txt(g, 'NET · GEX', 860, 212, '600 20px VWMono', '#5E6B80', 'right');
+      const rows = [...WALLS].sort((a, b) => Math.abs(parseFloat(b.net.replace(/[^0-9.]/g, ''))) - Math.abs(parseFloat(a.net.replace(/[^0-9.]/g, '')))), FN = { callL: 'call · long γ', callS: 'call · short γ', putL: 'put · long γ', putS: 'put · short γ' };
+      rows.forEach((w, j) => { const y = 252 + j * 52, c = FAMC[w.fam], v = Math.abs(parseFloat(w.net.replace(/[^0-9.]/g, ''))); g.fillStyle = j % 2 ? 'rgba(255,255,255,0.025)' : 'rgba(255,255,255,0.05)'; g.fillRect(36, y - 24, 828, 48);
+        g.fillStyle = VW.rgba(c, 0.28); g.fillRect(560, y - 13, 170 * v / 22.4, 26); g.fillStyle = c; g.fillRect(560, y - 13, 4, 26);
+        g.beginPath(); g.arc(52, y, 7, 0, 7); g.fill(); txt(g, `${w.star ? '★ ' : ''}${money(w.p)}`, 70, y + 1, '700 26px VWMono', '#ECEFF4'); txt(g, FN[w.fam], 300, y + 1, '600 24px VWMono', c);
+        txt(g, w.net, 860, y + 1, '700 26px VWMono', c, 'right'); }); } },
   { t: 'EXPOSURE MAPS', grp: 'DEALER', c: '#F59228', one: 'Maps behind the candles · MAP · GAMMA', draw(g) {
       const r = VW.rng(11); for (let cx = 0; cx < 22; cx++) for (let cy = 0; cy < 9; cy++) { const v = Math.sin(cx * 0.35 + cy * 0.8) + (r() - 0.5) * 0.5 - (cy - 4) * 0.25; g.fillStyle = v > 0 ? `rgba(47,107,255,${0.2 + 0.45 * Math.min(1, v)})` : `rgba(245,146,40,${0.2 + 0.45 * Math.min(1, -v)})`; g.fillRect(40 + cx * 37.3, 130 + cy * 35, 35, 33); }
       miniCandles(g, 40, 140, 820, 300, 50, 44); } },
@@ -307,14 +314,25 @@ function secTerm(g, t) {   // 2.79 → 6.27: terminal, layers switch on one by o
 function ringRot(t) { const k = T.steps.reduce((a, s) => a + eio(lin(t, s - 0.14, s + 0.22)), 0) + 0.8 * eio(lin(t, T.rise - 0.25, T.rise)); return k * Math.PI * 2 / PANELS.length; }
 function secCards(g, t) {   // 6.27 → 8.0: carousel of layer panels, each drawn like the terminal
   space(g, t, 0.22); const Rr = 1500, n = PANELS.length, rot = ringRot(t), ent = eo(lin(t, T.cards, T.cards + 0.5));
-  cardMeshes.forEach((h, j) => { const a = j * Math.PI * 2 / n - rot; h.position.set(Math.sin(a) * Rr, 0, Math.cos(a) * Rr - Rr); h.rotation.set(0, a, 0); });
+  cardMeshes.forEach((h, j) => { const a = j * Math.PI * 2 / n - rot, vis = clamp((Math.cos(a) - 0.25) / 0.45, 0, 1); h.position.set(Math.sin(a) * Rr, 0, Math.cos(a) * Rr - Rr); h.rotation.set(0, a, 0);
+    h.visible = vis > 0.01; h.children[0].material.opacity = vis; h.children[1].material.opacity = 0.16 * vis; });
+  updTitle(t);
   ring.position.set(0, 60, mix(-2600, 0, ent)); ring.rotation.set(mix(0.5, 0.1, ent), mix(-1.4, 0, ent), mix(0.12, 0, ent));
   setCam(CAM, 0, 200, D * 0.9, 0, 40, 0); starsCam(t, 0.2, 1.3); draw3D([[S_STARS, CAMS], [S_CARDS, CAM]]);
   const bl = 1 - lin(t, T.cards, T.cards + 0.22); g.save(); if (bl > 0.02) g.filter = `blur(${(16 * bl).toFixed(1)}px)`; g.drawImage(gl, 0, 0); g.restore(); blit(g, 0, 0); g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = 0.35; g.filter = 'blur(16px)'; g.drawImage(gl, 0, 0); g.restore();
-  // which panel is in front: its group and position in the terminal row
-  const idx = Math.round(rot / (Math.PI * 2 / n)) % n, P = PANELS[idx], k = eo(lin(t, T.cards + 0.25, T.cards + 0.5)) * (1 - lin(t, T.rise - 0.15, T.rise));
-  if (k > 0) { g.save(); g.globalAlpha = k; txt(g, `VOLWICK · ${P.grp}`, 540, 560, '600 30px VWMono', '#8AB6FF', 'center'); g.fillStyle = 'rgba(138,182,255,0.6)'; g.fillRect(470, 590, 140, 3); g.restore(); }
 }
+// group title of the panel in front (DEALER / ACTIVITY), 3D extruded blue type that flips over at every change of panel
+let TITLE, titleTex, titleTxt = '';
+function buildTitle() { titleTex = mkTex(1400, 240); TITLE = new THREE.Group(); TITLE.position.set(0, 560, 120);
+  for (let d = 10; d >= 0; d--) { const m = new THREE.Mesh(new THREE.PlaneGeometry(1400 * 0.62, 240 * 0.62), new THREE.MeshBasicMaterial({ map: titleTex.tex, transparent: true, depthWrite: false, color: d ? new THREE.Color().setHSL(0.62, 0.8, 0.12 + 0.02 * (10 - d)) : 0xffffff }));
+    m.position.z = -d * 3.2; m.position.y = -d * 0.8; TITLE.add(m); } S_CARDS.add(TITLE); }
+function drawTitle(s) { if (s === titleTxt) return; titleTxt = s; const g = titleTex.g; g.clearRect(0, 0, 1400, 240); g.letterSpacing = '18px';
+  const gr = g.createLinearGradient(0, 40, 0, 200); gr.addColorStop(0, '#BFD4FF'); gr.addColorStop(0.5, '#6E9BFF'); gr.addColorStop(1, '#2F6BFF');
+  g.shadowColor = 'rgba(70,120,255,0.9)'; g.shadowBlur = 26; txt(g, s, 700, 124, '700 150px VWSans', gr, 'center'); g.shadowBlur = 0; g.letterSpacing = '0px'; titleTex.tex.needsUpdate = true; }
+function updTitle(t) { const n = PANELS.length, at = tt => Math.round(ringRot(tt) / (Math.PI * 2 / n)) % n;
+  let rx = 0, idx = at(t); T.steps.forEach(s => { const p = lin(t, s - 0.14, s + 0.22); if (p > 0 && p < 1) { if (p < 0.5) { rx = eio(p * 2) * Math.PI / 2; idx = at(s - 0.3); } else { rx = -(1 - eio((p - 0.5) * 2)) * Math.PI / 2; idx = at(s + 0.4); } } });
+  const k = eo(lin(t, T.cards + 0.2, T.cards + 0.55)) * (1 - lin(t, T.rise - 0.2, T.rise)), fin = lin(t, T.cards + 0.2, T.cards + 0.55);
+  drawTitle(PANELS[idx].grp); TITLE.rotation.set(rx + (1 - eo(fin)) * -1.2, 0, 0); TITLE.visible = k > 0.01; TITLE.children.forEach(m => m.material.opacity = k); }
 // 3D trade: candles behind, price comes down into the Block Prints level, contracts go in, price runs to the call wall, the gain counts up
 const RX = i => (i - 30) * 52, RY = p => (p - 7760) * 44, TN = 50;
 const ENTRY = { i: 26, p: 7756.25, qty: 2, stop: 7752.50 };
@@ -411,6 +429,6 @@ function render(t) {
 }
 window.READY = (async () => {
   await VW.loadFonts(); await VW.loadBrand(); genBars(); CONT = await (await fetch('mono_contours.json')).json();
-  genTrade(); build3D(); buildTrade(); LINE = riseLine(); window.render = render; render(0);
+  genTrade(); build3D(); buildTrade(); buildTitle(); LINE = riseLine(); window.render = render; render(0);
   return { total: T.total, events: { T } };
 })();

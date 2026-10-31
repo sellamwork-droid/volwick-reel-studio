@@ -1,7 +1,7 @@
 {
   "id": "CREATIVE02",
   "nome": "One Layer",
-  "formato": "F2",
+  "formato": "T4",
   "scena": "00_MOTORE/scenes/vx_onelayer",
   "hook": {
     "clip": "Scrape Down.mp4",
@@ -13,7 +13,7 @@
     "WALLS"
   ],
   "durata_s": 28.0,
-  "render": "Drive: 01_VIDEO/CREATIVE02_ONE_LAYER",
+  "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/CREATIVE02_ONE_LAYER",
   "stato": "da-rivedere",
   "creato": "2026-10-30 13:30",
   "feedback": [

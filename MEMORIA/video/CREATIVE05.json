@@ -1,7 +1,7 @@
 {
   "id": "CREATIVE05",
   "nome": "Edit 125 BPM",
-  "formato": "F3",
+  "formato": "T1",
   "scena": "00_MOTORE/scenes/c05_edit",
   "hook": null,
   "evento": "i cinque muri a tempo di musica",
@@ -11,7 +11,7 @@
     "CVD"
   ],
   "durata_s": 19.5,
-  "render": "Drive: 01_VIDEO/CREATIVE05_EDIT_125_BPM",
+  "render": "Drive: 01_VIDEO/01_EDIT/CREATIVE05_EDIT_125_BPM",
   "stato": "da-rifare",
   "creato": "2026-10-30 14:00",
   "feedback": [

@@ -1,7 +1,7 @@
 {
   "id": "CREATIVE01",
   "nome": "Replay realistico",
-  "formato": "F2",
+  "formato": "T4",
   "scena": "00_MOTORE/scenes/vx_replay",
   "hook": {
     "clip": "Basketball Fail.mp4",
@@ -15,7 +15,7 @@
     "CVD"
   ],
   "durata_s": 25.0,
-  "render": "Drive: 01_VIDEO/CREATIVE01_REPLAY_REALISTICO",
+  "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/CREATIVE01_REPLAY_REALISTICO",
   "stato": "da-rivedere",
   "creato": "2026-10-30 12:00",
   "feedback": [

@@ -5,7 +5,7 @@ title: "VIDEO · <nome breve>"
 labels: da-fare
 ---
 
-**Formato:** F1 voce · F2 replay schermo · F3 edit · F4 live orizzontale · F5 confronto
+**Tipo:** T1 edit · T2 spiegazione con voce HeyGen · T3 registrazione schermo · T4 hook + grafico normale vs Volwick
 
 **Evento di mercato (cosa fa il prezzo):**
 

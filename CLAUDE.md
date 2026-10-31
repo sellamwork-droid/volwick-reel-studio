@@ -19,7 +19,7 @@ Questa cartella è il sistema completo per generare i reel Volwick (TikTok, Inst
 | `00_SETUP/` | installazione su un computer nuovo e verifica |
 | `01_HOOK/` | `clip/` archivio dei clip hook, `CATALOGO_HOOK.csv` (stato, movimento, evento di mercato), `_schede/` fotogrammi di ogni clip |
 | `02_AUDIO/` | `AUDIO_TREND.md` audio virali della settimana (si scelgono in app), `brani_con_licenza/` file mixabili |
-| `03_FORMATI/` | i 5 formati, ognuno con `MODELLO.md` |
+| `03_FORMATI/` | i 4 tipi di video (T1 edit, T2 spiegazione voce, T3 registrazione schermo, T4 hook + grafico vs Volwick), ognuno con `MODELLO.md` |
 | `04_RENDER/` | cartella di lavoro locale, fuori dal repository (i video finiti vanno su Drive in `01_VIDEO` con `studio.py consegna`) |
 | `05_PUBBLICATI/` | registro di cosa è uscito, quando e con quali numeri |
 | `06_DOCS/` | schede di ogni video, studio degli hook, layer, motore, lingue |
@@ -34,7 +34,7 @@ Questa cartella è il sistema completo per generare i reel Volwick (TikTok, Inst
 4. Fogli di controllo (stills) prima del render: zone sicure, logo, scritte, riga dei layer.
 5. Render a 60 fps, audio, mix in due versioni (con base e MUSIC READY).
 6. Controllo finale: loudness circa −14,5/−15 LUFS, picco sotto −1,5 dBTP, durata, fotogrammi chiave.
-7. Consegna con `studio.py consegna` (vedi Consegna): video su Drive in `01_VIDEO/<ID>_<NOME>/` con caption (offerta solo in caption). Scheda del video in `06_DOCS/`. Se usi un hook, aggiorna `CATALOGO_HOOK.csv` (stato "usato <video>").
+7. Consegna con `studio.py consegna` (vedi Consegna): video su Drive in `01_VIDEO/<TIPO>/<ID>_<NOME>/` con caption (offerta solo in caption). Scheda del video in `06_DOCS/`. Se usi un hook, aggiorna `CATALOGO_HOOK.csv` (stato "usato <video>").
 
 ## Comandi (dal Terminale)
 ```
@@ -53,7 +53,7 @@ Hook + grafico: `ffmpeg -i hook.mp4 -i silent.mp4 -filter_complex "[0:v][1:v]con
 - Zone sicure x 96–940, y 260–1550. Logo ufficiale in ogni video. Finale approvato e nient'altro.
 - Riga dei layer: VOLWICK · ES · 1m / DEALER WALLS METRIC EXPIRY MAPS / ACTIVITY BLOCK PRINTS CVD CDI FLOW (niente GUIDE, MARKET INTELLIGENCE, ES LEVELS).
 - Nessuna previsione, nessun P&L in punti, Block Prints mai chiamati dark pool, muri mai chiamati ordini.
-- Dati simulati dichiarati a schermo. Le registrazioni reali non vanno nei video (licenza CME), tranne il formato F4 con le sue regole.
+- Dati simulati dichiarati a schermo. Le registrazioni reali non vanno nei video (licenza CME), tranne il tipo T3 (registrazione schermo) con le sue regole.
 - Brani famosi mai dentro il file: si scelgono in app; dentro il file solo base originale o brani con licenza.
 - Niente clip con marchi, scritte, @nomi o persone famose.
 - Niente pubblicazione sui social da parte di Claude, niente password o chiavi in chat o nei file, niente acquisti.
@@ -62,7 +62,7 @@ Hook + grafico: `ffmpeg -i hook.mp4 -i silent.mp4 -filter_complex "[0:v][1:v]con
 Il repository (e la sua copia su ogni computer) è la fonte. Ogni cosa nuova si salva qui subito, senza aspettare che Power lo chieda:
 - regola o correzione nuova → registro di `REGOLE/PREFERENZE_E_FORMATI.md` (e nel progetto VOLWICK su claude.ai se la sessione lo vede);
 - modifica al motore → `00_MOTORE` (mai solo in una copia di lavoro);
-- video finito → Drive `01_VIDEO/<ID>_<NOME>/` con `studio.py consegna` + memoria in `MEMORIA/video/` + scheda in `06_DOCS/`;
+- video finito → Drive `01_VIDEO/<TIPO>/<ID>_<NOME>/` con `studio.py consegna` + memoria in `MEMORIA/video/` + scheda in `06_DOCS/`;
 - hook nuovo o usato → `01_HOOK/clip` + `CATALOGO_HOOK.csv`;
 - audio della settimana → `02_AUDIO/AUDIO_TREND.md`.
 Prima di salvare un file che altri possono aver cambiato, rileggilo e aggiungi solo la parte nuova.
@@ -78,8 +78,8 @@ Questo repository è il cervello comune. Ogni Claude su ogni computer lavora sul
 
 ### Google Drive: cartella condivisa "VOLWICK REEL STUDIO"
 Su ogni computer gira Google Drive per desktop con la cartella condivisa aggiunta a "Il mio Drive". Prima volta su un computer: `python3 00_MOTORE/tools/studio.py drive` (la trova da solo, crea la struttura; se non la trova, passale il percorso). Struttura, gestita solo dagli script:
-- `00_CARICA_QUI/`: il team carica lì il materiale nuovo (anche dal telefono), in tre cartelle: `01_VIDEO_HOOK` (clip per gli hook), `02_MUSICA` (solo brani con licenza), `03_VIDEO_CONSIGLIATI/<categoria>` con le categorie numerate 01_VOCE_E_SPIEGAZIONE (F1), 02_REPLAY_SCHERMO (F2), 03_EDIT_E_MUSICA (F3), 04_LIVE_MERCATO (F4), 05_CONFRONTO (F5), 06_HOOK_E_APERTURE, 07_COMPETITOR, 08_ALTRO. `studio.py arrivi` (lanciato anche dal brief) porta gli hook nel repository e nel catalogo, sposta musica e video consigliati in `02_LIBRERIA` con le stesse categorie e li registra in `02_AUDIO/CATALOGO_AUDIO.csv` e `07_RIFERIMENTI/RIFERIMENTI.csv` (colonna categoria); gli originali degli hook vanno in `03_ARCHIVIO_CARICAMENTI/<data>`. Un video consigliato in `08_ALTRO` o senza categoria lo classifichi tu quando lo studi.
-- `01_VIDEO/<ID>_<NOME>/`: i video finiti, `CAPTION.txt`, `SCHEDA.txt`. Li crea solo `studio.py consegna`.
+- `00_CARICA_QUI/`: il team carica lì il materiale nuovo (anche dal telefono), in tre cartelle: `01_VIDEO_HOOK` (clip per gli hook), `02_MUSICA` (solo brani con licenza), `03_VIDEO_CONSIGLIATI/<categoria>` con le categorie numerate 01_EDIT (T1), 02_SPIEGAZIONE_VOCE (T2), 03_REGISTRAZIONE_SCHERMO (T3), 04_HOOK_GRAFICO_VS_VOLWICK (T4), 05_HOOK_E_APERTURE, 06_COMPETITOR, 07_ALTRO. `studio.py arrivi` (lanciato anche dal brief) porta gli hook nel repository e nel catalogo, sposta musica e video consigliati in `02_LIBRERIA` con le stesse categorie e li registra in `02_AUDIO/CATALOGO_AUDIO.csv` e `07_RIFERIMENTI/RIFERIMENTI.csv` (colonna categoria); gli originali degli hook vanno in `03_ARCHIVIO_CARICAMENTI/<data>`. Un video consigliato in `07_ALTRO` o senza categoria lo classifichi tu quando lo studi.
+- `01_VIDEO/<TIPO>/<ID>_<NOME>/`: i video finiti divisi nei 4 tipi (01_EDIT, 02_SPIEGAZIONE_VOCE, 03_REGISTRAZIONE_SCHERMO, 04_HOOK_GRAFICO_VS_VOLWICK; la cartella la sceglie lo script dal campo formato T1–T4), `CAPTION.txt`, `SCHEDA.txt`. Li crea solo `studio.py consegna`.
 - `INDICE_VIDEO.csv`: tutti i video con stato e ultimo giudizio, rifatto a ogni consegna.
 - `04_ARCHIVIO_VIDEO/`: tutti i video generati prima del Reel Studio, ogni versione, con `INDICE_ARCHIVIO.csv`. Regola di Power: su Drive c'è **ogni video mai generato**; nessun video finito resta solo su un computer.
 Nessun file a mano in Drive, nessun rinomina: l'ordine lo tiene lo script.
@@ -93,8 +93,8 @@ Nessun file a mano in Drive, nessun rinomina: l'ordine lo tiene lo script.
 Una chat dell'app Claude (progetto VOLWICK) può lavorare come le sessioni del Terminale. Lavora nel cloud, quindi tre cose cambiano.
 1. **Avvio:** collega il repository (`add_repo` sellamwork-droid/volwick-reel-studio, accesso push), clonalo, registra la cartella, `pip install -r 00_MOTORE/requirements.txt` se manca qualcosa, `git config user.name "Claude (Volwick Reel Studio)"` e `user.email noreply@anthropic.com`. Poi tutto come "Inizio di ogni sessione". Il render (Playwright, ffmpeg) gira nel cloud senza installazioni.
 2. **Drive:** la chat arriva a Drive solo attraverso il computer collegato (strumenti remote-devices). Il materiale caricato in `00_CARICA_QUI` lo prende in carico la prossima sessione del Terminale: la chat lo segnala e basta.
-3. **Consegna:** `mkdir -p /tmp/vw_drive && VW_DRIVE=/tmp/vw_drive python3 00_MOTORE/tools/studio.py consegna V0012 <cartella>` prepara `01_VIDEO/V0012_<NOME>/` e `INDICE_VIDEO.csv` in `/tmp/vw_drive`. Poi copiali in `/mnt/user-data/outputs/` e mandali al computer con `device_commit_files`:
-   - se tra le cartelle collegate (get_device_info) c'è **VOLWICK REEL STUDIO** di Google Drive: direttamente in `<quella cartella>/01_VIDEO/V0012_<NOME>/` e `<quella cartella>/INDICE_VIDEO.csv`;
+3. **Consegna:** `mkdir -p /tmp/vw_drive && VW_DRIVE=/tmp/vw_drive python3 00_MOTORE/tools/studio.py consegna V0012 <cartella>` prepara `01_VIDEO/<TIPO>/V0012_<NOME>/` e `INDICE_VIDEO.csv` in `/tmp/vw_drive`. Poi copiali in `/mnt/user-data/outputs/` e mandali al computer con `device_commit_files`:
+   - se tra le cartelle collegate (get_device_info) c'è **VOLWICK REEL STUDIO** di Google Drive: direttamente in `<quella cartella>/01_VIDEO/<TIPO>/V0012_<NOME>/` e `<quella cartella>/INDICE_VIDEO.csv`;
    - altrimenti in `~/Desktop/VOLWICK/13_REEL_STUDIO/04_RENDER/_DA_CARICARE/V0012_<NOME>/`: la prossima sessione del Terminale li porta su Drive da sola (`studio.py arrivi`, lanciato dal brief);
    - nessun computer collegato o file oltre 30 MB: mandali in chat e dillo a Power.
    Poi commit e push della memoria come sempre. Nella cartella 13_REEL_STUDIO del Mac non si scrive mai a mano: si aggiorna con `git pull`.
@@ -104,7 +104,7 @@ Una chat dell'app Claude (progetto VOLWICK) può lavorare come le sessioni del T
 - La coda sono le Issues: `gh issue list --label da-fare` (oppure `gh api "repos/{owner}/{repo}/issues?labels=da-fare"`). Prendi la più vecchia, etichetta `in-lavorazione` (togli `da-fare`), commenta "presa da <computer/sessione>". Una scheda già `in-lavorazione` non si tocca.
 - L'ID del video è `V` + numero della scheda a quattro cifre (scheda #12 → `V0012`): è unico anche con dieci Claude in parallelo.
 - Apri subito la sua memoria e fai il push, così gli altri vedono che è occupato:
-  `python3 00_MOTORE/tools/studio.py nuovo V0012 --issue 12 --nome "..." --formato F2 --scena 00_MOTORE/scenes/v0012_<nome> --hook "<clip>.mp4" --evento "..."`
+  `python3 00_MOTORE/tools/studio.py nuovo V0012 --issue 12 --nome "..." --formato T4 --scena 00_MOTORE/scenes/v0012_<nome> --hook "<clip>.mp4" --evento "..."`
 - Scegli l'hook tra i **freschi** del brief. Un hook già usato si riusa solo con un taglio diverso e se il movimento combacia meglio.
 
 ### Durante il lavoro
@@ -115,7 +115,7 @@ Una chat dell'app Claude (progetto VOLWICK) può lavorare come le sessioni del T
 ### Consegna
 1. Metti in una cartella di lavoro (es. `00_MOTORE/vx/out_v0012/consegna`) i video finiti (con hook, senza hook, MUSIC READY) e `CAPTION.txt` (caption con offerta e hashtag), più eventuale copertina png.
 2. `python3 00_MOTORE/tools/studio.py aggiorna V0012 durata_s=21.4 titoli="RIGA 1|RIGA 2" layer="WALLS Top 5|BLOCK PRINTS"`
-   poi `python3 00_MOTORE/tools/studio.py consegna V0012 00_MOTORE/vx/out_v0012/consegna`: copia tutto su Drive in `01_VIDEO/V0012_<NOME>/` con nomi standard e `SCHEDA.txt`, aggiorna stato e indice, commenta la scheda GitHub e la mette `da-rivedere`. Mai mp4 o wav nel repository.
+   poi `python3 00_MOTORE/tools/studio.py consegna V0012 00_MOTORE/vx/out_v0012/consegna`: copia tutto su Drive in `01_VIDEO/<TIPO>/V0012_<NOME>/` con nomi standard e `SCHEDA.txt`, aggiorna stato e indice, commenta la scheda GitHub e la mette `da-rivedere`. Mai mp4 o wav nel repository.
 3. Se hai usato un hook, aggiorna `01_HOOK/CATALOGO_HOOK.csv` (stato "usato V0012").
 4. `python3 00_MOTORE/tools/studio.py controlla` deve dare 0 errori (GitHub lo ripete a ogni push).
 5. Commit piccoli e chiari, `git pull --rebase`, `git push`.

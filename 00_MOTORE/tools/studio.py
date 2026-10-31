@@ -4,7 +4,7 @@ Solo libreria standard: gira su ogni computer anche senza .venv.
 
 Dalla cartella principale del repository:
   python3 00_MOTORE/tools/studio.py brief                       cosa sapere prima di lavorare (regole recenti, storico, lezioni, hook freschi, motore, coda)
-  python3 00_MOTORE/tools/studio.py nuovo V0012 --nome "The Drop 3" --formato F2 --scena 00_MOTORE/scenes/vx_drop3 [--issue 12] [--hook "Ocean Drop.mp4"] [--evento "..."]
+  python3 00_MOTORE/tools/studio.py nuovo V0012 --nome "The Drop 3" --formato T4 --scena 00_MOTORE/scenes/vx_drop3 [--issue 12] [--hook "Ocean Drop.mp4"] [--evento "..."]
   python3 00_MOTORE/tools/studio.py aggiorna V0012 stato=da-rivedere render="04_RENDER/V0012_THE_DROP_3" durata_s=21.4
   python3 00_MOTORE/tools/studio.py aggiorna V0012 feedback="Power: hook troppo lento" lezione="match cut sotto 1,4 s"
   python3 00_MOTORE/tools/studio.py controlla                   controlli prima di ogni push (li ripete anche GitHub a ogni push)
@@ -25,18 +25,30 @@ CHIAVI = ['id', 'nome', 'formato', 'scena', 'stato', 'creato', 'sessione']
 AUD = os.path.join(ROOT, '02_AUDIO', 'CATALOGO_AUDIO.csv')
 RIF = os.path.join(ROOT, '07_RIFERIMENTI', 'RIFERIMENTI.csv')
 CONF = os.path.expanduser('~/.volwick_studio.json')
-CATEGORIE = [('01_VOCE_E_SPIEGAZIONE', 'formato F1: una voce o una persona che spiega un concetto'),
-             ('02_REPLAY_SCHERMO', 'formato F2: registrazioni di schermo, grafici che si muovono, tutorial'),
-             ('03_EDIT_E_MUSICA', 'formato F3: montaggi a tempo di musica, transizioni, ritmo'),
-             ('04_LIVE_MERCATO', 'formato F4: reazioni al mercato in diretta, video orizzontali'),
-             ('05_CONFRONTO', 'formato F5: prima e dopo, A contro B, noi contro gli altri strumenti'),
-             ('06_HOOK_E_APERTURE', 'aperture fortissime dei primi 2 secondi da studiare'),
-             ('07_COMPETITOR', 'video di altri strumenti di trading e dei concorrenti'),
-             ('08_ALTRO', 'tutto il resto: Claude lo guarda e lo classifica')]
+TIPI = [('T1', '01_EDIT', 'Edit: montaggio veloce a tempo di musica, senza voce'),
+        ('T2', '02_SPIEGAZIONE_VOCE', 'Spiegazione con voce parlata HeyGen e sottotitoli'),
+        ('T3', '03_REGISTRAZIONE_SCHERMO', 'Registrazione dello schermo: il terminale vero sul mercato vero'),
+        ('T4', '04_HOOK_GRAFICO_VS_VOLWICK', 'Hook iniziale, poi grafico normale, poi Volwick: la differenza')]
+VECCHI_CODICI = {'F1': 'T2', 'F2': 'T4', 'F3': 'T1', 'F4': 'T3', 'F5': 'T4'}
+CATEGORIE = [(c, t) for _, c, t in TIPI] + [('05_HOOK_E_APERTURE', 'aperture fortissime dei primi 2 secondi da studiare'),
+             ('06_COMPETITOR', 'video di altri strumenti di trading e dei concorrenti'),
+             ('07_ALTRO', 'tutto il resto: Claude lo guarda e lo classifica')]
+CAT_VECCHIE = {'01_VOCE_E_SPIEGAZIONE': '02_SPIEGAZIONE_VOCE', '02_REPLAY_SCHERMO': '04_HOOK_GRAFICO_VS_VOLWICK', '03_EDIT_E_MUSICA': '01_EDIT',
+               '04_LIVE_MERCATO': '03_REGISTRAZIONE_SCHERMO', '05_CONFRONTO': '04_HOOK_GRAFICO_VS_VOLWICK', '06_HOOK_E_APERTURE': '05_HOOK_E_APERTURE',
+               '07_COMPETITOR': '06_COMPETITOR', '08_ALTRO': '07_ALTRO'}
+
+
+def tipo(v):
+    f = (v.get('formato') or '').upper()
+    return VECCHI_CODICI.get(f, f)
+
+
+def cartella_tipo(v):
+    return {k: c for k, c, _ in TIPI}.get(tipo(v), '00_SENZA_TIPO')
 IN_HOOK, IN_MUS, IN_CONS = '00_CARICA_QUI/01_VIDEO_HOOK', '00_CARICA_QUI/02_MUSICA', '00_CARICA_QUI/03_VIDEO_CONSIGLIATI'
 VECCHIE = {IN_HOOK: '00_CARICA_QUI/HOOK', IN_MUS: '00_CARICA_QUI/AUDIO', IN_CONS: '00_CARICA_QUI/RIFERIMENTI'}   # nomi della prima versione, letti ancora se esistono
 LIB_MUS, LIB_CONS = '02_LIBRERIA/02_MUSICA', '02_LIBRERIA/03_VIDEO_CONSIGLIATI'
-DRIVE_DIRS = [IN_HOOK, IN_MUS] + [f'{IN_CONS}/{c}' for c, _ in CATEGORIE] + ['01_VIDEO', LIB_MUS] + [f'{LIB_CONS}/{c}' for c, _ in CATEGORIE] + ['03_ARCHIVIO_CARICAMENTI', '04_ARCHIVIO_VIDEO']
+DRIVE_DIRS = [IN_HOOK, IN_MUS] + [f'{IN_CONS}/{c}' for c, _ in CATEGORIE] + ['01_VIDEO'] + [f'01_VIDEO/{c}' for _, c, _ in TIPI] + [LIB_MUS] + [f'{LIB_CONS}/{c}' for c, _ in CATEGORIE] + ['03_ARCHIVIO_CARICAMENTI', '04_ARCHIVIO_VIDEO']
 VIDEO_EXT = ('.mp4', '.mov', '.m4v', '.webm', '.mkv')
 AUDIO_EXT = ('.mp3', '.wav', '.m4a', '.aac', '.flac', '.aiff')
 ENGINE = ['00_MOTORE/engine', '00_MOTORE/scenes/vx_common', '00_MOTORE/vx', '00_MOTORE/tools']
@@ -129,6 +141,7 @@ def nuovo(a):
     for k in o:
         if '--' + k in a: o[k] = a[a.index('--' + k) + 1]
     if os.path.exists(path(i)): sys.exit(f'{i} esiste già: usa `aggiorna`.')
+    if o['formato'] and o['formato'].upper() not in [t for t, _, _ in TIPI]: sys.exit('--formato deve essere T1 (edit), T2 (spiegazione voce), T3 (registrazione schermo) o T4 (hook + grafico vs Volwick)')
     v = {'id': i, 'issue': int(o['issue']) if o['issue'] else None, 'nome': o['nome'] or i, 'formato': o['formato'] or '',
          'scena': o['scena'] or '', 'hook': {'clip': o['hook']} if o['hook'] else None, 'evento': o['evento'] or '',
          'layer': [], 'titoli': [], 'durata_s': None, 'render': '', 'stato': 'in-lavorazione', 'creato': now(),
@@ -199,9 +212,10 @@ LEGGIMI_DRIVE = """VOLWICK REEL STUDIO · cartella condivisa
 00_CARICA_QUI   qui chiunque del team mette il materiale nuovo, da qualsiasi computer o dal telefono. Basta trascinare il file:
                 01_VIDEO_HOOK         clip da usare come hook (verticali, senza marchi, scritte, @nomi o persone famose)
                 02_MUSICA             brani o effetti CON LICENZA da mixare nei video (i brani famosi non si caricano: si scelgono in app)
-                03_VIDEO_CONSIGLIATI  video di altri da studiare, nella categoria giusta:
+                03_VIDEO_CONSIGLIATI  video di altri da studiare, nella cartella del tipo che ispirano (o hook, competitor, altro):
 """ + "".join(f"                      {c:<24}{t}\n" for c, t in CATEGORIE) + """                Il primo Claude che parte li cataloga e li sposta in 02_LIBRERIA o nel motore. Non serve dire niente.
-01_VIDEO        una cartella per video: <ID>_<NOME>/ con i video finiti, CAPTION.txt e SCHEDA.txt. La crea Claude.
+01_VIDEO        i video finiti, divisi nei 4 tipi:
+""" + "".join(f"                      {c:<28}{t}\n" for _, c, t in TIPI) + """                dentro ogni tipo una cartella per video: <ID>_<NOME>/ con i video, CAPTION.txt e SCHEDA.txt. La crea Claude.
 02_LIBRERIA     musica e video consigliati già catalogati, con le stesse categorie.
 03_ARCHIVIO_CARICAMENTI   gli originali caricati, per data.
 04_ARCHIVIO_VIDEO         tutti i video generati prima del Reel Studio, ogni versione, con INDICE_ARCHIVIO.csv.
@@ -287,7 +301,8 @@ def postino(d):
     for nome in sorted(os.listdir(src)) if os.path.isdir(src) else []:
         a = os.path.join(src, nome)
         if not os.path.isdir(a): continue
-        b = os.path.join(d, '01_VIDEO', nome); os.makedirs(b, exist_ok=True)
+        i = nome.split('_')[0]; v = json.load(open(path(i), encoding='utf-8')) if os.path.exists(path(i)) else {}
+        b = os.path.join(d, '01_VIDEO', cartella_tipo(v), nome); os.makedirs(b, exist_ok=True)
         for f in os.listdir(a): shutil.move(os.path.join(a, f), os.path.join(b, f))
         os.rmdir(a); n += 1; print('portato su Drive:', nome)
     if n: indice()
@@ -329,7 +344,7 @@ def arrivi():
     for c in cartelle_in(d, IN_CONS):
         for src in file_in(c, True):
             n = os.path.basename(src); sotto = os.path.relpath(os.path.dirname(src), c).split(os.sep)[0]
-            cat = sotto if sotto in nomi else '08_ALTRO'
+            cat = CAT_VECCHIE.get(sotto, sotto); cat = cat if cat in nomi else '07_ALTRO'
             if not n.lower().endswith(VIDEO_EXT): print('salto (non è un video):', n); continue
             os.makedirs(os.path.join(d, LIB_CONS, cat), exist_ok=True)
             dst = libero(os.path.join(d, LIB_CONS, cat, n)); shutil.move(src, dst)
@@ -342,7 +357,7 @@ def slug(t): return re.sub(r'[^A-Z0-9]+', '_', (t or '').upper()).strip('_')[:40
 
 def scheda_txt(v):
     h = v.get('hook') or {}
-    righe = [f"{v['id']} · {v.get('nome','')}", '', f"Formato: {v.get('formato','')}", f"Stato: {v.get('stato','')}", f"Durata: {v.get('durata_s') or ''} s",
+    righe = [f"{v['id']} · {v.get('nome','')}", '', f"Tipo: {cartella_tipo(v)}", f"Stato: {v.get('stato','')}", f"Durata: {v.get('durata_s') or ''} s",
              f"Evento di mercato: {v.get('evento','')}", f"Hook: {hook_di(v)} {h.get('tratto','') if isinstance(h, dict) else ''}".rstrip(),
              f"Layer: {', '.join(v.get('layer') or [])}", 'Titoli:'] + [f'  {t}' for t in v.get('titoli') or []]
     righe += ['', f"Fatto da: {v.get('sessione','')} · {v.get('creato','')}", f"Scheda GitHub: #{v['issue']}" if v.get('issue') else '']
@@ -359,13 +374,13 @@ def consegna(a):
     if not any(f.lower().endswith(VIDEO_EXT) for f in files): sys.exit('nella cartella non c\'è nessun video')
     if not any(f.lower().startswith('caption') for f in files): print('ATTENZIONE: manca CAPTION.txt (la caption con l\'offerta va consegnata con il video)')
     d = drive_root(quiet=True); nome = f"{i}_{slug(v.get('nome'))}"
-    base = os.path.join(d, '01_VIDEO') if d else os.path.join(ROOT, '04_RENDER')
+    base = os.path.join(d, '01_VIDEO', cartella_tipo(v)) if d else os.path.join(ROOT, '04_RENDER')
     if not d: print('Drive non trovato: consegno in locale in 04_RENDER (poi rilancia `consegna` quando Drive è configurato).')
     out = os.path.join(base, nome); os.makedirs(out, exist_ok=True)
     for f in files:
         nf = f if f.upper().startswith(i) or f.lower().startswith('caption') else f'{i}_{f}'
         shutil.copy2(os.path.join(src, f), os.path.join(out, nf))
-    v['render'] = ('Drive: 01_VIDEO/' if d else '04_RENDER/') + nome
+    v['render'] = (f'Drive: 01_VIDEO/{cartella_tipo(v)}/' if d else '04_RENDER/') + nome
     if v.get('stato') in ('in-lavorazione', 'da-rifare'): v['stato'] = 'da-rivedere'
     v['aggiornato'] = now(); salva(v)
     open(os.path.join(out, 'SCHEDA.txt'), 'w', encoding='utf-8').write(scheda_txt(v))
@@ -381,11 +396,11 @@ def consegna(a):
 def indice():
     d = drive_root(quiet=True)
     if not d: return
-    campi = ['id', 'nome', 'formato', 'stato', 'durata_s', 'hook', 'evento', 'cartella', 'creato', 'sessione', 'issue', 'ultimo_giudizio']
+    campi = ['id', 'nome', 'tipo', 'stato', 'durata_s', 'hook', 'evento', 'cartella', 'creato', 'sessione', 'issue', 'ultimo_giudizio']
     with open(os.path.join(d, 'INDICE_VIDEO.csv'), 'w', newline='', encoding='utf-8-sig') as f:
         w = csv.DictWriter(f, fieldnames=campi); w.writeheader()
         for v in carica():
-            w.writerow({'id': v['id'], 'nome': v.get('nome'), 'formato': v.get('formato'), 'stato': v.get('stato'), 'durata_s': v.get('durata_s'),
+            w.writerow({'id': v['id'], 'nome': v.get('nome'), 'tipo': cartella_tipo(v), 'stato': v.get('stato'), 'durata_s': v.get('durata_s'),
                         'hook': hook_di(v), 'evento': v.get('evento'), 'cartella': v.get('render'), 'creato': v.get('creato'), 'sessione': v.get('sessione'),
                         'issue': v.get('issue') or '', 'ultimo_giudizio': (v.get('feedback') or [{}])[-1].get('testo', '')})
 

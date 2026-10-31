@@ -1,7 +1,7 @@
 {
   "id": "CREATIVE03",
   "nome": "One Rule",
-  "formato": "F2",
+  "formato": "T4",
   "scena": "00_MOTORE/scenes/c03_one_rule",
   "hook": {
     "clip": "Soccer Player Launches Ball Overhead.mp4",
@@ -13,7 +13,7 @@
     "WALLS"
   ],
   "durata_s": 14.6,
-  "render": "Drive: 01_VIDEO/CREATIVE03_ONE_RULE",
+  "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/CREATIVE03_ONE_RULE",
   "stato": "da-rifare",
   "creato": "2026-10-30 13:30",
   "feedback": [

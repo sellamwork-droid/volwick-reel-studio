@@ -1,7 +1,7 @@
 file,categoria,durata_s,caricato,stato,formato,scheda,note
-trendline_breakout.mp4,05_CONFRONTO,45.65,2026-10-30,studiato,05_CONFRONTO,06_DOCS/MOTORE_VX_FORMAT.md,"modello di TRENDLINE (scenes/vx_trend): tutorial con trendline disegnata, poi Volwick"
-indicatore_facile.mp4,05_CONFRONTO,36.01,2026-10-30,studiato,05_CONFRONTO,06_DOCS/MOTORE_VX_FORMAT.md,"modello di ONE LAYER (CREATIVE 02, scenes/vx_tool): si scarta l indicatore, si apre Volwick"
-micro_lezione_ict.mp4,05_CONFRONTO,10.57,2026-10-30,studiato,05_CONFRONTO,06_DOCS/MOTORE_VX_FORMAT.md,"modello di ONE RULE (CREATIVE 03): una regola, un grafico, dieci secondi"
-libro_di_trading.mp4,05_CONFRONTO,25.96,2026-10-30,studiato,05_CONFRONTO,06_DOCS/MOTORE_VX_FORMAT.md,"modello di THE BOOK (scenes/vx_book): pagina col pattern, poi il monitor con Volwick"
-edit_motion_tradingview.mp4,03_EDIT_E_MUSICA,12.47,2026-10-30,studiato,03_EDIT_E_MUSICA,06_DOCS/MOTORE_VX_FORMAT.md,"modello di EDIT (CREATIVE 05): motion veloce senza voce, tagli a tempo"
-buy_or_sell_quiz.mp4,06_HOOK_E_APERTURE,65.57,2026-10-30,da studiare,06_HOOK_E_APERTURE,,"apertura a domanda ""Buy or Sell?"" su grafico che cade: da studiare per hook a quiz"
+trendline_breakout.mp4,04_HOOK_GRAFICO_VS_VOLWICK,45.65,2026-10-30,studiato,04_HOOK_GRAFICO_VS_VOLWICK,06_DOCS/MOTORE_VX_FORMAT.md,"modello di TRENDLINE (scenes/vx_trend): tutorial con trendline disegnata, poi Volwick"
+indicatore_facile.mp4,04_HOOK_GRAFICO_VS_VOLWICK,36.01,2026-10-30,studiato,04_HOOK_GRAFICO_VS_VOLWICK,06_DOCS/MOTORE_VX_FORMAT.md,"modello di ONE LAYER (CREATIVE 02, scenes/vx_tool): si scarta l indicatore, si apre Volwick"
+micro_lezione_ict.mp4,04_HOOK_GRAFICO_VS_VOLWICK,10.57,2026-10-30,studiato,04_HOOK_GRAFICO_VS_VOLWICK,06_DOCS/MOTORE_VX_FORMAT.md,"modello di ONE RULE (CREATIVE 03): una regola, un grafico, dieci secondi"
+libro_di_trading.mp4,04_HOOK_GRAFICO_VS_VOLWICK,25.96,2026-10-30,studiato,04_HOOK_GRAFICO_VS_VOLWICK,06_DOCS/MOTORE_VX_FORMAT.md,"modello di THE BOOK (scenes/vx_book): pagina col pattern, poi il monitor con Volwick"
+edit_motion_tradingview.mp4,01_EDIT,12.47,2026-10-30,studiato,01_EDIT,06_DOCS/MOTORE_VX_FORMAT.md,"modello di EDIT (CREATIVE 05): motion veloce senza voce, tagli a tempo"
+buy_or_sell_quiz.mp4,05_HOOK_E_APERTURE,65.57,2026-10-30,da studiare,05_HOOK_E_APERTURE,,"apertura a domanda ""Buy or Sell?"" su grafico che cade: da studiare per hook a quiz"

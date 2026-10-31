@@ -3,7 +3,7 @@
   "issue": 6,
   "nome": "The Bar",
   "formato": "T4",
-  "scena": "00_MOTORE/scenes/v0006_dyn",
+  "scena": "00_MOTORE/scenes/v0006_3d",
   "hook": {
     "clip": "Pole Vaulter Falls During Attempt.mp4"
   },
@@ -17,11 +17,12 @@
     "BREAKOUT?",
     "YOUR BREAKOUT JUST FAILED.",
     "WHAT WAS ABOVE THE LINE?",
-    "SEE THE POSITIONING.",
-    "BLOCKED BY A CALL WALL.",
-    "TRADE WITH INSTITUTIONAL CONTEXT."
+    "DEALER WALLS",
+    "BLOCKED.",
+    "BLOCK PRINTS",
+    "ONE TICK UNDER THE CALL WALL"
   ],
-  "durata_s": 12.35,
+  "durata_s": 16.4,
   "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/06 Falsa rottura sotto il call wall (31-10-2026).mp4",
   "stato": "da-rivedere",
   "creato": "2026-10-31 03:01",
@@ -66,6 +67,10 @@
     {
       "data": "2026-10-31 16:02",
       "testo": "Power: preferisco la seconda barra. Quando zoomi non tagliare la barra dei prezzi: ingrandisci il grafico come su TradingView, con l'asse dei prezzi che si allarga, non uno zoom dell'immagine."
+    },
+    {
+      "data": "2026-10-31 16:26",
+      "testo": "Power 16:11: cambiare completamente lo stile di animazione, replicare o ispirarsi al montaggio e alle grafiche 3D di V0010 (03 Edit 3D il terminale Volwick che si forma)."
     }
   ],
   "lezioni": [
@@ -74,10 +79,11 @@
     "Transizione hook → grafico: scena con ?var=3 (scia e freccia sul prezzo), RAMP 2× per 1 s poi 1,7 / 1,5 / 1 in 0,4 / 0,25 / 0,15 s sul replay calmo 0,55 candele/s. Contatto sulla linea a ~0,3 s.",
     "Versione dinamica T4 (V0006 v3): replay su griglia 125 BPM, hook di 2 battute con slow motion interpolato (minterpolate 120 fps), spike → impatto sul battere, divisore di 1 battuta, riavvolgimento di 1 battuta, muri a ottavi, zoom 1,6–1,8 sul muro con etichetta grande, scossa e flash agli impatti, scia su e giù; una base 125 BPM dall'inizio alla fine con riser e colpi agli impatti. Limitare con alimiter 0.6 su wav e poi rimuxare (il limitatore direttamente prima dell'AAC può superare 0 dBFS).",
     "Con un brano di Power a tempo diverso dal motore si piega il video, non il brano: ?k= in scenes/v0006_dyn (k = battito del brano / 0,48; Never stop trading 79 BPM → k 0,78125, metà battito 0,375) e bed_track.py aggancia un battito al taglio (PHASE, PERIOD, loop su una battuta).",
-    "Zoom nei video: scala del grafico (PX, SP, PTOP per fotogramma con setView), non trasformazione del canvas. Le etichette dell'asse si ricalcolano con levels(). Il punto d'aggancio dell'hook va ricalcolato sul primo fotogramma zoomato (V0006: 806, 1004)."
+    "Zoom nei video: scala del grafico (PX, SP, PTOP per fotogramma con setView), non trasformazione del canvas. Le etichette dell'asse si ricalcolano con levels(). Il punto d'aggancio dell'hook va ricalcolato sul primo fotogramma zoomato (V0006: 806, 1004).",
+    "T4 in stile 3D (V0006 v6, scenes/v0006_3d): grafico normale = pannello bianco nello spazio che si ripiega in una linea, la linea disegna la riga dei layer (secBar di V0010), terminale a tutta pagina con zoom della scala (ZF/ZX/PF, non dell'immagine), BLOCKED. sul tocco, candele 3D nel muro luminoso, finale 3D. Il punto d'aggancio dell'hook lo restituisce READY (events.hook)."
   ],
   "pubblicazioni": [],
-  "aggiornato": "2026-10-31 16:02",
+  "aggiornato": "2026-10-31 16:26",
   "titolo": "Falsa rottura sotto il call wall",
   "numero": 6,
   "data_uscita": "31-10-2026",

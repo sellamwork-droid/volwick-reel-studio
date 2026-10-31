@@ -5,7 +5,7 @@
   "formato": "T4",
   "scena": "00_MOTORE/scenes/v0006_dyn",
   "hook": {
-    "clip": "Pole Vaulter Falls During Attempt.mp4"
+    "clip": "BMX Back Fail.mp4"
   },
   "evento": "rottura della resistenza disegnata che fallisce: sopra c'è un call wall long γ, il prezzo lo tocca e rientra",
   "layer": [
@@ -17,7 +17,7 @@
     "VOLUME ABSORBED AT THE WALL.",
     "PRICE TURNS BACK DOWN."
   ],
-  "durata_s": 12.35,
+  "durata_s": 19.98,
   "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/06 Falsa rottura sotto il call wall (31-10-2026).mp4",
   "stato": "da-rivedere",
   "creato": "2026-10-31 03:01",
@@ -98,6 +98,10 @@
     {
       "data": "2026-10-31 18:22",
       "testo": "Power 18:03: tiene la versione B (gocce dal muro) nel video intero; chiede 3 hook diversi e musica dalla cartella edit a spezzoni. Fatte 3 versioni: pattinatore contro la balaustra, salto dal ponte, BMX sul corrimano; musica: beat anni 90 (Cadillac on Flatbush) in due spezzoni, cambio sul battito allo swipe; i mix di rapper famosi esclusi dal file."
+    },
+    {
+      "data": "2026-10-31 18:37",
+      "testo": "Power 18:30: video troppo corto e veloce, deve durare 16-25 s; la parte del tocco (secondi 4-6) molto più lunga; hook 3 (BMX) scelto; più versioni con musiche diverse; la discesa del volume non a mitragliatrice ma sfumata e meno impattante. Fatte 3 versioni da 20 s con tre beat diversi."
     }
   ],
   "lezioni": [
@@ -113,10 +117,11 @@
     "Le modifiche si provano a segmenti (solo i secondi interessati, render_seg.py) finché Power non approva; poi si mettono nel video intero. Sfondo del reel nero come il terminale con la sua griglia quadrata #14171B, così la finestra del grafico non ha bordi.",
     "Mai disegnare elementi nuovi sopra quelli del grafico che esistono già (es. barre del volume): si amplificano quelli veri. Nei momenti chiave (tocco del livello) livello illuminato + rallenty prima dell'effetto.",
     "Per evidenziare un livello si illumina la sua linea, nel suo colore; mai linee nuove sopra. Il rallenty copre tutto il momento chiave e torna a velocità normale con una curva.",
-    "Momento chiave = il tocco: si rallenta piano mentre il prezzo arriva al livello, ci si ferma 0,5-1 s con la candela ancora del colore della salita, il livello si illumina, zoom minimo; solo dopo parte l'effetto e la discesa a velocità normale."
+    "Momento chiave = il tocco: si rallenta piano mentre il prezzo arriva al livello, ci si ferma 0,5-1 s con la candela ancora del colore della salita, il livello si illumina, zoom minimo; solo dopo parte l'effetto e la discesa a velocità normale.",
+    "T4 di 16-25 s; il momento chiave dura diversi secondi; effetti sfumati, mai a raffica; proporre più musiche diverse."
   ],
   "pubblicazioni": [],
-  "aggiornato": "2026-10-31 18:22",
+  "aggiornato": "2026-10-31 18:37",
   "titolo": "Falsa rottura sotto il call wall",
   "numero": 6,
   "data_uscita": "31-10-2026",

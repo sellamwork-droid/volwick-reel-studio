@@ -152,9 +152,36 @@ function absorbFx(t, S) {
     for (let n = 0; n < 40; n++) { const t0 = T0 + hr(n + 1000) * (HIT - T0), uu = (t - t0) / 0.35; if (uu <= 0 || uu > 1 || t > HIT + 0.2) continue; const yy = mix(HDR - 20, wy, eio(lin(t0, T0, HIT))) + uu * 60, xx = wx + (hr(n + 1050) - 0.5) * 420; g.fillStyle = `rgba(160,220,255,${1 - uu})`; g.fillRect(xx - 1.5, yy, 3, 12); }
     coreRings(t, wx, wy, T0, T1, HIT); shock(t, wx, wy, [[HIT, 1], [HIT + 0.12, 0.6]]);
     if (down > 0) sheet(Math.max(wy, hy - 4), 200, gold, down); }
+  if (ABS === 6 || ABS === 7 || ABS === 9) {   // WATERFALL+: the more volume reaches the volume zone at the bottom, the brighter it gets
+    fallIn(t, wx, wy, T0, T1 + 0.1, 0, 80); if (ABS !== 9) { coreRings(t, wx, wy, T0, T1, HIT); shock(t, wx, wy, [[HIT, 1]]); }
+    const N = ABS === 7 ? 170 : 110, zx0 = X(55, S) - 20, zx1 = X(59, S) + 20, zy = DB - 4; let arrived = 0;
+    for (let n = 0; n < N; n++) { const z = hr(n + 800), t0 = 4.9 + hr(n + 850) * 0.75, dur = 0.32 + 0.25 * z, u = (t - t0) / dur; if (u >= 1) arrived++; if (u <= 0 || u > 1.1 || down <= 0) continue;
+      const sx = ABS === 9 ? mix(hx - 95, hx + 75, hr(n + 870)) : wx, sy = ABS === 9 ? Math.max(wy + 4, hy - 6) : wy, tx = mix(zx0, zx1, hr(n + 900)), cx = mix(sx, tx, 0.5) + (hr(n + 950) - 0.5) * 140, q1 = Math.min(u, 1) ** 1.7, q0 = Math.max(0, q1 - 0.22);
+      const P = q => { const a = (1 - q) * (1 - q), b = 2 * (1 - q) * q, c = q * q; return [a * sx + b * cx + c * tx, a * sy + b * mix(sy, zy, 0.35) + c * zy]; }, [x0, y0] = P(q0), [x1, y1] = P(q1), al = (0.45 + 0.55 * (1 - z)) * down * (u > 1 ? 1 - (u - 1) / 0.1 : 1);
+      const gr = g.createLinearGradient(x0, y0, x1, y1); gr.addColorStop(0, VW.rgba(gold, 0)); gr.addColorStop(1, VW.rgba('#FFE7A0', al)); g.strokeStyle = gr; g.lineWidth = (ABS === 7 ? 1.6 : 1.2) + 3.8 * (1 - z); g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke();
+      if (u > 0.92) { const sp = (u - 0.92) / 0.18; ring3d(x1, zy, 4 + 22 * sp, 0.3, 0, '#FFE7A0', (1 - sp) * 0.8, 1.5); } }
+    const fr = arrived / N, lit = fr * (1 - seg(t, 5.95, 6.3));
+    if (lit > 0) { const cxz = (zx0 + zx1) / 2, rw = (zx1 - zx0) * (0.7 + 0.5 * fr);
+      g.save(); g.translate(cxz, zy); g.scale(1, 0.32); const rg = g.createRadialGradient(0, 0, 0, 0, 0, rw); rg.addColorStop(0, VW.rgba('#FFF2C4', 0.95 * lit)); rg.addColorStop(0.35, VW.rgba(gold, 0.7 * lit)); rg.addColorStop(1, VW.rgba(gold, 0)); g.fillStyle = rg; g.beginPath(); g.arc(0, 0, rw, 0, 7); g.fill(); g.restore();
+      if (ABS === 7) ring3d(cxz, zy, rw * 0.75, 0.22, 0, gold, 0.9 * lit, 2.5);
+      for (let i = 55; i <= 59; i++) { const b = barAt(i, S); if (!b) continue; const x = X(i, S), w = Math.round(8 * SP / SP0) + 4, vh = (Math.min(40, b.v / 3600 * 40)) * (1 + (ABS === 7 ? 1.6 : 0.9) * fr), gr2 = g.createLinearGradient(0, DB - vh, 0, DB);
+        gr2.addColorStop(0, VW.rgba('#FFF2C4', lit)); gr2.addColorStop(1, VW.rgba(gold, lit)); g.fillStyle = gr2; g.fillRect(x - w / 2, DB - vh, w, vh); }
+      g.globalCompositeOperation = 'source-over'; g.globalAlpha = Math.min(1, lit * 1.6); txt('VOLUME ' + Math.round(fr * 100) + '%', cxz, zy - 70 - 30 * fr, '800 18px VWMono', '#FFE7A0', 'center'); g.globalAlpha = 1; g.globalCompositeOperation = 'lighter'; } }
+  if (ABS === 8 || ABS === 9 || ABS === 10) {   // PRESS+: the wall comes down on the price as a 3D slab, the chart zooms in, ABSORPTION written on it
+    if (ABS !== 9) fallIn(t, wx, wy, T0, T1 + 0.1, 0, 80); shock(t, wx, wy, [[HIT, 1]]);
+    const k = seg(t, HIT - 0.05, HIT + 0.1) * (1 - seg(t, 5.85, 6.2)); if (k > 0) { const w = ABS === 10 ? CX1 - 190 - (wx - 260) : ABS === 8 ? 330 : 190, x0 = ABS === 10 ? wx - 260 : ABS === 8 ? hx - 230 : hx - w / 2 - 20, d = 44, top = wy, bot = Math.max(wy + 4, hy - 6);
+      const fr = g.createLinearGradient(0, top, 0, bot); fr.addColorStop(0, VW.rgba(gold, 0.6 * k)); fr.addColorStop(1, VW.rgba(gold, 0.1 * k)); g.fillStyle = fr; g.fillRect(x0, top, w, bot - top);
+      g.fillStyle = VW.rgba('#FFE7A0', 0.45 * k); g.beginPath(); g.moveTo(x0, top); g.lineTo(x0 + d, top - d * 0.6); g.lineTo(x0 + w + d, top - d * 0.6); g.lineTo(x0 + w, top); g.closePath(); g.fill();
+      g.fillStyle = VW.rgba(gold, 0.22 * k); g.beginPath(); g.moveTo(x0 + w, top); g.lineTo(x0 + w + d, top - d * 0.6); g.lineTo(x0 + w + d, bot - d * 0.6); g.lineTo(x0 + w, bot); g.closePath(); g.fill();
+      g.strokeStyle = VW.rgba('#FFF2C4', k); g.lineWidth = 4; g.shadowColor = gold; g.shadowBlur = 18; g.beginPath(); g.moveTo(x0, bot); g.lineTo(x0 + w, bot); g.stroke(); g.shadowBlur = 0;
+      for (let j = 0; j < 6; j++) { const yy = mix(top, bot, ((t * 2.2 + j / 6) % 1)); g.strokeStyle = VW.rgba('#FFFFFF', 0.22 * k); g.lineWidth = 1.5; g.beginPath(); g.moveTo(x0 + 10, yy); g.lineTo(x0 + w - 10, yy); g.stroke(); }
+      if (ABS !== 9) { g.globalCompositeOperation = 'source-over'; const ka = eo(seg(t, 4.95, 5.2)) * (1 - seg(t, 5.8, 6.1)), pop = 1 + 0.35 * Math.exp(-Math.max(0, t - 4.95) * 9), ty = clamp((top + bot) / 2, top + 30, top + 200), tx = x0 + w / 2;
+        if (ka > 0) { g.save(); g.globalAlpha = ka; g.translate(tx, ty); g.scale(pop, pop); g.font = '900 40px VWSans'; g.letterSpacing = '6px'; const fit = Math.min(1, (w - 24) / g.measureText('ABSORPTION').width); g.scale(fit, fit); g.textAlign = 'center'; g.textBaseline = 'middle';
+          for (let q = 6; q >= 1; q--) { g.fillStyle = q === 6 ? '#2A1E05' : '#7A5A12'; g.fillText('ABSORPTION', q * 1.4, q * 1.4); }
+          g.fillStyle = '#FFE7A0'; g.shadowColor = gold; g.shadowBlur = 22; g.fillText('ABSORPTION', 0, 0); g.restore(); } g.globalCompositeOperation = 'lighter'; } } }
   g.globalCompositeOperation = 'source-over';
   // the absorption meter, counting the Block Prints
-  const mk = seg(t, HIT, HIT + 0.12) * (1 - seg(t, 5.9, 6.15)); if (mk > 0) { const n = Math.round(2500 * eo(lin(t, HIT, 5.15)) / 50) * 50, mx = CX0D + 18, my = Y(SUP) + 16, mw = 330;
+  const mk = (ABS === 8 || ABS === 10) ? 0 : seg(t, HIT, HIT + 0.12) * (1 - seg(t, 5.9, 6.15)); if (mk > 0) { const n = Math.round(2500 * eo(lin(t, HIT, 5.15)) / 50) * 50, mx = CX0D + 18, my = Y(SUP) + 16, mw = 330;
     g.globalAlpha = mk; box(mx, my, mw, 58, 'rgba(10,8,0,0.9)', gold, 7, 2); txt('ABSORBED AT THE WALL', mx + 14, my + 17, '700 14px VWMono', '#C9B27A');
     txt(n.toLocaleString('en-US'), mx + mw - 14, my + 17, '800 20px VWMono', gold, 'right'); box(mx + 14, my + 36, mw - 28, 10, '#2A2410', null, 5); box(mx + 14, my + 36, (mw - 28) * n / 2500, 10, gold, null, 5); g.globalAlpha = 1; }
   g.restore();
@@ -355,7 +382,7 @@ function drawDark(t, S, cur) {
   const g = VW.g, cvdK = 0, ybot = DB; // chart bottom (CVD pane opens under it)
   g.save(); g.beginPath(); g.rect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0); g.clip(); g.fillStyle = DK.bg; g.fillRect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0);
   g.save(); g.beginPath(); g.rect(CX0D, HDR, CX1 - CX0D, ybot - HDR); g.clip();
-  g.fillStyle = DK.grid; for (let i = 0; i <= 92; i++) if ((10 * 60 + 2 + i) % 5 === 0) { const x = Math.round(X(i, S)); g.fillRect(x, HDR, 1, ybot - HDR); }
+  if (FR === 4) vwGrid(CX0D, CX1, HDR, ybot); else g.fillStyle = DK.grid; if (FR !== 4) for (let i = 0; i <= 92; i++) if ((10 * 60 + 2 + i) % 5 === 0) { const x = Math.round(X(i, S)); g.fillRect(x, HDR, 1, ybot - HDR); }
   candles(S, 'dark', CX0D, ybot);
   // the trader's own levels stay on screen
   for (const [p, lab] of [[SUP, 'YOUR LEVEL']]) { hline(p, '#7FA2FF', 2, [8, 6], CX0D, CX1, 0.9); const y = Y(p); box(CX0D + 290, y - 22, 98, 18, 'rgba(41,98,255,0.9)', null, 3); txt(lab, CX0D + 339, y - 12, '700 12px VWMono', '#FFFFFF', 'center'); }
@@ -433,8 +460,9 @@ function fprice(kind, S) { return kind === 'p' ? lastPrice(S) : kind === 'w' ? W
 function setView(t, S) {
   let q = 0; while (q < CAMK.length - 1 && t > CAMK[q + 1][0]) q++;
   const A = CAMK[q], B = CAMK[Math.min(q + 1, CAMK.length - 1)], u = B === A ? 1 : eio(clamp((t - A[0]) / (B[0] - A[0]), 0, 1));
-  const z = mix(A[1], B[1], u), pf = mix(fprice(A[2], S), fprice(B[2], S), u);
+  let z = mix(A[1], B[1], u); const pf = mix(fprice(A[2], S), fprice(B[2], S), u);
   XR = XR0 - 210 * eio(seg(t, 4.15, 4.55)) * (1 - eio(seg(t, 5.75, 6.15)));
+  if (ABS === 8 || ABS === 10) z *= 1 + 0.32 * eio(seg(t, 4.9, 5.25)) * (1 - eio(seg(t, 5.85, 6.2)));
   PX = PX0 * z; SP = SP0 * (1 + (z - 1) * 0.8); PTOP = pf + (MIDY() - HDR) / PX;
 }
 let CAM = { x: 0, y: 0, s: 1, fx: 540, fy: 960 };
@@ -474,7 +502,14 @@ function logoAt(a) {
 }
 function divX(t) { return t < E.grab ? WIN.x1 : mix(WIN.x1, WIN.x0 - 2, eio(lin(t, E.grab, E.drop))); }
 // window edges (Power 31 Oct 16:57: the borders should show as little as possible, one with the background): ?frame=0 as before · 1 no frame, black background · 2 + edges faded 30 px · 3 + wide fade left and bottom
-const FR = +(new URLSearchParams(location.search).get('frame') || 0);
+const FR = +(new URLSearchParams(location.search).get('frame') || 0);   // 4 = Power 31 Oct 17:14: background black like the terminal, its square grid over the whole reel, no frame
+const GRIDC = '#14171B';
+function vwGrid(x0, x1, y0, y1, dx = 0, dy = 0) { const g = VW.g, S = CUR_S; g.save(); g.beginPath(); g.rect(x0, y0, x1 - x0, y1 - y0); g.clip(); g.fillStyle = GRIDC;
+  for (let i = -80; i <= 160; i++) if ((10 * 60 + 2 + i + 400) % 5 === 0) { const x = Math.round(X(i, S) + dx); if (x >= x0 && x <= x1) g.fillRect(x, y0, 1, y1 - y0); }
+  const step = PX > 44 ? 1 : PX > 30 ? 2 : 2, pTop = PTOP + (HDR - y0 + dy) / PX, pBot = PTOP - (y1 - HDR - dy) / PX;
+  for (let p = Math.floor(pBot / step) * step; p <= pTop; p += step) { const y = Math.round(Y(p) + dy); if (y >= y0 && y <= y1) g.fillRect(x0, y, x1 - x0, 1); }
+  g.restore(); }
+let CUR_S = null;
 function feather([top, right, bot, left]) { const g = VW.g, { x0, x1, y0, y1 } = WIN, f = (ax, ay, bx, by, rx, ry, rw, rh) => { const gr = g.createLinearGradient(ax, ay, bx, by); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(rx, ry, rw, rh); };
   if (top) f(0, y0 - 1, 0, y0 + top, x0 - 2, y0 - 2, x1 - x0 + 4, top + 2); if (bot) f(0, y1 + 1, 0, y1 - bot, x0 - 2, y1 - bot, x1 - x0 + 4, bot + 2);
   if (left) f(x0 - 1, 0, x0 + left, 0, x0 - 2, y0 - 2, left + 2, y1 - y0 + 4); if (right) f(x1 + 1, 0, x1 - right, 0, x1 - right, y0 - 2, right + 2, y1 - y0 + 4); }
@@ -507,6 +542,7 @@ function renderAt(t) {
   const g = VW.g, S = state(t); g.save(); g.fillStyle = '#040913'; g.fillRect(0, 0, 1080, 1920);
   setView(t, S);
   const bg = g.createLinearGradient(0, 0, 0, 1920); bg.addColorStop(0, FR ? '#000' : '#060C1A'); bg.addColorStop(1, FR ? '#000' : '#03060D'); g.fillStyle = bg; g.fillRect(0, 0, 1080, 1920);
+  CUR_S = S; if (FR === 4) { const c0 = camera(t, S); vwGrid(0, 1080, 0, 1920, c0.x, c0.y); }
   let c = cursorAt(t); const jt = jitter(t); c = { x: c.x + jt.x, y: c.y + jt.y };
   const cam = camera(t, S); CAM = cam; g.save(); { VW.roundRect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0, 12); g.clip(); } g.translate(cam.x, cam.y); if (cam.s !== 1) { g.translate(cam.fx, cam.fy); g.scale(cam.s, cam.s); g.translate(-cam.fx, -cam.fy); }
   if (!FR) { g.save(); g.shadowColor = 'rgba(0,0,0,0.6)'; g.shadowBlur = 40; box(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0, '#000', null, 12); g.restore(); }

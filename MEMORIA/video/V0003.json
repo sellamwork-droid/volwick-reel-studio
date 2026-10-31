@@ -15,17 +15,23 @@
   ],
   "durata_s": 32.95,
   "render": "Drive: 01_VIDEO/02_SPIEGAZIONE_VOCE/01 Prezzo bloccato sul call wall (31-10-2026).mp4",
-  "stato": "da-rivedere",
+  "stato": "da-rifare",
   "creato": "2026-10-31 02:18",
   "sessione": "chat principale (cloud)",
-  "feedback": [],
+  "feedback": [
+    {
+      "data": "2026-10-31 03:53",
+      "testo": "Power: i triangolini verdi sotto il range coprono la scritta RANGE in bianco; la voce è troppo statica, dopo un po' annoia e si skippa: renderla più attiva e dinamica"
+    }
+  ],
   "lezioni": [
     "Voce HeyGen dal connettore: il cloud e la shell del Mac non scaricano da resource2.heygen.ai (403); si scarica sul Mac vero con uno script .command dal Finder in 04_RENDER/_voce_<id>, poi device_stage_files.",
-    "mix_voice_hq.sh su questa voce dà circa −15,6 LUFS e picco −1,4: rifinire dal _mix.wav con volume +2,4 dB e alimiter 0,70 (risultato −15,1 LUFS, picco −2,1)."
+    "mix_voice_hq.sh su questa voce dà circa −15,6 LUFS e picco −1,4: rifinire dal _mix.wav con volume +2,4 dB e alimiter 0,70 (risultato −15,1 LUFS, picco −2,1).",
+    "Etichette dei box vicino ai marker (triangoli sui massimi/minimi): metterle oltre l'ingombro dei marker (circa 50 px dal bordo), mai sopra."
   ],
   "pubblicazioni": [],
   "voce": "HeyGen Matthew, elevenlabs eleven_multilingual_v2, corpo 26,8 s + chiusura 3,8 s a 0,92",
-  "aggiornato": "2026-10-31 02:49",
+  "aggiornato": "2026-10-31 03:53",
   "caption": "Price is stuck. It's not an accident.\n\nES sits in a 2.5-point range, right on a call wall where dealers are long gamma (+$21.6M). Long gamma hedging sells rallies and buys dips, and that can pin price near the wall. When price moves away from it, the range can open up again. Volwick shows the dealer positioning behind the price, read from the options book.\n\n$0.99 your first month, then $89/month. Cancel anytime. Offer ends November 27.\n\nSimulated session. Illustrative data. Dealer Walls represent modeled options-derived positioning. For ES/MES, SPX-derived levels use estimated basis mapping. Not investment advice.\n\n#ES #futures #daytrading #trading #gamma #optionsflow #volwick",
   "titolo": "Prezzo bloccato sul call wall",
   "video_principale": "V0003_VOLWICK_THE_PIN.mp4",

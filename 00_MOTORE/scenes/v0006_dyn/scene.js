@@ -7,6 +7,7 @@
 // Simulated ES session (gen_data.py), no real market data. Every frame is a pure function of time.
 const { seg, lin, eo, eio, mix, clamp } = VW;
 const TOTAL = 13.7;
+const SLOW = +(new URLSearchParams(location.search).get('slow') || 0);   // Power 31 Oct 17:50: pause on the touch
 let D, BARS, SUP;
 // ---------- geometry ----------
 // logo position test (Power 31 Oct 03:49): ?logo=tl (old, top left) · top (centered above) · bottom (centered under the chart) · none
@@ -427,9 +428,9 @@ function drawDark(t, S, cur) {
 
 // ---------- frame ----------
 const OVER = [ [0.0, '', 'BREAKOUT', '?'], [E.top1, 'YOUR ', 'BREAKOUT', ' JUST FAILED.'], [1.92, 'PLAIN CHART: ', 'UP', ', THEN DOWN.'], [E.walls, 'SEE THE ', 'POSITIONING.'],
-  [E.top2, 'VOLUME ', 'ABSORBED', ' AT THE WALL.'], [5.3, 'PRICE ', 'TURNS BACK', ' DOWN.'], [E.out, 'TRADE WITH ', 'INSTITUTIONAL', ' CONTEXT.'] ];
+  [SLOW ? 4.58 : E.top2, 'VOLUME ', 'ABSORBED', ' AT THE WALL.'], [5.3, 'PRICE ', 'TURNS BACK', ' DOWN.'], [E.out, 'TRADE WITH ', 'INSTITUTIONAL', ' CONTEXT.'] ];
 const SUBS = [ [0.0, 'ES 1m · price rips through the line you drew'], [E.top1, '...and drops straight back under it'], [1.92, 'A line shows where. Not what happened there.'],
-  [E.rew, 'Rewind. Same move, Dealer Walls on.'], [E.prints, 'Same rip. Block Prints on.'], [E.top2, 'Block Prints 1,250 ×2 into the call wall'], [5.3, 'Call wall · long γ · +$12.6M'],
+  [E.rew, 'Rewind. Same move, Dealer Walls on.'], [E.prints, 'Same rip. Block Prints on.'], [SLOW ? 4.58 : E.top2, 'Block Prints 1,250 ×2 into the call wall'], [5.3, 'Call wall · long γ · +$12.6M'],
   [E.out, 'Long γ: dealers hedge against the move. Not a signal.'] ];
 function overlay(t) {
   const g = VW.g; let j = -1; OVER.forEach((o, q) => { if (t >= o[0]) j = q; }); if (j < 0 || t > T_END) return;
@@ -564,20 +565,20 @@ const K = +(new URLSearchParams(location.search).get('k') || 1);
 const HDRV = +(new URLSearchParams(location.search).get('hdr') || 2);   // Power 31 Oct 15:58: bar 2 chosen
 // Power 31 Oct 17:21: on the touch the level lights up and the replay slows down (?slow=1), then the price drops
 // Power 31 Oct 17:35: stay slow through the absorption and the first part of the drop, then ease back to normal speed (speed curve, no jump)
-const SLOW = +(new URLSearchParams(location.search).get('slow') || 0), SPD_R = 0.3;
+const SPD_R = 0.3;
 // Power 31 Oct 17:50: slow down gently into the touch (candle still green), stay almost still ~0.8 s on the level, then let it drop at normal speed
 const TOUCH = 4.80, LN = (s, a, b) => clamp((s - a) / (b - a), 0, 1), spd = s => s < 4.55 ? 1 : s < 4.78 ? mix(1, 0.15, LN(s, 4.55, 4.78)) : s < TOUCH ? mix(0.15, 0.03, LN(s, 4.78, TOUCH)) : s < 4.824 ? 0.03 : s < 4.98 ? mix(0.03, 1, LN(s, 4.824, 4.98) ** 0.6) : 1;
 const SLT = (() => { const sc = [0], ck = [0], h = 0.002; let s = 0, c = 0; while (s < 20) { c += h / spd(s + h / 2); s += h; sc.push(s); ck.push(c); } return { sc, ck }; })();
 const ckAt = s => { const { sc, ck } = SLT, i = Math.min(sc.length - 1, Math.max(0, Math.round(s / 0.002))); return ck[i]; };
 let CLOCK = 0;
 const slowMap = u => { if (!SLOW || u <= 4.6) return u; const { sc, ck } = SLT; let lo = 0, hi = ck.length - 1; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (ck[m] < u) lo = m; else hi = m; } return mix(sc[lo], sc[hi], (u - ck[lo]) / (ck[hi] - ck[lo] || 1)); };
-function render(t) { const u = t < T_END * K ? t / K : T_END + (t - T_END * K); CLOCK = u; renderAt(slowMap(u)); }
+function render(t) { const TE = SLOW ? ckAt(T_END) : T_END, u = t < TE * K ? t / K : TE + (t - TE * K); CLOCK = u; renderAt(slowMap(u)); }
 function renderAt(t) {
   TNOW = t;
   const g = VW.g, S = state(t); g.save(); g.fillStyle = '#040913'; g.fillRect(0, 0, 1080, 1920);
   setView(t, S);
   const bg = g.createLinearGradient(0, 0, 0, 1920); bg.addColorStop(0, FR ? '#000' : '#060C1A'); bg.addColorStop(1, FR ? '#000' : '#03060D'); g.fillStyle = bg; g.fillRect(0, 0, 1080, 1920);
-  CUR_S = S; if (FR === 4) { const c0 = camera(t, S); g.save(); g.filter = 'blur(1.6px)'; vwGrid(0, 1080, 0, 1920, c0.x, c0.y); g.restore();
+  CUR_S = S; if (FR === 4) { const c0 = camera(t, S); g.save(); g.globalAlpha = 0.45; vwGrid(0, 1080, 0, 1920, c0.x - 0.5, c0.y - 0.5); g.globalAlpha = 0.35; vwGrid(0, 1080, 0, 1920, c0.x + 0.5, c0.y + 0.5); g.restore();   // soft (two offset passes; a canvas blur is too slow to render)
     const fade = (ax, ay, bx, by, rx, ry, rw, rh) => { const gr = g.createLinearGradient(ax, ay, bx, by); gr.addColorStop(0, 'rgba(0,0,0,0.92)'); gr.addColorStop(1, 'rgba(0,0,0,0.25)'); g.fillStyle = gr; g.fillRect(rx, ry, rw, rh); };
     fade(0, 0, 0, WIN.y0, 0, 0, 1080, WIN.y0); fade(0, 1920, 0, WIN.y1, 0, WIN.y1, 1080, 1920 - WIN.y1); fade(0, 0, WIN.x0, 0, 0, WIN.y0, WIN.x0, WIN.y1 - WIN.y0); fade(1080, 0, WIN.x1, 0, WIN.x1, WIN.y0, 1080 - WIN.x1, WIN.y1 - WIN.y0); }
   let c = cursorAt(t); const jt = jitter(t); c = { x: c.x + jt.x, y: c.y + jt.y };

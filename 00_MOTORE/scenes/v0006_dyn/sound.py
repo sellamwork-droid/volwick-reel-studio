@@ -84,7 +84,7 @@ add(S, sweep(1400, 90, rew1 - rew0) * np.linspace(1, 0.2, int(SR * (rew1 - rew0)
 for j in range(5): add(S, thump(140, 50, 0.4), rew1 + j * BEAT / 4, pan=0.15 * (-1) ** j, g=0.32); add(S, tick(1800 + 150 * j, 0.06), rew1 + j * BEAT / 4, g=0.12)   # walls slam in
 add(S, riser(impact - rew1), rew1, g=0.3)
 add(S, slam(big=True), impact, g=0.75); add(S, chime(659.25, 1.2), impact + 0.02, g=0.05)   # the wall holds
-add(S, whoosh(0.5, up=False), impact + 0.1, g=0.25)
+add(S, whoosh(0.5, up=False), (V(E['release']) - 0.1) if 'release' in E else impact + 0.1, g=0.25)   # the price leaves the wall
 for c in E['clicks']: add(S, tick(2600, 0.04), V(c), g=0.15)
 add(S, tick(1700, 0.08), V(E['prints']), g=0.2); add(S, chime(987.77, 1.0), V(E['prints']), pan=0.2, g=0.05)
 add(S, tick(1300, 0.08), V(E['tip']), g=0.12)

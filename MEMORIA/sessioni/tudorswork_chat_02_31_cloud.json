@@ -2,11 +2,13 @@
   "chi": "tudorswork · chat 02:31 · cloud",
   "inizio": "2026-10-31T01:44+00:00",
   "storia": [
+    "31/10 03:01 preso V0006 The Bar (T4)",
     "31/10 02:47 catalogo 245 hook nuovi e 25 Spunti da 00_CARICA_QUI (non prenderli in carico)",
     "31/10 02:44 inizio sessione, sistema di presenza attivo"
   ],
-  "ultimo": "2026-10-31T01:47+00:00",
+  "ultimo": "2026-10-31T02:01+00:00",
   "stato": "attiva",
-  "cosa": "catalogo 245 hook nuovi e 25 Spunti da 00_CARICA_QUI (non prenderli in carico)",
-  "computer": "vm"
+  "cosa": "preso V0006 The Bar (T4)",
+  "computer": "vm",
+  "video": "V0006"
 }

@@ -15,7 +15,7 @@ Voto 0–10; **approvato** ≥ 7, **riserva** 5–6 (solo se il movimento combac
 | riserva | 43 |
 | esclusi | 201 |
 
-Motivi di esclusione: altro (tono, contenuto non adatto a un marchio finanziario) 110; marchi, scritte, watermark o @nomi 46; nessun movimento utile o non si capisce in 1 s 23; violenza, incidente o persone in pericolo 14; qualità bassa o inquadratura 6; personaggi o persone famose 2.
+Motivi di esclusione (stima dalle note): contenuto senza movimento di prezzo o tono non adatto 110; marchi, scritte, watermark o @nomi 46; nessun movimento utile o non si capisce in 1 s 23; violenza, incidente o persone in pericolo 14; qualità bassa o inquadratura 6; personaggi o persone famose 2.
 
 Doppioni (stesso filmato, file diversi): Donkey Takes Tumble = Donkey Flips Over a Wooden Fence; Athlete Falls From Gym Pull-Up Bar = Basketball Fail (già usato); No Babies = Man Loses Balance on Narrow Fence Rail; Pan Face = Man Ignites Something Beneath a Metal Bowl. Giant Snowball Dropped From Bridge e Snow Splash sembrano lo stesso lancio da due file: usarne uno per video.
 
@@ -95,7 +95,7 @@ Doppioni (stesso filmato, file diversi): Donkey Takes Tumble = Donkey Flips Over
 ## Cosa ci dice lo studio
 - Gli hook forti sono quasi tutti **cadute** (caduta / rottura del supporto 20, rimbalzo / stop contro un muro 2): perfetti per rotture di supporto, short gamma, falsi breakout. Per questi eventi abbiamo materiale per molte settimane.
 - Mancano hook forti per **rialzi**, **rimbalzi su un muro** e **prezzo bloccato (pin)**. Per i video su call wall, rally fermati e range servono clip nuovi: qualcosa che sale e si ferma contro un tetto, un oggetto che rimbalza su una superficie, qualcosa in equilibrio perfetto che non si muove. Conviene cercarli e caricarli in `00_CARICA_QUI/01_VIDEO_HOOK`.
-- Circa tre clip su quattro non sono usabili, soprattutto per violenza o incidenti e per marchi o scritte: quando si cercano hook nuovi conviene scartarli già alla fonte.
+- Circa tre clip su quattro non sono usabili. Il motivo più frequente è che il contenuto non si aggancia a un movimento di prezzo o ha un tono sbagliato per un marchio finanziario (scherzi, animali buffi, reazioni); poi marchi, scritte e watermark (46), azione poco leggibile (23), violenza o persone in pericolo (14). Quando si cercano hook nuovi conviene cercare subito movimenti fisici netti su sfondo pulito.
 - I clip con watermark di pagine (es. @skill_unbelievable) vanno sempre esclusi, anche se il movimento è perfetto.
 
 ## Uso

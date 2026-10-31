@@ -5,17 +5,27 @@
   "formato": "T4",
   "scena": "00_MOTORE/scenes/v0001_wall_breaks",
   "hook": {
-    "clip": "BMX Rider Leaps Over Concrete Wall.mp4"
+    "clip": "BMX Rider Leaps Over Concrete Wall.mp4",
+    "tratto": "1.90–2.80 s, rallentato 0,5 dopo 2.45, match cut torso (540,520) → candela (786,1000), zoom 2.0"
   },
-  "evento": "rottura di un supporto verso il basso, discesa fino al muro put successivo",
-  "layer": [],
-  "titoli": [],
-  "durata_s": null,
-  "render": "",
-  "stato": "in-lavorazione",
+  "evento": "il supporto disegnato a 7,722.50 si rompe; sotto c'è un put wall short γ (−$11.2M), la discesa si ferma un tick sopra il put wall long γ (+$13.8M)",
+  "layer": [
+    "WALLS Top 5",
+    "BLOCK PRINTS"
+  ],
+  "titoli": [
+    "YOUR SUPPORT JUST BROKE.",
+    "WHAT WAS UNDER THE LINE?",
+    "SEE THE POSITIONING.",
+    "TRADE WITH INSTITUTIONAL CONTEXT."
+  ],
+  "durata_s": 21.67,
+  "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/V0001_THE_WALL_BREAKS",
+  "stato": "da-rivedere",
   "creato": "2026-10-31 02:18",
   "sessione": "chat principale (cloud)",
   "feedback": [],
   "lezioni": [],
-  "pubblicazioni": []
+  "pubblicazioni": [],
+  "aggiornato": "2026-10-31 02:26"
 }

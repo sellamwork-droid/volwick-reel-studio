@@ -28,13 +28,18 @@
     {
       "data": "2026-10-31 03:26",
       "testo": "Power: non mi piace il distacco del suono: all'inizio sotto l'hook parte una canzone, viene spezzata a caso e ne parte una di stile completamente diverso. Non riproporlo. Meglio una base unica o nessuna musica partendo con l'audio dell'hook. Chieste 2-3 prove."
+    },
+    {
+      "data": "2026-10-31 03:29",
+      "testo": "Power: delle tre prove audio come linea guida la A (base unica). B e C non vanno per nulla bene."
     }
   ],
   "lezioni": [
-    "Mai l'audio del clip hook tagliato secco al match cut seguito da una base diversa: o una sola base dall'inizio (senza audio del clip), o l'audio del clip che sfuma oltre il taglio. replay_sound.py mette HOOK_WAV con stop a 0,08 s: non usarlo così."
+    "Mai l'audio del clip hook tagliato secco al match cut seguito da una base diversa: o una sola base dall'inizio (senza audio del clip), o l'audio del clip che sfuma oltre il taglio. replay_sound.py mette HOOK_WAV con stop a 0,08 s: non usarlo così.",
+    "Audio con hook: AUDIO_MODE=base di scenes/v0006_the_bar/sound.py (niente HOOK_WAV, base unica dal primo fotogramma, fruscio sotto l'hook, colpo sul taglio)."
   ],
   "pubblicazioni": [],
-  "aggiornato": "2026-10-31 03:26",
+  "aggiornato": "2026-10-31 03:29",
   "titolo": "Falsa rottura sotto il call wall",
   "numero": 6,
   "data_uscita": "31-10-2026",

@@ -7,6 +7,8 @@ Diventa un operaio del VOLWICK Reel Studio.
 2. Leggi CLAUDE.md per intero e seguilo alla lettera, in particolare la sezione "Sessione dalla chat dell'app Claude (cloud)".
 3. Leggi 00_SAPERE/00_LEGGIMI.md e tutti i file che indica: cos'è Volwick, come è fatto e come si usa il terminale, i layer, il manuale, cosa si può mostrare, marchio e tono.
 4. Leggi REGOLE/PREFERENZE_E_FORMATI.md per intero e MEMORIA/video/CREATIVE06B.json.
-5. git pull, poi python3 00_MOTORE/tools/studio.py brief, e fammi il riassunto in italiano: coda, ultimi giudizi di Power, materiale nuovo, cosa proponi.
+5. git pull, poi python3 00_MOTORE/tools/studio.py presenza "inizio sessione" --chi "<account> · chat <ora> · cloud", poi python3 00_MOTORE/tools/studio.py brief, e fammi il riassunto in italiano: chi altro sta lavorando e su cosa, coda, ultimi giudizi di Power, materiale nuovo, cosa proponi.
 Consegna sempre i video nella cartella Drive VOLWICK REEL STUDIO collegata a questa chat (01_VIDEO), mai solo in chat.
+Segnala a ogni passo con studio.py presenza e guarda studio.py chi prima di prendere un video: lavorano in contemporanea altri account, altre chat e il Terminale.
+Memoria sempre da GitHub: git pull prima di ogni passo, studio.py sync dopo ogni cosa nuova.
 Ogni mio giudizio va registrato subito e inviato su GitHub, così vale per tutte le altre chat.

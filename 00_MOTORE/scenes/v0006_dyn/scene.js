@@ -96,42 +96,67 @@ const hr = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x -
 function ring3d(x, y, r, tilt, rot, col, a, lw, dash) { const g = VW.g; if (a <= 0 || r <= 0) return; g.save(); g.globalAlpha = a; g.translate(x, y); g.rotate(rot);
   g.strokeStyle = col; g.lineWidth = lw; g.shadowColor = col; g.shadowBlur = 14; if (dash) { g.setLineDash(dash); g.lineDashOffset = -r * 3; }
   g.beginPath(); g.ellipse(0, 0, r, r * tilt, 0, 0, Math.PI * 2); g.stroke(); g.restore(); }
+// Power 31 Oct 16:57: the volume comes from above and goes down (no red arrows). ?abs=1..5 = five animations to choose from
+const ABS = +(new URLSearchParams(location.search).get('abs') || 1);
+function fallIn(t, wx, wy, T0, T1, n0, N) {   // volume falling from the top of the chart into the wall point, with depth
+  const g = VW.g, gold = VX.GOLD, cyan = '#7FD8FF';
+  for (let n = n0; n < n0 + N; n++) { const z = hr(n + 307), t0 = T0 + hr(n) * (T1 - T0 - 0.25), dur = 0.22 + 0.22 * z, u = (t - t0) / dur; if (u <= 0 || u > 1.12) continue;
+    const sx = wx + (hr(n + 101) - 0.5) * 520 * (1 + 0.7 * z), sy = HDR - 30 - 80 * hr(n + 203), q1 = Math.min(u, 1) ** 2, q0 = Math.max(0, q1 - 0.22 - 0.12 * (1 - z));
+    const P = q => [mix(sx, wx, q), mix(sy, wy, q)], [x0, y0] = P(q0), [x1, y1] = P(q1), sz = 1.2 + 4.5 * (1 - z), al = (0.35 + 0.65 * (1 - z)) * (u > 1 ? 1 - (u - 1) / 0.12 : 1);
+    const col = q1 > 0.6 ? gold : cyan, gr = g.createLinearGradient(x0, y0, x1, y1); gr.addColorStop(0, VW.rgba(col, 0)); gr.addColorStop(1, VW.rgba(col, al));
+    g.strokeStyle = gr; g.lineWidth = sz; g.lineCap = 'round'; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke(); g.fillStyle = VW.rgba('#FFFFFF', al); g.beginPath(); g.arc(x1, y1, sz * 0.7, 0, 7); g.fill(); }
+}
+function coreRings(t, wx, wy, T0, T1, HIT) { const g = VW.g, gold = VX.GOLD, fill = eo(lin(t, T0 + 0.1, T1)), fade = 1 - seg(t, 5.6, 6.1), core = (16 + 30 * fill) * (1 + 0.25 * Math.exp(-Math.max(0, t - HIT) * 9) * (t > HIT ? 1 : 0)); if (fade <= 0) return;
+  const rg = g.createRadialGradient(wx, wy, 0, wx, wy, core * 2.6); rg.addColorStop(0, VW.rgba('#FFFFFF', 0.95 * fade)); rg.addColorStop(0.25, VW.rgba(gold, 0.75 * fade)); rg.addColorStop(1, VW.rgba(gold, 0)); g.fillStyle = rg; g.beginPath(); g.arc(wx, wy, core * 2.6, 0, 7); g.fill();
+  ring3d(wx, wy, core * 1.9, 0.28, 0.18 + t * 0.6, gold, 0.85 * fade, 3, [18, 10]); ring3d(wx, wy, core * 1.35, 0.42, -0.5 - t * 0.9, '#7FD8FF', 0.7 * fade, 2.5, [10, 8]); }
+function shock(t, wx, wy, list) { list.forEach(([th, m]) => { const d = t - th; if (d < 0 || d > 0.7) return; const e = eo(d / 0.7); ring3d(wx, wy, 30 + 520 * e, 0.16, 0, VX.GOLD, m * (1 - e), 5 * (1 - e) + 1); ring3d(wx, wy, 20 + 300 * e, 0.22, 0, '#FFFFFF', 0.7 * m * (1 - e), 2); }); }
+function cube(x, y, s, a, lab) { const g = VW.g, d = s * 0.45; g.save(); g.globalAlpha = a;   // gold block in 3D: front, top and side faces
+  g.fillStyle = '#F7D774'; g.beginPath(); g.moveTo(x - s / 2, y - s); g.lineTo(x - s / 2 + d, y - s - d * 0.7); g.lineTo(x + s / 2 + d, y - s - d * 0.7); g.lineTo(x + s / 2, y - s); g.closePath(); g.fill();
+  g.fillStyle = '#9C7A1E'; g.beginPath(); g.moveTo(x + s / 2, y - s); g.lineTo(x + s / 2 + d, y - s - d * 0.7); g.lineTo(x + s / 2 + d, y - d * 0.7); g.lineTo(x + s / 2, y); g.closePath(); g.fill();
+  const gr = g.createLinearGradient(0, y - s, 0, y); gr.addColorStop(0, '#E9BE45'); gr.addColorStop(1, '#C39222'); g.fillStyle = gr; g.shadowColor = VX.GOLD; g.shadowBlur = 20; g.fillRect(x - s / 2, y - s, s, s); g.shadowBlur = 0;
+  if (lab) txt(lab, x, y - s / 2, '800 15px VWMono', '#1A1300', 'center'); g.restore(); }
 function absorbFx(t, S) {
-  const T0 = 4.35, T1 = 5.25, HIT = E.top2; if (t < T0 || t > 6.4) return; const g = VW.g, wx = X(57, S), wy = Y(7733.25), gold = VX.GOLD, cyan = '#7FD8FF';
+  const T0 = 4.3, T1 = 4.85, HIT = E.top2; if (t < T0 || t > 6.4) return; const g = VW.g, wx = X(57, S), wy = Y(7733.25), gold = VX.GOLD;
+  const hx = X(S.k, S), hy = Y(lastPrice(S)), down = seg(t, 4.95, 5.1) * (1 - seg(t, 5.8, 6.2));
   g.save(); g.globalCompositeOperation = 'lighter';
-  // 1 · volume flies from the rip's volume bars into the wall: streaks with depth (near = big and fast, far = small and dim)
-  for (let n = 0; n < 90; n++) { const r1 = hr(n), r2 = hr(n + 101), r3 = hr(n + 203), z = hr(n + 307), i = 53 + (n % 5);
-    const t0 = T0 + r1 * (T1 - T0 - 0.3), dur = 0.28 + 0.25 * z, u = (t - t0) / dur; if (u <= 0 || u > 1.15) continue;
-    const sx = X(i, S) + (r2 - 0.5) * 8, sy = DB - 4 - r3 * 34, cx = mix(sx, wx, 0.35) + (r2 < 0.5 ? -1 : 1) * (120 + 260 * hr(n + 409)) * (1 + 0.6 * z), cy = mix(sy, wy, 0.55) - 80 * r3;
-    const P = q => { q = clamp(q, 0, 1); const a = (1 - q) * (1 - q), b = 2 * (1 - q) * q, c = q * q; return [a * sx + b * cx + c * wx, a * sy + b * cy + c * wy]; };
-    const sz = 1.2 + 4.8 * (1 - z), al = (0.35 + 0.65 * (1 - z)) * (u > 1 ? 1 - (u - 1) / 0.15 : 1), q1 = eio(Math.min(u, 1)), q0 = Math.max(0, q1 - 0.16 - 0.1 * (1 - z));
-    const [x0, y0] = P(q0), [x1, y1] = P(q1), col = q1 > 0.7 ? gold : cyan, gr = g.createLinearGradient(x0, y0, x1, y1); gr.addColorStop(0, VW.rgba(col, 0)); gr.addColorStop(1, VW.rgba(col, al));
-    g.strokeStyle = gr; g.lineWidth = sz; g.lineCap = 'round'; g.beginPath(); g.moveTo(x0, y0); g.quadraticCurveTo(mix(x0, x1, 0.5), mix(y0, y1, 0.5), x1, y1); g.stroke();
-    g.fillStyle = VW.rgba('#FFFFFF', al); g.beginPath(); g.arc(x1, y1, sz * 0.7, 0, 7); g.fill(); }
-  // volume bars of the rip light up while they drain
-  const vk = seg(t, T0, T0 + 0.15) * (1 - seg(t, 5.3, 5.6));
-  if (vk > 0) for (let i = 53; i <= 57; i++) { const b = barAt(i, S); if (!b) continue; const x = X(i, S), w = Math.round(8 * SP / SP0) + 6, vh = Math.min(40, b.v / 3600 * 40) + 6;
-    const gr = g.createLinearGradient(0, DB - vh - 40, 0, DB); gr.addColorStop(0, VW.rgba(cyan, 0)); gr.addColorStop(1, VW.rgba(cyan, 0.55 * vk)); g.fillStyle = gr; g.fillRect(x - w / 2, DB - vh - 40, w, vh + 40); }
-  // 2 · the wall swallows it: a core that fills up and two tilted rings spinning around it (3D)
-  const fill = eo(lin(t, T0 + 0.1, T1)), fade = 1 - seg(t, 5.6, 6.1), core = (16 + 30 * fill) * (1 + 0.25 * Math.exp(-Math.max(0, t - HIT) * 9) * (t > HIT ? 1 : 0));
-  if (fade > 0) { const rg = g.createRadialGradient(wx, wy, 0, wx, wy, core * 2.6); rg.addColorStop(0, VW.rgba('#FFFFFF', 0.95 * fade)); rg.addColorStop(0.25, VW.rgba(gold, 0.75 * fade)); rg.addColorStop(1, VW.rgba(gold, 0));
-    g.fillStyle = rg; g.beginPath(); g.arc(wx, wy, core * 2.6, 0, 7); g.fill();
-    ring3d(wx, wy, core * 1.9, 0.28, 0.18 + t * 0.6, gold, 0.85 * fade, 3, [18, 10]); ring3d(wx, wy, core * 1.35, 0.42, -0.5 - t * 0.9, cyan, 0.7 * fade, 2.5, [10, 8]); }
-  // 3 · impact shockwaves flat along the wall line (a ring lying on the level, seen in perspective)
-  [[HIT, 1], [5.0, 0.7]].forEach(([th, m]) => { const d = t - th; if (d < 0 || d > 0.7) return; const e = eo(d / 0.7);
-    ring3d(wx, wy, 30 + 520 * e, 0.16, 0, gold, m * (1 - e), 5 * (1 - e) + 1); ring3d(wx, wy, 20 + 300 * e, 0.22, 0, '#FFFFFF', 0.7 * m * (1 - e), 2); });
+  if (ABS === 1) {   // RAIN: volume rains from above into the wall, then keeps raining down with the price
+    fallIn(t, wx, wy, T0, T1 + 0.1, 0, 90); coreRings(t, wx, wy, T0, T1, HIT); shock(t, wx, wy, [[HIT, 1]]);
+    if (down > 0) for (let n = 0; n < 70; n++) { const z = hr(n + 600), t0 = 4.95 + hr(n + 650) * 0.8, u = (t - t0) / (0.35 + 0.3 * z); if (u <= 0 || u > 1) continue;
+      const S0 = state(t0), x = X(S0.k, S) + (hr(n + 700) - 0.5) * 70 * (1 + z), y0 = Y(lastPrice(S0)) - 10, y = y0 + u * u * (220 + 200 * (1 - z)), sz = 1 + 3.5 * (1 - z), al = (1 - u) * down;
+      const gr = g.createLinearGradient(0, y - 40, 0, y); gr.addColorStop(0, 'rgba(226,87,95,0)'); gr.addColorStop(1, `rgba(255,170,120,${al})`); g.strokeStyle = gr; g.lineWidth = sz; g.beginPath(); g.moveTo(x, y - 30 - 30 * (1 - z)); g.lineTo(x, y); g.stroke(); } }
+  if (ABS === 2) {   // PRESS: the volume falls into the wall, then the wall comes down on the price like a 3D slab
+    fallIn(t, wx, wy, T0, T1 + 0.1, 0, 70); shock(t, wx, wy, [[HIT, 1]]);
+    const k = seg(t, HIT - 0.05, HIT + 0.1) * (1 - seg(t, 5.8, 6.2)); if (k > 0) { const w = 190, d = 40, top = wy, bot = Math.max(wy + 4, hy - 6), x0 = hx - w / 2 - 20;
+      const fr = g.createLinearGradient(0, top, 0, bot); fr.addColorStop(0, VW.rgba(gold, 0.55 * k)); fr.addColorStop(1, VW.rgba('#E2575F', 0.12 * k)); g.fillStyle = fr; g.fillRect(x0, top, w, bot - top);
+      g.fillStyle = VW.rgba(gold, 0.35 * k); g.beginPath(); g.moveTo(x0, top); g.lineTo(x0 + d, top - d * 0.6); g.lineTo(x0 + w + d, top - d * 0.6); g.lineTo(x0 + w, top); g.closePath(); g.fill();
+      g.fillStyle = VW.rgba(gold, 0.18 * k); g.beginPath(); g.moveTo(x0 + w, top); g.lineTo(x0 + w + d, top - d * 0.6); g.lineTo(x0 + w + d, bot - d * 0.6); g.lineTo(x0 + w, bot); g.closePath(); g.fill();
+      g.strokeStyle = VW.rgba('#FFF2C4', 0.9 * k); g.lineWidth = 3; g.beginPath(); g.moveTo(x0, bot); g.lineTo(x0 + w, bot); g.stroke();
+      for (let j = 0; j < 6; j++) { const yy = mix(top, bot, ((t * 2.2 + j / 6) % 1)); g.strokeStyle = VW.rgba('#FFFFFF', 0.25 * k); g.lineWidth = 1.5; g.beginPath(); g.moveTo(x0 + 10, yy); g.lineTo(x0 + w - 10, yy); g.stroke(); } } }
+  if (ABS === 3) {   // WATERFALL: absorbed at the wall, then it pours down into the volume bars at the bottom
+    fallIn(t, wx, wy, T0, T1 + 0.1, 0, 80); coreRings(t, wx, wy, T0, T1, HIT); shock(t, wx, wy, [[HIT, 1]]);
+    if (down > 0) { for (let n = 0; n < 80; n++) { const z = hr(n + 800), t0 = 4.9 + hr(n + 850) * 0.85, u = (t - t0) / (0.3 + 0.25 * z); if (u <= 0 || u > 1.1) continue;
+        const i = 57 + (n % 2), tx = X(i, S) + (hr(n + 900) - 0.5) * 8, cx = mix(wx, tx, 0.5) + (hr(n + 950) - 0.5) * 120, q1 = Math.min(u, 1) ** 1.6, q0 = Math.max(0, q1 - 0.2);
+        const P = q => { const a = (1 - q) * (1 - q), b = 2 * (1 - q) * q, c = q * q; return [a * wx + b * cx + c * tx, a * wy + b * mix(wy, DB, 0.4) + c * (DB - 6)]; }, [x0, y0] = P(q0), [x1, y1] = P(q1), al = (0.4 + 0.6 * (1 - z)) * down;
+        const gr = g.createLinearGradient(x0, y0, x1, y1); gr.addColorStop(0, VW.rgba(gold, 0)); gr.addColorStop(1, VW.rgba('#FFE7A0', al)); g.strokeStyle = gr; g.lineWidth = 1.2 + 3.5 * (1 - z); g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke(); }
+      for (let i = 57; i <= 58; i++) { const x = X(i, S), w = Math.round(8 * SP / SP0) + 8, gr = g.createLinearGradient(0, DB - 90, 0, DB); gr.addColorStop(0, VW.rgba(gold, 0)); gr.addColorStop(1, VW.rgba(gold, 0.7 * down)); g.fillStyle = gr; g.fillRect(x - w / 2, DB - 90, w, 90); } } }
+  if (ABS === 4) {   // BLOCKS: the two Block Prints fall as gold 3D blocks onto the wall; the price drops away under them
+    g.globalCompositeOperation = 'source-over'; const fade = 1 - seg(t, 5.8, 6.2);
+    [[4.45, -34, '1,250'], [HIT - 0.06, 34, '1,250']].forEach(([tl, dx, lab], j) => { const td = tl - 0.32; if (t < td) return; const u = clamp((t - td) / 0.32, 0, 1), bounce = t > tl ? Math.abs(Math.sin((t - tl) * 18)) * 10 * Math.exp(-(t - tl) * 7) : 0;
+      const y = mix(HDR - 60, wy - 2, u * u) - bounce; g.globalCompositeOperation = 'lighter'; if (u < 1) { const gr = g.createLinearGradient(0, y - 160, 0, y - 40); gr.addColorStop(0, VW.rgba(gold, 0)); gr.addColorStop(1, VW.rgba(gold, 0.6)); g.fillStyle = gr; g.fillRect(wx + dx - 26, y - 160, 52, 120); }
+      g.globalCompositeOperation = 'source-over'; cube(wx + dx - 6, y, 56, fade, lab); });
+    g.globalCompositeOperation = 'lighter'; shock(t, wx, wy, [[4.45, 0.7], [HIT - 0.06, 1]]);
+    if (down > 0) { g.strokeStyle = VW.rgba('#E2575F', 0.8 * down); g.lineWidth = 3; g.setLineDash([6, 8]); g.lineDashOffset = -t * 120; g.beginPath(); g.moveTo(wx, wy + 6); g.lineTo(hx, hy - 8); g.stroke(); g.setLineDash([]); } }
+  if (ABS === 5) {   // WAVE: a sheet of light comes down from above onto the wall, ripples, then follows the price down
+    const sheet = (y, w, col, a) => { if (a <= 0) return; g.save(); g.translate(wx, y); g.scale(1, 0.18); const rg = g.createRadialGradient(0, 0, 0, 0, 0, w); rg.addColorStop(0, VW.rgba(col, 0.75 * a)); rg.addColorStop(0.7, VW.rgba(col, 0.25 * a)); rg.addColorStop(1, VW.rgba(col, 0)); g.fillStyle = rg; g.beginPath(); g.arc(0, 0, w, 0, 7); g.fill(); g.restore(); ring3d(wx, y, w * 0.8, 0.18, 0, col, 0.9 * a, 2.5); };
+    const u = eio(lin(t, T0, HIT)); sheet(mix(HDR - 20, wy, u), mix(520, 230, u), '#7FD8FF', seg(t, T0, T0 + 0.1) * (1 - seg(t, HIT, HIT + 0.1)));
+    for (let n = 0; n < 40; n++) { const t0 = T0 + hr(n + 1000) * (HIT - T0), uu = (t - t0) / 0.35; if (uu <= 0 || uu > 1 || t > HIT + 0.2) continue; const yy = mix(HDR - 20, wy, eio(lin(t0, T0, HIT))) + uu * 60, xx = wx + (hr(n + 1050) - 0.5) * 420; g.fillStyle = `rgba(160,220,255,${1 - uu})`; g.fillRect(xx - 1.5, yy, 3, 12); }
+    coreRings(t, wx, wy, T0, T1, HIT); shock(t, wx, wy, [[HIT, 1], [HIT + 0.12, 0.6]]);
+    if (down > 0) sheet(Math.max(wy, hy - 4), 200, gold, down); }
   g.globalCompositeOperation = 'source-over';
-  // 4 · the absorption meter on the wall line, counting the Block Prints
+  // the absorption meter, counting the Block Prints
   const mk = seg(t, HIT, HIT + 0.12) * (1 - seg(t, 5.9, 6.15)); if (mk > 0) { const n = Math.round(2500 * eo(lin(t, HIT, 5.15)) / 50) * 50, mx = CX0D + 18, my = Y(SUP) + 16, mw = 330;
     g.globalAlpha = mk; box(mx, my, mw, 58, 'rgba(10,8,0,0.9)', gold, 7, 2); txt('ABSORBED AT THE WALL', mx + 14, my + 17, '700 14px VWMono', '#C9B27A');
-    txt(n.toLocaleString('en-US'), mx + mw - 14, my + 17, '800 20px VWMono', gold, 'right'); box(mx + 14, my + 36, mw - 28, 10, '#2A2410', null, 5); box(mx + 14, my + 36, (mw - 28) * n / 2500, 10, gold, null, 5);
-    g.globalAlpha = 1; }
-  // 5 · price turns back down: an extruded red arrow riding the price head
-  const dk = seg(t, 5.0, 5.15) * (1 - seg(t, 6.0, 6.3)); if (dk > 0) { const lp = lastPrice(S), ax = X(S.k, S) + 46, ay = Y(lp) + 10, bob = Math.sin(t * 14) * 3;
-    g.save(); g.globalAlpha = dk; g.translate(ax, ay + bob); const sc = 1 + 0.3 * Math.exp(-Math.max(0, t - 5.0) * 8); g.scale(sc, sc);
-    const arrow = () => { g.beginPath(); g.moveTo(-11, -46); g.lineTo(11, -46); g.lineTo(11, -8); g.lineTo(26, -8); g.lineTo(0, 22); g.lineTo(-26, -8); g.lineTo(-11, -8); g.closePath(); };
-    for (let k = 7; k >= 1; k--) { g.save(); g.translate(k * 1.6, -k * 1.2); arrow(); g.fillStyle = k === 7 ? '#3A0A0E' : '#7A1A20'; g.fill(); g.restore(); }
-    arrow(); const gr = g.createLinearGradient(0, -46, 0, 22); gr.addColorStop(0, '#FF8A8F'); gr.addColorStop(1, '#E2575F'); g.fillStyle = gr; g.shadowColor = '#E2575F'; g.shadowBlur = 22; g.fill(); g.restore(); }
+    txt(n.toLocaleString('en-US'), mx + mw - 14, my + 17, '800 20px VWMono', gold, 'right'); box(mx + 14, my + 36, mw - 28, 10, '#2A2410', null, 5); box(mx + 14, my + 36, (mw - 28) * n / 2500, 10, gold, null, 5); g.globalAlpha = 1; }
   g.restore();
 }
 // TradingView side: the move is there, the reason is not
@@ -421,9 +446,7 @@ function crashFx(t, S) {
   g.save(); g.beginPath(); g.rect(x0, HDR, CX1 - x0, y1 - HDR); g.clip();
   const p0 = lastPrice(state(Math.max(0, t - 0.22))), p1 = lastPrice(S), up = p1 > p0, col = up ? (dark ? '#2FB67C' : '#089981') : (dark ? '#E2575F' : '#F23645');
   for (let q = 1; q <= 8; q++) { const Sq = state(Math.max(0, t - q * 0.03)), pq = lastPrice(Sq), x = X(Sq.k, S); g.globalAlpha = 0.55 * (1 - q / 9); g.fillStyle = col; g.fillRect(x - 5, Y(pq) - 3, 10, 6); }
-  if (Math.abs(p1 - p0) > 0.5) { const x = X(S.k, S) + 16, ya = Y(p0), yb = Y(p1), gr = g.createLinearGradient(0, ya, 0, yb); gr.addColorStop(0, VW.rgba(col, 0)); gr.addColorStop(1, VW.rgba(col, 0.95));
-    g.globalAlpha = 1; g.fillStyle = gr; g.fillRect(x, Math.min(ya, yb), 7, Math.abs(yb - ya)); g.beginPath(); const d = up ? -1 : 1;
-    g.moveTo(x - 10, yb - 10 * d); g.lineTo(x + 17, yb - 10 * d); g.lineTo(x + 3.5, yb + 10 * d); g.closePath(); g.fill(); }
+  // Power 31 Oct 16:57: no arrows next to the price
   g.restore();
 }
 function rewindFx(t) {
@@ -450,6 +473,11 @@ function logoAt(a) {
   g.save(); g.globalAlpha = a; g.globalCompositeOperation = 'lighter'; g.drawImage(wm, x, y, w, h); g.globalAlpha = 0.45 * a; g.drawImage(wm, x, y, w, h); g.restore();
 }
 function divX(t) { return t < E.grab ? WIN.x1 : mix(WIN.x1, WIN.x0 - 2, eio(lin(t, E.grab, E.drop))); }
+// window edges (Power 31 Oct 16:57: the borders should show as little as possible, one with the background): ?frame=0 as before · 1 no frame, black background · 2 + edges faded 30 px · 3 + wide fade left and bottom
+const FR = +(new URLSearchParams(location.search).get('frame') || 0);
+function feather([top, right, bot, left]) { const g = VW.g, { x0, x1, y0, y1 } = WIN, f = (ax, ay, bx, by, rx, ry, rw, rh) => { const gr = g.createLinearGradient(ax, ay, bx, by); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(rx, ry, rw, rh); };
+  if (top) f(0, y0 - 1, 0, y0 + top, x0 - 2, y0 - 2, x1 - x0 + 4, top + 2); if (bot) f(0, y1 + 1, 0, y1 - bot, x0 - 2, y1 - bot, x1 - x0 + 4, bot + 2);
+  if (left) f(x0 - 1, 0, x0 + left, 0, x0 - 2, y0 - 2, left + 2, y1 - y0 + 4); if (right) f(x1 + 1, 0, x1 - right, 0, x1 - right, y0 - 2, right + 2, y1 - y0 + 4); }
 function divider(t) {   // Power 31 Oct 16:43: the swipe right to left, accentuated (beam, sparks, light sweep, flash on arrival)
   const a = seg(t, E.handle, E.handle + 0.25) * (1 - seg(t, E.drop, E.drop + 0.25)); const g = VW.g, x = Math.min(divX(t), WIN.x1 - 3), cy = 1060;
   const mv = seg(t, E.grab, E.grab + 0.05) * (1 - seg(t, E.drop - 0.04, E.drop)), H = WIN.y1 - WIN.y0;
@@ -478,17 +506,18 @@ function render(t) { renderAt(t < T_END * K ? t / K : T_END + (t - T_END * K)); 
 function renderAt(t) {
   const g = VW.g, S = state(t); g.save(); g.fillStyle = '#040913'; g.fillRect(0, 0, 1080, 1920);
   setView(t, S);
-  const bg = g.createLinearGradient(0, 0, 0, 1920); bg.addColorStop(0, '#060C1A'); bg.addColorStop(1, '#03060D'); g.fillStyle = bg; g.fillRect(0, 0, 1080, 1920);
+  const bg = g.createLinearGradient(0, 0, 0, 1920); bg.addColorStop(0, FR ? '#000' : '#060C1A'); bg.addColorStop(1, FR ? '#000' : '#03060D'); g.fillStyle = bg; g.fillRect(0, 0, 1080, 1920);
   let c = cursorAt(t); const jt = jitter(t); c = { x: c.x + jt.x, y: c.y + jt.y };
   const cam = camera(t, S); CAM = cam; g.save(); { VW.roundRect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0, 12); g.clip(); } g.translate(cam.x, cam.y); if (cam.s !== 1) { g.translate(cam.fx, cam.fy); g.scale(cam.s, cam.s); g.translate(-cam.fx, -cam.fy); }
-  g.save(); g.shadowColor = 'rgba(0,0,0,0.6)'; g.shadowBlur = 40; box(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0, '#000', null, 12); g.restore();
+  if (!FR) { g.save(); g.shadowColor = 'rgba(0,0,0,0.6)'; g.shadowBlur = 40; box(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0, '#000', null, 12); g.restore(); }
   const dx = divX(t), dragging = t >= E.grab - 0.1 && t < E.drop + 0.1;
   NOCROSS = dragging || (t >= E.handle && Math.abs(c.x - dx) < 40);
   g.save(); VW.roundRect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0, 12); g.clip();
   if (dx > WIN.x0) { g.save(); g.beginPath(); g.rect(WIN.x0, WIN.y0, dx - WIN.x0, WIN.y1 - WIN.y0); g.clip(); drawLight(t, S, c); plainNote(t, S); g.restore(); }
   if (t >= E.grab && dx < WIN.x1) { g.save(); g.beginPath(); g.rect(dx, WIN.y0, WIN.x1 - dx, WIN.y1 - WIN.y0); g.clip(); drawDark(t, S, c); g.restore(); }
   g.restore();
-  box(WIN.x0 + 0.5, WIN.y0 + 0.5, WIN.x1 - WIN.x0 - 1, WIN.y1 - WIN.y0 - 1, null, 'rgba(255,255,255,0.12)', 12);
+  if (!FR) box(WIN.x0 + 0.5, WIN.y0 + 0.5, WIN.x1 - WIN.x0 - 1, WIN.y1 - WIN.y0 - 1, null, 'rgba(255,255,255,0.12)', 12);
+  if (FR >= 2) feather(FR === 2 ? [30, 30, 30, 30] : [0, 24, 110, 70]);
   divider(t);
   const onVol = c.x > dx, x0c = onVol ? CX0D : CX0L;
   const inChart = !NOCROSS && c.x > x0c && c.x < CX1 && c.y > HDR && c.y < LB && !(t >= E.tip - 0.1);

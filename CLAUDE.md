@@ -29,7 +29,7 @@ Questa cartella è il sistema completo per generare i reel Volwick (TikTok, Inst
 
 ## Come si fa un video (flusso fisso)
 1. Brief: chi è il trader, cosa gli manca, quale meccanismo d'attenzione. Tre aperture diverse, voto su chiarezza, attenzione, rilevanza, curiosità, credibilità, legame col prodotto, leggibilità, fattibilità; si produce la migliore.
-2. Hook sempre al primo fotogramma. Struttura preferita: clip dell'archivio agganciato al movimento del grafico (match cut, il soggetto finisce sul punto del grafico che si muove nello stesso verso), poi grafico normale stile TradingView bianco, poi il terminale Volwick con la riga dei layer. Modello: CREATIVE 06B (`scenes/vx_drop2`).
+2. Hook sempre al primo fotogramma (tranne gli edit T1, che non hanno hook). Struttura preferita: clip dell'archivio agganciato al movimento del grafico (match cut, il soggetto finisce sul punto del grafico che si muove nello stesso verso), poi grafico normale stile TradingView bianco, poi il terminale Volwick con la riga dei layer. Modello: CREATIVE 06B (`scenes/vx_drop2`).
 3. Scena: copia la cartella del modello in `00_MOTORE/scenes/<nome_video>`, dati simulati con `gen_data.py` (seed fisso, tick 0,25), mai dati reali.
 4. Fogli di controllo (stills) prima del render: zone sicure, logo, scritte, riga dei layer.
 5. Render a 60 fps, audio, mix in due versioni (con base e MUSIC READY).

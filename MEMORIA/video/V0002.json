@@ -4,10 +4,7 @@
   "nome": "Edit Order Flow",
   "formato": "T1",
   "scena": "00_MOTORE/scenes/v0002_edit_flow",
-  "hook": {
-    "clip": "Ocean Drop.mp4",
-    "tratto": "1.55–3.70 s a 1,13×, prima battuta (1,92 s), push-in sul sasso 1,6×, taglio sul battere"
-  },
+  "hook": null,
   "evento": "edit a 125 BPM: cinque muri, mappa gamma, CVD, block print (2,000 contratti su un prezzo), schede dei layer; rifacimento di CREATIVE 05 con hook, riga dei layer nuova e finale approvato",
   "layer": [
     "WALLS Top 5",
@@ -18,7 +15,6 @@
     "FLOW"
   ],
   "titoli": [
-    "WHERE'S THE FLOOR?",
     "ONE TERMINAL.",
     "TRADE WITH INSTITUTIONAL CONTEXT."
   ],
@@ -27,16 +23,21 @@
   "stato": "da-rivedere",
   "creato": "2026-10-31 02:18",
   "sessione": "chat principale (cloud)",
-  "feedback": [],
+  "feedback": [
+    {
+      "data": "2026-10-31 03:04",
+      "testo": "Power: negli edit (T1) non ha senso inserire gli hook: rifatto senza Ocean Drop, si apre con il logo che si accende"
+    }
+  ],
   "lezioni": [
-    "VX.end senza voce: passare sempre loop0 (per esempio TOTAL − 0,45), altrimenti il finale resta invisibile."
+    "VX.end senza voce: passare sempre loop0 (per esempio TOTAL − 0,45), altrimenti il finale resta invisibile.",
+    "T1 edit: niente clip hook all'inizio; si apre con il logo che si accende e i tagli a tempo."
   ],
   "pubblicazioni": [],
   "aggiornato": "2026-10-31 02:34",
   "versioni": "Drive: 04_ARCHIVIO_VIDEO/V0002_EDIT_ORDER_FLOW/ (1 file)",
-  "caption": "Where's the floor?\n\nDealer Walls, Exposure Maps, CVD, Block Prints, CDI and Options Flow. One terminal, read from the options book and the tape.\n\n$0.99 your first month, then $89/month. Cancel anytime. Offer ends November 27.\n\nSimulated session. Illustrative data. Dealer Walls represent modeled options-derived positioning. For ES/MES, SPX-derived levels use estimated basis mapping. Not investment advice.\n\n#ES #futures #daytrading #trading #orderflow #gamma #volwick",
+  "caption": "Dealer Walls, Exposure Maps, CVD, Block Prints, CDI and Options Flow. One terminal, read from the options book and the tape.\n\n$0.99 your first month, then $89/month. Cancel anytime. Offer ends November 27.\n\nSimulated session. Illustrative data. Dealer Walls represent modeled options-derived positioning. For ES/MES, SPX-derived levels use estimated basis mapping. Not investment advice.\n\n#ES #futures #daytrading #trading #orderflow #gamma #volwick",
   "titolo": "Tutti i layer Volwick a tempo di musica",
-  "video_principale": "V0002_VOLWICK_EDIT_ORDER_FLOW.mp4",
   "data_uscita": "31-10-2026",
   "numero": 1
 }

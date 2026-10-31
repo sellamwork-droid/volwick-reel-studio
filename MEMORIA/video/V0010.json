@@ -1,0 +1,19 @@
+{
+  "id": "V0010",
+  "issue": 10,
+  "nome": "Edit 3D Volwick",
+  "formato": "T1",
+  "scena": "00_MOTORE/scenes/v0010_edit3d",
+  "hook": null,
+  "evento": "edit 3D a tutto schermo: logo che si trasforma, terminale che si forma, muri, carte dei layer",
+  "layer": [],
+  "titoli": [],
+  "durata_s": null,
+  "render": "",
+  "stato": "in-lavorazione",
+  "creato": "2026-10-31 04:08",
+  "sessione": "sellamwork · chat principale · cloud",
+  "feedback": [],
+  "lezioni": [],
+  "pubblicazioni": []
+}

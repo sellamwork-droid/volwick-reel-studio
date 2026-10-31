@@ -116,7 +116,8 @@ def brief():
         if v.get('stato') != 'superato' and hook_di(v): usi[hook_di(v)] = usi.get(hook_di(v), []) + [v['id']]
     try:
         rows = list(csv.DictReader(open(CAT, encoding='utf-8')))
-        buoni = [r for r in rows if not re.match(r'(escluso|non usare|debole|file mancante)', (r.get('stato') or '').strip())]
+        buoni = [r for r in rows if (r.get('stato') or '').strip().startswith(('approvato', 'usato'))]   # studio 31/10: solo gli approvati; le riserve si usano solo se combaciano benissimo
+        print(f"  Riserva (usabili solo se il movimento combacia benissimo): {sum(1 for r in rows if (r.get('stato') or '').startswith('riserva'))} clip, vedi 06_DOCS/HOOK_STUDIO_31OTT.md")
         freschi = [r for r in buoni if r['file'] not in usi]
         print('  Freschi (utilizzabili e mai usati):')
         for r in freschi: print(f"    {r['file']:<44} {r.get('movimento',''):<15} {r.get('evento_mercato','')[:60]}")

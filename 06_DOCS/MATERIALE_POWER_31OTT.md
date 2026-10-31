@@ -10,7 +10,7 @@ Nota: 7731 e 79700 hanno lo stesso peso (995.285 byte), probabilmente sono un do
 Nella stessa cartella 01_EDIT c'è anche `snapgram.io_vumgpryxic1y.mp4` (edit 3D): lo sta già studiando sellamwork per V0010 (cantiere riferimenti).
 Come si studiano: fotogrammi ogni 0,5 s, struttura, tagli e ritmo, transizioni, testi, audio. Una scheda per video in `06_DOCS/RIFERIMENTI/`, più una scheda riassuntiva "tecniche di montaggio" con le idee che si adattano a Volwick (T1 e T4). Registrare in `07_RIFERIMENTI/RIFERIMENTI.csv` con categoria 01_EDIT.
 
-## 2. Banca audio · `02_MUSICA/Banca audio/`
+## 2. Banca audio · `02_MUSICA/Banca audio/` · STUDIATA: `02_AUDIO/BANCA_AUDIO_POWER.md`
 Indicazione di Power: effetti sonori, speech motivazionali, musiche e sottofondi che serviranno in futuro.
 - `Click/` (13 file): click UI, metronomo, click metallici, click con delay (wav, ogg, mp3, da 2 KB a 335 KB). Nomi del tipo `<id>__<autore>__<nome>`: sembrano presi da Freesound, quindi va controllata la licenza di ognuno (CC0 o CC-BY con attribuzione) prima di mixarli.
 - `Swoosh/` (11 file): whoosh di transizione (speedenza 1a, 4d, 5a), swish e swoosh multipli, head-spin, synth whoosh.

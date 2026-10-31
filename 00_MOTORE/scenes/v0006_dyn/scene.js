@@ -18,9 +18,9 @@ const LT_ = { '': { ts: 58, lh: 62, y2: 347, y1: 382, sub: 457, w0: 498, w1: 154
 const WIN = { x0: 96, x1: 940, y0: LT_.w0, y1: LOGO === 'bottom' ? LT_.w1 - 74 : LT_.w1 };   // fills the safe zone (rule 30 Oct 15:44)
 const HDR1 = WIN.y0, HDR = WIN.y0 + 120, LB = WIN.y1 - 98, DB = WIN.y1 - 34, DBS = Math.min(DB, 1516);   // light chart bottom (replay bar under it), dark chart bottom
 const CX0L = 140, CX0D = 96, CX1 = 858;
-const PTOP = 7745.0, PX = LAY ? (DBS - HDR) / 37.3 : 24.0;   // tighter scale: the walls fill the window
+const PTOP0 = 7745.0, PX0 = LAY ? (DBS - HDR) / 37.3 : 24.0; let PTOP = PTOP0, PX = PX0;   // PTOP/PX/SP change with the chart zoom (setView)   // tighter scale: the walls fill the window
 const Y = p => HDR + (PTOP - p) * PX;
-const SP = 12, XR = 790;
+const SP0 = 12, XR = 790; let SP = SP0;
 const T_END = 9.6;
 // V0006 v3 (Power 31 Oct 04:42, voice): faster and more impactful, cut on a 125 BPM grid (beat 0.48 s). Chart time 0 = video 0.96 s (hook = 2 beats).
 // rip up through the line → rejection → fall (light chart) · fast divider · rewind · walls slam in on 8ths · same rip into the call wall, zoom and impact · fall · prints · tooltip · outro.
@@ -135,8 +135,9 @@ function hline(p, col, lw, dash, x0, x1, a = 1, sel = 0) { if (a <= 0) return; c
   if (sel > 0) { g.globalAlpha = a * sel; for (const hx of [x0 + 120, x1 - 120]) { g.fillStyle = '#FFFFFF'; g.strokeStyle = col; g.lineWidth = 2; g.beginPath(); g.arc(hx, y, 6, 0, 7); g.fill(); g.stroke(); } } g.restore(); }
 function axisTag(p, bg, fg, a = 1, font = '600 15px VWSans') { if (a <= 0) return; const g = VW.g, y = Y(p); g.save(); g.globalAlpha = a; box(CX1 + 2, y - 12, WIN.x1 - CX1 - 6, 24, bg, null, 3); txt(fmt(p), (CX1 + WIN.x1) / 2, y + 1, font, fg, 'center'); g.restore(); }
 
+function levels() { const step = PX > 44 ? 1 : PX > 30 ? 2 : 4, bot = PTOP - (DB - HDR) / PX, out = []; for (let p = Math.ceil(bot / step) * step; p <= PTOP; p += step) out.push(p); return out; }
 function candles(S, th, x0, yb) {
-  const g = VW.g, up = th === 'light' ? LT.up : '#2FB67C', dn = th === 'light' ? LT.dn : '#E2575F', w = 8;
+  const g = VW.g, up = th === 'light' ? LT.up : '#2FB67C', dn = th === 'light' ? LT.dn : '#E2575F', w = Math.round(8 * SP / SP0);
   for (let i = 0; i <= S.k; i++) { const b = barAt(i, S); if (!b) continue; const x = Math.round(X(i, S)); if (x < x0 - 6 || x > CX1 + 6) continue;
     const col = b.c >= b.o ? up : dn; g.fillStyle = col; g.fillRect(x - 0.75, Y(b.h), 1.5, Y(b.l) - Y(b.h));
     const y0 = Y(Math.max(b.o, b.c)), y1 = Y(Math.min(b.o, b.c)); g.fillRect(x - w / 2, y0, w, Math.max(1.5, y1 - y0));
@@ -157,7 +158,7 @@ function crosshair(cur, th, x0, y0, y1, a = 1) {
 function drawLight(t, S, cur) {
   const g = VW.g; g.save(); g.beginPath(); g.rect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0); g.clip();
   g.fillStyle = LT.bg; g.fillRect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0);
-  g.fillStyle = LT.grid; for (let p = 7700; p <= 7744; p += 4) g.fillRect(CX0L, Math.round(Y(p)), CX1 - CX0L, 1);
+  g.fillStyle = LT.grid; for (const p of levels()) g.fillRect(CX0L, Math.round(Y(p)), CX1 - CX0L, 1);
   for (let i = 0; i <= 92; i++) if ((10 * 60 + 2 + i) % 15 === 0) { const x = Math.round(X(i, S)); if (x > CX0L && x < CX1) g.fillRect(x, HDR, 1, LB - HDR); }
   g.save(); g.beginPath(); g.rect(CX0L, HDR, CX1 - CX0L, LB - HDR); g.clip(); candles(S, 'light', CX0L, LB);
   // the support the trader drew: selected while the cursor sits on it, flashes once on contact
@@ -166,7 +167,7 @@ function drawLight(t, S, cur) {
   crosshair(cur, 'light', CX0L, HDR, LB);
   g.restore();
   g.fillStyle = LT.bg; g.fillRect(CX1, HDR, WIN.x1 - CX1, (LB + 28) - HDR); g.fillStyle = LT.border; g.fillRect(CX1, HDR, 1, (LB + 28) - HDR);
-  for (let p = 7700; p <= 7744; p += 4) txt(fmt(p), (CX1 + WIN.x1) / 2, Y(p), '600 15px VWSans', LT.axis, 'center');
+  for (const p of levels()) txt(fmt(p), (CX1 + WIN.x1) / 2, Y(p), '600 15px VWSans', LT.axis, 'center');
   axisTag(SUP, LT.line, '#FFFFFF');
   const lp = lastPrice(S), lb = barAt(S.k, S) || BARS[S.k - 1]; axisTag(lp, lp >= lb.o ? LT.up : LT.dn, '#FFFFFF');
   crosshair(cur, 'light', CX0L, HDR, LB);
@@ -293,7 +294,7 @@ function drawDark(t, S, cur) {
   g.restore();
   // price axis
   g.fillStyle = '#000'; g.fillRect(CX1, HDR, WIN.x1 - CX1, WIN.y1 - HDR);
-  g.save(); g.beginPath(); g.rect(CX1, HDR, WIN.x1 - CX1, ybot - HDR); g.clip(); for (let p = 7700; p <= 7744; p += 4) txt(fmt(p), (CX1 + WIN.x1) / 2, Y(p), '500 14px VWMono', DK.axis, 'center');
+  g.save(); g.beginPath(); g.rect(CX1, HDR, WIN.x1 - CX1, ybot - HDR); g.clip(); for (const p of levels()) txt(fmt(p), (CX1 + WIN.x1) / 2, Y(p), '500 14px VWMono', DK.axis, 'center');
   const lp = lastPrice(S); axisTag(lp, '#E9EDF3', '#0B1220', 1, '700 14px VWMono'); crosshair(cur, 'dark', CX0D, HDR, ybot, t > E.tip - 0.1 ? 0 : 1); g.restore();
   timeAxis(S, CX0D, (DB + 16), 'dark'); txt('ET', WIN.x1 - 30, (DB + 16), '500 13px VWMono', DK.lab, 'center');
   tooltip(t, eo(lin(t, E.tip, E.tip + 0.18)));
@@ -327,7 +328,7 @@ function overlay(t) {
   g.restore();
 }
 function disclosure(t) { const g = VW.g, a = 1 - seg(t, T_END - 0.2, T_END); if (a <= 0) return; g.save(); g.globalAlpha = a;
-  const d2 = seg(t, E.grab, E.grab + 0.4), y = HDR + 18, x = (t >= E.grab ? CX0D : CX0L) + 12;
+  const d2 = seg(t, E.grab, E.grab + 0.4), y = HDR + 28, x = (t >= E.grab ? CX0D : CX0L) + 12;
   txt('Illustrative replay. Simulated data.', x, y, '500 14px VWMono', '#8A93A3');
   if (d2 > 0) { g.globalAlpha = a * d2; txt('Dealer Walls: modeled options-derived positioning.', x, y + 18, '500 14px VWMono', '#8A93A3'); } g.restore(); }
 // approved Volwick ending (Absorption V2, confirmed by Power 30 Oct): the price line folds into the V, wordmark,
@@ -351,10 +352,17 @@ function focus(kind, S) { if (kind === 'p') return { x: Math.min(X(S.k, S), 800)
 function camera(t, S) {
   let q = 0; while (q < CAMK.length - 1 && t > CAMK[q + 1][0]) q++;
   const A = CAMK[q], B = CAMK[Math.min(q + 1, CAMK.length - 1)], u = B === A ? 1 : eio(clamp((t - A[0]) / (B[0] - A[0]), 0, 1));
-  const fa = focus(A[2], S), fb = focus(B[2], S), sc = mix(A[1], B[1], u);
   let sx = 0, sy = 0; HITS.forEach(([th, amp]) => { const d = t - th; if (d >= 0 && d < 0.5) { const e = Math.exp(-d * 11) * amp; sx += Math.sin(d * 95) * 9 * e; sy += (Math.cos(d * 77) * 7 + 8) * e; } });
-  // keep the focus point at the same screen spot it had at scale 1, so the zoom pushes into it
-  return { x: sx, y: sy, s: sc, fx: mix(fa.x, fb.x, u), fy: mix(fa.y, fb.y, u) };
+  return { x: sx, y: sy, s: 1, fx: 540, fy: 960 };   // Power 31 Oct 15:58: no image zoom, only shake; the zoom is the chart's own scale (setView)
+}
+// chart zoom like a trading platform (Power 31 Oct 15:58): price scale and bar spacing change, the price axis and the time axis follow, header and axis stay in place
+const MIDY = () => (HDR + DBS) / 2, CENTER0 = PTOP0 - (DBS - HDR) / PX0 / 2;
+function fprice(kind, S) { return kind === 'p' ? lastPrice(S) : kind === 'w' ? WALLS[1].p - 1.5 : CENTER0; }
+function setView(t, S) {
+  let q = 0; while (q < CAMK.length - 1 && t > CAMK[q + 1][0]) q++;
+  const A = CAMK[q], B = CAMK[Math.min(q + 1, CAMK.length - 1)], u = B === A ? 1 : eio(clamp((t - A[0]) / (B[0] - A[0]), 0, 1));
+  const z = mix(A[1], B[1], u), pf = mix(fprice(A[2], S), fprice(B[2], S), u);
+  PX = PX0 * z; SP = SP0 * (1 + (z - 1) * 0.8); PTOP = pf + (MIDY() - HDR) / PX;
 }
 let CAM = { x: 0, y: 0, s: 1, fx: 540, fy: 960 };
 function flashA(t) { let a = 0; [[E.top1, 0.22], [E.top2, 0.26]].forEach(([th, m]) => { const d = t - th; if (d >= 0) a = Math.max(a, m * Math.exp(-d * 14)); }); return a; }
@@ -384,7 +392,7 @@ function wallHit(t) {   // the call wall label grows on the impact
 }
 function wallCallout(t) {   // screen space, above the wall wherever the camera puts it
   const d = t - E.top2; if (d < -0.05 || d > 1.6) return; const g = VW.g, w = WALLS[1], col = VX.WALL[w.fam], a = seg(t, E.top2 - 0.05, E.top2) * (1 - seg(t, E.top2 + 1.3, E.top2 + 1.6));
-  const ys = CAM.fy + (Y(w.p) - CAM.fy) * CAM.s + CAM.y, sc = 1 + 0.35 * Math.exp(-Math.max(0, d) * 8), s = 'CALL WALL · ' + w.usd;
+  const ys = Y(w.p) + CAM.y, sc = 1 + 0.35 * Math.exp(-Math.max(0, d) * 8), s = 'CALL WALL · ' + w.usd;
   g.save(); g.globalAlpha = a; g.font = '800 30px VWMono'; const tw = g.measureText(s).width + 34, cx = 470, cy = Math.max(WIN.y0 + 140, ys - 58); g.translate(cx, cy); g.scale(sc, sc);
   box(-tw / 2, -25, tw, 50, 'rgba(6,20,14,0.94)', col, 9, 2.5); txt(s, 0, 1, '800 30px VWMono', col, 'center'); g.restore();
 }
@@ -407,10 +415,11 @@ function divider(t) {
 // time warp (Power 31 Oct 15:28, his track "Never stop trading", 80 BPM): ?k=0.78125 maps the 125 BPM beat (0.48 s) onto the track's half beat (0.375 s)
 const K = +(new URLSearchParams(location.search).get('k') || 1);
 // terminal bar (Power 31 Oct 15:36: crowded, empty on the right, half the controls unused): ?hdr=1 only the controls the video uses, big · ?hdr=2 the full layer row spread over the whole width, unused ones dimmed
-const HDRV = +(new URLSearchParams(location.search).get('hdr') || 0);
+const HDRV = +(new URLSearchParams(location.search).get('hdr') || 2);   // Power 31 Oct 15:58: bar 2 chosen
 function render(t) { renderAt(t < T_END * K ? t / K : T_END + (t - T_END * K)); }
 function renderAt(t) {
   const g = VW.g, S = state(t); g.save(); g.fillStyle = '#040913'; g.fillRect(0, 0, 1080, 1920);
+  setView(t, S);
   const bg = g.createLinearGradient(0, 0, 0, 1920); bg.addColorStop(0, '#060C1A'); bg.addColorStop(1, '#03060D'); g.fillStyle = bg; g.fillRect(0, 0, 1080, 1920);
   let c = cursorAt(t); const jt = jitter(t); c = { x: c.x + jt.x, y: c.y + jt.y };
   const cam = camera(t, S); CAM = cam; g.save(); { VW.roundRect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0, 12); g.clip(); } g.translate(cam.x, cam.y); if (cam.s !== 1) { g.translate(cam.fx, cam.fy); g.scale(cam.s, cam.s); g.translate(-cam.fx, -cam.fy); }

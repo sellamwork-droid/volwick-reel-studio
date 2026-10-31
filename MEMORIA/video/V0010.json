@@ -18,11 +18,13 @@
     "DEALER WALLS",
     "BLOCK PRINTS",
     "CVD",
-    "SPX 7,730 → ES 7,768.25 · Call wall · long γ · Net +$22.4M"
+    "LONG 2 ES @ 7,756.25",
+    "STOP 7,752.50 · RISK −$375",
+    "+$1,200 · CALL WALL · LONG γ"
   ],
-  "durata_s": 12.45,
+  "durata_s": 17.9,
   "render": "Drive: 01_VIDEO/01_EDIT/03 Edit 3D il terminale Volwick che si forma (31-10-2026).mp4",
-  "stato": "da-rifare",
+  "stato": "da-rivedere",
   "creato": "2026-10-31 04:08",
   "sessione": "sellamwork · chat principale · cloud",
   "feedback": [
@@ -41,11 +43,11 @@
     "Il tasto e la casella di BLOCK PRINTS sono dorati (oro #F2C14E), ovunque: riga dei layer, carte, titoli."
   ],
   "pubblicazioni": [],
-  "audio": "brano del video di riferimento (primo test, da scegliere in app per la pubblicazione)",
-  "aggiornato": "2026-10-31 05:23",
+  "audio": "brano del video di riferimento allungato di due battute (primo test, da decidere se in app)",
+  "aggiornato": "2026-10-31 05:41",
   "titolo": "Edit 3D il terminale Volwick che si forma",
   "numero": 3,
   "data_uscita": "31-10-2026",
-  "caption": "Dealer Walls, Block Prints and CVD switching on one by one on the same ES session.\nPrice runs into the call wall: SPX 7,730 → ES 7,768.25, call wall, long gamma, Net +$22.4M.\nDiscover Volwick, link in bio.\nSimulated data. Not investment advice.\n#ES #futures #daytrading #gamma #orderflow #volwick",
+  "caption": "Dealer Walls, Block Prints and CVD on the same ES session.\nPrice comes down into a Block Prints level (7,756.25, 1,042 contracts in 3 blocks), 2 ES go long with the stop under it (risk −$375), price runs into the call wall at 7,768.25 (long gamma, Net +$22.4M): +$1,200.\nDiscover Volwick, link in bio.\nSimulated data. Hypothetical results. Not investment advice.\nCFTC Rule 4.41: hypothetical or simulated performance results have certain limitations. Unlike an actual performance record, simulated results do not represent actual trading. Also, since the trades have not been executed, the results may have under- or over-compensated for the impact, if any, of certain market factors, such as lack of liquidity. Simulated trading programs in general are also subject to the fact that they are designed with the benefit of hindsight. No representation is being made that any account will or is likely to achieve profit or losses similar to those shown.\n#ES #futures #daytrading #gamma #orderflow #volwick",
   "versioni": "Drive: 04_ARCHIVIO_VIDEO/V0010_EDIT_3D_VOLWICK/ (1 file)"
 }

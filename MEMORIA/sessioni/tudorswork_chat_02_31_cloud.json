@@ -2,6 +2,7 @@
   "chi": "tudorswork · chat 02:31 · cloud",
   "inizio": "2026-10-31T01:44+00:00",
   "storia": [
+    "31/10 03:29 V0006: tre prove di transizione hook → grafico (crollo accentuato)",
     "31/10 03:27 V0006 tre prove audio inviate a Power (A base unica, B solo hook, C dissolvenza), attendo la scelta",
     "31/10 03:24 giudizio di Power sull'audio dell'hook: prove audio V0006",
     "31/10 03:14 V0006 e V0007 consegnati in chat (PC scollegato, Drive da caricare), in attesa del giudizio di Power",
@@ -13,9 +14,9 @@
     "31/10 02:47 catalogo 245 hook nuovi e 25 Spunti da 00_CARICA_QUI (non prenderli in carico)",
     "31/10 02:44 inizio sessione, sistema di presenza attivo"
   ],
-  "ultimo": "2026-10-31T02:27+00:00",
+  "ultimo": "2026-10-31T02:29+00:00",
   "stato": "attiva",
-  "cosa": "V0006 tre prove audio inviate a Power (A base unica, B solo hook, C dissolvenza), attendo la scelta",
+  "cosa": "V0006: tre prove di transizione hook → grafico (crollo accentuato)",
   "computer": "vm",
   "video": "V0006"
 }

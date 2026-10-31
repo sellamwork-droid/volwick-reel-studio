@@ -2,6 +2,7 @@
   "chi": "sellamwork · chat principale · cloud",
   "inizio": "2026-10-31T02:08+00:00",
   "storia": [
+    "31/10 17:25 consegnato V0010 su Drive, da rivedere",
     "31/10 16:58 V0010 v6: render 4K in corso",
     "31/10 16:48 V0010 v5 consegnato su Drive (01_EDIT/03, v4 in archivio), attendo il giudizio di Power",
     "31/10 16:48 consegnato V0010 su Drive, da rivedere",
@@ -15,12 +16,11 @@
     "31/10 05:23 V0010 v3: intro più pulita, Block Prints oro, carosello più lungo, trade 3D con guadagno",
     "31/10 04:49 V0010 v2 consegnato su Drive (01_EDIT/03, v1 in archivio), attendo il giudizio di Power",
     "31/10 04:49 consegnato V0010 su Drive, da rivedere",
-    "31/10 04:45 V0010 v2: render in corso (intro con linee 3D, riga dei layer, carosello dei layer, salita 3D, finale 3D)",
-    "31/10 04:37 V0010 v2: rifaccio intro, carte, sfondo stellato, finale 3D (giudizio di Power 04:37)"
+    "31/10 04:45 V0010 v2: render in corso (intro con linee 3D, riga dei layer, carosello dei layer, salita 3D, finale 3D)"
   ],
-  "ultimo": "2026-10-31T15:58+00:00",
+  "ultimo": "2026-10-31T16:25+00:00",
   "stato": "attiva",
-  "cosa": "V0010 v6: render 4K in corso",
+  "cosa": "consegnato V0010 su Drive, da rivedere",
   "computer": "vm",
   "video": "V0010"
 }

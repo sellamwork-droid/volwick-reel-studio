@@ -70,11 +70,19 @@ Prima di salvare un file che altri possono aver cambiato, rileggilo e aggiungi s
 ## Lavorare in squadra (più computer, più Claude, in contemporanea)
 Questo repository è il cervello comune. Ogni Claude su ogni computer lavora sulla stessa memoria: quello che impara uno, lo sanno tutti al `git pull` successivo.
 
+### Presenza: sapere sempre chi lavora e cosa genera (regola fissa di Power, 31 ottobre)
+Lavorano insieme account Claude diversi, chat diverse dello stesso account e il Terminale sui computer. Ognuno si fa vedere dagli altri:
+- **Nome di sessione** alla prima presenza, sempre nella forma `<account> · <chat o computer> · <cloud o Terminale>`, per esempio `tudorswork · chat 02:31 · cloud` o `sellamwork · Mac · Terminale`. Resta salvato sul computer o nel cloud della chat.
+- `python3 00_MOTORE/tools/studio.py presenza "cosa sto facendo" --video V0012 [--chi "<nome di sessione>"]` a ogni passo: inizio, scheda presa, scena, render, mix, consegna, attesa del giudizio. Scrive `MEMORIA/sessioni/<nome>.json` e fa pull, commit e push da solo (un file per sessione, niente conflitti). `nuovo` e `consegna` la aggiornano da soli.
+- `studio.py chi` (e la sezione 0 del brief): chi è ATTIVO (segnale negli ultimi 45 minuti), su quale video e cosa sta facendo. Prima di prendere una scheda, guarda `chi`: un video di una sessione attiva non si tocca.
+- **Memoria sempre aggiornata:** `git pull --rebase` (o `studio.py sync`) prima di ogni passo e prima di rispondere a Power su stato, coda o giudizi; `studio.py sync "messaggio"` subito dopo ogni cosa nuova (giudizio, lezione, regola, hook, scheda). Il brief fa il pull da solo.
+- A fine lavoro `studio.py fine`. Una sessione senza segnale da più di 45 minuti risulta ferma: la sua scheda in lavorazione si riprende solo dopo averlo chiesto a Power.
+
 ### Inizio di ogni sessione (sempre, senza eccezioni)
-1. `git pull --rebase`
+1. `git pull --rebase`, poi `python3 00_MOTORE/tools/studio.py presenza "inizio sessione" --chi "<nome di sessione>"`
 2. `python3 00_MOTORE/tools/studio.py brief`: regole più recenti, storico dei video con il feedback di Power, lezioni da applicare, hook freschi e già usati, ultime modifiche al motore, coda dei lavori, materiale caricato dal team (lo prende in carico da solo: poi fai commit e push).
 3. Leggi `REGOLE/PREFERENZE_E_FORMATI.md` per intero (la regola più recente vince) e la scheda JSON del video modello (`MEMORIA/video/CREATIVE06B.json`).
-4. Scrivi a chi ti sta usando un riassunto in italiano di poche righe: video in coda, ultimi giudizi di Power, materiale nuovo arrivato, cosa proponi di fare. Poi aspetta o prendi la scheda più vecchia se ti chiede di procedere.
+4. Scrivi a chi ti sta usando un riassunto in italiano di poche righe: chi altro sta lavorando adesso e su cosa, video in coda, ultimi giudizi di Power, materiale nuovo arrivato, cosa proponi di fare. Poi aspetta o prendi la scheda più vecchia se ti chiede di procedere.
 
 ### Google Drive: cartella condivisa "VOLWICK REEL STUDIO"
 Su ogni computer gira Google Drive per desktop con la cartella condivisa aggiunta a "Il mio Drive". Prima volta su un computer: `python3 00_MOTORE/tools/studio.py drive` (la trova da solo, crea la struttura; se non la trova, passale il percorso). Struttura, gestita solo dagli script:
@@ -126,7 +134,7 @@ Ogni volta che Power dà un giudizio o una correzione, in chat o come commento a
 2. **Lezione:** se la correzione vale anche per i video futuri, `studio.py aggiorna V0012 lezione="..."`, scritta come regola pratica che un altro Claude può applicare senza contesto.
 3. **Regola:** se è un'indicazione generale di Power, aggiungi la riga datata in cima al registro di `REGOLE/PREFERENZE_E_FORMATI.md` e correggi la sezione relativa (la vecchia regola che contraddice si cancella).
 4. **Motore:** se la correzione si risolve meglio nel motore (finale, riga dei layer, colori, zone sicure), pull request sul motore così vale per tutti i video successivi.
-5. **Push subito.** Gli altri Claude la ricevono al loro prossimo `git pull`.
+5. **Push subito** con `studio.py sync "giudizio V0012"`. Gli altri Claude la ricevono al loro prossimo `git pull`.
 Un video `superato` resta nello storico: serve a non ripetere l'errore.
 
 ### Conflitti

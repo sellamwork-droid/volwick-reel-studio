@@ -8,6 +8,12 @@ Dalla cartella principale del repository:
   python3 00_MOTORE/tools/studio.py aggiorna V0012 stato=da-rivedere render="04_RENDER/V0012_THE_DROP_3" durata_s=21.4
   python3 00_MOTORE/tools/studio.py aggiorna V0012 feedback="Power: hook troppo lento" lezione="match cut sotto 1,4 s"
   python3 00_MOTORE/tools/studio.py controlla                   controlli prima di ogni push (li ripete anche GitHub a ogni push)
+Lavoro in contemporanea (più account, più chat, più computer):
+  python3 00_MOTORE/tools/studio.py presenza "cosa sto facendo" [--video V0012] [--chi "account B · chat 2 · cloud"]
+                                                                 dice a tutti chi sei e cosa stai facendo; pull, commit e push da solo. --chi si dà la prima volta
+  python3 00_MOTORE/tools/studio.py chi                         chi sta lavorando adesso e su cosa (attivo = segnale negli ultimi 45 minuti)
+  python3 00_MOTORE/tools/studio.py sync ["messaggio"]          git pull --rebase, commit di MEMORIA, REGOLE, 01_HOOK, 02_AUDIO, 06_DOCS, 07_RIFERIMENTI e push
+  python3 00_MOTORE/tools/studio.py fine                        chiude la tua sessione (la vedono tutti come chiusa)
 Google Drive (cartella condivisa "VOLWICK REEL STUDIO", sincronizzata da Google Drive per desktop):
   python3 00_MOTORE/tools/studio.py drive ["/percorso/VOLWICK REEL STUDIO"]   trova o imposta la cartella e crea la struttura (una volta per computer)
   python3 00_MOTORE/tools/studio.py arrivi                      prende quello che è stato caricato in 00_CARICA_QUI (video hook, musica, video consigliati per categoria) e lo cataloga
@@ -51,6 +57,9 @@ LIB_MUS, LIB_CONS = '02_LIBRERIA/02_MUSICA', '02_LIBRERIA/03_VIDEO_CONSIGLIATI'
 DRIVE_DIRS = [IN_HOOK, IN_MUS] + [f'{IN_CONS}/{c}' for c, _ in CATEGORIE] + ['01_VIDEO'] + [f'01_VIDEO/{c}' for _, c, _ in TIPI] + [LIB_MUS] + [f'{LIB_CONS}/{c}' for c, _ in CATEGORIE] + ['03_ARCHIVIO_CARICAMENTI', '04_ARCHIVIO_VIDEO']
 VIDEO_EXT = ('.mp4', '.mov', '.m4v', '.webm', '.mkv')
 AUDIO_EXT = ('.mp3', '.wav', '.m4a', '.aac', '.flac', '.aiff')
+SESS = os.path.join(ROOT, 'MEMORIA', 'sessioni')
+ME = os.path.expanduser('~/.volwick_sessione.json')
+ATTIVA_MIN = 45
 ENGINE = ['00_MOTORE/engine', '00_MOTORE/scenes/vx_common', '00_MOTORE/vx', '00_MOTORE/tools']
 
 
@@ -75,9 +84,12 @@ def hook_di(v):
 
 
 def brief():
-    print('=' * 70); print('VOLWICK REEL STUDIO · brief', now()); print('=' * 70)
+    print('=' * 70); print('VOLWICK REEL STUDIO · brief', ora_it()); print('=' * 70)
+    git_pull()
     sh('git', 'fetch', '-q'); st = sh('git', 'status', '-sb').splitlines()
     if st and 'behind' in st[0]: print('\n!! Il tuo repository è indietro: fai `git pull --rebase` prima di lavorare.  ', st[0])
+    print('\n0. CHI STA LAVORANDO ADESSO (MEMORIA/sessioni, segnale negli ultimi %d minuti)' % ATTIVA_MIN)
+    chi(rientro='  ')
     # 1. regole recenti
     print('\n1. REGOLE PIÙ RECENTI (la più recente vince; il file completo va letto comunque)')
     try:
@@ -147,6 +159,7 @@ def nuovo(a):
          'layer': [], 'titoli': [], 'durata_s': None, 'render': '', 'stato': 'in-lavorazione', 'creato': now(),
          'sessione': os.environ.get('VW_SESSIONE') or socket.gethostname(), 'feedback': [], 'lezioni': [], 'pubblicazioni': []}
     salva(v); print('creato', os.path.relpath(path(i), ROOT))
+    if io().get('chi'): presenza([f"preso {i} {v['nome']} ({v['formato']})", '--video', i])
 
 
 def aggiorna(a):
@@ -399,7 +412,82 @@ def consegna(a):
         sh('gh', 'api', f'repos/{{owner}}/{{repo}}/issues/{n}/comments', '-f', f"body=Consegnato: **{v['render']}** ({len(files)} file). Da rivedere.")
         sh('gh', 'api', '-X', 'DELETE', f'repos/{{owner}}/{{repo}}/issues/{n}/labels/in-lavorazione')
         sh('gh', 'api', f'repos/{{owner}}/{{repo}}/issues/{n}/labels', '-f', 'labels[]=da-rivedere')
-    print('consegnato in', out, '\nOra: commit e push di MEMORIA/video/' + i + '.json')
+    print('consegnato in', out)
+    if io().get('chi'): presenza([f"consegnato {i} su Drive, da rivedere", '--video', i])
+    sync([f'consegna {i}'])
+
+
+# ---------- lavoro in contemporanea ----------
+def utc(): return dt.datetime.now(dt.timezone.utc)
+def ora_it(t=None):
+    t = t or utc()
+    try:
+        from zoneinfo import ZoneInfo; t = t.astimezone(ZoneInfo('Europe/Rome'))
+    except Exception: pass
+    return t.strftime('%d/%m %H:%M')
+def git(*a, timeout=120):
+    try: r = subprocess.run(('git',) + a, cwd=ROOT, capture_output=True, text=True, timeout=timeout); return r.returncode, (r.stdout + r.stderr).strip()
+    except Exception as e: return 1, str(e)
+def git_pull():
+    c, o = git('pull', '--rebase', '--autostash', '-q')
+    if c: print('!! git pull non riuscito:', o[:300])
+    return c == 0
+def git_sync(msg, percorsi):
+    """pull, commit dei percorsi indicati, push; un secondo tentativo se un altro Claude ha appena fatto push."""
+    git_pull()
+    git('add', '--', *[p for p in percorsi if os.path.exists(os.path.join(ROOT, p))])
+    if git('diff', '--cached', '--quiet')[0] == 0: print('niente da salvare'); return True
+    git('commit', '-q', '-m', msg)
+    for _ in range(3):
+        c, o = git('push', '-q')
+        if c == 0: print('salvato su GitHub:', msg); return True
+        git_pull()
+    print('!! push non riuscito:', o[:300]); return False
+def io():
+    try: return json.load(open(ME, encoding='utf-8'))
+    except Exception: return {}
+def sess_path(m): return os.path.join(SESS, slug(m['chi']).lower() + '.json')
+def presenza(a):
+    m = io()
+    if '--chi' in a: m = {'chi': a[a.index('--chi') + 1], 'inizio': utc().isoformat(timespec='minutes')}
+    if not m.get('chi'):
+        m = {'chi': os.environ.get('VW_SESSIONE') or socket.gethostname(), 'inizio': utc().isoformat(timespec='minutes')}
+    json.dump(m, open(ME, 'w', encoding='utf-8'), ensure_ascii=False)
+    video = a[a.index('--video') + 1] if '--video' in a else None
+    cosa = next((x for i, x in enumerate(a) if not x.startswith('--') and (i == 0 or a[i - 1] not in ('--chi', '--video'))), None)
+    git_pull()
+    os.makedirs(SESS, exist_ok=True); p = sess_path(m)
+    try: s = json.load(open(p, encoding='utf-8'))
+    except Exception: s = {'chi': m['chi'], 'inizio': m['inizio'], 'storia': []}
+    s['ultimo'] = utc().isoformat(timespec='minutes'); s['stato'] = 'attiva'
+    if cosa: s['cosa'] = cosa; s['storia'] = ([f"{ora_it()} {cosa}"] + s.get('storia', []))[:15]
+    if video: s['video'] = video
+    s['computer'] = socket.gethostname()
+    with open(p, 'w', encoding='utf-8') as f: json.dump(s, f, ensure_ascii=False, indent=2); f.write('\n')
+    git_sync(f"presenza · {m['chi']} · {cosa or 'attiva'}", [os.path.relpath(p, ROOT)])
+def fine(a=None):
+    m = io(); p = sess_path(m) if m.get('chi') else None
+    if not p or not os.path.exists(p): print('nessuna sessione aperta da questo computer'); return
+    git_pull(); s = json.load(open(p, encoding='utf-8')); s['stato'] = 'chiusa'; s['ultimo'] = utc().isoformat(timespec='minutes')
+    with open(p, 'w', encoding='utf-8') as f: json.dump(s, f, ensure_ascii=False, indent=2); f.write('\n')
+    git_sync(f"presenza · {m['chi']} · chiusa", [os.path.relpath(p, ROOT)])
+def chi(rientro=''):
+    S = []
+    for n in sorted(glob.glob(os.path.join(SESS, '*.json'))):
+        try: S.append(json.load(open(n, encoding='utf-8')))
+        except Exception: pass
+    if not S: print(rientro + 'nessuna sessione registrata'); return
+    me = io().get('chi')
+    for s in sorted(S, key=lambda s: s.get('ultimo', ''), reverse=True):
+        try: t = dt.datetime.fromisoformat(s['ultimo']); età = int((utc() - t).total_seconds() // 60)
+        except Exception: t, età = None, 99999
+        if s.get('stato') == 'chiusa' or età > 24 * 60: continue
+        st = 'ATTIVA ' if s.get('stato') == 'attiva' and età <= ATTIVA_MIN else 'ferma  '
+        tu = ' (tu)' if s.get('chi') == me else ''
+        print(f"{rientro}{st} {s.get('chi','?')}{tu} · {s.get('video') or '-'} · {s.get('cosa','')[:90]} · ultimo segnale {ora_it(t) if t else '?'} ({età} min fa)")
+SYNC = ['MEMORIA', 'REGOLE', '01_HOOK/CATALOGO_HOOK.csv', '01_HOOK/_schede', '02_AUDIO', '06_DOCS', '07_RIFERIMENTI', '05_PUBBLICATI']
+def sync(a):
+    git_sync(a[0] if a else f"memoria · {io().get('chi') or socket.gethostname()}", SYNC)
 
 
 def indice():
@@ -418,4 +506,5 @@ if __name__ == '__main__':
     c = sys.argv[1] if len(sys.argv) > 1 else 'brief'
     {'brief': lambda: brief(), 'nuovo': lambda: nuovo(sys.argv[2:]), 'aggiorna': lambda: aggiorna(sys.argv[2:]),
      'controlla': lambda: controlla(), 'drive': lambda: drive(sys.argv[2:]), 'arrivi': lambda: arrivi(),
-     'consegna': lambda: consegna(sys.argv[2:]), 'indice': lambda: indice()}.get(c, lambda: print(__doc__))()
+     'consegna': lambda: consegna(sys.argv[2:]), 'indice': lambda: indice(),
+     'presenza': lambda: presenza(sys.argv[2:]), 'chi': lambda: chi(), 'fine': lambda: fine(), 'sync': lambda: sync(sys.argv[2:])}.get(c, lambda: print(__doc__))()

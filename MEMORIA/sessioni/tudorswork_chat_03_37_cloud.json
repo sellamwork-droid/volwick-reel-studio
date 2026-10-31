@@ -2,13 +2,14 @@
   "chi": "tudorswork · chat 03:37 · cloud",
   "inizio": "2026-10-31T02:38+00:00",
   "storia": [
+    "31/10 03:58 V0003: render delle tre prove 3D",
     "31/10 03:56 V0003: tre prove 3D (richiesta di Power)",
     "31/10 03:52 V0003: triangoli che coprono RANGE e voce più dinamica (richiesta di Power)",
     "31/10 03:38 inizio sessione: rivedo V0002 Edit Order Flow con Power"
   ],
-  "ultimo": "2026-10-31T02:56+00:00",
+  "ultimo": "2026-10-31T02:58+00:00",
   "stato": "attiva",
-  "cosa": "V0003: tre prove 3D (richiesta di Power)",
+  "cosa": "V0003: render delle tre prove 3D",
   "video": "V0003",
   "computer": "vm"
 }

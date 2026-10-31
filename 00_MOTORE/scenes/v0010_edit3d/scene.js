@@ -8,7 +8,7 @@
 import * as THREE from './lib/three.module.min.js';
 const { lin, eo, eio, mix, clamp } = VW;
 const T = { form: 1.22, mono: 1.37, wm: 1.45, wmOut: 1.80, unfold: 1.98, bar: 2.12, barEnd: 2.79, term: 2.79, aW: 2.79, aB: 3.48, aC: 4.18,
-  push: 4.95, box: 5.25, tip: 5.62, wide: 5.95, cards: 6.27, c1: 6.99, c2: 7.66, rise: 8.0, wall: 8.86, end: 9.08, loop0: 12.0, total: 12.45 };
+  push: 4.95, box: 5.25, tip: 5.62, wide: 5.95, cards: 6.27, steps: [6.97, 7.66, 8.36, 9.06, 9.75, 10.45], rise: 10.78, entry: 11.82, wall: 14.40, end: 14.63, loop0: 17.45, total: 17.90 };
 const W = 1080, H = 1920;
 // ---------- simulated session (fixed seed, tick 0.25) ----------
 const P0 = 7731, PPX = 17, CY0 = 1300, PY = p => CY0 - (p - P0) * PPX;
@@ -29,7 +29,7 @@ function genBars() {
     const h = q(Math.max(o, c) + r() * 1.4), l = q(Math.min(o, c) - r() * 1.4), v = 0.25 + r() * 0.75 + (i > 100 ? 0.4 : 0);
     BARS.push({ o, h, l, c, v }); prev = c; cv += (c - o) * v * 1.6 + (r() - 0.5) * 0.8; CVD.push(cv);
   }
-  BARS[107].h = 7768.0; BARS[37].l = 7735.5;
+  BARS[107].h = 7768.25; BARS[37].l = 7735.5;
   PRINTS.forEach(pr => { const b = BARS[pr.i]; b.l = Math.min(b.l, pr.p); b.h = Math.max(b.h, pr.p); });
 }
 // ---------- 2D helpers ----------
@@ -60,11 +60,11 @@ function drawTerminal(g, s) {   // s: {on:{W,B,C}, pulse:{W,B,C}, walls[], star,
       txt(g, '·  ES  ·  1m', h.x + ww + 18, h.y + 1, '600 28px VWMono', '#97A3B3'); }
     else if (h.kind === 'label') txt(g, h.s, h.x, h.y, '600 20px VWMono', '#5E6B80');
     else { const k = h.key ? (s.on[h.key] || 0) : 0, pu = h.key ? (s.pulse[h.key] || 0) : 0;
-      rr(g, h.x, h.y - 22, h.w, 44, 10); g.fillStyle = `rgba(47,107,255,${0.05 + 0.3 * k})`; g.fill();
-      if (k > 0) { g.shadowColor = 'rgba(90,140,255,0.9)'; g.shadowBlur = 10 + 30 * pu; }
-      g.strokeStyle = `rgba(${mix(150, 120, k)},${mix(170, 165, k)},${mix(210, 255, k)},${0.22 + 0.7 * k})`; g.lineWidth = 1.5 + 1.5 * pu; g.stroke(); g.shadowBlur = 0;
-      txt(g, h.s, h.x + 13, h.y + 1, '600 26px VWMono', k > 0.5 ? '#ECEFF4' : '#97A3B3');
-      if (pu > 0.02) { g.globalAlpha = pu; rr(g, h.x - 10 * (1 - pu) - 4, h.y - 26 - 10 * (1 - pu), h.w + 8 + 20 * (1 - pu), 52 + 20 * (1 - pu), 14); g.strokeStyle = '#8AB6FF'; g.lineWidth = 2; g.stroke(); } }
+      const gd = h.key === 'B'; rr(g, h.x, h.y - 22, h.w, 44, 10); g.fillStyle = gd ? `rgba(242,193,78,${0.08 + 0.28 * k})` : `rgba(47,107,255,${0.05 + 0.3 * k})`; g.fill();
+      if (k > 0) { g.shadowColor = gd ? 'rgba(242,193,78,0.9)' : 'rgba(90,140,255,0.9)'; g.shadowBlur = 10 + 30 * pu; }
+      g.strokeStyle = gd ? `rgba(242,193,78,${0.55 + 0.45 * k})` : `rgba(${mix(150, 120, k)},${mix(170, 165, k)},${mix(210, 255, k)},${0.22 + 0.7 * k})`; g.lineWidth = 1.5 + 1.5 * pu; g.stroke(); g.shadowBlur = 0;
+      txt(g, h.s, h.x + 13, h.y + 1, '600 26px VWMono', gd ? (k > 0.5 ? '#FFE7A6' : '#F2C14E') : (k > 0.5 ? '#ECEFF4' : '#97A3B3'));
+      if (pu > 0.02) { g.globalAlpha = pu; rr(g, h.x - 10 * (1 - pu) - 4, h.y - 26 - 10 * (1 - pu), h.w + 8 + 20 * (1 - pu), 52 + 20 * (1 - pu), 14); g.strokeStyle = h.key === 'B' ? '#F2C14E' : '#8AB6FF'; g.lineWidth = 2; g.stroke(); } }
     g.restore(); });
   g.fillStyle = 'rgba(140,170,230,0.18)'; g.fillRect(0, 452, W, 1.5);
   // grid
@@ -128,7 +128,7 @@ function drawBar(g, u) {   // u = how far the drawing line has gone (0..1)
     else if (p.kind === 't') txt(g, p.s, p.x, y + 2, p.f, '#97A3B3');
     else if (p.kind === 'lab') txt(g, p.s, p.x, y + 2, p.f, '#5E6B80');
     else if (p.kind === 'sep') { g.fillStyle = 'rgba(140,170,230,0.3)'; g.fillRect(p.x, 34, 2, BH - 68); }
-    else { rr(g, p.x, y - 32, p.w, 64, 14); g.fillStyle = 'rgba(255,255,255,0.05)'; g.fill(); g.strokeStyle = 'rgba(150,180,240,0.55)'; g.lineWidth = 2; g.stroke(); txt(g, p.s, p.x + 17, y + 2, p.f, '#C9D3E3'); }
+    else { const gd = p.s === 'BLOCK PRINTS'; rr(g, p.x, y - 32, p.w, 64, 14); g.fillStyle = gd ? 'rgba(242,193,78,0.14)' : 'rgba(255,255,255,0.05)'; g.fill(); g.strokeStyle = gd ? 'rgba(242,193,78,0.95)' : 'rgba(150,180,240,0.55)'; g.lineWidth = 2; g.stroke(); txt(g, p.s, p.x + 17, y + 2, p.f, gd ? '#F2C14E' : '#C9D3E3'); }
     g.restore(); });
 }
 // ---------- layer panels (carousel) ----------
@@ -233,6 +233,14 @@ function space(g, t, glowA = 0.14) { const bg = g.createLinearGradient(0, 0, 0, 
 function strands(g, t0, t1, t, cx, cy, s, cam, opt = {}) {
   const m = lin(t, t0, t1); if (m <= 0) return; g.save(); g.globalCompositeOperation = 'lighter'; g.lineJoin = 'round'; g.lineCap = 'round';
   const fade = opt.fade ?? 1, from = opt.from;
+  if (opt.pen) { CONT.forEach((cn, ci) => { const n = cn.length, mm = clamp((m - ci * 0.18) / (1 - ci * 0.18), 0, 1), upto = Math.floor(mm * (n - 1));
+      if (upto < 1) return;
+      [[-22, 'rgba(90,140,255,', 2, 0.55], [0, 'rgba(240,245,255,', 2.6, 1], [22, 'rgba(90,140,255,', 2, 0.55]].forEach(([z, c, lw, al]) => {
+        const pts = []; for (let i = 0; i <= upto; i++) { const [u, v] = cn[i]; pts.push(proj(new THREE.Vector3(cx + (u - 0.5) * s, cy - (v - 0.5) * s, z), cam)); }
+        g.strokeStyle = c + (al * fade) + ')'; g.lineWidth = lw; g.shadowColor = '#5A8CFF'; g.shadowBlur = 16; g.beginPath(); pts.forEach((q, i) => g[i ? 'lineTo' : 'moveTo'](q[0], q[1])); g.stroke(); });
+      if (mm < 1) { const [u, v] = cn[upto], h = proj(new THREE.Vector3(cx + (u - 0.5) * s, cy - (v - 0.5) * s, 0), cam), gr = g.createRadialGradient(h[0], h[1], 0, h[0], h[1], 40);
+        gr.addColorStop(0, `rgba(255,255,255,${fade})`); gr.addColorStop(0.3, `rgba(140,180,255,${0.6 * fade})`); gr.addColorStop(1, 'rgba(47,107,255,0)'); g.fillStyle = gr; g.fillRect(h[0] - 40, h[1] - 40, 80, 80); } });
+    g.restore(); return; }
   CONT.forEach((cn, ci) => { const n = cn.length;
     for (let L = 0; L < 4; L++) { const zoff = (L - 1.5) * 26, sc = 1 + (L - 1.5) * 0.012, delay = L * 0.06 + ci * 0.12;
       const pts = []; for (let i = 0; i < n; i++) { const d = clamp((m - delay) * 1.7 - (i / n) * 0.6, 0, 1); if (d <= 0) continue; const k = eio(d), [u, v] = cn[i];
@@ -247,8 +255,8 @@ function strands(g, t0, t1, t, cx, cy, s, cam, opt = {}) {
 // ---------- sections ----------
 function secLogo(g, t) {   // 0 → 2.12: lines draw the V in 3D, wordmark arrives and leaves, the V folds into a line
   space(g, t, 0.10 + 0.12 * eo(lin(t, 0.6, T.mono)));
-  const a = mix(0.85, 0, eio(lin(t, 0, T.mono))), cy = 120;
-  setCam(CAM, Math.sin(a) * D * 0.9, cy + 260 * (1 - eo(lin(t, 0, T.mono))), Math.cos(a) * D * 0.9 + D * 0.1, 0, cy, 0, -0.12 * (1 - lin(t, 0, T.mono)));
+  const a = mix(0.32, 0, eio(lin(t, 0, T.mono + 0.3))), cy = 120;
+  setCam(CAM, Math.sin(a) * D * 0.9, cy + 90 * (1 - eo(lin(t, 0, T.mono + 0.3))), Math.cos(a) * D * 0.9 + D * 0.1 + 300 * (1 - eio(lin(t, 0, T.mono + 0.3))), 0, cy, 0, 0);
   starsCam(t, a * 0.3); const mk = eo(lin(t, T.form, T.mono + 0.1)), out = lin(t, T.unfold, T.unfold + 0.18);
   mono.position.set(0, cy, 0); mono.rotation.set(0, 0, 0); mono.scale.set(1, mix(1, 0.02, eio(lin(t, T.unfold - 0.04, T.unfold + 0.12))), 1);
   mono.material.uniforms.op.value = mk * (1 - out * 0.3); mono.material.uniforms.sweep.value = mix(-0.4, 1.6, lin(t, T.mono, T.mono + 0.45));
@@ -256,9 +264,9 @@ function secLogo(g, t) {   // 0 → 2.12: lines draw the V in 3D, wordmark arriv
   wm.visible = wmRef.visible = t > T.wm; wm.position.set(wo * 900, cy - 430 - (1 - wk) * 60, -wo * 1800); wm.rotation.set(0, -wo * 0.9, 0);
   wm.material.uniforms.op.value = wk * (1 - wo); wm.material.uniforms.sweep.value = mix(-0.4, 1.6, lin(t, T.wm + 0.1, T.wm + 0.5)); wm.material.uniforms.rev.value = 1;
   wmRef.position.set(wm.position.x, cy - 430 - 120 - (1 - wk) * 60, wm.position.z); wmRef.rotation.copy(wm.rotation); wmRef.material.uniforms.op.value = 0.06 * wk * (1 - wo);
-  mono.visible = t > T.form; stars.material.opacity = 1;
-  draw3D([[S_STARS, CAMS], [S_LOGO, CAM]]); blit(g, 1, 0.7);
-  strands(g, 0.05, T.mono, t, 0, cy, 640, CAM, { fade: 1 - lin(t, T.mono + 0.05, T.mono + 0.3) });
+  mono.visible = t > T.form; stars.material.opacity = mix(0.25, 0.7, lin(t, 0, 1.2));
+  draw3D([[S_STARS, CAMS], [S_LOGO, CAM]]); stars.material.opacity = 1; blit(g, 1, 0.6);
+  strands(g, 0.15, T.form + 0.05, t, 0, cy, 640, CAM, { pen: true, fade: 1 - lin(t, T.mono + 0.05, T.mono + 0.35) });
   // the V folds into one horizontal line of light
   if (t > T.unfold - 0.02) { const k = eio(lin(t, T.unfold, T.bar)), y = 960 - cy, half = mix(150, 520, k);
     g.save(); g.globalCompositeOperation = 'lighter'; g.shadowColor = '#8AB6FF'; g.shadowBlur = 30; g.fillStyle = '#F2F6FF'; rr(g, 540 - half, y - 4, half * 2, 8, 4); g.fill(); g.restore(); }
@@ -286,17 +294,17 @@ function secTerm(g, t) {   // 2.79 → 6.27: terminal, layers switch on one by o
   term.scale.set(s, s, 1); term.position.set(-fx * 0.5 * push * (1 - out), -fy * 0.5 * push * (1 - out), -300 * out);
   term.rotation.set(0.05 * Math.sin(t * 1.1) * (1 - push) + 0.22 * out, -0.04 * Math.cos(t * 0.9) * (1 - push) - 0.35 * out, 0.04 * out);
   setCam(CAM, 0, 0, D, 0, 0, 0); starsCam(t); draw3D([[S_STARS, CAMS], [S_TERM, CAM]]); blit(g, 1, 0.35);
-  if (t < T.term + 0.12) { g.fillStyle = `rgba(220,230,255,${0.4 * (1 - lin(t, T.term, T.term + 0.12))})`; g.fillRect(0, 0, W, H); }
+  if (t < T.term + 0.12) { g.fillStyle = `rgba(220,230,255,${0.16 * (1 - lin(t, T.term, T.term + 0.12))})`; g.fillRect(0, 0, W, H); }
   // the layer name flies into its chip, then the chip switches on
   ACT.forEach(A => { const a = lin(t, A.t + 0.02, A.t + 0.2), f = eio(lin(t, A.t + 0.32, A.t + 0.6)); if (a <= 0 || f >= 1) return;
     const [cx, cyy] = chipPos(A.key), c3 = proj(new THREE.Vector3(cx - 540, 960 - cyy, 0).applyMatrix4(term.matrixWorld)), x = mix(540, c3[0], f), y = mix(1000, c3[1], f), sc = mix(1, 0.24, f) * mix(1.25, 1, eo(a));
     g.save(); g.globalAlpha = eo(a) * (1 - lin(f, 0.75, 1)); g.translate(x, y); g.scale(sc, sc);
     const bgk = g.createRadialGradient(0, 0, 10, 0, 0, 520); bgk.addColorStop(0, `rgba(2,5,11,${0.75 * (1 - f)})`); bgk.addColorStop(1, 'rgba(2,5,11,0)'); g.fillStyle = bgk; g.fillRect(-560, -260, 1120, 520);
-    g.shadowColor = A.c; g.shadowBlur = 40; txt(g, A.s, 0, 0, '700 112px VWSans', '#FFFFFF', 'center'); g.shadowBlur = 0; g.fillStyle = A.c; g.fillRect(-120, 78, 240, 8);
+    g.shadowColor = A.c; g.shadowBlur = 40; txt(g, A.s, 0, 0, '700 112px VWSans', A.key === 'B' ? '#F7D27A' : '#FFFFFF', 'center'); g.shadowBlur = 0; g.fillStyle = A.c; g.fillRect(-120, 78, 240, 8);
     txt(g, A.key === 'C' ? 'ACTIVITY' : A.key === 'B' ? 'ACTIVITY' : 'DEALER', 0, -100, '600 34px VWMono', '#97A3B3', 'center'); g.restore(); });
   const bl = lin(t, T.cards - 0.14, T.cards); if (bl > 0) { g.save(); g.globalAlpha = bl; g.fillStyle = 'rgba(8,20,60,0.85)'; g.fillRect(0, 0, W, H); g.restore(); }
 }
-function ringRot(t) { const k = eio(lin(t, T.cards, T.cards + 0.45)) * 0 + eio(lin(t, T.c1 - 0.12, T.c1 + 0.2)) + eio(lin(t, T.c2 - 0.12, T.c2 + 0.2)) + 1.6 * eio(lin(t, T.rise - 0.2, T.rise)); return k * Math.PI * 2 / PANELS.length; }
+function ringRot(t) { const k = T.steps.reduce((a, s) => a + eio(lin(t, s - 0.14, s + 0.22)), 0) + 0.8 * eio(lin(t, T.rise - 0.25, T.rise)); return k * Math.PI * 2 / PANELS.length; }
 function secCards(g, t) {   // 6.27 → 8.0: carousel of layer panels, each drawn like the terminal
   space(g, t, 0.22); const Rr = 1500, n = PANELS.length, rot = ringRot(t), ent = eo(lin(t, T.cards, T.cards + 0.5));
   cardMeshes.forEach((h, j) => { const a = j * Math.PI * 2 / n - rot; h.position.set(Math.sin(a) * Rr, 0, Math.cos(a) * Rr - Rr); h.rotation.set(0, a, 0); });
@@ -307,32 +315,68 @@ function secCards(g, t) {   // 6.27 → 8.0: carousel of layer panels, each draw
   const idx = Math.round(rot / (Math.PI * 2 / n)) % n, P = PANELS[idx], k = eo(lin(t, T.cards + 0.25, T.cards + 0.5)) * (1 - lin(t, T.rise - 0.15, T.rise));
   if (k > 0) { g.save(); g.globalAlpha = k; txt(g, `VOLWICK · ${P.grp}`, 540, 560, '600 30px VWMono', '#8AB6FF', 'center'); g.fillStyle = 'rgba(138,182,255,0.6)'; g.fillRect(470, 590, 140, 3); g.restore(); }
 }
-// 3D rise: the session in 3D, the price counts up into the call wall
-const RX = i => (i - 60) * 46, RY = p => (p - 7752) * 34;
-function riseCam(t) { const k = eio(lin(t, T.rise, T.end)); setCam(CAM, mix(-1700, 900, k), mix(-150, 420, k), mix(2300, 2000, k), mix(-300, 1500, k), mix(-120, 520, k), mix(-200, -500, k), mix(0.08, -0.04, k)); }
-function secRise(g, t) {
-  space(g, t, 0.16); const k = lin(t, T.rise, T.wall), nb = mix(36, N, eio(k)), M = new THREE.Matrix4(), C = new THREE.Color();
-  for (let i = 0; i < N; i++) { const b = BARS[i], g0 = clamp(nb - i, 0, 1), up = b.c >= b.o; C.set(up ? 0x2FB67C : 0xE2575F);
-    const top = RY(Math.max(b.o, b.c)), bot = RY(Math.min(b.o, b.c)), hb = Math.max(6, top - bot) * g0;
-    M.makeScale(26, hb, 26); M.setPosition(RX(i), bot + hb / 2, 0); candleMesh.setMatrixAt(i * 2, M); candleMesh.setColorAt(i * 2, C);
-    const hw = (RY(b.h) - RY(b.l)) * g0; M.makeScale(5, Math.max(1, hw), 5); M.setPosition(RX(i), RY(b.l) + hw / 2, 0); candleMesh.setMatrixAt(i * 2 + 1, M); candleMesh.setColorAt(i * 2 + 1, C); }
-  candleMesh.instanceMatrix.needsUpdate = true; candleMesh.instanceColor.needsUpdate = true;
-  const hit = Math.exp(-Math.pow((t - T.wall) / 0.08, 2)); wallMesh.position.set(0, RY(7768.25), 0); wallGlow.position.copy(wallMesh.position); wallGlow.material.uniforms.k.value = 0.7 + 2.5 * hit;
-  wallMesh.scale.set(1, 1 + 2 * hit, 1 + 2 * hit); riseCam(t); starsCam(t, -0.1); draw3D([[S_STARS, CAMS], [S_RISE, CAM]]); blit(g, 1, 0.7);
-  // wall label in 3D space
-  const wl = proj(new THREE.Vector3(RX(118), RY(7768.25) + 40, 0)); g.save(); g.globalAlpha = eo(lin(t, T.rise + 0.1, T.rise + 0.4)); txt(g, '★ 7,768.25 · +$22.4M', Math.min(930, wl[0]), wl[1] - 16, '700 30px VWMono', '#39A86F', 'right'); g.restore();
-  // the counter: current price in big 3D type
-  const ci = Math.min(N - 1, Math.floor(nb)), p = BARS[ci].c, reach = lin(t, T.wall - 0.04, T.wall + 0.1), s = money(Math.round(Math.min(7768.25, p + (7768.25 - p) * reach) * 4) / 4);
-  g.save(); g.translate(540, 560); g.transform(1, -0.06, 0, 1, 0, 0); const col = reach > 0.5 ? '#5BE39A' : '#FFFFFF';
-  for (let d = 14; d > 0; d--) txt(g, s, d * 1.2, d * 1.8, '700 150px VWSans', `rgba(${reach > 0.5 ? '20,90,55' : '25,50,120'},${0.9 - d * 0.04})`, 'center');
-  g.shadowColor = reach > 0.5 ? 'rgba(57,168,111,0.9)' : 'rgba(90,140,255,0.8)'; g.shadowBlur = 36 + 40 * hit; txt(g, s, 0, 0, '700 150px VWSans', col, 'center'); g.restore();
-  txt(g, 'ES', 540, 440, '700 34px VWMono', '#8AB6FF', 'center');
-  const lk = eo(lin(t, T.wall, T.wall + 0.15)); if (lk > 0) { g.save(); g.globalAlpha = lk; txt(g, 'CALL WALL · LONG γ · NET +$22.4M', 540, 690, '700 34px VWMono', '#5BE39A', 'center'); g.restore(); }
-  if (hit > 0.05) { g.fillStyle = `rgba(200,255,225,${0.18 * hit})`; g.fillRect(0, 0, W, H); }
-  txt(g, 'Simulated ES session.', 540, 1540, '500 19px VWMono', '#7F8AA0', 'center');
+// 3D trade: candles behind, price comes down into the Block Prints level, contracts go in, price runs to the call wall, the gain counts up
+const RX = i => (i - 30) * 52, RY = p => (p - 7760) * 44, TN = 50;
+const ENTRY = { i: 26, p: 7756.25, qty: 2, stop: 7752.50 };
+let TB = [];   // the trade's own simulated bars: down into the Block Prints level, then up into the call wall
+function genTrade() { const A = [[0, 7762], [6, 7764.5], [12, 7760.5], [16, 7758.5], [19, 7757.5], [22, 7757.25], [26, 7757.0], [30, 7759.0], [35, 7761.5], [40, 7764.0], [44, 7766.0], [47, 7767.5], [49, 7766.75]];
+  const r = VW.rng(777), q = x => Math.round(x * 4) / 4; let prev = 7761.5;
+  for (let i = 0; i < TN; i++) { let k = 0; while (A[k + 1][0] < i) k++; const [i0, p0] = A[k], [i1, p1] = A[k + 1];
+    const c = q(mix(p0, p1, (i - i0) / (i1 - i0)) + (r() - 0.5) * 1.2), o = prev; TB.push({ o, c, h: q(Math.max(o, c) + r() * 0.9), l: q(Math.min(o, c) - r() * 0.9) }); prev = c; }
+  [19, 22, 26].forEach(i => TB[i].l = 7756.25); for (let i = 19; i < TN; i++) TB[i].l = Math.max(TB[i].l, 7756.25);
+  for (let i = 27; i < TN; i++) { TB[i].c = Math.max(TB[i].c, 7757.0); TB[i].o = Math.max(TB[i].o, 7756.75); TB[i].h = Math.max(TB[i].h, TB[i].c, TB[i].o); }
+  TB[47].h = 7768.25; TB[ENTRY.i].c = Math.max(TB[ENTRY.i].c, 7757.25); }   // 1 ES = $50 per point, P&L in $ on the tick ($25 for 2 contracts)
+function curBar(t) { return t < T.entry ? mix(8, ENTRY.i, eio(lin(t, T.rise, T.entry))) : mix(ENTRY.i, 47, eio(lin(t, T.entry + 0.3, T.wall))); }
+function tradeCam(t) { const k = eio(lin(t, T.rise, T.end)), cb = curBar(t);
+  setCam(CAM, RX(cb) - mix(950, 560, k), RY(7763) + mix(-60, 160, k), mix(2050, 1850, k), RX(cb) + 220, RY(7763.2), -500, mix(0.06, -0.03, k)); }
+let goldGlow, stopLine, goldDia = [];
+function buildTrade() {
+  goldGlow = new THREE.Mesh(new THREE.PlaneGeometry(4200, 140), new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, uniforms: { k: { value: 1 } },
+    vertexShader: 'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+    fragmentShader: 'uniform float k; varying vec2 vUv; void main(){ float d=abs(vUv.y-0.5)*2.0; float a=exp(-d*d*9.0)*0.55*k; gl_FragColor=vec4(vec3(0.95,0.76,0.31)*a, a); }' })); S_RISE.add(goldGlow);
+  const gl2 = new THREE.Mesh(new THREE.BoxGeometry(4200, 5, 5), new THREE.MeshBasicMaterial({ color: 0xF2C14E })); gl2.position.y = RY(7756.25); S_RISE.add(gl2); goldGlow.position.y = RY(7756.25);
+  stopLine = new THREE.Mesh(new THREE.BoxGeometry(4200, 4, 4), new THREE.MeshBasicMaterial({ color: 0xE2575F, transparent: true })); stopLine.position.y = RY(ENTRY.stop); S_RISE.add(stopLine);
+  [19, 22, 26].forEach(i => { const d = new THREE.Mesh(new THREE.BoxGeometry(22, 22, 22), new THREE.MeshBasicMaterial({ color: 0xF2C14E })); d.rotation.set(0.6, 0.6, Math.PI / 4); d.position.set(RX(i), RY(7756.25), 30); S_RISE.add(d); goldDia.push(d);
+    const bar = new THREE.Mesh(new THREE.BoxGeometry(80, 6, 6), new THREE.MeshBasicMaterial({ color: 0xF4F6FA })); bar.position.set(RX(i), RY(7756.25), 20); S_RISE.add(bar); goldDia.push(bar); });
 }
-// price line of the 3D rise in screen space at the cut: it becomes the logo
-function riseLine() { riseCam(T.end); const out = []; for (let k = 0; k < 60; k++) { const i = Math.round(60 + k * (N - 61) / 59); out.push(proj(new THREE.Vector3(RX(i), RY(BARS[i].c), 0))); } return out; }
+function usd(v) { return (v < 0 ? '−' : '+') + '$' + Math.abs(v).toLocaleString('en-US'); }
+function secRise(g, t) {
+  space(g, t, 0.16); const cb = curBar(t), nb = cb + 1, M = new THREE.Matrix4(), C = new THREE.Color();
+  for (let i = 0; i < N; i++) { const b = TB[Math.min(i, TN - 1)], g0 = i >= TN ? 0 : clamp(nb - i, 0, 1), up = b.c >= b.o; C.set(up ? 0x2FB67C : 0xE2575F);
+    const top = RY(Math.max(b.o, b.c)), bot = RY(Math.min(b.o, b.c)), hb = Math.max(6, top - bot) * g0;
+    M.makeScale(28, hb, 28); M.setPosition(RX(i), bot + hb / 2, 0); candleMesh.setMatrixAt(i * 2, M); candleMesh.setColorAt(i * 2, C);
+    const hw = (RY(b.h) - RY(b.l)) * g0; M.makeScale(6, Math.max(1, hw), 6); M.setPosition(RX(i), RY(b.l) + hw / 2, 0); candleMesh.setMatrixAt(i * 2 + 1, M); candleMesh.setColorAt(i * 2 + 1, C); }
+  candleMesh.instanceMatrix.needsUpdate = true; candleMesh.instanceColor.needsUpdate = true;
+  const hit = Math.exp(-Math.pow((t - T.wall) / 0.08, 2)), ent = Math.exp(-Math.pow((t - T.entry) / 0.08, 2));
+  wallMesh.position.set(0, RY(7768.25), 0); wallGlow.position.copy(wallMesh.position); wallGlow.material.uniforms.k.value = 0.7 + 2.5 * hit; wallMesh.scale.set(1, 1 + 2 * hit, 1 + 2 * hit);
+  goldGlow.material.uniforms.k.value = 0.8 + 2.5 * ent; goldDia.forEach((d, j) => { d.visible = cb >= [19, 19, 22, 22, 26, 26][j] - 0.5; });
+  stopLine.visible = t > T.entry; stopLine.material.opacity = eo(lin(t, T.entry, T.entry + 0.2));
+  tradeCam(t); starsCam(t, -0.1); draw3D([[S_STARS, CAMS], [S_RISE, CAM]]); blit(g, 1, 0.65);
+  const P = (i, p) => proj(new THREE.Vector3(RX(i), RY(p), 0)), pill = (x, y, s, col, bg, al = 'left', f = '700 27px VWMono') => { g.font = f; const w = g.measureText(s).width + 28, x0 = al === 'right' ? x - w : x; rr(g, x0, y - 22, w, 44, 10); g.fillStyle = bg; g.fill(); g.strokeStyle = col; g.lineWidth = 2; g.stroke(); txt(g, s, x0 + 14, y + 1, f, col); };
+  // levels in 3D space
+  const lw = P(cb + 8, 7768.25), lgp = P(Math.max(2, cb - 14), 7756.25); g.save(); g.globalAlpha = eo(lin(t, T.rise + 0.1, T.rise + 0.4));
+  pill(Math.min(930, lw[0]), lw[1] - 34, '★ 7,768.25 · CALL WALL · +$22.4M', '#5BE39A', 'rgba(4,14,10,0.85)', 'right');
+  pill(Math.max(110, lgp[0]), lgp[1] - 34, '★ 7756.25 · 1,042 · 3 blocks', '#F2C14E', 'rgba(20,14,2,0.85)'); g.restore();
+  // contracts go in on the Block Prints level
+  if (t > T.entry - 0.35) { const e = P(ENTRY.i, ENTRY.p), k = eo(lin(t, T.entry - 0.35, T.entry));
+    [0, 1].forEach(j => { const f = eio(lin(t, T.entry - 0.35 + j * 0.08, T.entry + j * 0.08)), x = mix(380 + j * 320, e[0], f), y = mix(1500, e[1], f); if (f < 1) { g.save(); g.globalAlpha = 1 - lin(f, 0.85, 1); pill(x - 70, y, '+1 ES', '#5BE39A', 'rgba(4,14,10,0.9)'); g.restore(); } });
+    if (t > T.entry) { const a = eo(lin(t, T.entry, T.entry + 0.2)); g.save(); g.globalAlpha = a; g.fillStyle = '#5BE39A'; g.shadowColor = '#5BE39A'; g.shadowBlur = 20; g.beginPath(); g.moveTo(e[0], e[1] + 18); g.lineTo(e[0] - 16, e[1] + 46); g.lineTo(e[0] + 16, e[1] + 46); g.closePath(); g.fill(); g.shadowBlur = 0;
+      pill(e[0] - 30, e[1] + 82, 'LONG 2 ES @ 7,756.25', '#5BE39A', 'rgba(4,14,10,0.9)');
+      const sp = P(ENTRY.i - 6, ENTRY.stop); pill(930, Math.min(1490, sp[1] - 34), 'STOP 7,752.50 · RISK −$375', '#FF7A80', 'rgba(24,6,8,0.9)', 'right'); g.restore(); } }
+  // the counter: the gain on 2 contracts, in big 3D type, price under it
+  const ci = Math.min(TN - 1, Math.floor(cb)), px = Math.round((t >= T.wall ? 7768.25 : t >= T.entry && ci <= ENTRY.i ? Math.max(TB[ci].c, ENTRY.p) : TB[ci].c) * 4) / 4;
+  txt(g, `ES  ${money(px)}`, 540, 320, '700 34px VWMono', '#8AB6FF', 'center');
+  if (t > T.entry) { const pnl = Math.round((px - ENTRY.p) * ENTRY.qty * 50 / 25) * 25, s = usd(pnl), a = eo(lin(t, T.entry, T.entry + 0.25)), pos = pnl >= 0, col = pos ? '#5BE39A' : '#FF7A80';
+    g.save(); g.globalAlpha = a; g.translate(540, 425); g.transform(1, -0.05, 0, 1, 0, 0); g.scale(mix(0.7, 1, a) * (1 + 0.08 * hit), mix(0.7, 1, a) * (1 + 0.08 * hit));
+    for (let d = 14; d > 0; d--) txt(g, s, d * 1.2, d * 1.8, '700 160px VWSans', `rgba(${pos ? '15,80,48' : '90,20,26'},${0.9 - d * 0.04})`, 'center');
+    g.shadowColor = pos ? 'rgba(57,200,120,0.9)' : 'rgba(230,80,90,0.8)'; g.shadowBlur = 36 + 50 * hit; txt(g, s, 0, 0, '700 160px VWSans', col, 'center'); g.restore();
+    g.save(); g.globalAlpha = a; txt(g, 'P&L · 2 ES', 540, 528, '600 28px VWMono', '#97A3B3', 'center'); g.restore(); }
+  const lk = eo(lin(t, T.wall, T.wall + 0.15)); if (lk > 0) { g.save(); g.globalAlpha = lk; txt(g, 'CALL WALL · LONG γ', 540, 568, '700 28px VWMono', '#5BE39A', 'center'); g.restore(); }
+  if (hit > 0.05) { g.fillStyle = `rgba(200,255,225,${0.16 * hit})`; g.fillRect(0, 0, W, H); }
+  txt(g, 'Simulated ES session. Hypothetical results. 1 ES = $50 per point.', 540, 1540, '500 19px VWMono', '#7F8AA0', 'center');
+}
+// price line of the 3D trade in screen space at the cut: it becomes the logo
+function riseLine() { tradeCam(T.end); const out = []; for (let k = 0; k < 60; k++) { const i = Math.round(k * 47 / 59); out.push(proj(new THREE.Vector3(RX(i), RY(TB[i].c), 0))); } return out; }
 let LINE = null;
 function secEnd(g, t) {   // approved ending, same elements and layout, the logo forms in 3D
   const e = t - T.end, outA = 1 - lin(t, T.loop0, T.total - 0.12); space(g, t, 0.14 * outA + 0.04);
@@ -362,11 +406,11 @@ function secEnd(g, t) {   // approved ending, same elements and layout, the logo
 function render(t) {
   const g = VW.g; g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.filter = 'none'; g.globalCompositeOperation = 'source-over';
   if (t < T.bar) secLogo(g, t); else if (t < T.term) secBar(g, t); else if (t < T.cards) secTerm(g, t); else if (t < T.rise) secCards(g, t); else if (t < T.end) secRise(g, t); else secEnd(g, t);
-  const fl = VW.punch([T.mono, T.cards, T.rise, T.end], t, 0.04); if (fl > 0.02) { g.fillStyle = `rgba(210,225,255,${0.14 * fl})`; g.fillRect(0, 0, W, H); }
+  const fl = VW.punch([T.mono, T.cards, T.rise, T.entry, T.end], t, 0.04); if (fl > 0.02) { g.fillStyle = `rgba(210,225,255,${0.1 * fl})`; g.fillRect(0, 0, W, H); }
   VW.vignette();
 }
 window.READY = (async () => {
   await VW.loadFonts(); await VW.loadBrand(); genBars(); CONT = await (await fetch('mono_contours.json')).json();
-  build3D(); LINE = riseLine(); window.render = render; render(0);
+  genTrade(); build3D(); buildTrade(); LINE = riseLine(); window.render = render; render(0);
   return { total: T.total, events: { T } };
 })();

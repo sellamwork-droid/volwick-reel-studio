@@ -62,6 +62,10 @@
     {
       "data": "2026-10-31 15:41",
       "testo": "Power: la barra in alto del terminale non mi piace: tasti ammucchiati a caso, a destra spazio vuoto inutile, e metà delle impostazioni non si usano. Gestire meglio quello spazio."
+    },
+    {
+      "data": "2026-10-31 16:02",
+      "testo": "Power: preferisco la seconda barra. Quando zoomi non tagliare la barra dei prezzi: ingrandisci il grafico come su TradingView, con l'asse dei prezzi che si allarga, non uno zoom dell'immagine."
     }
   ],
   "lezioni": [
@@ -69,10 +73,11 @@
     "Audio con hook: AUDIO_MODE=base di scenes/v0006_the_bar/sound.py (niente HOOK_WAV, base unica dal primo fotogramma, fruscio sotto l'hook, colpo sul taglio).",
     "Transizione hook → grafico: scena con ?var=3 (scia e freccia sul prezzo), RAMP 2× per 1 s poi 1,7 / 1,5 / 1 in 0,4 / 0,25 / 0,15 s sul replay calmo 0,55 candele/s. Contatto sulla linea a ~0,3 s.",
     "Versione dinamica T4 (V0006 v3): replay su griglia 125 BPM, hook di 2 battute con slow motion interpolato (minterpolate 120 fps), spike → impatto sul battere, divisore di 1 battuta, riavvolgimento di 1 battuta, muri a ottavi, zoom 1,6–1,8 sul muro con etichetta grande, scossa e flash agli impatti, scia su e giù; una base 125 BPM dall'inizio alla fine con riser e colpi agli impatti. Limitare con alimiter 0.6 su wav e poi rimuxare (il limitatore direttamente prima dell'AAC può superare 0 dBFS).",
-    "Con un brano di Power a tempo diverso dal motore si piega il video, non il brano: ?k= in scenes/v0006_dyn (k = battito del brano / 0,48; Never stop trading 79 BPM → k 0,78125, metà battito 0,375) e bed_track.py aggancia un battito al taglio (PHASE, PERIOD, loop su una battuta)."
+    "Con un brano di Power a tempo diverso dal motore si piega il video, non il brano: ?k= in scenes/v0006_dyn (k = battito del brano / 0,48; Never stop trading 79 BPM → k 0,78125, metà battito 0,375) e bed_track.py aggancia un battito al taglio (PHASE, PERIOD, loop su una battuta).",
+    "Zoom nei video: scala del grafico (PX, SP, PTOP per fotogramma con setView), non trasformazione del canvas. Le etichette dell'asse si ricalcolano con levels(). Il punto d'aggancio dell'hook va ricalcolato sul primo fotogramma zoomato (V0006: 806, 1004)."
   ],
   "pubblicazioni": [],
-  "aggiornato": "2026-10-31 15:41",
+  "aggiornato": "2026-10-31 16:02",
   "titolo": "Falsa rottura sotto il call wall",
   "numero": 6,
   "data_uscita": "31-10-2026",

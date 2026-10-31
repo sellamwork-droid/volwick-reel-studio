@@ -21,7 +21,7 @@
   ],
   "durata_s": 21.37,
   "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/06 Falsa rottura sotto il call wall (31-10-2026).mp4",
-  "stato": "da-rifare",
+  "stato": "da-rivedere",
   "creato": "2026-10-31 03:01",
   "sessione": "vm",
   "feedback": [
@@ -36,14 +36,19 @@
     {
       "data": "2026-10-31 03:37",
       "testo": "Power: collegare meglio hook e grafico: appena passa al grafico si deve vedere in modo accentuato che il prezzo crolla, nello stesso verso della caduta. Chieste 2-3 prove."
+    },
+    {
+      "data": "2026-10-31 03:46",
+      "testo": "Power: la terza transizione (scia) non mi dispiace. Non serve iperveloce per tutta la durata: basta all'inizio, con una curva di velocità (2 nel primo secondo, poi 1,7, 1,5 in sempre meno tempo)."
     }
   ],
   "lezioni": [
     "Mai l'audio del clip hook tagliato secco al match cut seguito da una base diversa: o una sola base dall'inizio (senza audio del clip), o l'audio del clip che sfuma oltre il taglio. replay_sound.py mette HOOK_WAV con stop a 0,08 s: non usarlo così.",
-    "Audio con hook: AUDIO_MODE=base di scenes/v0006_the_bar/sound.py (niente HOOK_WAV, base unica dal primo fotogramma, fruscio sotto l'hook, colpo sul taglio)."
+    "Audio con hook: AUDIO_MODE=base di scenes/v0006_the_bar/sound.py (niente HOOK_WAV, base unica dal primo fotogramma, fruscio sotto l'hook, colpo sul taglio).",
+    "Transizione hook → grafico: scena con ?var=3 (scia e freccia sul prezzo), RAMP 2× per 1 s poi 1,7 / 1,5 / 1 in 0,4 / 0,25 / 0,15 s sul replay calmo 0,55 candele/s. Contatto sulla linea a ~0,3 s."
   ],
   "pubblicazioni": [],
-  "aggiornato": "2026-10-31 03:37",
+  "aggiornato": "2026-10-31 03:46",
   "titolo": "Falsa rottura sotto il call wall",
   "numero": 6,
   "data_uscita": "31-10-2026",

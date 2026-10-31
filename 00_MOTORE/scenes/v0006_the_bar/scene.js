@@ -16,8 +16,12 @@ const PTOP = 7745.0, PX = 24.0;   // tighter scale: the walls fill the window
 const Y = p => HDR + (PTOP - p) * PX;
 const SP = 12, XR = 790;
 const T_END = 16.3;
-const SPAIRS = [[0, 56.2], [0.7, 56.95], [1.5, 58.0], [2.6, 59.4], [3.2, 60.0], [T_END, 60 + (T_END - 3.2) / 0.55]];   // fast rejection, then a calm replay
-const E = { sel: -0.3, contact: 0.35, handle: 2.65, grab: 3.35, drop: 5.0, prints: 6.85, tip: 9.8, end: T_END };
+// transition test (Power 31 Oct 03:29): right after the cut the chart must visibly crash, same direction as the falling subject.
+// ?var=1 fast crash + flash and shake on the break · ?var=2 the camera keeps the hook's 1.4 zoom and falls with the price · ?var=3 fast crash with a speed trail
+const VAR = +(new URLSearchParams(location.search).get('var') || 0);
+const SPAIRS = VAR ? [[0, 56.2], [0.3, 57.0], [0.75, 58.0], [1.25, 59.0], [1.8, 59.6], [3.2, 60.0], [T_END, 60 + (T_END - 3.2) / 0.55]]   // the crash in the first 0.75 s
+  : [[0, 56.2], [0.7, 56.95], [1.5, 58.0], [2.6, 59.4], [3.2, 60.0], [T_END, 60 + (T_END - 3.2) / 0.55]];
+const E = { sel: -0.3, contact: VAR ? 0.14 : 0.35, handle: 2.65, grab: 3.35, drop: 5.0, prints: 6.85, tip: 9.8, end: T_END };
 const WALLS = [ { p: 7741.5, fam: 'callS', usd: '−$6.4M' }, { p: 7733.5, fam: 'callL', usd: '+$12.6M' }, { p: 7727.5, fam: 'callL', usd: '+$3.9M' },
   { p: 7722.5, fam: 'putL', usd: '+$9.7M' }, { p: 7712.5, fam: 'putS', usd: '−$8.8M' } ];
 const TIPW = 1;   // the wall the tooltip opens on
@@ -309,6 +313,24 @@ function endCard(t) {
   const kd = eo(lin(t, dv + 0.3, dv + 0.7));
   if (kd > 0) { g.save(); g.globalAlpha = kd; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '600 29px VWMono'; g.fillStyle = VW.COL.ink2; g.fillText('Simulated data. Not investment advice.', 540, 1496); g.restore(); }
 }
+// ---------- hook → chart transition (test variants) ----------
+function camera(t, S) {
+  const o = { x: 0, y: 0, s: 1, fx: 800, fy: 900 };
+  if (VAR === 1) { const k = Math.exp(-Math.pow((t - E.contact) / 0.05, 2)) + 0.6 * Math.exp(-Math.max(0, t - E.contact) * 6) * (t > E.contact ? 1 : 0);   // jolt down on the break, then settles
+    o.y = 14 * k * Math.sin(t * 70) * 0.5 + 10 * k; o.x = 6 * k * Math.sin(t * 53); }
+  if (VAR === 2) { const u = eio(clamp(t / 1.5, 0, 1)), py = Y(lastPrice(S)); o.s = mix(1.4, 1, u); o.fx = mix(800, 540, u); o.fy = mix(py, 1020, u); }   // keeps the hook's push-in and falls with the price
+  return o;
+}
+function crashFx(t, S) {
+  const g = VW.g;
+  if (VAR === 1) { const a = 0.35 * Math.exp(-Math.max(0, t - E.contact) * 7) * (t >= E.contact - 0.02 ? 1 : 0); if (a > 0.01) { g.save(); g.fillStyle = `rgba(242,54,69,${a})`; g.fillRect(WIN.x0, Y(SUP) - 3, CX1 - CX0L + 44, 6); g.globalAlpha = a * 0.35; g.fillRect(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0); g.restore(); } }
+  if (VAR === 3 && t < 1.6) { const k = 1 - seg(t, 0.9, 1.6); g.save(); g.beginPath(); g.rect(CX0L, HDR, CX1 - CX0L, LB - HDR); g.clip();
+    for (let q = 1; q <= 8; q++) { const tq = Math.max(0, t - q * 0.035), Sq = state(tq), pq = lastPrice(Sq), x = X(Sq.k, S);   // trail of where the price was a moment ago
+      g.globalAlpha = k * 0.55 * (1 - q / 9); g.fillStyle = '#F23645'; g.fillRect(x - 5, Y(pq) - 3, 10, 6); }
+    const p0 = lastPrice(state(Math.max(0, t - 0.25))), p1 = lastPrice(S); if (p0 - p1 > 0.5) { const x = X(S.k, S) + 16, gr = g.createLinearGradient(0, Y(p0), 0, Y(p1)); gr.addColorStop(0, 'rgba(242,54,69,0)'); gr.addColorStop(1, 'rgba(242,54,69,0.9)');
+      g.globalAlpha = k; g.fillStyle = gr; g.fillRect(x, Y(p0), 7, Y(p1) - Y(p0)); g.beginPath(); g.moveTo(x - 10, Y(p1) - 10); g.lineTo(x + 17, Y(p1) - 10); g.lineTo(x + 3.5, Y(p1) + 10); g.closePath(); g.fill(); }
+    g.restore(); }
+}
 function divX(t) { return t < E.grab ? WIN.x1 : mix(WIN.x1, WIN.x0 - 2, eio(lin(t, E.grab, E.drop))); }
 function divider(t) {
   const a = seg(t, E.handle, E.handle + 0.25) * (1 - seg(t, E.drop, E.drop + 0.25)); if (a <= 0) return; const g = VW.g, x = Math.min(divX(t), WIN.x1 - 3), cy = 1060; g.save(); g.globalAlpha = a;
@@ -324,6 +346,7 @@ function render(t) {
   const g = VW.g, S = state(t); g.save(); g.fillStyle = '#040913'; g.fillRect(0, 0, 1080, 1920);
   const bg = g.createLinearGradient(0, 0, 0, 1920); bg.addColorStop(0, '#060C1A'); bg.addColorStop(1, '#03060D'); g.fillStyle = bg; g.fillRect(0, 0, 1080, 1920);
   let c = cursorAt(t); const jt = jitter(t); c = { x: c.x + jt.x, y: c.y + jt.y };
+  const cam = camera(t, S); g.save(); if (VAR) { g.beginPath(); g.rect(WIN.x0 - 40, WIN.y0, WIN.x1 - WIN.x0 + 80, 1920 - WIN.y0); g.clip(); } g.translate(cam.x, cam.y); if (cam.s !== 1) { g.translate(cam.fx, cam.fy); g.scale(cam.s, cam.s); g.translate(-cam.fx, -cam.fy); }
   g.save(); g.shadowColor = 'rgba(0,0,0,0.6)'; g.shadowBlur = 40; box(WIN.x0, WIN.y0, WIN.x1 - WIN.x0, WIN.y1 - WIN.y0, '#000', null, 12); g.restore();
   const dx = divX(t), dragging = t >= E.grab - 0.1 && t < E.drop + 0.1;
   NOCROSS = dragging || (t >= E.handle && Math.abs(c.x - dx) < 40);
@@ -338,6 +361,7 @@ function render(t) {
   if (t < T_END + 0.1) { const pr = press(t), lightHere = !onVol; if (inChart) { g.save(); g.strokeStyle = lightHere ? '#131722' : '#FFFFFF'; g.lineWidth = 2.5; g.shadowColor = lightHere ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.9)'; g.shadowBlur = 4;
       g.beginPath(); g.moveTo(c.x - 14, c.y); g.lineTo(c.x + 14, c.y); g.moveTo(c.x, c.y - 14); g.lineTo(c.x, c.y + 14); g.stroke(); g.restore(); }
     else VX.cursor(c.x, c.y, 1, lightHere, pr); }
+  crashFx(t, S); g.restore();
   VW.logoTL(1 - seg(t, T_END, T_END + 0.25), '', 46, 24, true);
   overlay(t); disclosure(t); endCard(t);
   g.restore();

@@ -21,13 +21,20 @@
   ],
   "durata_s": 21.37,
   "render": "Drive: 01_VIDEO/04_HOOK_GRAFICO_VS_VOLWICK/06 Falsa rottura sotto il call wall (31-10-2026).mp4",
-  "stato": "da-rivedere",
+  "stato": "da-rifare",
   "creato": "2026-10-31 03:01",
   "sessione": "vm",
-  "feedback": [],
-  "lezioni": [],
+  "feedback": [
+    {
+      "data": "2026-10-31 03:26",
+      "testo": "Power: non mi piace il distacco del suono: all'inizio sotto l'hook parte una canzone, viene spezzata a caso e ne parte una di stile completamente diverso. Non riproporlo. Meglio una base unica o nessuna musica partendo con l'audio dell'hook. Chieste 2-3 prove."
+    }
+  ],
+  "lezioni": [
+    "Mai l'audio del clip hook tagliato secco al match cut seguito da una base diversa: o una sola base dall'inizio (senza audio del clip), o l'audio del clip che sfuma oltre il taglio. replay_sound.py mette HOOK_WAV con stop a 0,08 s: non usarlo così."
+  ],
   "pubblicazioni": [],
-  "aggiornato": "2026-10-31 03:08",
+  "aggiornato": "2026-10-31 03:26",
   "titolo": "Falsa rottura sotto il call wall",
   "numero": 6,
   "data_uscita": "31-10-2026",

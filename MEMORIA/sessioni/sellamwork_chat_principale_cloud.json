@@ -2,6 +2,7 @@
   "chi": "sellamwork · chat principale · cloud",
   "inizio": "2026-10-31T02:08+00:00",
   "storia": [
+    "31/10 16:48 consegnato V0010 su Drive, da rivedere",
     "31/10 16:42 V0010 v5: render (titoli tecnici per carta)",
     "31/10 16:40 V0010 v4 consegnato su Drive (01_EDIT/03, v3 in archivio), attendo il giudizio di Power",
     "31/10 16:40 consegnato V0010 su Drive, da rivedere",
@@ -15,12 +16,11 @@
     "31/10 04:45 V0010 v2: render in corso (intro con linee 3D, riga dei layer, carosello dei layer, salita 3D, finale 3D)",
     "31/10 04:37 V0010 v2: rifaccio intro, carte, sfondo stellato, finale 3D (giudizio di Power 04:37)",
     "31/10 04:30 V0010 consegnato su Drive (01_EDIT/03), attendo il giudizio di Power",
-    "31/10 04:30 consegnato V0010 su Drive, da rivedere",
-    "31/10 04:13 V0010: render del primo test (edit 3D)"
+    "31/10 04:30 consegnato V0010 su Drive, da rivedere"
   ],
-  "ultimo": "2026-10-31T15:42+00:00",
+  "ultimo": "2026-10-31T15:48+00:00",
   "stato": "attiva",
-  "cosa": "V0010 v5: render (titoli tecnici per carta)",
+  "cosa": "consegnato V0010 su Drive, da rivedere",
   "computer": "vm",
   "video": "V0010"
 }

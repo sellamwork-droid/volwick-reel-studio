@@ -136,26 +136,26 @@ function miniCandles(g, x0, y0, w, h, i0, n, opt = {}) { const bs = BARS.slice(i
   bs.forEach((b, i) => { const x = x0 + (i + 0.5) * sx, c = b.c >= b.o ? '#2FB67C' : '#E2575F'; g.globalAlpha = opt.a ?? 1; g.fillStyle = c; g.fillRect(x - 1, Y(b.h), 2, Y(b.l) - Y(b.h)); const t = Y(Math.max(b.o, b.c)); g.fillRect(x - sx * 0.32, t, sx * 0.64, Math.max(2, Y(Math.min(b.o, b.c)) - t)); });
   g.globalAlpha = 1; return { Y, X: i => x0 + (i - i0 + 0.5) * sx }; }
 const PANELS = [
-  { t: 'DEALER WALLS', grp: 'DEALER', c: '#39A86F', one: 'Options-derived dealer levels · Net $ per wall', draw(g) {
+  { t: 'DEALER WALLS', h: 'GAMMA LEVELS', grp: 'DEALER', c: '#39A86F', one: 'Options-derived dealer levels · Net $ per wall', draw(g) {
       const m = miniCandles(g, 40, 140, 600, 300, 60, 52, { a: 0.85 }); const L = [[7768.25, 'callL', '+$22.4M', 1], [7752.75, 'putS', '−$15.1M'], [7743.5, 'putL', '+$9.7M'], [7777.5, 'callS', '−$11.6M']];
       L.forEach(([p, f, net, st]) => { const y = clamp(m.Y(p), 130, 450), c = FAMC[f]; g.save(); g.strokeStyle = c; g.lineWidth = st ? 5 : 3; g.shadowColor = c; g.shadowBlur = st ? 26 : 14; g.beginPath(); g.moveTo(40, y); g.lineTo(860, y); g.stroke(); g.restore();
         txt(g, `${st ? '★ ' : ''}${money(p)} · ${net}`, 860, y - 20, '700 26px VWMono', c, 'right'); });
       [['call long γ', 'callL'], ['put long γ', 'putL'], ['call short γ', 'callS'], ['put short γ', 'putS']].forEach(([s, f], j) => { const x = 40 + j * 210; g.fillStyle = FAMC[f]; g.beginPath(); g.arc(x + 8, 490, 8, 0, 7); g.fill(); txt(g, s, x + 24, 491, '600 22px VWMono', '#C9D3E3'); }); } },
-  { t: 'BLOCK PRINTS', grp: 'ACTIVITY', c: '#F2C14E', one: 'Large trades and where they stack on one price', draw(g) {
+  { t: 'BLOCK PRINTS', h: 'LARGE TRADES', grp: 'ACTIVITY', c: '#F2C14E', one: 'Large trades and where they stack on one price', draw(g) {
       const m = miniCandles(g, 40, 150, 820, 320, 64, 36, { a: 0.8 }); const y = m.Y(7756.25);
       g.save(); g.setLineDash([9, 7]); g.strokeStyle = 'rgba(235,240,250,0.85)'; g.lineWidth = 2.5; g.beginPath(); g.moveTo(40, y); g.lineTo(860, y); g.stroke(); g.restore();
       [[76, 7756.25, '512', 0], [82, 7756.25, '318', 0], [88, 7756.25, '212', 0], [68, 7747.5, '742 ×2', 1]].forEach(([i, p, q, gd]) => { const x = m.X(i), yy = m.Y(p); g.save(); g.fillStyle = '#F4F6FA'; g.shadowColor = '#fff'; g.shadowBlur = 12; g.fillRect(x - 34, yy - 3.5, 68, 7); g.restore(); diamond(g, x, yy, 9, gd ? '#F2C14E' : '#F4F6FA'); badge(g, x + 22, yy - 34, q, gd, 26); });
       g.font = '700 28px VWMono'; const s = STAR.txt, tw = g.measureText(s).width, lx = 860 - tw - 30, ly = y + 62; rr(g, lx, ly - 26, tw + 30, 52, 10); g.fillStyle = 'rgba(8,12,22,0.96)'; g.fill(); g.strokeStyle = 'rgba(235,240,250,0.85)'; g.lineWidth = 2; g.stroke(); txt(g, s, lx + 15, ly + 1, '700 28px VWMono', '#ECEFF4');
       g.strokeStyle = 'rgba(235,240,250,0.6)'; g.beginPath(); g.moveTo(lx + tw / 2, ly - 26); g.lineTo(lx + tw / 2, y); g.stroke(); } },
-  { t: 'CVD', grp: 'ACTIVITY', c: '#DCE6FF', one: 'Aggressive buys minus aggressive sells, cumulative', draw(g) {
+  { t: 'CVD', h: 'ORDER FLOW', grp: 'ACTIVITY', c: '#DCE6FF', one: 'Aggressive buys minus aggressive sells, cumulative', draw(g) {
       miniCandles(g, 40, 130, 820, 190, 40, 80, { a: 0.9 }); g.fillStyle = 'rgba(140,170,230,0.2)'; g.fillRect(40, 340, 820, 2); txt(g, 'CVD', 40, 372, '700 24px VWMono', '#DCE6FF');
       const cs = CVD.slice(40, 120), mn = Math.min(...cs), mx = Math.max(...cs); g.save(); g.strokeStyle = '#DCE6FF'; g.lineWidth = 4.5; g.shadowColor = 'rgba(200,215,255,0.9)'; g.shadowBlur = 18; g.beginPath();
       cs.forEach((v, i) => g[i ? 'lineTo' : 'moveTo'](40 + (i + 0.5) * 820 / 80, 470 - (v - mn) / (mx - mn) * 100)); g.stroke(); g.restore(); } },
-  { t: 'EXPIRY', grp: 'DEALER', c: '#8AB6FF', one: 'Which expiries build the walls', draw(g) {
+  { t: 'EXPIRY', h: 'EXPIRATIONS', grp: 'DEALER', c: '#8AB6FF', one: 'Which expiries build the walls', draw(g) {
       ['0DTE', 'WEEK', 'MONTH', 'ALL'].forEach((m, j) => { const x = 40 + j * 205; rr(g, x, 140, 190, 84, 16); g.fillStyle = j ? 'rgba(255,255,255,0.05)' : 'rgba(47,107,255,0.45)'; g.fill(); g.strokeStyle = j ? 'rgba(150,170,210,0.35)' : '#8AB6FF'; g.lineWidth = 2.5; if (!j) { g.shadowColor = '#5A8CFF'; g.shadowBlur = 20; } g.stroke(); g.shadowBlur = 0; txt(g, m, x + 95, 183, '700 32px VWMono', j ? '#97A3B3' : '#FFFFFF', 'center'); });
       txt(g, '0DTE · 38 strikes', 40, 268, '700 28px VWMono', '#C9D3E3');
       WALLS.slice(0, 4).forEach((w, j) => { const y = 320 + j * 44, c = FAMC[w.fam]; g.save(); g.strokeStyle = c; g.lineWidth = 3; g.shadowColor = c; g.shadowBlur = 12; g.beginPath(); g.moveTo(40, y); g.lineTo(560, y); g.stroke(); g.restore(); txt(g, `${money(w.p)} · ${w.net}`, 860, y, '700 24px VWMono', c, 'right'); }); } },
-  { t: 'METRIC', grp: 'DEALER', c: '#5A8CFF', one: 'Dealer P&L exposure per 1-point move', draw(g) {
+  { t: 'METRIC', h: 'GREEKS', grp: 'DEALER', c: '#5A8CFF', one: 'Dealer P&L exposure per 1-point move', draw(g) {
       rr(g, 40, 118, 820, 62, 14); g.fillStyle = 'rgba(255,255,255,0.04)'; g.fill(); g.strokeStyle = 'rgba(150,170,210,0.25)'; g.lineWidth = 2; g.stroke();
       ['GEX', 'CEX', 'DEX', 'ALL'].forEach((m, j) => { const x = 46 + j * 203.5; if (!j) { rr(g, x, 124, 197, 50, 11); g.fillStyle = 'rgba(47,107,255,0.55)'; g.fill(); g.shadowColor = '#5A8CFF'; g.shadowBlur = 18; g.strokeStyle = '#8AB6FF'; g.stroke(); g.shadowBlur = 0; }
         txt(g, m, x + 98, 150, '700 30px VWMono', j ? '#7F8AA0' : '#FFFFFF', 'center'); });
@@ -165,13 +165,13 @@ const PANELS = [
         g.fillStyle = VW.rgba(c, 0.28); g.fillRect(560, y - 13, 170 * v / 22.4, 26); g.fillStyle = c; g.fillRect(560, y - 13, 4, 26);
         g.beginPath(); g.arc(52, y, 7, 0, 7); g.fill(); txt(g, `${w.star ? '★ ' : ''}${money(w.p)}`, 70, y + 1, '700 26px VWMono', '#ECEFF4'); txt(g, FN[w.fam], 300, y + 1, '600 24px VWMono', c);
         txt(g, w.net, 860, y + 1, '700 26px VWMono', c, 'right'); }); } },
-  { t: 'EXPOSURE MAPS', grp: 'DEALER', c: '#F59228', one: 'Maps behind the candles · MAP · GAMMA', draw(g) {
+  { t: 'EXPOSURE MAPS', h: 'HEATMAP', grp: 'DEALER', c: '#F59228', one: 'Maps behind the candles · MAP · GAMMA', draw(g) {
       const r = VW.rng(11); for (let cx = 0; cx < 22; cx++) for (let cy = 0; cy < 9; cy++) { const v = Math.sin(cx * 0.35 + cy * 0.8) + (r() - 0.5) * 0.5 - (cy - 4) * 0.25; g.fillStyle = v > 0 ? `rgba(47,107,255,${0.2 + 0.45 * Math.min(1, v)})` : `rgba(245,146,40,${0.2 + 0.45 * Math.min(1, -v)})`; g.fillRect(40 + cx * 37.3, 130 + cy * 35, 35, 33); }
       miniCandles(g, 40, 140, 820, 300, 50, 44); } },
-  { t: 'CDI', grp: 'ACTIVITY', c: '#E2575F', one: '0DTE premium, calls vs puts, minute by minute', draw(g) {
+  { t: 'CDI', h: '0DTE PREMIUM', grp: 'ACTIVITY', c: '#E2575F', one: '0DTE premium, calls vs puts, minute by minute', draw(g) {
       const r = VW.rng(5); for (let i = 0; i < 52; i++) { const v = (r() - 0.45) * 60 + (i === 34 ? 170 : 0), x = 40 + i * 15.8; g.fillStyle = v > 0 ? '#2FB67C' : '#E2575F'; g.fillRect(x, v > 0 ? 330 - v : 330, 11, Math.abs(v)); }
       txt(g, '$6.4M', 40 + 34 * 15.8 + 5, 140, '700 28px VWMono', '#2FB67C', 'center'); txt(g, 'C $2.1M · P $2.6M · Single-leg', 40, 470, '600 24px VWMono', '#97A3B3'); } },
-  { t: 'OPTIONS FLOW', grp: 'ACTIVITY', c: '#2F6BFF', one: 'Premium bought at ask vs sold at bid', draw(g) {
+  { t: 'OPTIONS FLOW', h: 'ASK VS BID', grp: 'ACTIVITY', c: '#2F6BFF', one: 'Premium bought at ask vs sold at bid', draw(g) {
       const r = VW.rng(9); [['C', '#2FB67C', 0.3], ['P', '#E2575F', -0.22], ['NET', '#DCE6FF', 0.06]].forEach(([nm, c, d]) => { let v = 0; g.save(); g.strokeStyle = c; g.lineWidth = 4; g.shadowColor = c; g.shadowBlur = 12; g.beginPath();
         for (let i = 0; i <= 60; i++) { v += (r() - 0.5 + d) * 10; g[i ? 'lineTo' : 'moveTo'](40 + i * 12.5, 300 - v); } g.stroke(); g.restore(); txt(g, nm, 860, 300 - v, '700 26px VWMono', c, 'right'); }); } },
 ];
@@ -328,11 +328,11 @@ function buildTitle() { titleTex = mkTex(1400, 240); TITLE = new THREE.Group(); 
     m.position.z = -d * 3.2; m.position.y = -d * 0.8; TITLE.add(m); } S_CARDS.add(TITLE); }
 function drawTitle(s) { if (s === titleTxt) return; titleTxt = s; const g = titleTex.g; g.clearRect(0, 0, 1400, 240); g.letterSpacing = '18px';
   const gr = g.createLinearGradient(0, 40, 0, 200); gr.addColorStop(0, '#BFD4FF'); gr.addColorStop(0.5, '#6E9BFF'); gr.addColorStop(1, '#2F6BFF');
-  g.shadowColor = 'rgba(70,120,255,0.9)'; g.shadowBlur = 26; txt(g, s, 700, 124, '700 150px VWSans', gr, 'center'); g.shadowBlur = 0; g.letterSpacing = '0px'; titleTex.tex.needsUpdate = true; }
+  g.shadowColor = 'rgba(70,120,255,0.9)'; g.shadowBlur = 26; let fs = 150; g.font = `700 ${fs}px VWSans`; while (g.measureText(s).width > 1120 && fs > 70) { fs -= 4; g.font = `700 ${fs}px VWSans`; } txt(g, s, 700, 124, `700 ${fs}px VWSans`, gr, 'center'); g.shadowBlur = 0; g.letterSpacing = '0px'; titleTex.tex.needsUpdate = true; }
 function updTitle(t) { const n = PANELS.length, at = tt => Math.round(ringRot(tt) / (Math.PI * 2 / n)) % n;
   let rx = 0, idx = at(t); T.steps.forEach(s => { const p = lin(t, s - 0.14, s + 0.22); if (p > 0 && p < 1) { if (p < 0.5) { rx = eio(p * 2) * Math.PI / 2; idx = at(s - 0.3); } else { rx = -(1 - eio((p - 0.5) * 2)) * Math.PI / 2; idx = at(s + 0.4); } } });
   const k = eo(lin(t, T.cards + 0.2, T.cards + 0.55)) * (1 - lin(t, T.rise - 0.2, T.rise)), fin = lin(t, T.cards + 0.2, T.cards + 0.55);
-  drawTitle(PANELS[idx].grp); TITLE.rotation.set(rx + (1 - eo(fin)) * -1.2, 0, 0); TITLE.visible = k > 0.01; TITLE.children.forEach(m => m.material.opacity = k); }
+  drawTitle(PANELS[idx].h); TITLE.rotation.set(rx + (1 - eo(fin)) * -1.2, 0, 0); TITLE.visible = k > 0.01; TITLE.children.forEach(m => m.material.opacity = k); }
 // 3D trade: candles behind, price comes down into the Block Prints level, contracts go in, price runs to the call wall, the gain counts up
 const RX = i => (i - 30) * 52, RY = p => (p - 7760) * 44, TN = 50;
 const ENTRY = { i: 26, p: 7756.25, qty: 2, stop: 7752.50 };

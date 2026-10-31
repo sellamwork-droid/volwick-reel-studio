@@ -119,11 +119,13 @@ function cube(x, y, s, a, lab) { const g = VW.g, d = s * 0.45; g.save(); g.globa
 const DROPB = [55, 56, 57, 58], DN = 16, DDUR = 0.4, dropT0 = (bi, n) => 4.95 + bi * 0.1 + n * 0.045;
 let TNOW = 0;
 const VAMP = i => { if (ABS !== 11 && ABS !== 12) return 0; const bi = DROPB.indexOf(i); if (bi < 0) return 0; let got = 0; for (let n = 0; n < DN; n++) if (TNOW >= dropT0(bi, n) + DDUR) got++; return (got / DN) * (1 - seg(TNOW, 5.95, 6.35)); };
-function levelLight(t, wx, wy) { const g = VW.g, k = seg(t, 4.70, 4.76) * (1 - seg(t, 5.6, 5.95)), pulse = 0.6 + 0.4 * Math.sin((t - 4.7) * 22) * Math.exp(-Math.max(0, t - 4.76) * 3); if (k <= 0) return; const col = VX.WALL.callL, y = Math.round(wy) + 0.5;
-  g.save(); g.globalCompositeOperation = 'lighter'; const band = g.createLinearGradient(0, y - 26, 0, y + 26); band.addColorStop(0, VW.rgba(col, 0)); band.addColorStop(0.5, VW.rgba(col, 0.45 * k * pulse)); band.addColorStop(1, VW.rgba(col, 0)); g.fillStyle = band; g.fillRect(CX0D, y - 26, CX1 - CX0D, 52);
-  g.strokeStyle = VW.rgba('#E9FFF4', k); g.lineWidth = 3 + 2 * pulse; g.shadowColor = col; g.shadowBlur = 30; g.beginPath(); g.moveTo(CX0D, y); g.lineTo(CX1, y); g.stroke();
-  const sw = eo(seg(t, 4.70, 4.95)); if (sw < 1) { const xs = mix(wx, CX0D, sw), xe = mix(wx, CX1, sw); g.fillStyle = VW.rgba('#FFFFFF', (1 - sw) * k); g.fillRect(xs, y - 2, 30, 4); g.fillRect(xe - 30, y - 2, 30, 4); }
-  g.restore(); }
+function levelLight(t, wx, wy) {   // the call wall line that is already there lights up in its own green (no new line)
+  const k = seg(t, 4.70, 4.78) * (1 - seg(t, 5.7, 6.0)); if (k <= 0) return; const g = VW.g, w = WALLS[1], col = VX.WALL[w.fam], y = Math.round(Y(w.p)) + 0.5, xr = CX1 - 178, xl = CX0D;
+  const pulse = 0.65 + 0.35 * Math.sin((t - 4.7) * 9), grow = eo(seg(t, 4.70, 4.95));
+  g.save(); g.globalCompositeOperation = 'lighter'; const band = g.createLinearGradient(0, y - 22, 0, y + 22); band.addColorStop(0, VW.rgba(col, 0)); band.addColorStop(0.5, VW.rgba(col, 0.35 * k * pulse)); band.addColorStop(1, VW.rgba(col, 0));
+  g.fillStyle = band; g.fillRect(mix(wx, xl, grow), y - 22, mix(0, xr - xl, grow) + (wx - mix(wx, xl, grow) > 0 ? 0 : 0), 44);
+  const gr = g.createLinearGradient(xl, 0, xr, 0); gr.addColorStop(0, VW.rgba(col, 0.25 * k)); gr.addColorStop(1, VW.rgba(col, k)); g.strokeStyle = gr; g.lineWidth = 3 + 2.5 * pulse; g.shadowColor = col; g.shadowBlur = 26 * pulse;
+  g.beginPath(); g.moveTo(xl, y); g.lineTo(xr, y); g.stroke(); g.beginPath(); g.fillStyle = VW.rgba(col, k); g.arc(xr + 6, y, 7 + 3 * pulse, 0, 7); g.fill(); g.restore(); }
 function absorbFx(t, S) {
   if (ABS === 11 || ABS === 12) {   // clean: level lights up on the touch, then the volume drops into the existing volume bars, which grow and light up
     if (t < 4.6 || t > 6.4) return; const g = VW.g, wx = X(57, S), wy = Y(7733.25), gold = VX.GOLD; levelLight(t, wx, wy);
@@ -409,7 +411,7 @@ function drawDark(t, S, cur) {
   // the trader's own levels stay on screen
   for (const [p, lab] of [[SUP, 'YOUR LEVEL']]) { hline(p, '#7FA2FF', 2, [8, 6], CX0D, CX1, 0.9); const y = Y(p); box(CX0D + 290, y - 22, 98, 18, 'rgba(41,98,255,0.9)', null, 3); txt(lab, CX0D + 339, y - 12, '700 12px VWMono', '#FFFFFF', 'center'); }
   WALLS.forEach((w, j) => { const t0 = E.walls + j * BT / 2 * 0.5; wallLine(w, seg(t, t0, t0 + 0.06), eo(lin(t, t0, t0 + 0.12))); });
-  wallHit(t); absorbFx(t, S);
+  if (ABS !== 11 && ABS !== 12) wallHit(t); absorbFx(t, S);
   const bpk = eo(lin(t, E.prints, E.prints + 0.35)); PRINTS.forEach(pr => printMark(pr, S, bpk));
   crosshair(cur, 'dark', CX0D, HDR, ybot, t > E.tip - 0.1 ? 0 : 1);
   g.restore();
@@ -560,8 +562,11 @@ const K = +(new URLSearchParams(location.search).get('k') || 1);
 // terminal bar (Power 31 Oct 15:36: crowded, empty on the right, half the controls unused): ?hdr=1 only the controls the video uses, big · ?hdr=2 the full layer row spread over the whole width, unused ones dimmed
 const HDRV = +(new URLSearchParams(location.search).get('hdr') || 2);   // Power 31 Oct 15:58: bar 2 chosen
 // Power 31 Oct 17:21: on the touch the level lights up and the replay slows down (?slow=1), then the price drops
-const SLOW = +(new URLSearchParams(location.search).get('slow') || 0), SA = 4.70, SB = 5.02, SR = 0.28, SD = (SB - SA) / SR;
-const slowMap = u => !SLOW || u <= SA ? u : u <= SA + SD ? SA + (u - SA) * SR : u - SD + (SB - SA);
+// Power 31 Oct 17:35: stay slow through the absorption and the first part of the drop, then ease back to normal speed (speed curve, no jump)
+const SLOW = +(new URLSearchParams(location.search).get('slow') || 0), SPD_R = 0.3;
+const spd = s => s < 4.6 ? 1 : s < 4.74 ? mix(1, SPD_R, eio((s - 4.6) / 0.14)) : s < 5.45 ? SPD_R : s < 5.9 ? mix(SPD_R, 1, eio((s - 5.45) / 0.45)) : 1;
+const SLT = (() => { const sc = [0], ck = [0], h = 0.002; let s = 0, c = 0; while (s < 20) { c += h / spd(s + h / 2); s += h; sc.push(s); ck.push(c); } return { sc, ck }; })();
+const slowMap = u => { if (!SLOW || u <= 4.6) return u; const { sc, ck } = SLT; let lo = 0, hi = ck.length - 1; while (hi - lo > 1) { const m = (lo + hi) >> 1; if (ck[m] < u) lo = m; else hi = m; } return mix(sc[lo], sc[hi], (u - ck[lo]) / (ck[hi] - ck[lo] || 1)); };
 function render(t) { renderAt(slowMap(t < T_END * K ? t / K : T_END + (t - T_END * K))); }
 function renderAt(t) {
   TNOW = t;

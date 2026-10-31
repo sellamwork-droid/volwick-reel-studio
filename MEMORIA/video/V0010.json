@@ -35,6 +35,10 @@
     {
       "data": "2026-10-31 05:23",
       "testo": "Power 05:22 su v2: intro più pulita e premium; Block Prints: la casella è dorata; più secondi sul giro delle caselle dei layer; sul prezzo che sale ci deve essere il guadagno, tutto in 3D con le candele dietro che prendono un muro o un Block Print, quindi entrano contratti."
+    },
+    {
+      "data": "2026-10-31 16:34",
+      "testo": "Power 16:32 su v3: molto molto bene. Togliere la linea che si forma dietro le carte (il retro della giostra), togliere la scritta VOLWICK sopra le carte, i titoli (DEALER, ACTIVITY) in 3D blu che si aggiornano a ogni cambio di carta, tabella METRIC fatta meglio."
     }
   ],
   "lezioni": [
@@ -44,7 +48,7 @@
   ],
   "pubblicazioni": [],
   "audio": "brano del video di riferimento allungato di due battute (primo test, da decidere se in app)",
-  "aggiornato": "2026-10-31 05:41",
+  "aggiornato": "2026-10-31 16:40",
   "titolo": "Edit 3D il terminale Volwick che si forma",
   "numero": 3,
   "data_uscita": "31-10-2026",

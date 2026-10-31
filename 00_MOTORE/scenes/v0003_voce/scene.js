@@ -82,11 +82,11 @@ function candles(n,a){ for (let i=0;i<Math.ceil(n)&&i<N;i++) drawCandle(i,clamp(
 function priceTag(p,a){ if (a<=0) return; const g=VW.g, y=clamp(PY(p),L.y0+24,L.y1-24); g.save(); g.globalAlpha=a;
   g.fillStyle=WHITE; VW.roundRect(AX-10,y-26,132,52,9); g.fill(); g.fillStyle='#0B1220'; g.font='700 26px VWMono'; g.textAlign='center'; g.textBaseline='middle'; g.fillText(f2(p),AX+56,y+1); g.restore(); }
 // the range box: two dashed rails over the pinned bars, label on top
-function rangeBox(i0,i1,lo,hi,a,col,label,above=true){ if (a<=0) return; const g=VW.g, x0=X(i0)-C.bw*0.6, x1=X(i1)+C.bw*0.6, xe=mix(x0,x1,eo(clamp(a*1.4,0,1)));
+function rangeBox(i0,i1,lo,hi,a,col,label,above=true,gap=12){ if (a<=0) return; const g=VW.g, x0=X(i0)-C.bw*0.6, x1=X(i1)+C.bw*0.6, xe=mix(x0,x1,eo(clamp(a*1.4,0,1)));
   g.save(); g.globalAlpha=a; g.fillStyle=VW.rgba(col,0.08); g.fillRect(x0,PY(hi),xe-x0,PY(lo)-PY(hi));
   g.strokeStyle=VW.rgba(col,0.9); g.lineWidth=2.5; g.setLineDash([10,8]); g.beginPath(); g.moveTo(x0,PY(hi)); g.lineTo(xe,PY(hi)); g.moveTo(x0,PY(lo)); g.lineTo(xe,PY(lo)); g.stroke(); g.setLineDash([]);
   g.font='700 27px VWMono'; g.letterSpacing='2px'; g.fillStyle=col; g.textAlign='center'; g.textBaseline=above?'bottom':'top'; g.shadowColor='rgba(0,0,0,0.95)'; g.shadowBlur=12;
-  g.fillText(label,(x0+x1)/2,above?PY(hi)-12:PY(lo)+12); g.restore(); }
+  g.fillText(label,(x0+x1)/2,above?PY(hi)-gap:PY(lo)+gap); g.restore(); }
 // small markers on the rejections inside the range
 function marks(a,up){ if (a<=0) return; const g=VW.g; g.save(); g.globalAlpha=a; const col=up?GREEN:RED;
   for (let i=P0+2;i<=30;i+=1){ const b=BARS[i]; const isHi=b.h>=RHI-0.25, isLo=b.l<=RLO+0.25; if (up?!isLo:!isHi) continue;
@@ -113,7 +113,7 @@ function render(t){
   panel(dim); axis(dim,PY(p));
   wallLine(st.wall*dim,glow*dim);
   const pinCol=pinK>0.5?GOLD:WHITE, pinLab=pinK>0.5?'PINNED · 2.50 PTS':'RANGE · 2.50 PTS';
-  rangeBox(P0,P1,RLO,RHI,st.range*dim*(1-0.6*st.open),pinCol,pinLab,false);
+  rangeBox(P0,P1,RLO,RHI,st.range*dim*(1-0.6*st.open),pinCol,pinLab,false,50); // label under the green triangles (Power, 31 Oct)
   candles(n,dim);
   marks(st.sold*dim,false); marks(st.bought*dim,true);
   wallLabel(st.wall*dim,st.longT);
